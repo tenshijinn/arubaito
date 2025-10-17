@@ -92,39 +92,45 @@ export const Auth = () => {
   const handleWalletConnect = async (walletName: string) => {
     setLoading(true);
     try {
-      // Select the wallet
+      // Find the wallet (includes auto-detected Standard Wallets)
       const wallet = wallets.find(w => w.adapter.name === walletName);
       if (!wallet) {
         throw new Error(`${walletName} wallet not found. Please install ${walletName} wallet extension.`);
       }
 
-      // Select and connect
+      // Select the wallet first
       select(wallet.adapter.name);
       
-      // Wait a bit for selection to complete
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait for selection to register
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Now connect
+      // Connect to the selected wallet
       await connect();
       
-      // Wait for publicKey to be available
+      // Wait for connection to complete and publicKey to be available
       let retries = 0;
-      while (!publicKey && retries < 10) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+      let currentPublicKey = publicKey;
+      let currentSignMessage = signMessage;
+      
+      while ((!currentPublicKey || !currentSignMessage) && retries < 20) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+        // Re-check the values from the hook
+        currentPublicKey = publicKey;
+        currentSignMessage = signMessage;
         retries++;
       }
 
-      if (!publicKey || !signMessage) {
-        throw new Error("Wallet not connected properly");
+      if (!currentPublicKey || !currentSignMessage) {
+        throw new Error("Wallet not connected properly. Please try again.");
       }
 
       // Create a message to sign
-      const message = `Sign this message to authenticate with CV Checker.\n\nWallet: ${publicKey.toBase58()}\nTimestamp: ${Date.now()}`;
+      const message = `Sign this message to authenticate with CV Checker.\n\nWallet: ${currentPublicKey.toBase58()}\nTimestamp: ${Date.now()}`;
       const encodedMessage = new TextEncoder().encode(message);
-      const signature = await signMessage(encodedMessage);
+      const signature = await currentSignMessage(encodedMessage);
 
       // Use wallet address as identifier
-      const walletAddress = publicKey.toBase58();
+      const walletAddress = currentPublicKey.toBase58();
       
       // Create a deterministic password from signature
       const signatureString = bs58.encode(signature);

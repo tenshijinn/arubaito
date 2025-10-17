@@ -1,93 +1,66 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { FileCheck } from "lucide-react";
-import { Web3Auth } from "@web3auth/modal";
-import { WEB3AUTH_NETWORK } from "@web3auth/base";
-
-const clientId = "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ"; // Web3Auth demo client ID
 
 export const Auth = () => {
   const [loading, setLoading] = useState(false);
-  const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { toast } = useToast();
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const web3AuthInstance = new Web3Auth({
-          clientId,
-          web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
-        });
-
-        await web3AuthInstance.init();
-        setWeb3auth(web3AuthInstance);
-      } catch (error) {
-        console.error("Web3Auth initialization error:", error);
-      }
-    };
-
-    init();
-  }, []);
-
-  const handleLogin = async () => {
-    if (!web3auth) {
-      toast({
-        title: "Error",
-        description: "Web3Auth is not initialized yet. Please wait.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
 
     try {
-      const web3authProvider = await web3auth.connect();
-      
-      if (!web3authProvider) {
-        throw new Error("Failed to connect to Web3Auth");
-      }
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-      const userInfo = await web3auth.getUserInfo();
-      
-      // Create or sign in user with Supabase using the email from Web3Auth
-      if (userInfo.email) {
-        // Generate a deterministic password based on the email
-        // This ensures the same email always generates the same password
-        const encoder = new TextEncoder();
-        const data = encoder.encode(userInfo.email + 'cv-checker-secret-salt');
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const password = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
-        
-        // Try to sign in first
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: userInfo.email,
-          password: password,
-        });
+      if (error) throw error;
 
-        // If sign in fails, try to sign up
-        if (signInError) {
-          const { error: signUpError } = await supabase.auth.signUp({
-            email: userInfo.email,
-            password: password,
-          });
-
-          if (signUpError) throw signUpError;
-        }
-
-        toast({
-          title: "Welcome!",
-          description: "You have successfully signed in with Web3Auth.",
-        });
-      }
+      toast({
+        title: "Success!",
+        description: "Your account has been created. You can now sign in.",
+      });
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "An error occurred during authentication",
+        description: error instanceof Error ? error.message : "An error occurred during sign up",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully signed in.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "An error occurred during sign in",
         variant: "destructive",
       });
     } finally {
@@ -111,23 +84,72 @@ export const Auth = () => {
             </CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="text-center space-y-2 py-4">
-            <p className="text-sm text-muted-foreground">
-              Sign in securely using Web3Auth
-            </p>
-          </div>
-          <Button 
-            onClick={handleLogin} 
-            className="w-full" 
-            disabled={loading || !web3auth}
-            size="lg"
-          >
-            {loading ? "Connecting..." : !web3auth ? "Initializing..." : "Connect with Web3Auth"}
-          </Button>
-          <p className="text-xs text-center text-muted-foreground">
-            Connect using social logins, wallets, or email
-          </p>
+        <CardContent>
+          <Tabs defaultValue="signin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            <TabsContent value="signin">
+              <form onSubmit={handleSignIn} className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signin-email">Email</Label>
+                  <Input
+                    id="signin-email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signin-password">Password</Label>
+                  <Input
+                    id="signin-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Signing in..." : "Sign In"}
+                </Button>
+              </form>
+            </TabsContent>
+            <TabsContent value="signup">
+              <form onSubmit={handleSignUp} className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password">Password</Label>
+                  <Input
+                    id="signup-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Creating account..." : "Sign Up"}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>

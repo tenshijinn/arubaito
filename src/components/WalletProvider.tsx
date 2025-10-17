@@ -1,16 +1,16 @@
 import { FC, ReactNode, useMemo } from 'react';
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl } from '@solana/web3.js';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 
 // Import wallet adapter CSS
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 export const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const endpoint = useMemo(() => clusterApiUrl('mainnet-beta'), []);
+  const endpoint = useMemo(() => 'https://api.mainnet-beta.solana.com', []);
   
-  // Use empty array to let wallets auto-detect (Phantom registers as Standard Wallet)
-  const wallets = useMemo(() => [], []);
+  // Configure Phantom wallet adapter
+  const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>

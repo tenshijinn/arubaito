@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Wallet } from "lucide-react";
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import bs58 from 'bs58';
 
 export const Auth = () => {
@@ -14,7 +14,7 @@ export const Auth = () => {
   const [emailMode, setEmailMode] = useState<'input' | 'password'>('input');
   const [password, setPassword] = useState("");
   const { toast } = useToast();
-  const { connect, disconnect, publicKey, signMessage, wallets, select } = useWallet();
+  const { publicKey, signMessage, connected } = useWallet();
 
   const handleGoogleLogin = async () => {
     try {
@@ -89,89 +89,63 @@ export const Auth = () => {
     }
   };
 
-  const handleWalletConnect = async (walletName: string) => {
-    setLoading(true);
-    try {
-      // Find the wallet (includes auto-detected Standard Wallets)
-      const wallet = wallets.find(w => w.adapter.name === walletName);
-      if (!wallet) {
-        throw new Error(`${walletName} wallet not found. Please install ${walletName} wallet extension.`);
+  // Handle wallet authentication after connection
+  useEffect(() => {
+    const authenticateWallet = async () => {
+      if (connected && publicKey && signMessage) {
+        setLoading(true);
+        try {
+          // Create a message to sign
+          const message = `Sign this message to authenticate with CV Checker.\n\nWallet: ${publicKey.toBase58()}\nTimestamp: ${Date.now()}`;
+          const encodedMessage = new TextEncoder().encode(message);
+          const signature = await signMessage(encodedMessage);
+
+          // Use wallet address as identifier
+          const walletAddress = publicKey.toBase58();
+          
+          // Create a deterministic password from signature
+          const signatureString = bs58.encode(signature);
+          const walletString = walletAddress + signatureString.slice(0, 32);
+          const encoded = new TextEncoder().encode(walletString);
+          const buffer = encoded.buffer.slice(encoded.byteOffset, encoded.byteOffset + encoded.byteLength) as ArrayBuffer;
+          const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          const password = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
+
+          // Try to sign in
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: `${walletAddress}@wallet.local`,
+            password: password,
+          });
+
+          if (signInError) {
+            // Sign up if user doesn't exist
+            const { error: signUpError } = await supabase.auth.signUp({
+              email: `${walletAddress}@wallet.local`,
+              password: password,
+            });
+
+            if (signUpError) throw signUpError;
+          }
+
+          toast({
+            title: "Connected!",
+            description: `Authenticated with Phantom`,
+          });
+        } catch (error) {
+          toast({
+            title: "Authentication failed",
+            description: error instanceof Error ? error.message : "Failed to authenticate wallet",
+            variant: "destructive",
+          });
+        } finally {
+          setLoading(false);
+        }
       }
+    };
 
-      // Select the wallet first
-      select(wallet.adapter.name);
-      
-      // Wait for selection to register
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Connect to the selected wallet
-      await connect();
-      
-      // Wait for connection to complete and publicKey to be available
-      let retries = 0;
-      let currentPublicKey = publicKey;
-      let currentSignMessage = signMessage;
-      
-      while ((!currentPublicKey || !currentSignMessage) && retries < 20) {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        // Re-check the values from the hook
-        currentPublicKey = publicKey;
-        currentSignMessage = signMessage;
-        retries++;
-      }
-
-      if (!currentPublicKey || !currentSignMessage) {
-        throw new Error("Wallet not connected properly. Please try again.");
-      }
-
-      // Create a message to sign
-      const message = `Sign this message to authenticate with CV Checker.\n\nWallet: ${currentPublicKey.toBase58()}\nTimestamp: ${Date.now()}`;
-      const encodedMessage = new TextEncoder().encode(message);
-      const signature = await currentSignMessage(encodedMessage);
-
-      // Use wallet address as identifier
-      const walletAddress = currentPublicKey.toBase58();
-      
-      // Create a deterministic password from signature
-      const signatureString = bs58.encode(signature);
-      const walletString = walletAddress + signatureString.slice(0, 32);
-      const encoded = new TextEncoder().encode(walletString);
-      const buffer = encoded.buffer.slice(encoded.byteOffset, encoded.byteOffset + encoded.byteLength) as ArrayBuffer;
-      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const password = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
-
-      // Try to sign in
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: `${walletAddress}@wallet.local`,
-        password: password,
-      });
-
-      if (signInError) {
-        // Sign up if user doesn't exist
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: `${walletAddress}@wallet.local`,
-          password: password,
-        });
-
-        if (signUpError) throw signUpError;
-      }
-
-      toast({
-        title: "Connected!",
-        description: `Authenticated with ${walletName}`,
-      });
-    } catch (error) {
-      await disconnect();
-      toast({
-        title: "Connection failed",
-        description: error instanceof Error ? error.message : "Failed to connect wallet",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    authenticateWallet();
+  }, [connected, publicKey, signMessage, toast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#1a1d29]">
@@ -277,17 +251,7 @@ export const Auth = () => {
 
             {/* Wallet Options */}
             <div className="flex justify-center">
-              {/* Phantom */}
-              <Button
-                onClick={() => handleWalletConnect('Phantom')}
-                className="h-20 w-full max-w-xs bg-[#2a2d3d] hover:bg-[#3a3d4d] rounded-xl flex flex-col items-center justify-center gap-2 border border-[#3a3d4d]"
-                disabled={loading}
-              >
-                <div className="w-10 h-10 rounded-lg bg-[#AB9FF2] flex items-center justify-center">
-                  <Wallet className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-white text-sm font-medium">Phantom</span>
-              </Button>
+              <WalletMultiButton className="!h-14 !bg-[#AB9FF2] hover:!bg-[#9b8fe2] !text-white !rounded-xl !font-medium !text-lg" />
             </div>
           </div>
         </Card>

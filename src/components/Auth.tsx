@@ -95,11 +95,24 @@ export const Auth = () => {
       // Select the wallet
       const wallet = wallets.find(w => w.adapter.name === walletName);
       if (!wallet) {
-        throw new Error(`${walletName} wallet not found`);
+        throw new Error(`${walletName} wallet not found. Please install ${walletName} wallet extension.`);
       }
 
+      // Select and connect
       select(wallet.adapter.name);
+      
+      // Wait a bit for selection to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Now connect
       await connect();
+      
+      // Wait for publicKey to be available
+      let retries = 0;
+      while (!publicKey && retries < 10) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        retries++;
+      }
 
       if (!publicKey || !signMessage) {
         throw new Error("Wallet not connected properly");
@@ -257,29 +270,17 @@ export const Auth = () => {
             )}
 
             {/* Wallet Options */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex justify-center">
               {/* Phantom */}
               <Button
                 onClick={() => handleWalletConnect('Phantom')}
-                className="h-20 bg-[#2a2d3d] hover:bg-[#3a3d4d] rounded-xl flex flex-col items-center justify-center gap-2 border border-[#3a3d4d]"
+                className="h-20 w-full max-w-xs bg-[#2a2d3d] hover:bg-[#3a3d4d] rounded-xl flex flex-col items-center justify-center gap-2 border border-[#3a3d4d]"
                 disabled={loading}
               >
                 <div className="w-10 h-10 rounded-lg bg-[#AB9FF2] flex items-center justify-center">
                   <Wallet className="w-6 h-6 text-white" />
                 </div>
                 <span className="text-white text-sm font-medium">Phantom</span>
-              </Button>
-
-              {/* MetaMask */}
-              <Button
-                onClick={() => handleWalletConnect('MetaMask')}
-                className="h-20 bg-[#2a2d3d] hover:bg-[#3a3d4d] rounded-xl flex flex-col items-center justify-center gap-2 border border-[#3a3d4d]"
-                disabled={loading}
-              >
-                <div className="w-10 h-10 rounded-lg bg-[#F6851B] flex items-center justify-center">
-                  <Wallet className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-white text-sm font-medium">MetaMask</span>
               </Button>
             </div>
           </div>

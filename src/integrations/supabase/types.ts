@@ -16,6 +16,9 @@ export type Database = {
     Tables: {
       cv_analyses: {
         Row: {
+          bluechip_details: Json | null
+          bluechip_score: number | null
+          bluechip_verified: boolean | null
           content_score: number
           created_at: string
           experience_score: number
@@ -28,8 +31,12 @@ export type Database = {
           overall_score: number
           structure_score: number
           user_id: string
+          wallet_address: string | null
         }
         Insert: {
+          bluechip_details?: Json | null
+          bluechip_score?: number | null
+          bluechip_verified?: boolean | null
           content_score: number
           created_at?: string
           experience_score: number
@@ -42,8 +49,12 @@ export type Database = {
           overall_score: number
           structure_score: number
           user_id: string
+          wallet_address?: string | null
         }
         Update: {
+          bluechip_details?: Json | null
+          bluechip_score?: number | null
+          bluechip_verified?: boolean | null
           content_score?: number
           created_at?: string
           experience_score?: number
@@ -56,6 +67,7 @@ export type Database = {
           overall_score?: number
           structure_score?: number
           user_id?: string
+          wallet_address?: string | null
         }
         Relationships: []
       }

@@ -117,24 +117,38 @@ export const Auth = () => {
           });
 
           if (signInError) {
-            // If invalid credentials, check if user exists by trying to sign up
-            const { error: signUpError } = await supabase.auth.signUp({
-              email: `${walletAddress}@wallet.local`,
-              password: password,
-            });
+            // If invalid credentials, try to reset the account
+            if (signInError.message.includes('Invalid login credentials')) {
+              toast({
+                title: "Resetting wallet account",
+                description: "Updating your wallet authentication...",
+              });
 
-            if (signUpError) {
-              // If user already exists but credentials don't match, they need to disconnect and reconnect
-              if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
-                toast({
-                  title: "Please disconnect your wallet",
-                  description: "Disconnect your wallet and connect again to refresh your authentication.",
-                  variant: "destructive",
-                });
-                return;
+              // Call edge function to reset the account
+              const { error: resetError } = await supabase.functions.invoke('reset-wallet-account', {
+                body: { walletAddress }
+              });
+
+              if (resetError) {
+                throw new Error('Failed to reset wallet account. Please try again.');
               }
-              throw signUpError;
+
+              // Now try to sign up
+              const { error: signUpError } = await supabase.auth.signUp({
+                email: `${walletAddress}@wallet.local`,
+                password: password,
+              });
+
+              if (signUpError) throw signUpError;
+
+              toast({
+                title: "Connected!",
+                description: `Authenticated with Phantom`,
+              });
+              return;
             }
+
+            throw signInError;
           }
 
           toast({

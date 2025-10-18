@@ -13,6 +13,8 @@ serve(async (req) => {
 
   try {
     const { walletAddress } = await req.json();
+    
+    console.log('Reset wallet account called for:', walletAddress);
 
     if (!walletAddress) {
       throw new Error('Wallet address is required');
@@ -25,29 +27,38 @@ serve(async (req) => {
     );
 
     const email = `${walletAddress}@wallet.local`;
+    console.log('Looking for user with email:', email);
 
     // Get user by email
     const { data: { users }, error: getUserError } = await supabaseAdmin.auth.admin.listUsers();
     
     if (getUserError) {
+      console.error('Error listing users:', getUserError);
       throw getUserError;
     }
 
     const user = users.find(u => u.email === email);
+    console.log('User found:', user ? user.id : 'none');
 
     if (user) {
+      console.log('Deleting user:', user.id);
+      
       // Delete the user
       const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
       
       if (deleteError) {
+        console.error('Error deleting user:', deleteError);
         throw deleteError;
       }
 
+      console.log('User deleted successfully');
+      
       return new Response(
         JSON.stringify({ message: 'Wallet account reset successfully' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     } else {
+      console.log('No account found');
       return new Response(
         JSON.stringify({ message: 'No account found for this wallet' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

@@ -110,6 +110,8 @@ export const Auth = () => {
           const hashArray = Array.from(new Uint8Array(hashBuffer));
           const password = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
 
+          console.log('Attempting sign in...');
+          
           // Try to sign in
           const { error: signInError } = await supabase.auth.signInWithPassword({
             email: `${walletAddress}@wallet.local`,
@@ -117,29 +119,44 @@ export const Auth = () => {
           });
 
           if (signInError) {
+            console.log('Sign in failed:', signInError.message);
+            
             // If invalid credentials, try to reset the account
             if (signInError.message.includes('Invalid login credentials')) {
+              console.log('Resetting wallet account...');
+              
               toast({
                 title: "Resetting wallet account",
                 description: "Updating your wallet authentication...",
               });
 
               // Call edge function to reset the account
-              const { error: resetError } = await supabase.functions.invoke('reset-wallet-account', {
+              const { data: resetData, error: resetError } = await supabase.functions.invoke('reset-wallet-account', {
                 body: { walletAddress }
               });
 
+              console.log('Reset response:', { resetData, resetError });
+
               if (resetError) {
+                console.error('Reset failed:', resetError);
                 throw new Error('Failed to reset wallet account. Please try again.');
               }
 
+              // Wait a moment for the deletion to propagate
+              await new Promise(resolve => setTimeout(resolve, 1000));
+
+              console.log('Attempting sign up after reset...');
+              
               // Now try to sign up
               const { error: signUpError } = await supabase.auth.signUp({
                 email: `${walletAddress}@wallet.local`,
                 password: password,
               });
 
-              if (signUpError) throw signUpError;
+              if (signUpError) {
+                console.error('Sign up failed:', signUpError);
+                throw signUpError;
+              }
 
               toast({
                 title: "Connected!",
@@ -156,6 +173,7 @@ export const Auth = () => {
             description: `Authenticated with Phantom`,
           });
         } catch (error) {
+          console.error('Wallet authentication error:', error);
           toast({
             title: "Authentication failed",
             description: error instanceof Error ? error.message : "Failed to authenticate wallet",

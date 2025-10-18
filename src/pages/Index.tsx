@@ -119,11 +119,10 @@ const Index = () => {
             <div className="space-y-8">
               <div className="text-center space-y-4 mb-12">
                 <h2 className="text-4xl font-bold text-foreground">
-                  Get Your CV Analyzed in Seconds
+                  Qualify for Platform Access
                 </h2>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                  Our AI evaluates your CV against professional benchmarks and provides
-                  actionable feedback to help you stand out
+                  Our AI analyzes your CV against multiple quality benchmarks. Score 85% or higher to receive your CV Score and gain access to the platform waitlist.
                 </p>
               </div>
 

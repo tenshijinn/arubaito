@@ -117,13 +117,24 @@ export const Auth = () => {
           });
 
           if (signInError) {
-            // Sign up if user doesn't exist
+            // If invalid credentials, check if user exists by trying to sign up
             const { error: signUpError } = await supabase.auth.signUp({
               email: `${walletAddress}@wallet.local`,
               password: password,
             });
 
-            if (signUpError) throw signUpError;
+            if (signUpError) {
+              // If user already exists but credentials don't match, they need to disconnect and reconnect
+              if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
+                toast({
+                  title: "Please disconnect your wallet",
+                  description: "Disconnect your wallet and connect again to refresh your authentication.",
+                  variant: "destructive",
+                });
+                return;
+              }
+              throw signUpError;
+            }
           }
 
           toast({

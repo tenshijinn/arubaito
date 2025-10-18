@@ -11,6 +11,7 @@ import bs58 from 'bs58';
 export const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'main' | 'signin' | 'register'>('main');
+  const [walletIntent, setWalletIntent] = useState<'signin' | 'register'>('register');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { toast } = useToast();
@@ -110,6 +111,7 @@ export const Auth = () => {
           const hashArray = Array.from(new Uint8Array(hashBuffer));
           const password = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
 
+          console.log('Wallet intent:', walletIntent);
           console.log('Attempting sign in...');
           
           // Try to sign in
@@ -121,46 +123,57 @@ export const Auth = () => {
           if (signInError) {
             console.log('Sign in failed:', signInError.message);
             
-            // If invalid credentials, try to reset the account
-            if (signInError.message.includes('Invalid login credentials')) {
-              console.log('Resetting wallet account...');
-              
-              toast({
-                title: "Resetting wallet account",
-                description: "Updating your wallet authentication...",
-              });
+            // Only proceed with registration if intent is to register
+            if (walletIntent === 'register') {
+              // If invalid credentials, try to reset the account
+              if (signInError.message.includes('Invalid login credentials')) {
+                console.log('Resetting wallet account...');
+                
+                toast({
+                  title: "Resetting wallet account",
+                  description: "Updating your wallet authentication...",
+                });
 
-              // Call edge function to reset the account
-              const { data: resetData, error: resetError } = await supabase.functions.invoke('reset-wallet-account', {
-                body: { walletAddress }
-              });
+                // Call edge function to reset the account
+                const { data: resetData, error: resetError } = await supabase.functions.invoke('reset-wallet-account', {
+                  body: { walletAddress }
+                });
 
-              console.log('Reset response:', { resetData, resetError });
+                console.log('Reset response:', { resetData, resetError });
 
-              if (resetError) {
-                console.error('Reset failed:', resetError);
-                throw new Error('Failed to reset wallet account. Please try again.');
+                if (resetError) {
+                  console.error('Reset failed:', resetError);
+                  throw new Error('Failed to reset wallet account. Please try again.');
+                }
+
+                // Wait a moment for the deletion to propagate
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                console.log('Attempting sign up after reset...');
+                
+                // Now try to sign up
+                const { error: signUpError } = await supabase.auth.signUp({
+                  email: `${walletAddress}@wallet.local`,
+                  password: password,
+                });
+
+                if (signUpError) {
+                  console.error('Sign up failed:', signUpError);
+                  throw signUpError;
+                }
+
+                toast({
+                  title: "Connected!",
+                  description: `Authenticated with Phantom`,
+                });
+                return;
               }
-
-              // Wait a moment for the deletion to propagate
-              await new Promise(resolve => setTimeout(resolve, 1000));
-
-              console.log('Attempting sign up after reset...');
-              
-              // Now try to sign up
-              const { error: signUpError } = await supabase.auth.signUp({
-                email: `${walletAddress}@wallet.local`,
-                password: password,
-              });
-
-              if (signUpError) {
-                console.error('Sign up failed:', signUpError);
-                throw signUpError;
-              }
-
+            } else {
+              // If intent is sign-in only, show appropriate error
               toast({
-                title: "Connected!",
-                description: `Authenticated with Phantom`,
+                title: "Wallet not registered",
+                description: "This wallet hasn't been registered yet. Please register first.",
+                variant: "destructive",
               });
               return;
             }
@@ -186,7 +199,7 @@ export const Auth = () => {
     };
 
     authenticateWallet();
-  }, [connected, publicKey, signMessage, toast]);
+  }, [connected, publicKey, signMessage, toast, walletIntent]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#1a1d29]">
@@ -221,7 +234,10 @@ export const Auth = () => {
                 </Button>
 
                 <div className="flex justify-center">
-                  <WalletMultiButton className="!h-14 !bg-[#AB9FF2] hover:!bg-[#9b8fe2] !text-white !rounded-xl !font-medium !text-lg !w-full" />
+                  <WalletMultiButton 
+                    onClick={() => setWalletIntent('register')}
+                    className="!h-14 !bg-[#AB9FF2] hover:!bg-[#9b8fe2] !text-white !rounded-xl !font-medium !text-lg !w-full" 
+                  />
                 </div>
               </div>
 
@@ -253,7 +269,10 @@ export const Auth = () => {
                 </Button>
 
                 <div className="flex justify-center">
-                  <WalletMultiButton className="!h-12 !bg-transparent !border !border-[#2a2d3d] !text-white hover:!bg-[#2a2d3d] !rounded-xl !w-full" />
+                  <WalletMultiButton 
+                    onClick={() => setWalletIntent('signin')}
+                    className="!h-12 !bg-transparent !border !border-[#2a2d3d] !text-white hover:!bg-[#2a2d3d] !rounded-xl !w-full" 
+                  />
                 </div>
               </div>
             </div>

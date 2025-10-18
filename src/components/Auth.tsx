@@ -93,8 +93,8 @@ export const Auth = () => {
       if (connected && publicKey && signMessage) {
         setLoading(true);
         try {
-          // Create a message to sign
-          const message = `Sign this message to authenticate with CV Checker.\n\nWallet: ${publicKey.toBase58()}\nTimestamp: ${Date.now()}`;
+          // Create a consistent message to sign (no timestamp to ensure same signature)
+          const message = `Sign this message to authenticate with CV Checker.\n\nWallet: ${publicKey.toBase58()}`;
           const encodedMessage = new TextEncoder().encode(message);
           const signature = await signMessage(encodedMessage);
 

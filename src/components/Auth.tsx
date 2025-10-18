@@ -208,6 +208,10 @@ export const Auth = () => {
                 >
                   Sign in with Email
                 </Button>
+
+                <div className="flex justify-center">
+                  <WalletMultiButton className="!h-12 !bg-transparent !border !border-[#2a2d3d] !text-white hover:!bg-[#2a2d3d] !rounded-xl !w-full" />
+                </div>
               </div>
             </div>
           ) : (

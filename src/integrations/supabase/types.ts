@@ -29,6 +29,7 @@ export type Database = {
           id: string
           keywords_score: number
           overall_score: number
+          scoring_details: Json | null
           structure_score: number
           user_id: string
           wallet_address: string | null
@@ -47,6 +48,7 @@ export type Database = {
           id?: string
           keywords_score: number
           overall_score: number
+          scoring_details?: Json | null
           structure_score: number
           user_id: string
           wallet_address?: string | null
@@ -65,6 +67,7 @@ export type Database = {
           id?: string
           keywords_score?: number
           overall_score?: number
+          scoring_details?: Json | null
           structure_score?: number
           user_id?: string
           wallet_address?: string | null

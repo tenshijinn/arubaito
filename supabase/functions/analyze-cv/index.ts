@@ -22,39 +22,85 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    // CV Analysis Benchmarks
+    // Web3 Proof-of-Talent Benchmarks
     const benchmarks = `
-CV Scoring Benchmarks:
+Web3 Proof-of-Talent CV Scoring Benchmarks:
 
-1. CONTENT (20 points):
-   - Clear professional summary/objective
-   - Quantifiable achievements with metrics
-   - Relevant skills and expertise
-   - Industry-specific keywords
+You must evaluate candidates using both QUALITATIVE and QUANTITATIVE criteria for each category.
 
-2. STRUCTURE (20 points):
-   - Logical flow and organization
-   - Clear section headers
-   - Consistent formatting
-   - Easy to scan and read
+SCORING METHODOLOGY:
+- Each category has a qualitative score (0-1) and quantitative score (0-1)
+- Qualitative (70%): Assesses depth, clarity, relevance, and alignment with Web3 ethos
+- Quantitative (30%): Rewards measurable outcomes, metrics, and data-backed achievements
+- Final category score = (qualitative * 0.7 + quantitative * 0.3) * category_weight
+- Total score = sum of all category scores (0-100)
 
-3. FORMATTING (20 points):
-   - Professional font and size
-   - Appropriate use of white space
-   - Consistent bullet points
-   - No typos or grammatical errors
+QUANTITATIVE INDICATORS TO DETECT:
+- Percentage improvements (e.g., "increased retention by 45%")
+- User/community growth numbers (e.g., "onboarded 10K users")
+- Financial metrics (e.g., "$2M raised", "managed $5M treasury")
+- Technical metrics (e.g., "deployed 15 smart contracts", "reduced gas costs by 30%")
+- Time/efficiency gains (e.g., "reduced processing time by 50%")
+- Governance participation (e.g., "submitted 8 proposals", "achieved 90% approval rate")
 
-4. KEYWORDS (20 points):
-   - Industry-relevant terminology
-   - Technical skills mentioned
-   - Action verbs usage
-   - ATS-friendly keywords
+CATEGORIES & WEIGHTS:
 
-5. EXPERIENCE (20 points):
-   - Clear job titles and dates
-   - Company names included
-   - Measurable achievements
-   - Career progression shown
+1. WEB3 EXPERIENCE & TECHNICAL DEPTH (weight: 25)
+   Qualitative: 
+   - Depth of blockchain/Web3 roles and responsibilities
+   - Understanding of decentralized systems, tokenomics, DAOs
+   - Quality of technical explanations and project descriptions
+   Quantitative:
+   - Metrics around contracts deployed, protocols built, TVL managed
+   - User adoption numbers, transaction volumes
+   - Technical performance improvements
+
+2. DECENTRALIZATION ETHOS & COMMUNITY IMPACT (weight: 20)
+   Qualitative:
+   - Demonstration of commitment to decentralization principles
+   - Evidence of community building, open-source contributions
+   - Cultural fit with Web3 values (transparency, permissionless access)
+   Quantitative:
+   - Community size grown, engagement metrics
+   - Number of open-source contributions, repos maintained
+   - DAO participation rates, voting engagement
+
+3. GOVERNANCE & COORDINATION (weight: 15)
+   Qualitative:
+   - Experience with DAO governance, proposal writing
+   - Coordination across distributed teams
+   - Decision-making in decentralized environments
+   Quantitative:
+   - Number of proposals submitted/passed
+   - Voting participation percentages
+   - Multi-sig signers managed, treasury decisions made
+
+4. MEASURABLE IMPACT & OUTCOMES (weight: 25)
+   Qualitative:
+   - Clear articulation of project outcomes and learnings
+   - Evidence of problem-solving and innovation
+   - Quality of storytelling around achievements
+   Quantitative:
+   - Revenue/funding raised, ROI delivered
+   - User growth, retention, or engagement metrics
+   - Protocol TVL, volume, or market share gains
+
+5. COMMUNICATION & DOCUMENTATION (weight: 15)
+   Qualitative:
+   - Clarity of role descriptions and experiences
+   - Professional presentation and structure
+   - Alignment with technical communication standards
+   Quantitative:
+   - Number of technical docs/articles published
+   - Presentations given, talks delivered
+   - Blog posts, tutorials, or educational content created
+
+EXAMPLES OF STRONG QUANTITATIVE EVIDENCE:
+- "Led DAO that grew from 500 to 5,000 members in 6 months"
+- "Deployed 12 smart contracts managing $3M in assets"
+- "Reduced transaction costs by 40% through L2 optimization"
+- "Facilitated 25+ governance proposals with 85% passage rate"
+- "Authored 15 technical articles with 50K+ total views"
 `;
 
     // Call Lovable AI to analyze the CV
@@ -69,27 +115,73 @@ CV Scoring Benchmarks:
         messages: [
           {
             role: 'system',
-            content: `You are an expert CV/resume analyzer. Analyze CVs against these benchmarks and provide scores:
+            content: `You are an expert Web3 CV/resume analyzer specializing in evaluating talent for decentralized organizations.
 
 ${benchmarks}
 
-Provide a detailed analysis with:
-1. Overall score (0-100)
-2. Individual category scores (each 0-20)
-3. Constructive feedback highlighting strengths and areas for improvement
+Analyze the CV against these Web3 Proof-of-Talent benchmarks and return your response in this EXACT JSON format:
 
-Return your response in this exact JSON format:
 {
-  "overall_score": <number 0-100>,
-  "content_score": <number 0-20>,
-  "structure_score": <number 0-20>,
-  "formatting_score": <number 0-20>,
-  "keywords_score": <number 0-20>,
-  "experience_score": <number 0-20>,
-  "feedback": "<detailed string feedback>"
+  "total_score": <number 0-100>,
+  "categories": [
+    {
+      "id": "web3_experience",
+      "name": "Web3 Experience & Technical Depth",
+      "weight": 25,
+      "qualitative_score": <number 0-1>,
+      "quantitative_score": <number 0-1>,
+      "final_score": <number 0-25>,
+      "reason": "<explanation of scoring>",
+      "examples_found": ["<specific metric or achievement found>"]
+    },
+    {
+      "id": "decentralization_ethos",
+      "name": "Decentralization Ethos & Community Impact",
+      "weight": 20,
+      "qualitative_score": <number 0-1>,
+      "quantitative_score": <number 0-1>,
+      "final_score": <number 0-20>,
+      "reason": "<explanation of scoring>",
+      "examples_found": ["<specific metric or achievement found>"]
+    },
+    {
+      "id": "governance",
+      "name": "Governance & Coordination",
+      "weight": 15,
+      "qualitative_score": <number 0-1>,
+      "quantitative_score": <number 0-1>,
+      "final_score": <number 0-15>,
+      "reason": "<explanation of scoring>",
+      "examples_found": ["<specific metric or achievement found>"]
+    },
+    {
+      "id": "impact",
+      "name": "Measurable Impact & Outcomes",
+      "weight": 25,
+      "qualitative_score": <number 0-1>,
+      "quantitative_score": <number 0-1>,
+      "final_score": <number 0-25>,
+      "reason": "<explanation of scoring>",
+      "examples_found": ["<specific metric or achievement found>"]
+    },
+    {
+      "id": "communication",
+      "name": "Communication & Documentation",
+      "weight": 15,
+      "qualitative_score": <number 0-1>,
+      "quantitative_score": <number 0-1>,
+      "final_score": <number 0-15>,
+      "reason": "<explanation of scoring>",
+      "examples_found": ["<specific metric or achievement found>"]
+    }
+  ],
+  "top_strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
+  "recommended_improvements": ["<improvement 1>", "<improvement 2>", "<improvement 3>"]
 }
 
-Be constructive, specific, and professional in your feedback.`
+Calculate final_score for each category as: (qualitative_score * 0.7 + quantitative_score * 0.3) * weight
+
+Be specific, evidence-based, and constructive. Look for quantitative metrics and measurable outcomes.`
           },
           {
             role: 'user',
@@ -139,13 +231,27 @@ Be constructive, specific, and professional in your feedback.`
       throw new Error('Failed to parse AI analysis results');
     }
 
-    // Validate scores are within range
-    analysis.overall_score = Math.min(100, Math.max(0, analysis.overall_score));
-    analysis.content_score = Math.min(20, Math.max(0, analysis.content_score));
-    analysis.structure_score = Math.min(20, Math.max(0, analysis.structure_score));
-    analysis.formatting_score = Math.min(20, Math.max(0, analysis.formatting_score));
-    analysis.keywords_score = Math.min(20, Math.max(0, analysis.keywords_score));
-    analysis.experience_score = Math.min(20, Math.max(0, analysis.experience_score));
+    // Validate and normalize scores
+    analysis.total_score = Math.min(100, Math.max(0, analysis.total_score || 0));
+    
+    // Validate categories
+    if (analysis.categories && Array.isArray(analysis.categories)) {
+      analysis.categories = analysis.categories.map((cat: any) => ({
+        ...cat,
+        qualitative_score: Math.min(1, Math.max(0, cat.qualitative_score || 0)),
+        quantitative_score: Math.min(1, Math.max(0, cat.quantitative_score || 0)),
+        final_score: Math.min(cat.weight || 0, Math.max(0, cat.final_score || 0))
+      }));
+    }
+
+    // Store legacy scores for backward compatibility
+    analysis.overall_score = analysis.total_score;
+    analysis.content_score = 0;
+    analysis.structure_score = 0;
+    analysis.formatting_score = 0;
+    analysis.keywords_score = 0;
+    analysis.experience_score = 0;
+    analysis.feedback = `Total Score: ${analysis.total_score}/100\n\nTop Strengths:\n${(analysis.top_strengths || []).map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}\n\nRecommended Improvements:\n${(analysis.recommended_improvements || []).map((r: string, i: number) => `${i + 1}. ${r}`).join('\n')}`;
 
     // Step 1: Scan CV for blockchain keywords
     const blockchainKeywords = {
@@ -193,7 +299,7 @@ Be constructive, specific, and professional in your feedback.`
             const ethData = await ethResponse.json();
             const transactions = ethData.data?.items || [];
             
-            const earlyTxs = transactions.filter(tx => {
+            const earlyTxs = transactions.filter((tx: any) => {
               const txDate = new Date(tx.block_signed_at);
               return txDate >= new Date('2015-01-01') && txDate <= new Date('2018-12-31');
             });
@@ -225,7 +331,7 @@ Be constructive, specific, and professional in your feedback.`
             const solData = await solResponse.json();
             const transactions = solData.data?.items || [];
             
-            const earlyTxs = transactions.filter(tx => {
+            const earlyTxs = transactions.filter((tx: any) => {
               const txDate = new Date(tx.block_signed_at);
               return txDate >= new Date('2020-01-01') && txDate <= new Date('2021-06-30');
             });
@@ -257,7 +363,7 @@ Be constructive, specific, and professional in your feedback.`
             const bscData = await bscResponse.json();
             const transactions = bscData.data?.items || [];
             
-            const earlyTxs = transactions.filter(tx => {
+            const earlyTxs = transactions.filter((tx: any) => {
               const txDate = new Date(tx.block_signed_at);
               return txDate >= new Date('2020-09-01') && txDate <= new Date('2021-06-30');
             });
@@ -292,6 +398,14 @@ Be constructive, specific, and professional in your feedback.`
     analysis.bluechip_verified = bluechipVerified;
     analysis.bluechip_score = bluechipScore;
     analysis.bluechip_details = bluechipDetails;
+    
+    // Store detailed scoring breakdown
+    analysis.scoring_details = {
+      total_score: analysis.total_score,
+      categories: analysis.categories,
+      top_strengths: analysis.top_strengths,
+      recommended_improvements: analysis.recommended_improvements
+    };
 
     console.log('CV Analysis completed:', analysis);
 

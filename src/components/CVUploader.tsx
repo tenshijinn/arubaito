@@ -113,6 +113,7 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
           bluechip_verified: analysisData.bluechip_verified || false,
           bluechip_score: analysisData.bluechip_score || 0,
           bluechip_details: analysisData.bluechip_details || null,
+          scoring_details: analysisData.scoring_details || null,
         })
         .select()
         .single();

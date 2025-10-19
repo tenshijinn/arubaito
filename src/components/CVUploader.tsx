@@ -71,8 +71,11 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
       // Extract text content from file
       let fileContent = '';
       if (file.type === 'application/pdf') {
-        // Configure PDF.js worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+        // Configure PDF.js worker using local worker from node_modules
+        pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+          'pdfjs-dist/build/pdf.worker.min.mjs',
+          import.meta.url
+        ).toString();
         
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;

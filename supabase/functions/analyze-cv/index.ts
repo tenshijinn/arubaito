@@ -13,10 +13,11 @@ serve(async (req) => {
   }
 
   try {
-    const { fileName, fileContent } = await req.json();
-    console.log('Analyzing CV:', fileName);
+    const { fileName, fileContent, walletAddress } = await req.json();
+    console.log('Analyzing CV:', fileName, 'Wallet:', walletAddress);
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const COVALENT_API_KEY = Deno.env.get('COVALENT_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
@@ -145,6 +146,152 @@ Be constructive, specific, and professional in your feedback.`
     analysis.formatting_score = Math.min(20, Math.max(0, analysis.formatting_score));
     analysis.keywords_score = Math.min(20, Math.max(0, analysis.keywords_score));
     analysis.experience_score = Math.min(20, Math.max(0, analysis.experience_score));
+
+    // Step 1: Scan CV for blockchain keywords
+    const blockchainKeywords = {
+      ethereum: /ethereum|eth\b/gi,
+      solana: /solana|sol\b/gi,
+      bsc: /binance smart chain|bsc\b/gi,
+      uniswap: /uniswap/gi,
+      serum: /serum/gi,
+      pancakeswap: /pancakeswap/gi
+    };
+    
+    const detectedChains = [];
+    for (const [chain, regex] of Object.entries(blockchainKeywords)) {
+      if (regex.test(fileContent)) {
+        detectedChains.push(chain);
+      }
+    }
+    
+    console.log('Detected blockchain keywords:', detectedChains);
+
+    // Step 3 & 4: Wallet verification via Covalent API
+    let bluechipVerified = false;
+    let bluechipScore = 0;
+    let bluechipDetails = null;
+
+    if (walletAddress && COVALENT_API_KEY) {
+      console.log('Starting wallet verification for:', walletAddress);
+      
+      const verificationResults = [];
+      const earlyActivityThresholds = {
+        ethereum: { startDate: '2015-01-01', endDate: '2018-12-31', protocols: ['uniswap'] },
+        solana: { startDate: '2020-01-01', endDate: '2021-06-30', protocols: ['serum'] },
+        bsc: { startDate: '2020-09-01', endDate: '2021-06-30', protocols: ['pancakeswap'] }
+      };
+
+      // Check Ethereum
+      if (detectedChains.includes('ethereum') || detectedChains.includes('uniswap')) {
+        try {
+          const ethResponse = await fetch(
+            `https://api.covalenthq.com/v1/eth-mainnet/address/${walletAddress}/transactions_v3/?key=${COVALENT_API_KEY}`,
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+          
+          if (ethResponse.ok) {
+            const ethData = await ethResponse.json();
+            const transactions = ethData.data?.items || [];
+            
+            const earlyTxs = transactions.filter(tx => {
+              const txDate = new Date(tx.block_signed_at);
+              return txDate >= new Date('2015-01-01') && txDate <= new Date('2018-12-31');
+            });
+            
+            if (earlyTxs.length > 0) {
+              bluechipScore += 30;
+              verificationResults.push({
+                chain: 'Ethereum',
+                period: '2015-2018',
+                transactions: earlyTxs.length,
+                earliestDate: earlyTxs[earlyTxs.length - 1]?.block_signed_at
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Ethereum verification error:', error);
+        }
+      }
+
+      // Check Solana
+      if (detectedChains.includes('solana') || detectedChains.includes('serum')) {
+        try {
+          const solResponse = await fetch(
+            `https://api.covalenthq.com/v1/solana-mainnet/address/${walletAddress}/transactions_v3/?key=${COVALENT_API_KEY}`,
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+          
+          if (solResponse.ok) {
+            const solData = await solResponse.json();
+            const transactions = solData.data?.items || [];
+            
+            const earlyTxs = transactions.filter(tx => {
+              const txDate = new Date(tx.block_signed_at);
+              return txDate >= new Date('2020-01-01') && txDate <= new Date('2021-06-30');
+            });
+            
+            if (earlyTxs.length > 0) {
+              bluechipScore += 25;
+              verificationResults.push({
+                chain: 'Solana',
+                period: '2020-early 2021',
+                transactions: earlyTxs.length,
+                earliestDate: earlyTxs[earlyTxs.length - 1]?.block_signed_at
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Solana verification error:', error);
+        }
+      }
+
+      // Check BSC
+      if (detectedChains.includes('bsc') || detectedChains.includes('pancakeswap')) {
+        try {
+          const bscResponse = await fetch(
+            `https://api.covalenthq.com/v1/bsc-mainnet/address/${walletAddress}/transactions_v3/?key=${COVALENT_API_KEY}`,
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+          
+          if (bscResponse.ok) {
+            const bscData = await bscResponse.json();
+            const transactions = bscData.data?.items || [];
+            
+            const earlyTxs = transactions.filter(tx => {
+              const txDate = new Date(tx.block_signed_at);
+              return txDate >= new Date('2020-09-01') && txDate <= new Date('2021-06-30');
+            });
+            
+            if (earlyTxs.length > 0) {
+              bluechipScore += 20;
+              verificationResults.push({
+                chain: 'BSC',
+                period: 'Sept 2020-early 2021',
+                transactions: earlyTxs.length,
+                earliestDate: earlyTxs[earlyTxs.length - 1]?.block_signed_at
+              });
+            }
+          }
+        } catch (error) {
+          console.error('BSC verification error:', error);
+        }
+      }
+
+      if (verificationResults.length > 0) {
+        bluechipVerified = true;
+        bluechipDetails = {
+          verifications: verificationResults,
+          detectedKeywords: detectedChains,
+          walletAddress: walletAddress
+        };
+      }
+
+      console.log('Wallet verification results:', { bluechipVerified, bluechipScore, bluechipDetails });
+    }
+
+    analysis.bluechip_verified = bluechipVerified;
+    analysis.bluechip_score = bluechipScore;
+    analysis.bluechip_details = bluechipDetails;
 
     console.log('CV Analysis completed:', analysis);
 

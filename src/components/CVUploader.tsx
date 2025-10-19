@@ -1,7 +1,9 @@
 import { useState, useCallback } from "react";
-import { Upload, FileText, Loader2 } from "lucide-react";
+import { Upload, FileText, Loader2, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,6 +15,7 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [walletAddress, setWalletAddress] = useState("");
   const { toast } = useToast();
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -82,7 +85,11 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
         'analyze-cv',
         {
-          body: { fileName: file.name, fileContent }
+          body: { 
+            fileName: file.name, 
+            fileContent,
+            walletAddress: walletAddress.trim() || null
+          }
         }
       );
 
@@ -102,6 +109,10 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
           keywords_score: analysisData.keywords_score,
           experience_score: analysisData.experience_score,
           feedback: analysisData.feedback,
+          wallet_address: walletAddress.trim() || null,
+          bluechip_verified: analysisData.bluechip_verified || false,
+          bluechip_score: analysisData.bluechip_score || 0,
+          bluechip_details: analysisData.bluechip_details || null,
         })
         .select()
         .single();
@@ -110,9 +121,12 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
 
       toast({
         title: "Analysis complete!",
-        description: "Your CV has been analyzed successfully.",
+        description: analysisData.bluechip_verified 
+          ? "Your CV has been analyzed and Bluechip Talent verified!" 
+          : "Your CV has been analyzed successfully.",
       });
 
+      setWalletAddress("");
       onAnalysisComplete(savedAnalysis.id);
     } catch (error) {
       console.error('Error processing CV:', error);
@@ -184,6 +198,27 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
                 Supports PDF, DOC, DOCX, TXT (Max 5MB)
               </p>
             </div>
+            
+            <div className="w-full max-w-md space-y-3 pt-4">
+              <div className="space-y-2">
+                <Label htmlFor="wallet-address" className="flex items-center gap-2 text-sm">
+                  <Wallet className="h-4 w-4" />
+                  Wallet Address (Optional - For Bluechip Talent Verification)
+                </Label>
+                <Input
+                  id="wallet-address"
+                  type="text"
+                  placeholder="Enter your wallet address"
+                  value={walletAddress}
+                  onChange={(e) => setWalletAddress(e.target.value)}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Verify early blockchain activity to showcase Bluechip Talent status
+                </p>
+              </div>
+            </div>
+
             <label htmlFor="cv-upload">
               <Button asChild size="lg" className="cursor-pointer">
                 <span>

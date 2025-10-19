@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, TrendingUp, FileText, Star } from "lucide-react";
+import { CheckCircle2, TrendingUp, FileText, Star, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface CVAnalysisProps {
@@ -19,6 +19,19 @@ interface Analysis {
   feedback: string;
   file_name: string;
   created_at: string;
+  wallet_address?: string;
+  bluechip_verified?: boolean;
+  bluechip_score?: number;
+  bluechip_details?: {
+    verifications: Array<{
+      chain: string;
+      period: string;
+      transactions: number;
+      earliestDate: string;
+    }>;
+    detectedKeywords: string[];
+    walletAddress: string;
+  };
 }
 
 export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
@@ -36,7 +49,7 @@ export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
       if (error) {
         console.error('Error fetching analysis:', error);
       } else {
-        setAnalysis(data);
+        setAnalysis(data as unknown as Analysis);
       }
       setLoading(false);
     };
@@ -76,6 +89,37 @@ export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Bluechip Talent Badge */}
+      {analysis.bluechip_verified && (
+        <Card className="border-2 border-yellow-500/50 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20">
+          <CardContent className="pt-6 pb-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-full bg-yellow-500/20">
+                <Award className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-xl font-bold text-yellow-900 dark:text-yellow-100">
+                    🏅 Bluechip Talent Verified
+                  </h3>
+                  <Badge variant="secondary" className="bg-yellow-500 text-white">
+                    Score: {analysis.bluechip_score}
+                  </Badge>
+                </div>
+                <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                  {analysis.bluechip_details?.verifications.map((v, i) => (
+                    <span key={i}>
+                      {i > 0 && " • "}
+                      Interacted with {v.chain} during {v.period} ({v.transactions} transactions)
+                    </span>
+                  ))}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Overall Score Card */}
       <Card className="border-2" style={{ 
         borderColor: getScoreColor(analysis.overall_score),

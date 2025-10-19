@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import * as pdfjsLib from 'pdfjs-dist';
 
 interface CVUploaderProps {
   onAnalysisComplete: (analysisId: string) => void;
@@ -67,8 +68,25 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
         return;
       }
 
-      // Read file content
-      const fileContent = await file.text();
+      // Extract text content from file
+      let fileContent = '';
+      if (file.type === 'application/pdf') {
+        // Configure PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+        
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item: any) => item.str).join(' ');
+          fileContent += pageText + '\n';
+        }
+      } else {
+        // For text files, DOC, DOCX
+        fileContent = await file.text();
+      }
 
       // Upload to storage
       const fileName = `${user.id}/${Date.now()}-${file.name}`;

@@ -74,6 +74,60 @@ export type Database = {
         }
         Relationships: []
       }
+      rei_registry: {
+        Row: {
+          consent: boolean
+          created_at: string
+          display_name: string
+          file_path: string
+          handle: string
+          id: string
+          nft_mint_address: string | null
+          nft_minted: boolean | null
+          portfolio_url: string | null
+          profile_image_url: string | null
+          role_tags: Database["public"]["Enums"]["contributor_role"][] | null
+          updated_at: string
+          verified: boolean | null
+          wallet_address: string
+          x_user_id: string
+        }
+        Insert: {
+          consent?: boolean
+          created_at?: string
+          display_name: string
+          file_path: string
+          handle: string
+          id?: string
+          nft_mint_address?: string | null
+          nft_minted?: boolean | null
+          portfolio_url?: string | null
+          profile_image_url?: string | null
+          role_tags?: Database["public"]["Enums"]["contributor_role"][] | null
+          updated_at?: string
+          verified?: boolean | null
+          wallet_address: string
+          x_user_id: string
+        }
+        Update: {
+          consent?: boolean
+          created_at?: string
+          display_name?: string
+          file_path?: string
+          handle?: string
+          id?: string
+          nft_mint_address?: string | null
+          nft_minted?: boolean | null
+          portfolio_url?: string | null
+          profile_image_url?: string | null
+          role_tags?: Database["public"]["Enums"]["contributor_role"][] | null
+          updated_at?: string
+          verified?: boolean | null
+          wallet_address?: string
+          x_user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -82,7 +136,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      contributor_role:
+        | "dev"
+        | "product"
+        | "research"
+        | "community"
+        | "design"
+        | "ops"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -209,6 +269,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      contributor_role: [
+        "dev",
+        "product",
+        "research",
+        "community",
+        "design",
+        "ops",
+      ],
+    },
   },
 } as const

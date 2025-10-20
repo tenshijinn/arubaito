@@ -50,7 +50,7 @@ const Index = () => {
       <div className="text-center space-y-8 px-8 max-w-4xl">
         {hoveredButton === 'rei' && (
           <h1 
-            className="text-4xl md:text-5xl font-semibold leading-relaxed"
+            className="text-2xl md:text-3xl font-semibold leading-relaxed"
             style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
           >
             Aggregating Web3{' '}
@@ -64,7 +64,7 @@ const Index = () => {
         
         {hoveredButton === 'arubaito' && (
           <h1 
-            className="text-4xl md:text-5xl font-semibold leading-relaxed"
+            className="text-2xl md:text-3xl font-semibold leading-relaxed"
             style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
           >
             Connecting Ex-

@@ -46,7 +46,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen relative" style={getBackgroundStyle()}>
+    <div className="min-h-screen relative font-mono" style={getBackgroundStyle()}>
       {/* Text rotators - positioned absolutely */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-8 max-w-4xl w-full">
         {hoveredButton === 'rei' && (
@@ -74,10 +74,11 @@ const Index = () => {
           onClick={() => navigate('/rei')}
           variant="outline"
           size="lg"
-          className="text-xl px-12 py-8 bg-transparent border-2 transition-shadow duration-300 hover:bg-transparent"
+          className="text-xl px-12 py-8 bg-transparent border-2 transition-shadow duration-300 hover:bg-transparent font-mono"
           style={{ 
             borderColor: 'hsl(var(--landing-border))',
-            color: 'hsl(var(--landing-border))'
+            color: 'hsl(var(--landing-border))',
+            fontFamily: 'Consolas, monospace'
           }}
           onMouseEnter={(e) => {
             setHoveredButton('rei');
@@ -94,10 +95,11 @@ const Index = () => {
           onClick={() => navigate('/arubaito')}
           variant="outline"
           size="lg"
-          className="text-xl px-12 py-8 bg-transparent border-2 transition-shadow duration-300 hover:bg-transparent"
+          className="text-xl px-12 py-8 bg-transparent border-2 transition-shadow duration-300 hover:bg-transparent font-mono"
           style={{ 
             borderColor: 'hsl(var(--landing-border))',
-            color: 'hsl(var(--landing-border))'
+            color: 'hsl(var(--landing-border))',
+            fontFamily: 'Consolas, monospace'
           }}
           onMouseEnter={(e) => {
             setHoveredButton('arubaito');

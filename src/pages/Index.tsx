@@ -46,8 +46,9 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-16" style={getBackgroundStyle()}>
-      <div className="text-center space-y-8 px-8 max-w-4xl">
+    <div className="min-h-screen relative" style={getBackgroundStyle()}>
+      {/* Text rotators - positioned absolutely */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-8 max-w-4xl w-full">
         {hoveredButton === 'rei' && (
           <h1 
             className="text-base md:text-xl font-semibold leading-relaxed"
@@ -75,7 +76,8 @@ const Index = () => {
         )}
       </div>
 
-      <div className="flex flex-row gap-6">
+      {/* Buttons - fixed in center */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-row gap-6">
         <Button
           onClick={() => navigate('/rei')}
           variant="outline"

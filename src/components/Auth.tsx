@@ -202,21 +202,22 @@ export const Auth = () => {
   }, [connected, publicKey, signMessage, toast, walletIntent]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#1a1d29]">
+    <div className="min-h-screen flex items-center justify-center p-4 font-mono" style={{ backgroundColor: 'hsl(var(--background))' }}>
       <div className="w-full max-w-5xl">
-        <h1 className="text-4xl font-bold text-white text-center mb-8">
+        <h1 className="text-4xl font-bold text-center mb-8" style={{ color: 'hsl(var(--foreground))' }}>
           Welcome to CV Checker
         </h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Card - Email/Google Auth */}
-          <Card className="bg-[#242837] border-[#2a2d3d] p-6">
+          <Card className="p-6" style={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}>
             {mode === 'main' ? (
               <div className="space-y-4">
                 <div className="space-y-3">
                   <Button
                     onClick={() => handleGoogleAuth(true)}
-                    className="w-full h-14 bg-[#4A9FE8] hover:bg-[#3a8fd8] text-white text-lg font-medium rounded-xl"
+                    className="w-full h-14 text-lg font-medium rounded-xl"
+                    style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}
                     disabled={loading}
                   >
                     <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24">
@@ -230,7 +231,8 @@ export const Auth = () => {
                   
                   <Button
                     onClick={() => setMode('register')}
-                    className="w-full h-14 bg-[#2a2d3d] hover:bg-[#3a3d4d] text-white text-lg font-medium rounded-xl"
+                    className="w-full h-14 text-lg font-medium rounded-xl"
+                    style={{ backgroundColor: 'hsl(var(--secondary))', color: 'hsl(var(--secondary-foreground))' }}
                   >
                     Register with Email
                   </Button>
@@ -238,10 +240,10 @@ export const Auth = () => {
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[#3a3d4d]"></div>
+                    <div className="w-full border-t" style={{ borderColor: 'hsl(var(--border))' }}></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-[#242837] text-gray-400 font-medium">Already have an account?</span>
+                    <span className="px-4 font-medium" style={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--muted-foreground))' }}>Already have an account?</span>
                   </div>
                 </div>
 
@@ -249,7 +251,7 @@ export const Auth = () => {
                   <Button
                     onClick={() => handleGoogleAuth(false)}
                     variant="outline"
-                    className="w-full h-12 bg-transparent border-[#2a2d3d] text-white hover:bg-[#2a2d3d] rounded-xl"
+                    className="w-full h-12 rounded-xl"
                     disabled={loading}
                   >
                     Sign in with Google
@@ -258,7 +260,7 @@ export const Auth = () => {
                   <Button
                     onClick={() => setMode('signin')}
                     variant="outline"
-                    className="w-full h-12 bg-transparent border-[#2a2d3d] text-white hover:bg-[#2a2d3d] rounded-xl"
+                    className="w-full h-12 rounded-xl"
                   >
                     Sign in with Email
                   </Button>
@@ -266,7 +268,7 @@ export const Auth = () => {
               </div>
             ) : (
               <form onSubmit={handleEmailSubmit} className="space-y-4">
-                <h2 className="text-xl font-semibold text-white mb-4">
+                <h2 className="text-xl font-semibold mb-4" style={{ color: 'hsl(var(--foreground))' }}>
                   {mode === 'register' ? 'Register with Email' : 'Sign in with Email'}
                 </h2>
                 
@@ -275,7 +277,7 @@ export const Auth = () => {
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 bg-[#1a1d29] border-[#2a2d3d] text-white placeholder:text-gray-500 rounded-xl"
+                  className="h-12 rounded-xl"
                   required
                 />
                 
@@ -284,7 +286,7 @@ export const Auth = () => {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 bg-[#1a1d29] border-[#2a2d3d] text-white placeholder:text-gray-500 rounded-xl"
+                  className="h-12 rounded-xl"
                   required
                   minLength={6}
                 />
@@ -298,13 +300,13 @@ export const Auth = () => {
                       setPassword("");
                     }}
                     variant="outline"
-                    className="flex-1 h-12 bg-transparent border-[#2a2d3d] text-white hover:bg-[#2a2d3d] rounded-xl"
+                    className="flex-1 h-12 rounded-xl"
                   >
                     Back
                   </Button>
                   <Button
                     type="submit"
-                    className="flex-1 h-12 bg-[#4A9FE8] hover:bg-[#3a8fd8] text-white rounded-xl"
+                    className="flex-1 h-12 rounded-xl"
                     disabled={loading}
                   >
                     {loading ? "Loading..." : mode === 'register' ? 'Register' : 'Sign in'}
@@ -315,20 +317,24 @@ export const Auth = () => {
           </Card>
 
           {/* Right Card - Wallet Auth */}
-          <Card className="bg-[#242837] border-[#2a2d3d] p-6">
+          <Card className="p-6" style={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}>
             <div className="h-full flex flex-col items-center justify-center space-y-6">
               <div className="text-center space-y-2">
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-2xl font-bold" style={{ color: 'hsl(var(--foreground))' }}>
                   Signup / Signin with Wallet
                 </h2>
-                <p className="text-gray-400 text-sm">
+                <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
                   Connect your Phantom wallet to continue
                 </p>
               </div>
               
               <WalletMultiButton 
                 onClick={() => setWalletIntent('register')}
-                className="!h-14 !bg-[#AB9FF2] hover:!bg-[#9b8fe2] !text-white !rounded-xl !font-medium !text-lg !w-full !max-w-sm" 
+                className="!h-14 !rounded-xl !font-medium !text-lg !w-full !max-w-sm" 
+                style={{ 
+                  backgroundColor: 'hsl(var(--primary))', 
+                  color: 'hsl(var(--primary-foreground))'
+                }}
               />
             </div>
           </Card>

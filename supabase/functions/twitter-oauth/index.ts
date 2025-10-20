@@ -37,7 +37,8 @@ Deno.serve(async (req) => {
     if (action === 'getAuthUrl') {
       // Generate Twitter OAuth URL
       const clientId = Deno.env.get('TWITTER_CLIENT_ID')!;
-      const redirectUri = `${new URL(req.url).origin}/rei`;
+      const appUrl = Deno.env.get('APP_URL') || 'https://arubaito.lovable.app';
+      const redirectUri = `${appUrl}/rei`;
       
       // Generate code verifier and challenge for PKCE
       const codeVerifier = generateCodeVerifier();
@@ -68,7 +69,8 @@ Deno.serve(async (req) => {
       
       const clientId = Deno.env.get('TWITTER_CLIENT_ID')!;
       const clientSecret = Deno.env.get('TWITTER_CLIENT_SECRET')!;
-      const redirectUri = `${new URL(req.url).origin}/rei`;
+      const appUrl = Deno.env.get('APP_URL') || 'https://arubaito.lovable.app';
+      const redirectUri = `${appUrl}/rei`;
 
       console.log('Exchanging code for token...');
 

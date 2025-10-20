@@ -54,12 +54,7 @@ const Index = () => {
             className="text-base md:text-xl font-semibold leading-relaxed"
             style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
           >
-            Aggregating Web3{' '}
-            <TextRotator words={tasksWords} isActive={true} className="mx-2" />
-            {' '}to{' '}
-            <TextRotator words={humansWords} isActive={true} className="mx-2" />
-            {' '}hiring{' '}
-            <TextRotator words={humansWords} isActive={true} className="mx-2" />
+            Aggregating Web3 <TextRotator words={tasksWords} isActive={true} /> to <TextRotator words={humansWords} isActive={true} /> hiring <TextRotator words={humansWords} isActive={true} />
           </h1>
         )}
         
@@ -68,10 +63,7 @@ const Index = () => {
             className="text-base md:text-xl font-semibold leading-relaxed"
             style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
           >
-            Connecting Ex-
-            <TextRotator words={web3Companies} isActive={true} className="mx-2" />
-            {' '}Talent to{' '}
-            <TextRotator words={web3Companies} isActive={true} className="mx-2" />
+            Connecting Ex-<TextRotator words={web3Companies} isActive={true} /> Talent to <TextRotator words={web3Companies} isActive={true} />
           </h1>
         )}
       </div>

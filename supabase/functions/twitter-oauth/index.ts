@@ -32,13 +32,11 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { code, action } = await req.json();
+    const { code, action, redirectUri } = await req.json();
 
     if (action === 'getAuthUrl') {
       // Generate Twitter OAuth URL
       const clientId = Deno.env.get('TWITTER_CLIENT_ID')!;
-      const appUrl = Deno.env.get('APP_URL') || 'https://arubaito.lovable.app';
-      const redirectUri = `${appUrl}/rei`;
       
       // Generate code verifier and challenge for PKCE
       const codeVerifier = generateCodeVerifier();
@@ -69,8 +67,6 @@ Deno.serve(async (req) => {
       
       const clientId = Deno.env.get('TWITTER_CLIENT_ID')!;
       const clientSecret = Deno.env.get('TWITTER_CLIENT_SECRET')!;
-      const appUrl = Deno.env.get('APP_URL') || 'https://arubaito.lovable.app';
-      const redirectUri = `${appUrl}/rei`;
 
       console.log('Exchanging code for token...');
 

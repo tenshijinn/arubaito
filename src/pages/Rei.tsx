@@ -72,8 +72,9 @@ export default function Rei() {
 
   const handleTwitterLogin = async () => {
     try {
+      const redirectUri = `${window.location.origin}/rei`;
       const { data, error } = await supabase.functions.invoke('twitter-oauth', {
-        body: { action: 'getAuthUrl' },
+        body: { action: 'getAuthUrl', redirectUri },
       });
 
       if (error) throw error;
@@ -93,12 +94,14 @@ export default function Rei() {
   const handleTwitterCallback = async (code: string) => {
     try {
       const storedVerifier = sessionStorage.getItem('twitter_code_verifier');
+      const redirectUri = `${window.location.origin}/rei`;
       
       const { data, error } = await supabase.functions.invoke('twitter-oauth', {
         body: { 
           action: 'exchangeToken',
           code,
           codeVerifier: storedVerifier,
+          redirectUri,
         },
       });
 

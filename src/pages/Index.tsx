@@ -17,7 +17,7 @@ const Index = () => {
             color: 'hsl(var(--landing-border))'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 0 20px hsl(var(--landing-border) / 0.6)';
+            e.currentTarget.style.boxShadow = '0 0 20px hsl(var(--landing-border) / 0.6), inset 0 0 15px hsl(var(--landing-border) / 0.3)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.boxShadow = 'none';
@@ -35,7 +35,7 @@ const Index = () => {
             color: 'hsl(var(--landing-border))'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 0 20px hsl(var(--landing-border) / 0.6)';
+            e.currentTarget.style.boxShadow = '0 0 20px hsl(var(--landing-border) / 0.6), inset 0 0 15px hsl(var(--landing-border) / 0.3)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.boxShadow = 'none';

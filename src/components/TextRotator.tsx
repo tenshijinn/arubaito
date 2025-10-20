@@ -39,13 +39,11 @@ export const TextRotator = ({ words, isActive, className = "" }: TextRotatorProp
 
   return (
     <span
-      className={`inline-block transition-all duration-400 ${
+      className={`inline transition-all duration-400 ${
         isAnimating ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-0"
       } ${className}`}
       style={{
         color: '#f0e3c3',
-        minWidth: '120px',
-        textAlign: 'center',
         textShadow: isAnimating ? '0 0 8px rgba(240, 227, 195, 0.5)' : 'none'
       }}
     >

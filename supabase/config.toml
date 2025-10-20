@@ -6,3 +6,9 @@ site_url = "https://lovable.dev"
 
 [functions.analyze-cv]
 verify_jwt = true
+
+[functions.twitter-oauth]
+verify_jwt = false
+
+[functions.submit-rei-registration]
+verify_jwt = false

@@ -11,7 +11,7 @@ const Index = () => {
           onClick={() => navigate('/rei')}
           variant="outline"
           size="lg"
-          className="text-xl px-12 py-8 bg-transparent border-2 transition-shadow duration-300"
+          className="text-xl px-12 py-8 bg-transparent border-2 transition-shadow duration-300 hover:bg-transparent"
           style={{ 
             borderColor: 'hsl(var(--landing-border))',
             color: 'hsl(var(--landing-border))'
@@ -29,7 +29,7 @@ const Index = () => {
           onClick={() => navigate('/arubaito')}
           variant="outline"
           size="lg"
-          className="text-xl px-12 py-8 bg-transparent border-2 transition-shadow duration-300"
+          className="text-xl px-12 py-8 bg-transparent border-2 transition-shadow duration-300 hover:bg-transparent"
           style={{ 
             borderColor: 'hsl(var(--landing-border))',
             color: 'hsl(var(--landing-border))'

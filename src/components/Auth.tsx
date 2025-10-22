@@ -240,34 +240,6 @@ export const Auth = () => {
                     Signup with CV Profile
                   </Button>
                 </div>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t" style={{ borderColor: 'hsl(var(--border))' }}></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-4 font-medium" style={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--muted-foreground))' }}>Already have an account?</span>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Button
-                    onClick={() => handleGoogleAuth(false)}
-                    variant="outline"
-                    className="w-full h-12 rounded-xl"
-                    disabled={loading}
-                  >
-                    Sign in with Google
-                  </Button>
-
-                  <Button
-                    onClick={() => setMode('signin')}
-                    variant="outline"
-                    className="w-full h-12 rounded-xl"
-                  >
-                    Sign in with Email
-                  </Button>
-                </div>
               </div>
             ) : (
               <form onSubmit={handleEmailSubmit} className="space-y-4">

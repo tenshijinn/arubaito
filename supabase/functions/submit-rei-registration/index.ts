@@ -6,11 +6,6 @@ const corsHeaders = {
 };
 
 interface RegistrationData {
-  x_user_id: string;
-  handle: string;
-  display_name: string;
-  profile_image_url?: string;
-  verified: boolean;
   wallet_address: string;
   file_path: string;
   portfolio_url?: string;
@@ -30,18 +25,13 @@ Deno.serve(async (req) => {
 
     const registrationData: RegistrationData = await req.json();
 
-    console.log('Submitting registration for:', registrationData.handle);
+    console.log('Submitting registration for wallet:', registrationData.wallet_address);
 
     // Upsert registration data
     const { data, error } = await supabase
       .from('rei_registry')
       .upsert(
         {
-          x_user_id: registrationData.x_user_id,
-          handle: registrationData.handle,
-          display_name: registrationData.display_name,
-          profile_image_url: registrationData.profile_image_url,
-          verified: registrationData.verified,
           wallet_address: registrationData.wallet_address,
           file_path: registrationData.file_path,
           portfolio_url: registrationData.portfolio_url,
@@ -49,7 +39,7 @@ Deno.serve(async (req) => {
           consent: registrationData.consent,
         },
         { 
-          onConflict: 'x_user_id',
+          onConflict: 'wallet_address',
           ignoreDuplicates: false 
         }
       )

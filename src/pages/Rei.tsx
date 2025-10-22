@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,15 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, Check, Twitter, Wallet, FileText } from 'lucide-react';
-
-interface TwitterUser {
-  x_user_id: string;
-  handle: string;
-  display_name: string;
-  profile_image_url?: string;
-  verified: boolean;
-}
+import { Check, Wallet, FileText } from 'lucide-react';
 
 type RoleTag = 'dev' | 'product' | 'research' | 'community' | 'design' | 'ops';
 
@@ -35,8 +27,6 @@ export default function Rei() {
   const { toast } = useToast();
   
   const [step, setStep] = useState(1);
-  const [twitterUser, setTwitterUser] = useState<TwitterUser | null>(null);
-  const [codeVerifier, setCodeVerifier] = useState<string>('');
   
   // Form state
   const [file, setFile] = useState<File | null>(null);
@@ -45,86 +35,6 @@ export default function Rei() {
   const [consent, setConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-
-  // Check for OAuth callback
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    
-    if (code && !twitterUser) {
-      handleTwitterCallback(code);
-    }
-  }, []);
-
-  // Auto-advance to step 2 when Twitter is connected
-  useEffect(() => {
-    if (twitterUser && step === 1) {
-      setStep(2);
-    }
-  }, [twitterUser]);
-
-  // Auto-advance to step 3 when wallet is connected
-  useEffect(() => {
-    if (connected && twitterUser && step === 2) {
-      setStep(3);
-    }
-  }, [connected, twitterUser]);
-
-  const handleTwitterLogin = async () => {
-    try {
-      const redirectUri = `${window.location.origin}/rei`;
-      const { data, error } = await supabase.functions.invoke('twitter-oauth', {
-        body: { action: 'getAuthUrl', redirectUri },
-      });
-
-      if (error) throw error;
-
-      setCodeVerifier(data.codeVerifier);
-      sessionStorage.setItem('twitter_code_verifier', data.codeVerifier);
-      window.location.href = data.authUrl;
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to initiate Twitter login',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleTwitterCallback = async (code: string) => {
-    try {
-      const storedVerifier = sessionStorage.getItem('twitter_code_verifier');
-      const redirectUri = `${window.location.origin}/rei`;
-      
-      const { data, error } = await supabase.functions.invoke('twitter-oauth', {
-        body: { 
-          action: 'exchangeToken',
-          code,
-          codeVerifier: storedVerifier,
-          redirectUri,
-        },
-      });
-
-      if (error) throw error;
-
-      setTwitterUser(data.user);
-      sessionStorage.removeItem('twitter_code_verifier');
-      
-      // Clean URL
-      window.history.replaceState({}, '', '/rei');
-      
-      toast({
-        title: 'Success',
-        description: `Welcome, @${data.user.handle}!`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to complete Twitter login',
-        variant: 'destructive',
-      });
-    }
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -164,14 +74,14 @@ export default function Rei() {
   };
 
   const handleSubmit = async () => {
-    if (!file || !twitterUser || !publicKey || !consent) return;
+    if (!file || !publicKey || !consent) return;
 
     setIsSubmitting(true);
 
     try {
       // Upload file to Supabase Storage
       const fileExt = file.name.split('.').pop();
-      const fileName = `${twitterUser.x_user_id}_${Date.now()}.${fileExt}`;
+      const fileName = `${publicKey.toString()}_${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
@@ -183,11 +93,6 @@ export default function Rei() {
       // Submit registration
       const { data, error } = await supabase.functions.invoke('submit-rei-registration', {
         body: {
-          x_user_id: twitterUser.x_user_id,
-          handle: twitterUser.handle,
-          display_name: twitterUser.display_name,
-          profile_image_url: twitterUser.profile_image_url,
-          verified: twitterUser.verified,
           wallet_address: publicKey.toString(),
           file_path: filePath,
           portfolio_url: portfolioUrl || null,
@@ -214,7 +119,7 @@ export default function Rei() {
     }
   };
 
-  const canSubmit = file && twitterUser && publicKey && consent && selectedRoles.length > 0;
+  const canSubmit = file && publicKey && consent && selectedRoles.length > 0;
 
   if (isSuccess) {
     return (
@@ -254,7 +159,7 @@ export default function Rei() {
           
           {/* Progress indicator */}
           <div className="flex items-center gap-2 mt-6">
-            {[1, 2, 3].map((s) => (
+            {[1, 2].map((s) => (
               <div key={s} className="flex items-center flex-1">
                 <div className={`h-2 rounded-full flex-1 ${s <= step ? 'bg-primary' : 'bg-muted'}`} />
               </div>
@@ -263,63 +168,31 @@ export default function Rei() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Step 1: Twitter Login */}
-          <div className={step !== 1 && twitterUser ? 'opacity-50' : ''}>
+          {/* Step 1: Wallet Connection */}
+          <div className={step !== 1 && connected ? 'opacity-50' : ''}>
             <div className="flex items-center gap-2 mb-4">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${twitterUser ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                {twitterUser ? <Check className="h-4 w-4" /> : '1'}
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${connected ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                {connected ? <Check className="h-4 w-4" /> : '1'}
               </div>
-              <h3 className="text-lg font-semibold">Sign in with X (Twitter)</h3>
+              <h3 className="text-lg font-semibold">Connect Solana Wallet</h3>
             </div>
 
-            {!twitterUser ? (
-              <Button onClick={handleTwitterLogin} size="lg" className="w-full">
-                <Twitter className="mr-2 h-5 w-5" />
-                Connect X Account
-              </Button>
-            ) : (
-              <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
-                {twitterUser.profile_image_url && (
-                  <img src={twitterUser.profile_image_url} alt={twitterUser.handle} className="h-12 w-12 rounded-full" />
-                )}
-                <div className="flex-1">
-                  <p className="font-semibold">{twitterUser.display_name}</p>
-                  <p className="text-sm text-muted-foreground">@{twitterUser.handle}</p>
-                </div>
-                {twitterUser.verified && (
-                  <Badge variant="default">Verified</Badge>
-                )}
+            <WalletMultiButton className="!w-full !h-12 !bg-primary hover:!bg-primary/90" />
+            
+            {connected && publicKey && (
+              <div className="mt-4 p-4 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground mb-1">Connected Wallet</p>
+                <p className="text-xs font-mono break-all">{publicKey.toString()}</p>
               </div>
             )}
           </div>
 
-          {/* Step 2: Wallet Connection */}
-          {twitterUser && (
-            <div className={step !== 2 && connected ? 'opacity-50' : ''}>
-              <div className="flex items-center gap-2 mb-4">
-                <div className={`h-8 w-8 rounded-full flex items-center justify-center ${connected ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                  {connected ? <Check className="h-4 w-4" /> : '2'}
-                </div>
-                <h3 className="text-lg font-semibold">Connect Solana Wallet</h3>
-              </div>
-
-              <WalletMultiButton className="!w-full !h-12 !bg-primary hover:!bg-primary/90" />
-              
-              {connected && publicKey && (
-                <div className="mt-4 p-4 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Connected Wallet</p>
-                  <p className="text-xs font-mono break-all">{publicKey.toString()}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Step 3: Registration Form */}
-          {twitterUser && connected && (
+          {/* Step 2: Registration Form */}
+          {connected && (
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-8 w-8 rounded-full flex items-center justify-center bg-muted">
-                  3
+                  2
                 </div>
                 <h3 className="text-lg font-semibold">Submit Contributor Profile</h3>
               </div>

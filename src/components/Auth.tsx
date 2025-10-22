@@ -56,9 +56,6 @@ export const Auth = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/arubaito`
-          }
         });
 
         if (error) throw error;
@@ -67,7 +64,7 @@ export const Auth = () => {
           title: "Account created!",
           description: "You are now signed in and can upload your CV.",
         });
-        // User is now automatically logged in, no need to change mode
+        // User is now automatically logged in, no need to change mode or navigate
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,

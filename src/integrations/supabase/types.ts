@@ -78,9 +78,9 @@ export type Database = {
         Row: {
           consent: boolean
           created_at: string
-          display_name: string
+          display_name: string | null
           file_path: string
-          handle: string
+          handle: string | null
           id: string
           nft_mint_address: string | null
           nft_minted: boolean | null
@@ -90,14 +90,14 @@ export type Database = {
           updated_at: string
           verified: boolean | null
           wallet_address: string
-          x_user_id: string
+          x_user_id: string | null
         }
         Insert: {
           consent?: boolean
           created_at?: string
-          display_name: string
+          display_name?: string | null
           file_path: string
-          handle: string
+          handle?: string | null
           id?: string
           nft_mint_address?: string | null
           nft_minted?: boolean | null
@@ -107,14 +107,14 @@ export type Database = {
           updated_at?: string
           verified?: boolean | null
           wallet_address: string
-          x_user_id: string
+          x_user_id?: string | null
         }
         Update: {
           consent?: boolean
           created_at?: string
-          display_name?: string
+          display_name?: string | null
           file_path?: string
-          handle?: string
+          handle?: string | null
           id?: string
           nft_mint_address?: string | null
           nft_minted?: boolean | null
@@ -124,7 +124,40 @@ export type Database = {
           updated_at?: string
           verified?: boolean | null
           wallet_address?: string
-          x_user_id?: string
+          x_user_id?: string | null
+        }
+        Relationships: []
+      }
+      twitter_whitelist: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          twitter_handle: string
+          twitter_user_id: string | null
+          updated_at: string | null
+          verification_type: Database["public"]["Enums"]["verification_type"]
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          twitter_handle: string
+          twitter_user_id?: string | null
+          updated_at?: string | null
+          verification_type: Database["public"]["Enums"]["verification_type"]
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          twitter_handle?: string
+          twitter_user_id?: string | null
+          updated_at?: string | null
+          verification_type?: Database["public"]["Enums"]["verification_type"]
+          verified_by?: string | null
         }
         Relationships: []
       }
@@ -143,6 +176,11 @@ export type Database = {
         | "community"
         | "design"
         | "ops"
+      verification_type:
+        | "followed_by_web3_project"
+        | "kol"
+        | "thought_leader"
+        | "web3_founder"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -277,6 +315,12 @@ export const Constants = {
         "community",
         "design",
         "ops",
+      ],
+      verification_type: [
+        "followed_by_web3_project",
+        "kol",
+        "thought_leader",
+        "web3_founder",
       ],
     },
   },

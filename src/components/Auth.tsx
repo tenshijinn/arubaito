@@ -214,13 +214,16 @@ export const Auth = () => {
             {mode === 'main' ? (
               <div className="space-y-4">
                 <div className="space-y-3">
+                  <p className="text-sm font-medium text-center" style={{ color: 'hsl(var(--muted-foreground))' }}>
+                    Sign up/sign in with...
+                  </p>
                   <Button
                     onClick={() => handleGoogleAuth(true)}
                     className="w-full h-14 text-lg font-medium rounded-xl"
                     style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}
                     disabled={loading}
                   >
-                    Sign in / Signup with Bluechip Connected Twitter
+                    Blue Chip Connected Twitter
                   </Button>
                   
                   <Button
@@ -229,7 +232,7 @@ export const Auth = () => {
                     style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}
                     disabled={loading}
                   >
-                    Sign in / Signup with Bluebchip Connected GitHub
+                    Blue Chip Connected GitHub
                   </Button>
                   
                   <Button

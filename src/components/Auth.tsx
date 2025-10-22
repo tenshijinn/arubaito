@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useNavigate } from 'react-router-dom';
 import bs58 from 'bs58';
 
 export const Auth = () => {
@@ -16,6 +17,7 @@ export const Auth = () => {
   const [password, setPassword] = useState("");
   const { toast } = useToast();
   const { publicKey, signMessage, connected } = useWallet();
+  const navigate = useNavigate();
 
   const handleGoogleAuth = async (isSignUp: boolean) => {
     try {
@@ -245,7 +247,7 @@ export const Auth = () => {
                   </div>
                   
                   <Button
-                    onClick={() => setMode('register')}
+                    onClick={() => navigate('/arubaito')}
                     className="w-full h-14 text-lg font-medium rounded-xl"
                     style={{ backgroundColor: 'hsl(var(--secondary))', color: 'hsl(var(--secondary-foreground))' }}
                   >

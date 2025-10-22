@@ -235,6 +235,15 @@ export const Auth = () => {
                     Blue Chip GitHub
                   </Button>
                   
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t" style={{ borderColor: 'hsl(var(--border))' }}></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-4 font-medium" style={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--muted-foreground))' }}>or</span>
+                    </div>
+                  </div>
+                  
                   <Button
                     onClick={() => setMode('register')}
                     className="w-full h-14 text-lg font-medium rounded-xl"

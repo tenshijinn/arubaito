@@ -263,6 +263,18 @@ export const Auth = () => {
                   {mode === 'register' ? 'Register with Email' : 'Sign in with Email'}
                 </h2>
                 
+                {mode === 'register' && (
+                  <Button
+                    type="button"
+                    onClick={() => handleGoogleAuth(true)}
+                    variant="outline"
+                    className="w-full h-12 rounded-xl mb-4"
+                    disabled={loading}
+                  >
+                    Register with Google
+                  </Button>
+                )}
+                
                 <Input
                   type="email"
                   placeholder="Email"

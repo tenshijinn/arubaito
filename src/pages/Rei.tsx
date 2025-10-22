@@ -45,13 +45,15 @@ export default function Rei() {
   const [consent, setConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isProcessingCallback, setIsProcessingCallback] = useState(false);
 
   // Check for OAuth callback
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     
-    if (code && !twitterUser) {
+    if (code && !twitterUser && !isProcessingCallback) {
+      setIsProcessingCallback(true);
       handleTwitterCallback(code);
     }
   }, []);
@@ -109,6 +111,7 @@ export default function Rei() {
 
       setTwitterUser(data.user);
       sessionStorage.removeItem('twitter_code_verifier');
+      setIsProcessingCallback(false);
       
       // Clean URL
       window.history.replaceState({}, '', '/rei');
@@ -118,6 +121,7 @@ export default function Rei() {
         description: `Welcome, @${data.user.handle}!`,
       });
     } catch (error) {
+      setIsProcessingCallback(false);
       toast({
         title: 'Error',
         description: 'Failed to complete Twitter login',

@@ -20,6 +20,11 @@ interface TwitterUser {
   verified: boolean;
 }
 
+interface VerificationStatus {
+  bluechip_verified: boolean;
+  verification_type: string | null;
+}
+
 type RoleTag = 'dev' | 'product' | 'research' | 'community' | 'design' | 'ops';
 
 const ROLE_OPTIONS: { value: RoleTag; label: string }[] = [
@@ -37,6 +42,7 @@ export default function Rei() {
   
   const [step, setStep] = useState(1);
   const [twitterUser, setTwitterUser] = useState<TwitterUser | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<VerificationStatus | null>(null);
   const [isProcessingCallback, setIsProcessingCallback] = useState(false);
   
   // Form state
@@ -46,6 +52,8 @@ export default function Rei() {
   const [consent, setConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isSubmittingWhitelist, setIsSubmittingWhitelist] = useState(false);
+  const [whitelistSubmitted, setWhitelistSubmitted] = useState(false);
 
   // Check for OAuth callback
   useEffect(() => {
@@ -63,17 +71,17 @@ export default function Rei() {
 
   // Auto-advance to step 2 when Twitter is verified
   useEffect(() => {
-    if (twitterUser && step === 1) {
+    if (twitterUser && verificationStatus?.bluechip_verified && step === 1) {
       setStep(2);
     }
-  }, [twitterUser]);
+  }, [twitterUser, verificationStatus]);
 
   // Auto-advance to step 3 when wallet is connected
   useEffect(() => {
-    if (connected && twitterUser && step === 2) {
+    if (connected && twitterUser && verificationStatus?.bluechip_verified && step === 2) {
       setStep(3);
     }
-  }, [connected, twitterUser]);
+  }, [connected, twitterUser, verificationStatus]);
 
   const handleTwitterLogin = async () => {
     try {
@@ -113,15 +121,27 @@ export default function Rei() {
       if (error) throw error;
 
       setTwitterUser(data.user);
+      setVerificationStatus({
+        bluechip_verified: data.bluechip_verified,
+        verification_type: data.verification_type,
+      });
       sessionStorage.removeItem('twitter_code_verifier');
       
       // Clean URL
       window.history.replaceState({}, '', '/rei');
       
-      toast({
-        title: 'Connected!',
-        description: `Welcome, @${data.user.handle}! You're verified as a real person.`,
-      });
+      if (data.bluechip_verified) {
+        toast({
+          title: 'Verified!',
+          description: `Welcome, @${data.user.handle}! Your account is verified as a blue-chip Web3 talent.`,
+        });
+      } else {
+        toast({
+          title: 'Not Verified',
+          description: `@${data.user.handle} is not on the verified list. Contact admin for access.`,
+          variant: 'destructive',
+        });
+      }
     } catch (error) {
       toast({
         title: 'Error',
@@ -221,7 +241,48 @@ export default function Rei() {
     }
   };
 
-  const canSubmit = file && publicKey && consent && selectedRoles.length > 0 && twitterUser;
+  const handleWhitelistRequest = async () => {
+    if (!twitterUser) return;
+
+    setIsSubmittingWhitelist(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('submit-whitelist-request', {
+        body: {
+          twitter_handle: twitterUser.handle,
+          x_user_id: twitterUser.x_user_id,
+          display_name: twitterUser.display_name,
+          profile_image_url: twitterUser.profile_image_url,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        setWhitelistSubmitted(true);
+        toast({
+          title: 'Request Submitted!',
+          description: data.message,
+        });
+      } else {
+        toast({
+          title: 'Already Submitted',
+          description: data.message,
+          variant: 'default',
+        });
+        setWhitelistSubmitted(true);
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to submit whitelist request',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmittingWhitelist(false);
+    }
+  };
+
+  const canSubmit = file && publicKey && consent && selectedRoles.length > 0 && twitterUser && verificationStatus?.bluechip_verified;
 
   if (isSuccess) {
     return (
@@ -273,10 +334,10 @@ export default function Rei() {
           {/* Step 1: Twitter Verification */}
           <div className={step !== 1 && twitterUser ? 'opacity-50' : ''}>
             <div className="flex items-center gap-2 mb-4">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${twitterUser ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                {twitterUser ? <Check className="h-4 w-4" /> : '1'}
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${verificationStatus?.bluechip_verified ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                {verificationStatus?.bluechip_verified ? <Check className="h-4 w-4" /> : '1'}
               </div>
-              <h3 className="text-lg font-semibold">Verify with Twitter</h3>
+              <h3 className="text-lg font-semibold">Verify as Blue-Chip Web3 Talent</h3>
             </div>
 
             {!twitterUser ? (
@@ -284,30 +345,85 @@ export default function Rei() {
                 <Alert>
                   <Shield className="h-4 w-4" />
                   <AlertDescription>
-                    Connect your Twitter account to verify you're a real person.
+                    Only verified Web3 talents can access this portal. Your Twitter account must be on our approved list.
                   </AlertDescription>
                 </Alert>
                 <Button onClick={handleTwitterLogin} size="lg" className="w-full">
                   <Twitter className="mr-2 h-5 w-5" />
-                  Connect with X (Twitter)
+                  Verify with X (Twitter)
                 </Button>
               </div>
             ) : (
-              <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
-                {twitterUser.profile_image_url && (
-                  <img src={twitterUser.profile_image_url} alt={twitterUser.handle} className="h-12 w-12 rounded-full" />
-                )}
-                <div className="flex-1">
-                  <p className="font-semibold">{twitterUser.display_name}</p>
-                  <p className="text-sm text-muted-foreground">@{twitterUser.handle}</p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                  {twitterUser.profile_image_url && (
+                    <img src={twitterUser.profile_image_url} alt={twitterUser.handle} className="h-12 w-12 rounded-full" />
+                  )}
+                  <div className="flex-1">
+                    <p className="font-semibold">{twitterUser.display_name}</p>
+                    <p className="text-sm text-muted-foreground">@{twitterUser.handle}</p>
+                  </div>
+                  {twitterUser.verified && (
+                    <Badge variant="secondary">X Verified</Badge>
+                  )}
                 </div>
-                <Check className="h-5 w-5 text-primary" />
+                
+                {verificationStatus?.bluechip_verified ? (
+                  <Alert className="border-primary bg-primary/10">
+                    <Check className="h-4 w-4 text-primary" />
+                    <AlertDescription className="text-primary">
+                      <strong>Verified Blue-Chip Account</strong>
+                      {verificationStatus.verification_type && (
+                        <span className="block text-sm mt-1">
+                          Type: {verificationStatus.verification_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </span>
+                      )}
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <div className="space-y-3">
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        This account is not on the verified list.
+                      </AlertDescription>
+                    </Alert>
+                    
+                    {!whitelistSubmitted ? (
+                      <div className="p-4 bg-muted rounded-lg space-y-3">
+                        <p className="text-sm font-medium">Think you should be on the whitelist?</p>
+                        <p className="text-sm text-muted-foreground">
+                          Submit your Twitter account for blue-chip verification. Our team will review your request.
+                        </p>
+                        <Button
+                          onClick={handleWhitelistRequest}
+                          disabled={isSubmittingWhitelist}
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                        >
+                          {isSubmittingWhitelist ? 'Submitting...' : 'Request Whitelist Access'}
+                        </Button>
+                      </div>
+                    ) : (
+                      <Alert className="border-primary/50 bg-primary/5">
+                        <Check className="h-4 w-4 text-primary" />
+                        <AlertDescription>
+                          <strong>Request Submitted</strong>
+                          <span className="block text-sm mt-1 text-muted-foreground">
+                            Your whitelist request has been received. We'll review it and notify you if approved.
+                          </span>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           {/* Step 2: Wallet Connection */}
-          {twitterUser && (
+          {twitterUser && verificationStatus?.bluechip_verified && (
             <div className={step !== 2 && connected ? 'opacity-50' : ''}>
               <div className="flex items-center gap-2 mb-4">
                 <div className={`h-8 w-8 rounded-full flex items-center justify-center ${connected ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
@@ -328,7 +444,7 @@ export default function Rei() {
           )}
 
           {/* Step 3: Registration Form */}
-          {twitterUser && connected && (
+          {twitterUser && verificationStatus?.bluechip_verified && connected && (
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-8 w-8 rounded-full flex items-center justify-center bg-muted">

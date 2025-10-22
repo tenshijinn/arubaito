@@ -223,7 +223,7 @@ export const Auth = () => {
                     style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}
                     disabled={loading}
                   >
-                    Blue Chip Connected Twitter
+                    Blue Chip Twitter
                   </Button>
                   
                   <Button
@@ -232,7 +232,7 @@ export const Auth = () => {
                     style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}
                     disabled={loading}
                   >
-                    Blue Chip Connected GitHub
+                    Blue Chip GitHub
                   </Button>
                   
                   <Button

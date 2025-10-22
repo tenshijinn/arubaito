@@ -32,7 +32,8 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { code, action, redirectUri } = await req.json();
+    const body = await req.json();
+    const { code, action, redirectUri, codeVerifier } = body;
 
     if (action === 'getAuthUrl') {
       // Generate Twitter OAuth URL
@@ -63,8 +64,6 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'exchangeToken') {
-      const { codeVerifier } = await req.json();
-      
       const clientId = Deno.env.get('TWITTER_CLIENT_ID')!;
       const clientSecret = Deno.env.get('TWITTER_CLIENT_SECRET')!;
 

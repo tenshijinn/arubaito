@@ -6,6 +6,7 @@ import { Auth } from "@/components/Auth";
 import { supabase } from "@/integrations/supabase/client";
 import { FileCheck, LogOut, History } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { CountdownTimer } from "@/components/CountdownTimer";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -91,7 +92,7 @@ const Index = () => {
                 <FileCheck className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">CV Checker</h1>
+                <h1 className="text-xl font-bold text-foreground">Private Membership Web3 Jobs Community</h1>
                 <p className="text-sm text-muted-foreground">AI-Powered CV Analysis</p>
               </div>
             </div>
@@ -118,12 +119,12 @@ const Index = () => {
           ) : (
             <div className="space-y-8">
               <div className="text-center space-y-4 mb-12">
-                <h2 className="text-4xl font-bold text-foreground">
-                  Qualify for Platform Access
+                <h2 className="text-2xl font-bold text-foreground">
+                  New Member Onboarding
                 </h2>
-                <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                  Our AI analyzes your CV against multiple quality benchmarks. Score 85% or higher to receive your CV Score and gain access to the platform waitlist.
-                </p>
+                <div className="text-lg text-muted-foreground">
+                  <CountdownTimer targetDate={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)} />
+                </div>
               </div>
 
               <CVUploader onAnalysisComplete={handleAnalysisComplete} />

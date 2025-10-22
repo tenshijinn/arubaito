@@ -57,11 +57,15 @@ export default function Rei() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
+    const state = params.get('state');
     
-    if (code && !twitterUser && !isProcessingCallback) {
+    // Only process if we have code, state, haven't processed yet, and no existing twitter user
+    if (code && state && !twitterUser && !isProcessingCallback) {
+      // Immediately clean URL to prevent re-processing
+      window.history.replaceState({}, '', '/rei');
       handleTwitterCallback(code);
     }
-  }, []);
+  }, [twitterUser, isProcessingCallback]);
 
   // Auto-advance to step 2 when Twitter is verified
   useEffect(() => {

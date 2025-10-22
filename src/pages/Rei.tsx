@@ -52,6 +52,8 @@ export default function Rei() {
   const [consent, setConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isSubmittingWhitelist, setIsSubmittingWhitelist] = useState(false);
+  const [whitelistSubmitted, setWhitelistSubmitted] = useState(false);
 
   // Check for OAuth callback
   useEffect(() => {
@@ -239,6 +241,47 @@ export default function Rei() {
     }
   };
 
+  const handleWhitelistRequest = async () => {
+    if (!twitterUser) return;
+
+    setIsSubmittingWhitelist(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('submit-whitelist-request', {
+        body: {
+          twitter_handle: twitterUser.handle,
+          x_user_id: twitterUser.x_user_id,
+          display_name: twitterUser.display_name,
+          profile_image_url: twitterUser.profile_image_url,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        setWhitelistSubmitted(true);
+        toast({
+          title: 'Request Submitted!',
+          description: data.message,
+        });
+      } else {
+        toast({
+          title: 'Already Submitted',
+          description: data.message,
+          variant: 'default',
+        });
+        setWhitelistSubmitted(true);
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to submit whitelist request',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmittingWhitelist(false);
+    }
+  };
+
   const canSubmit = file && publicKey && consent && selectedRoles.length > 0 && twitterUser && verificationStatus?.bluechip_verified;
 
   if (isSuccess) {
@@ -338,12 +381,42 @@ export default function Rei() {
                     </AlertDescription>
                   </Alert>
                 ) : (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      This account is not on the verified list. Please contact the administrator for access.
-                    </AlertDescription>
-                  </Alert>
+                  <div className="space-y-3">
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        This account is not on the verified list.
+                      </AlertDescription>
+                    </Alert>
+                    
+                    {!whitelistSubmitted ? (
+                      <div className="p-4 bg-muted rounded-lg space-y-3">
+                        <p className="text-sm font-medium">Think you should be on the whitelist?</p>
+                        <p className="text-sm text-muted-foreground">
+                          Submit your Twitter account for blue-chip verification. Our team will review your request.
+                        </p>
+                        <Button
+                          onClick={handleWhitelistRequest}
+                          disabled={isSubmittingWhitelist}
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                        >
+                          {isSubmittingWhitelist ? 'Submitting...' : 'Request Whitelist Access'}
+                        </Button>
+                      </div>
+                    ) : (
+                      <Alert className="border-primary/50 bg-primary/5">
+                        <Check className="h-4 w-4 text-primary" />
+                        <AlertDescription>
+                          <strong>Request Submitted</strong>
+                          <span className="block text-sm mt-1 text-muted-foreground">
+                            Your whitelist request has been received. We'll review it and notify you if approved.
+                          </span>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
                 )}
               </div>
             )}

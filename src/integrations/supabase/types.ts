@@ -134,7 +134,6 @@ export type Database = {
           id: string
           notes: string | null
           twitter_handle: string
-          twitter_user_id: string | null
           updated_at: string | null
           verification_type: Database["public"]["Enums"]["verification_type"]
           verified_by: string | null
@@ -144,7 +143,6 @@ export type Database = {
           id?: string
           notes?: string | null
           twitter_handle: string
-          twitter_user_id?: string | null
           updated_at?: string | null
           verification_type: Database["public"]["Enums"]["verification_type"]
           verified_by?: string | null
@@ -154,10 +152,48 @@ export type Database = {
           id?: string
           notes?: string | null
           twitter_handle?: string
-          twitter_user_id?: string | null
           updated_at?: string | null
           verification_type?: Database["public"]["Enums"]["verification_type"]
           verified_by?: string | null
+        }
+        Relationships: []
+      }
+      twitter_whitelist_submissions: {
+        Row: {
+          display_name: string | null
+          id: string
+          notes: string | null
+          profile_image_url: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          twitter_handle: string
+          x_user_id: string | null
+        }
+        Insert: {
+          display_name?: string | null
+          id?: string
+          notes?: string | null
+          profile_image_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          twitter_handle: string
+          x_user_id?: string | null
+        }
+        Update: {
+          display_name?: string | null
+          id?: string
+          notes?: string | null
+          profile_image_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          twitter_handle?: string
+          x_user_id?: string | null
         }
         Relationships: []
       }

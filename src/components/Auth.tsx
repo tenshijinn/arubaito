@@ -247,7 +247,7 @@ export const Auth = () => {
                   </div>
                   
                   <Button
-                    onClick={() => navigate('/arubaito')}
+                    onClick={() => setMode('register')}
                     className="w-full h-14 text-lg font-medium rounded-xl"
                     style={{ backgroundColor: 'hsl(var(--secondary))', color: 'hsl(var(--secondary-foreground))' }}
                   >

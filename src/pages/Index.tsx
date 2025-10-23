@@ -33,7 +33,7 @@ const Index = () => {
     if (hoveredButton === 'arubaito') {
       return {
         backgroundColor: 'hsl(var(--landing-bg))',
-        backgroundImage: 'url(/arubaito-hover.webp)',
+        backgroundImage: 'url(/arubaito-hover.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         transition: 'background-image 0.3s ease'

@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
       const { data: whitelistEntry, error: whitelistError } = await supabase
         .from('twitter_whitelist')
         .select('*')
-        .or(`twitter_handle.eq.${userData.data.username},twitter_user_id.eq.${userData.data.id}`)
+        .eq('twitter_handle', userData.data.username)
         .maybeSingle();
 
       if (whitelistError) {

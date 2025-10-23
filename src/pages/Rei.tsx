@@ -8,8 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Twitter, Wallet, FileText, Shield, AlertCircle } from 'lucide-react';
+import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, ChevronDown } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface TwitterUser {
@@ -47,6 +49,8 @@ export default function Rei() {
   
   // Form state
   const [file, setFile] = useState<File | null>(null);
+  const [manualCvText, setManualCvText] = useState('');
+  const [isManualEntryOpen, setIsManualEntryOpen] = useState(false);
   const [portfolioUrl, setPortfolioUrl] = useState('');
   const [selectedRoles, setSelectedRoles] = useState<RoleTag[]>([]);
   const [consent, setConsent] = useState(false);
@@ -191,21 +195,37 @@ export default function Rei() {
   };
 
   const handleSubmit = async () => {
-    if (!file || !publicKey || !consent || !twitterUser) return;
+    if ((!file && !manualCvText) || !publicKey || !consent || !twitterUser) return;
 
     setIsSubmitting(true);
 
     try {
-      // Upload file to Supabase Storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${twitterUser.x_user_id}_${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      let filePath = '';
+      
+      // Handle file upload if file is provided
+      if (file) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${twitterUser.x_user_id}_${Date.now()}.${fileExt}`;
+        filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('rei-contributor-files')
-        .upload(filePath, file);
+        const { error: uploadError } = await supabase.storage
+          .from('rei-contributor-files')
+          .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
+      } 
+      // Handle manual text entry
+      else if (manualCvText) {
+        const textBlob = new Blob([manualCvText], { type: 'text/plain' });
+        const fileName = `${twitterUser.x_user_id}_${Date.now()}_manual.txt`;
+        filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('rei-contributor-files')
+          .upload(filePath, textBlob);
+
+        if (uploadError) throw uploadError;
+      }
 
       // Submit registration
       const { data, error } = await supabase.functions.invoke('submit-rei-registration', {
@@ -282,7 +302,7 @@ export default function Rei() {
     }
   };
 
-  const canSubmit = file && publicKey && consent && selectedRoles.length > 0 && twitterUser && verificationStatus?.bluechip_verified;
+  const canSubmit = (file || manualCvText) && publicKey && consent && selectedRoles.length > 0 && twitterUser && verificationStatus?.bluechip_verified;
 
   if (isSuccess) {
     return (
@@ -473,6 +493,31 @@ export default function Rei() {
                     )}
                   </div>
                 </div>
+
+                {/* Manual CV Entry Option */}
+                <Collapsible open={isManualEntryOpen} onOpenChange={setIsManualEntryOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full flex justify-between items-center">
+                      <span>Or write CV manually</span>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isManualEntryOpen ? 'rotate-180' : ''}`} />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-4 space-y-3">
+                    <div>
+                      <Label htmlFor="manual-cv">Enter your CV / Resume content</Label>
+                      <Textarea
+                        id="manual-cv"
+                        placeholder="Paste or type your CV content here..."
+                        value={manualCvText}
+                        onChange={(e) => setManualCvText(e.target.value)}
+                        className="min-h-[200px] mt-2"
+                      />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Include your work experience, skills, education, and achievements
+                      </p>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
 
                 {/* Portfolio URL */}
                 <div>

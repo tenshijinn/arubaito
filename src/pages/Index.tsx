@@ -24,7 +24,7 @@ const Index = () => {
     if (hoveredButton === 'rei') {
       return {
         backgroundColor: 'hsl(var(--landing-bg))',
-        backgroundImage: 'url(/rei-hover.webp)',
+        backgroundImage: 'url(/rei-hover.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         transition: 'background-image 0.3s ease'

@@ -450,7 +450,7 @@ export default function Rei() {
                 <div className="h-8 w-8 rounded-full flex items-center justify-center bg-muted">
                   3
                 </div>
-                <h3 className="text-lg font-semibold">Submit Contributor Profile</h3>
+                <h3 className="text-lg font-semibold">submit my details</h3>
               </div>
 
               <div className="space-y-4">

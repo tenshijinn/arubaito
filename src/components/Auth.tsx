@@ -209,9 +209,8 @@ export const Auth = () => {
           Welcome to CV Checker
         </h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Card - Email/Google Auth */}
-          <Card className="p-6" style={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}>
+        <div className="flex justify-center">
+          <Card className="p-6 w-full max-w-md" style={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}>
             {mode === 'main' ? (
               <div className="space-y-4">
                 <div className="space-y-3">
@@ -227,14 +226,16 @@ export const Auth = () => {
                     Blue Chip Twitter
                   </Button>
                   
-                  <Button
-                    onClick={() => handleGoogleAuth(true)}
-                    className="w-full h-14 text-lg font-medium rounded-xl"
-                    style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}
-                    disabled={loading}
+                  <WalletMultiButton 
+                    onClick={() => setWalletIntent('register')}
+                    className="!h-14 !rounded-xl !font-medium !text-lg !w-full" 
+                    style={{ 
+                      backgroundColor: 'hsl(var(--primary))', 
+                      color: 'hsl(var(--primary-foreground))'
+                    }}
                   >
-                    Blue Chip GitHub
-                  </Button>
+                    Member NFT
+                  </WalletMultiButton>
                   
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
@@ -314,29 +315,6 @@ export const Auth = () => {
                 </div>
               </form>
             )}
-          </Card>
-
-          {/* Right Card - Wallet Auth */}
-          <Card className="p-6" style={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}>
-            <div className="h-full flex flex-col items-center justify-center space-y-6">
-              <div className="text-center space-y-2">
-                <h2 className="text-2xl font-bold" style={{ color: 'hsl(var(--foreground))' }}>
-                  Signin with Member NFT
-                </h2>
-                <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
-                  Connects wallet and checks for the presence of an NFT or not
-                </p>
-              </div>
-              
-              <WalletMultiButton 
-                onClick={() => setWalletIntent('register')}
-                className="!h-14 !rounded-xl !font-medium !text-lg !w-full !max-w-sm" 
-                style={{ 
-                  backgroundColor: 'hsl(var(--primary))', 
-                  color: 'hsl(var(--primary-foreground))'
-                }}
-              />
-            </div>
           </Card>
         </div>
       </div>

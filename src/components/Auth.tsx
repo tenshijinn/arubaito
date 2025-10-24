@@ -226,16 +226,33 @@ export const Auth = () => {
                     Blue Chip Twitter
                   </Button>
                   
-                  <WalletMultiButton 
-                    onClick={() => setWalletIntent('register')}
-                    className="!h-14 !rounded-xl !font-medium !text-lg !w-full" 
-                    style={{ 
-                      backgroundColor: 'hsl(var(--primary))', 
-                      color: 'hsl(var(--primary-foreground))'
-                    }}
-                  >
-                    Member NFT
-                  </WalletMultiButton>
+                  <div className="wallet-button-wrapper">
+                    <WalletMultiButton 
+                      onClick={() => setWalletIntent('register')}
+                      className="!h-14 !rounded-xl !font-medium !text-lg !w-full" 
+                      style={{ 
+                        backgroundColor: 'hsl(var(--primary))', 
+                        color: 'hsl(var(--primary-foreground))'
+                      }}
+                    />
+                  </div>
+                  <style>{`
+                    .wallet-button-wrapper button {
+                      height: 3.5rem !important;
+                      border-radius: 0.75rem !important;
+                      font-size: 1.125rem !important;
+                      font-weight: 500 !important;
+                      width: 100% !important;
+                      background-color: hsl(var(--primary)) !important;
+                      color: hsl(var(--primary-foreground)) !important;
+                    }
+                    .wallet-button-wrapper button::before {
+                      content: 'Member NFT' !important;
+                    }
+                    .wallet-button-wrapper button span {
+                      display: none !important;
+                    }
+                  `}</style>
                   
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">

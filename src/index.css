@@ -8,103 +8,77 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 40% 5%;
-    --foreground: 0 5% 91%;
+    --background: 350 20% 18%;
+    --foreground: 358 79% 64%;
 
-    --card: 0 35% 8%;
-    --card-foreground: 0 5% 91%;
+    --card: 350 18% 16%;
+    --card-foreground: 358 79% 64%;
 
-    --popover: 0 35% 8%;
-    --popover-foreground: 0 5% 91%;
+    --popover: 350 18% 16%;
+    --popover-foreground: 358 79% 64%;
 
     --primary: 358 79% 64%;
-    --primary-foreground: 0 5% 91%;
-    --primary-glow: 358 79% 73%;
+    --primary-foreground: 350 20% 18%;
 
-    --secondary: 0 20% 15%;
-    --secondary-foreground: 0 5% 91%;
+    --secondary: 350 15% 22%;
+    --secondary-foreground: 358 79% 64%;
 
     --accent: 358 79% 64%;
-    --accent-foreground: 0 5% 91%;
-    --accent-glow: 358 79% 73%;
+    --accent-foreground: 350 20% 18%;
 
-    --success: 358 79% 64%;
-    --success-foreground: 0 5% 91%;
-
-    --warning: 358 79% 64%;
-    --warning-foreground: 0 5% 91%;
-
-    --muted: 0 20% 15%;
-    --muted-foreground: 358 40% 50%;
+    --muted: 350 15% 22%;
+    --muted-foreground: 358 60% 55%;
 
     --destructive: 358 79% 64%;
-    --destructive-foreground: 0 5% 91%;
+    --destructive-foreground: 350 20% 18%;
 
-    --border: 358 58% 18%;
-    --input: 358 58% 18%;
+    --border: 358 79% 64%;
+    --input: 350 15% 22%;
     --ring: 358 79% 64%;
 
-    --radius: 0.25rem;
+    --radius: 0.125rem;
 
-    --landing-bg: 0 40% 5%;
-    --landing-border: 358 58% 18%;
-
-    --gradient-primary: linear-gradient(135deg, hsl(358, 79%, 64%), hsl(358, 79%, 73%));
-    --gradient-success: linear-gradient(135deg, hsl(358, 79%, 64%), hsl(358, 79%, 73%));
-    --gradient-hero: linear-gradient(135deg, hsl(358, 79%, 64%) 0%, hsl(358, 79%, 73%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(358, 79%, 64%), hsl(358, 79%, 70%));
     
-    --shadow-elegant: 0 4px 12px -4px hsl(358 79% 64% / 0.15);
-    --shadow-glow: 0 0 20px hsl(358 79% 64% / 0.2);
+    --shadow-elegant: 0 2px 8px -2px hsl(358 79% 64% / 0.15);
+    --shadow-glow: 0 0 16px hsl(358 79% 64% / 0.2);
 
-    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.15s ease-out;
   }
 
   .dark {
-    --background: 0 40% 5%;
-    --foreground: 0 5% 91%;
+    --background: 350 20% 18%;
+    --foreground: 358 79% 64%;
 
-    --card: 0 35% 8%;
-    --card-foreground: 0 5% 91%;
+    --card: 350 18% 16%;
+    --card-foreground: 358 79% 64%;
 
-    --popover: 0 35% 8%;
-    --popover-foreground: 0 5% 91%;
+    --popover: 350 18% 16%;
+    --popover-foreground: 358 79% 64%;
 
     --primary: 358 79% 64%;
-    --primary-foreground: 0 5% 91%;
-    --primary-glow: 358 79% 73%;
+    --primary-foreground: 350 20% 18%;
 
-    --secondary: 0 20% 15%;
-    --secondary-foreground: 0 5% 91%;
+    --secondary: 350 15% 22%;
+    --secondary-foreground: 358 79% 64%;
 
     --accent: 358 79% 64%;
-    --accent-foreground: 0 5% 91%;
-    --accent-glow: 358 79% 73%;
+    --accent-foreground: 350 20% 18%;
 
-    --success: 358 79% 64%;
-    --success-foreground: 0 5% 91%;
-
-    --warning: 358 79% 64%;
-    --warning-foreground: 0 5% 91%;
-
-    --muted: 0 20% 15%;
-    --muted-foreground: 358 40% 50%;
+    --muted: 350 15% 22%;
+    --muted-foreground: 358 60% 55%;
 
     --destructive: 358 79% 64%;
-    --destructive-foreground: 0 5% 91%;
+    --destructive-foreground: 350 20% 18%;
 
-    --border: 358 58% 18%;
-    --input: 358 58% 18%;
+    --border: 358 79% 64%;
+    --input: 350 15% 22%;
     --ring: 358 79% 64%;
 
-    --landing-bg: 0 40% 5%;
-    --landing-border: 358 58% 18%;
-
-    --gradient-primary: linear-gradient(135deg, hsl(358, 79%, 64%), hsl(358, 79%, 73%));
-    --gradient-success: linear-gradient(135deg, hsl(358, 79%, 64%), hsl(358, 79%, 73%));
-    --gradient-hero: linear-gradient(135deg, hsl(358, 79%, 64%) 0%, hsl(358, 79%, 73%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(358, 79%, 64%), hsl(358, 79%, 70%));
     
-    --shadow-elegant: 0 4px 12px -4px hsl(358 79% 64% / 0.15);
-    --shadow-glow: 0 0 20px hsl(358 79% 64% / 0.2);
+    --shadow-elegant: 0 2px 8px -2px hsl(358 79% 64% / 0.15);
+    --shadow-glow: 0 0 16px hsl(358 79% 64% / 0.2);
   }
 }
 
@@ -115,5 +89,29 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 0.025em;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  button {
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 0.05em;
+  }
+
+  input, textarea, select {
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  /* Ensure proper spacing throughout */
+  .container {
+    @apply px-6 py-8;
   }
 }

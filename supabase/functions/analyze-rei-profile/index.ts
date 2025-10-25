@@ -11,6 +11,9 @@ interface AnalysisRequest {
   roleTags: string[];
 }
 
+// Moralis MCP API endpoint
+const MORALIS_MCP_URL = 'http://localhost:7332';
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -20,7 +23,6 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
-    const covalentApiKey = Deno.env.get('COVALENT_API_KEY');
 
     const { transcript, walletAddress, roleTags }: AnalysisRequest = await req.json();
 
@@ -89,50 +91,108 @@ Please analyze this contributor's profile based on their video introduction.`;
     const analysisText = aiData.choices[0].message.content;
     let analysis = JSON.parse(analysisText);
 
-    // Verify wallet history if Covalent API is available
+    // Verify wallet history using Moralis MCP API
     let walletVerification = null;
     let bluechipScore = 0;
 
-    if (covalentApiKey && walletAddress) {
-      console.log('Verifying wallet history...');
+    if (walletAddress) {
+      console.log('Verifying Solana wallet history via Moralis MCP...');
       
       try {
-        // Check Ethereum mainnet
-        const ethResponse = await fetch(
-          `https://api.covalenthq.com/v1/eth-mainnet/address/${walletAddress}/transactions_v3/page/0/?key=${covalentApiKey}`
-        );
+        // Fetch wallet transactions from Moralis MCP
+        const txResponse = await fetch(`${MORALIS_MCP_URL}/getWalletTransactions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: walletAddress,
+            chain: 'solana'
+          })
+        });
 
-        if (ethResponse.ok) {
-          const ethData = await ethResponse.json();
-          const transactions = ethData.data?.items || [];
+        // Fetch wallet tokens from Moralis MCP
+        const tokensResponse = await fetch(`${MORALIS_MCP_URL}/getWalletTokens`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: walletAddress,
+            chain: 'solana'
+          })
+        });
+
+        // Fetch wallet NFTs from Moralis MCP
+        const nftsResponse = await fetch(`${MORALIS_MCP_URL}/getWalletNFTs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: walletAddress,
+            chain: 'solana'
+          })
+        });
+
+        if (txResponse.ok) {
+          const txData = await txResponse.json();
+          const transactions = txData.result || txData.transactions || [];
           
           if (transactions.length > 0) {
-            const oldestTx = transactions[transactions.length - 1];
-            const firstTxDate = new Date(oldestTx.block_signed_at);
-            const accountAge = Math.floor((Date.now() - firstTxDate.getTime()) / (1000 * 60 * 60 * 24));
+            // Find oldest transaction
+            const timestamps = transactions
+              .map((tx: any) => tx.blockTime || tx.timestamp)
+              .filter((t: any) => t)
+              .sort((a: number, b: number) => a - b);
             
-            // Calculate bluechip score based on account age and activity
-            if (accountAge > 1095) bluechipScore += 40; // 3+ years
-            else if (accountAge > 730) bluechipScore += 30; // 2+ years
-            else if (accountAge > 365) bluechipScore += 20; // 1+ year
-            
-            if (transactions.length > 100) bluechipScore += 30;
-            else if (transactions.length > 50) bluechipScore += 20;
-            else if (transactions.length > 10) bluechipScore += 10;
+            if (timestamps.length > 0) {
+              const firstTxDate = new Date(timestamps[0] * 1000);
+              const accountAge = Math.floor((Date.now() - firstTxDate.getTime()) / (1000 * 60 * 60 * 24));
+              
+              // Calculate bluechip score based on account age and activity
+              if (accountAge > 1095) bluechipScore += 40; // 3+ years
+              else if (accountAge > 730) bluechipScore += 30; // 2+ years
+              else if (accountAge > 365) bluechipScore += 20; // 1+ year
+              
+              if (transactions.length > 100) bluechipScore += 30;
+              else if (transactions.length > 50) bluechipScore += 20;
+              else if (transactions.length > 10) bluechipScore += 10;
 
-            walletVerification = {
-              verified: true,
-              chain: 'Ethereum',
-              first_transaction: firstTxDate.toISOString(),
-              account_age_days: accountAge,
-              transaction_count: transactions.length,
-              bluechip_score: Math.min(bluechipScore, 100)
-            };
+              // Get token and NFT counts for additional scoring
+              let tokenCount = 0;
+              let nftCount = 0;
+
+              if (tokensResponse.ok) {
+                const tokensData = await tokensResponse.json();
+                tokenCount = (tokensData.result || tokensData.tokens || []).length;
+                if (tokenCount > 10) bluechipScore += 15;
+                else if (tokenCount > 5) bluechipScore += 10;
+                else if (tokenCount > 0) bluechipScore += 5;
+              }
+
+              if (nftsResponse.ok) {
+                const nftsData = await nftsResponse.json();
+                nftCount = (nftsData.result || nftsData.nfts || []).length;
+                if (nftCount > 20) bluechipScore += 15;
+                else if (nftCount > 10) bluechipScore += 10;
+                else if (nftCount > 0) bluechipScore += 5;
+              }
+
+              walletVerification = {
+                verified: true,
+                chain: 'Solana',
+                first_transaction: firstTxDate.toISOString(),
+                account_age_days: accountAge,
+                transaction_count: transactions.length,
+                token_count: tokenCount,
+                nft_count: nftCount,
+                bluechip_score: Math.min(bluechipScore, 100)
+              };
+
+              console.log('Wallet verified:', walletVerification);
+            }
           }
+        } else {
+          console.warn('Moralis MCP transaction fetch failed:', await txResponse.text());
         }
       } catch (walletError) {
-        console.warn('Wallet verification failed:', walletError);
-        walletVerification = { verified: false, error: 'Unable to verify wallet history' };
+        console.error('Wallet verification failed:', walletError);
+        walletVerification = { verified: false, error: 'Unable to verify wallet history via Moralis MCP' };
       }
     }
 

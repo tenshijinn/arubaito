@@ -1,22 +1,39 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CVUploader } from "@/components/CVUploader";
 import { CVAnalysis } from "@/components/CVAnalysis";
-import { Auth } from "@/components/Auth";
 import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
-import { FileCheck, LogOut, History, Info } from "lucide-react";
+import { FileCheck, LogOut, History, Info, Twitter, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null);
   const [recentAnalyses, setRecentAnalyses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [twitterUser, setTwitterUser] = useState<any>(null);
+  const [isProcessingCallback, setIsProcessingCallback] = useState(false);
+  const [showTwitterLogin, setShowTwitterLogin] = useState(false);
 
   useEffect(() => {
+    // Check for OAuth callback
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+    
+    if (code && state && !twitterUser && !isProcessingCallback) {
+      window.history.replaceState({}, '', '/arubaito');
+      handleTwitterCallback(code);
+      return;
+    }
+
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -39,7 +56,99 @@ const Index = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [twitterUser, isProcessingCallback]);
+
+  const handleTwitterLogin = async () => {
+    try {
+      const redirectUri = `${window.location.origin}/arubaito`;
+      const { data, error } = await supabase.functions.invoke('twitter-oauth', {
+        body: { action: 'getAuthUrl', redirectUri },
+      });
+
+      if (error) throw error;
+
+      sessionStorage.setItem('twitter_code_verifier', data.codeVerifier);
+      window.location.href = data.authUrl;
+    } catch (error) {
+      toast.error('Failed to initiate Twitter login');
+      console.error('Twitter login error:', error);
+    }
+  };
+
+  const handleTwitterCallback = async (code: string) => {
+    setIsProcessingCallback(true);
+    try {
+      const storedVerifier = sessionStorage.getItem('twitter_code_verifier');
+      const redirectUri = `${window.location.origin}/arubaito`;
+      
+      const { data, error } = await supabase.functions.invoke('twitter-oauth', {
+        body: { 
+          action: 'exchangeToken',
+          code,
+          codeVerifier: storedVerifier,
+          redirectUri,
+        },
+      });
+
+      if (error) throw error;
+
+      // Check if user is whitelisted (bluechip verified)
+      if (!data.bluechip_verified) {
+        toast.error('Access denied: You are not on the bluechip whitelist');
+        setShowTwitterLogin(true);
+        sessionStorage.removeItem('twitter_code_verifier');
+        setIsProcessingCallback(false);
+        return;
+      }
+
+      setTwitterUser(data.user);
+      sessionStorage.removeItem('twitter_code_verifier');
+      
+      // Auto-create account and sign in
+      const email = `${data.user.x_user_id}@twitter.arubaito.app`;
+      const password = `twitter_${data.user.x_user_id}_${Math.random().toString(36)}`;
+      
+      // Try to sign in first
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        // If sign in fails, create account
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              twitter_handle: data.user.handle,
+              display_name: data.user.display_name,
+            },
+          },
+        });
+
+        if (signUpError) throw signUpError;
+
+        // Sign in after signup
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+      }
+
+      toast.success(`Welcome, @${data.user.handle}!`);
+      
+      // Redirect to Club if verified
+      setTimeout(() => {
+        navigate('/club');
+      }, 2000);
+    } catch (error) {
+      toast.error('Failed to complete Twitter login');
+      console.error('Twitter callback error:', error);
+    } finally {
+      setIsProcessingCallback(false);
+    }
+  };
 
   const fetchRecentAnalyses = async (userId: string) => {
     const { data, error } = await supabase
@@ -79,8 +188,38 @@ const Index = () => {
     );
   }
 
-  if (!user) {
-    return <Auth />;
+  if (!user && !twitterUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="max-w-md w-full p-8 bg-transparent">
+          <div className="text-center space-y-6">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold text-foreground">Bluechip Twitter Login</h1>
+              <p className="text-muted-foreground">Access exclusive Web3 jobs community</p>
+            </div>
+            
+            {showTwitterLogin && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Only whitelisted Twitter accounts can access this platform. Please ensure you're on the bluechip whitelist.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <Button
+              onClick={handleTwitterLogin}
+              size="lg"
+              className="w-full"
+              disabled={isProcessingCallback}
+            >
+              <Twitter className="mr-2 h-5 w-5" />
+              {isProcessingCallback ? 'Verifying...' : 'Sign in with Twitter'}
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   const userName = user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0];

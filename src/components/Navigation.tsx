@@ -30,7 +30,7 @@ export const Navigation = ({ userName }: NavigationProps) => {
                     MENU
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid w-48 gap-1 p-2 bg-background border border-border">
+                    <ul className="grid w-48 gap-1 p-2 m-2.5 bg-transparent border-4 border-border rounded-2xl">
                       <li>
                         <NavigationMenuLink asChild>
                           <Link

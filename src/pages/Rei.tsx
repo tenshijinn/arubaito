@@ -89,15 +89,6 @@ export default function Rei() {
     }
   }, [connected, twitterUser]);
 
-  // Show bluechip verification status
-  useEffect(() => {
-    if (verificationStatus?.bluechip_verified && connected && publicKey) {
-      toast({
-        title: '🎉 Bluechip Verified!',
-        description: 'You have verified bluechip status!',
-      });
-    }
-  }, [verificationStatus, connected, publicKey, toast]);
 
   const handleTwitterLogin = async () => {
     try {
@@ -292,9 +283,6 @@ export default function Rei() {
               <p className="text-sm text-muted-foreground mb-1">Wallet Address</p>
               <p className="text-xs font-mono break-all">{publicKey?.toString()}</p>
             </div>
-            <Button onClick={() => navigate('/club')} className="w-full">
-              Go to Club
-            </Button>
           </CardContent>
         </Card>
         </div>

@@ -82,7 +82,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'hsl(var(--background))' }}>
+    <div className="min-h-screen">
       {/* Header */}
       <header className="border-b" style={{ background: 'hsl(var(--card))' }}>
         <div className="container mx-auto px-4 py-6">

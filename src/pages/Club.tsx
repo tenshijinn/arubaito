@@ -51,7 +51,7 @@ export default function Club() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
           <p className="text-muted-foreground font-mono">VERIFYING ACCESS...</p>
@@ -62,7 +62,7 @@ export default function Club() {
 
   if (!isVerified || !publicKey) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="max-w-md w-full p-8 text-center space-y-6">
           <div className="mx-auto h-16 w-16 rounded-sm bg-destructive/10 flex items-center justify-center">
             <Shield className="h-8 w-8 text-destructive" />
@@ -90,7 +90,7 @@ export default function Club() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-6 py-8">

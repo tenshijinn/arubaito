@@ -210,7 +210,7 @@ export const Auth = () => {
         </h1>
         
         <div className="flex justify-center">
-          <Card className="p-6 w-full max-w-md" style={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}>
+          <Card className="p-6 w-full max-w-md bg-transparent" style={{ borderColor: 'hsl(var(--border))' }}>
             {mode === 'main' ? (
               <div className="space-y-4">
                 <div className="space-y-3">
@@ -274,7 +274,7 @@ export const Auth = () => {
                       <div className="w-full border-t" style={{ borderColor: 'hsl(var(--border))' }}></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-4 font-medium" style={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--muted-foreground))' }}>or</span>
+                      <span className="px-4 font-medium bg-transparent" style={{ color: 'hsl(var(--muted-foreground))' }}>or</span>
                     </div>
                   </div>
                   

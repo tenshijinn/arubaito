@@ -63,7 +63,7 @@ export default function Club() {
   if (!isVerified || !publicKey) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="max-w-md w-full p-8 text-center space-y-6">
+        <Card className="max-w-md w-full p-8 text-center space-y-6 bg-transparent">
           <div className="mx-auto h-16 w-16 rounded-sm bg-destructive/10 flex items-center justify-center">
             <Shield className="h-8 w-8 text-destructive" />
           </div>

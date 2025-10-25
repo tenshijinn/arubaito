@@ -131,7 +131,7 @@ const Index = () => {
 
               {/* Recent Analyses */}
               {recentAnalyses.length > 0 && (
-                <Card>
+                <Card className="bg-transparent">
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-2 mb-4">
                       <History className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />

@@ -81,7 +81,7 @@ export function CVBuilder({ memberData }: CVBuilderProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-card border border-border">
+      <Card className="bg-transparent border border-border">
         <CardHeader>
           <CardTitle className="text-xl font-mono text-foreground">PROFESSIONAL PROFILE</CardTitle>
           <p className="text-sm text-muted-foreground font-mono">
@@ -155,7 +155,7 @@ export function CVBuilder({ memberData }: CVBuilderProps) {
             </div>
             <div className="space-y-4">
               {experiences.map((exp) => (
-                <Card key={exp.id} className="bg-background border border-border">
+                <Card key={exp.id} className="bg-transparent border border-border">
                   <CardContent className="p-4 space-y-3">
                     <div className="flex justify-end">
                       <button

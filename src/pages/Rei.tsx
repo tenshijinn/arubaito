@@ -266,7 +266,7 @@ export default function Rei() {
   if (isSuccess) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md bg-transparent">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
               <Check className="h-8 w-8 text-primary" />
@@ -292,7 +292,7 @@ export default function Rei() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-2xl bg-transparent">
         <CardHeader>
           <CardTitle className="text-3xl font-bold">Rei Proof-Of-Talent Portal</CardTitle>
           <CardDescription>

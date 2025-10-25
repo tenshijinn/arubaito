@@ -84,7 +84,7 @@ export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {analysis.bluechip_verified && (
-        <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+        <Card className="p-6 bg-transparent bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
           <div className="flex items-start gap-4">
             <Award className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
             <div className="flex-1">
@@ -110,7 +110,7 @@ export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
 
       {analysis.scoring_details ? (
         <>
-          <Card className="p-6">
+          <Card className="p-6 bg-transparent">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Web3 Proof-of-Talent Score</h2>
               <div className="text-right">
@@ -175,7 +175,7 @@ export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
           </Card>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <Card className="p-6">
+            <Card className="p-6 bg-transparent">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <Award className="w-5 h-5 text-green-600" />
                 Top Strengths
@@ -190,7 +190,7 @@ export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
               </ul>
             </Card>
 
-            <Card className="p-6">
+            <Card className="p-6 bg-transparent">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <Target className="w-5 h-5 text-orange-600" />
                 Recommended Improvements
@@ -207,9 +207,9 @@ export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
           </div>
         </>
       ) : (
-        <Card className="p-6">
+        <Card className="p-6 bg-transparent">
           <h2 className="text-2xl font-bold mb-6">Analysis Results</h2>
-          <Card className="p-4 bg-muted/50">
+          <Card className="p-4 bg-transparent bg-muted/50">
             <div className="flex items-start gap-3">
               <FileText className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'hsl(var(--primary))' }} />
               <div className="space-y-2 flex-1">

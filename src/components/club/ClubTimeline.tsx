@@ -82,7 +82,7 @@ export function ClubTimeline() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-card border border-border">
+      <Card className="bg-transparent border border-border">
         <CardHeader>
           <CardTitle className="text-xl font-mono text-foreground">MEMBERSHIP ROADMAP</CardTitle>
           <p className="text-sm text-muted-foreground font-mono">
@@ -104,7 +104,7 @@ export function ClubTimeline() {
                   onClick={() => setSelectedEvent(event)}
                   className="w-full text-left group"
                 >
-                  <Card className="border border-border hover:border-primary/50 transition-all hover:shadow-[0_0_15px_rgba(237,86,90,0.1)]">
+                  <Card className="bg-transparent border border-border hover:border-primary/50 transition-all hover:shadow-[0_0_15px_rgba(237,86,90,0.1)]">
                     <CardContent className="p-4 space-y-3">
                       <div className="flex items-start justify-between gap-4">
                         <div className="space-y-1">
@@ -129,7 +129,7 @@ export function ClubTimeline() {
 
       {/* Selected Event Details */}
       {selectedEvent && (
-        <Card className="bg-card border border-primary/50 shadow-[0_0_20px_rgba(237,86,90,0.15)]">
+        <Card className="bg-transparent border border-primary/50 shadow-[0_0_20px_rgba(237,86,90,0.15)]">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="space-y-1">

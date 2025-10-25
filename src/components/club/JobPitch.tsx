@@ -53,7 +53,7 @@ export function JobPitch({ memberData }: JobPitchProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-card border border-border">
+      <Card className="bg-transparent border border-border">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-sm">

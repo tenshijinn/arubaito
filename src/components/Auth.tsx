@@ -15,7 +15,8 @@ if (typeof window !== 'undefined') {
   const twitterCode = urlParams.get('code');
   const twitterState = urlParams.get('state');
   
-  if (twitterCode && twitterState === 'twitter_oauth') {
+  // Check if we have a code and there's a stored code verifier (indicating Twitter OAuth flow)
+  if (twitterCode && twitterState && sessionStorage.getItem('twitter_code_verifier')) {
     sessionStorage.setItem('twitter_code', twitterCode);
     window.history.replaceState({}, document.title, window.location.pathname);
   }

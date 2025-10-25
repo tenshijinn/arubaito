@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Video, Square, Play, RotateCcw, Loader2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Video, Square, Play, RotateCcw, Loader2, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { FaceBlurProcessor } from '@/utils/faceBlurProcessor';
 
 interface VideoRecorderProps {
   onVideoReady: (videoBlob: Blob) => void;
@@ -20,17 +23,23 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [hasPermission, setHasPermission] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
+  const [privacyMode, setPrivacyMode] = useState(false);
+  const [isProcessingVideo, setIsProcessingVideo] = useState(false);
   
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const processingCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const faceBlurProcessorRef = useRef<FaceBlurProcessor | null>(null);
+  const processedStreamRef = useRef<MediaStream | null>(null);
 
   const maxDurationMs = maxDurationMinutes * 60 * 1000;
 
   useEffect(() => {
     return () => {
       stopStream();
+      cleanupFaceBlurProcessor();
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
@@ -75,21 +84,68 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
       stream.getTracks().forEach(track => track.stop());
       setStream(null);
     }
+    if (processedStreamRef.current) {
+      processedStreamRef.current.getTracks().forEach(track => track.stop());
+      processedStreamRef.current = null;
+    }
   };
 
-  const startRecording = () => {
+  const cleanupFaceBlurProcessor = () => {
+    if (faceBlurProcessorRef.current) {
+      faceBlurProcessorRef.current.dispose();
+      faceBlurProcessorRef.current = null;
+    }
+    setIsProcessingVideo(false);
+  };
+
+  const startRecording = async () => {
     if (!stream) return;
 
     chunksRef.current = [];
     
     try {
+      let recordingStream = stream;
+
+      // If privacy mode is enabled, initialize face blur processing
+      if (privacyMode && videoPreviewRef.current) {
+        setIsProcessingVideo(true);
+        
+        try {
+          // Create canvas for processing
+          const canvas = document.createElement('canvas');
+          processingCanvasRef.current = canvas;
+          
+          // Initialize face blur processor
+          const processor = new FaceBlurProcessor(videoPreviewRef.current, canvas);
+          faceBlurProcessorRef.current = processor;
+          
+          await processor.initialize();
+          recordingStream = await processor.startProcessing();
+          processedStreamRef.current = recordingStream;
+          
+          toast({
+            title: "Privacy Mode Active",
+            description: "Your face will be blurred in the recording",
+          });
+        } catch (error) {
+          console.error('Failed to initialize face blur:', error);
+          toast({
+            title: "Privacy Mode Failed",
+            description: "Recording without face blur. Please try again.",
+            variant: "destructive",
+          });
+          cleanupFaceBlurProcessor();
+          recordingStream = stream;
+        }
+      }
+      
       const options = {
         mimeType: 'video/webm;codecs=vp8,opus',
         videoBitsPerSecond: 2500000,
         audioBitsPerSecond: 128000
       };
 
-      const mediaRecorder = new MediaRecorder(stream, options);
+      const mediaRecorder = new MediaRecorder(recordingStream, options);
       
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -143,6 +199,7 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
         timerRef.current = null;
       }
       
+      cleanupFaceBlurProcessor();
       stopStream();
     }
   };
@@ -151,6 +208,8 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
     setRecordedBlob(null);
     setRecordingTime(0);
     setHasPermission(false);
+    setPrivacyMode(false);
+    cleanupFaceBlurProcessor();
     
     if (videoPreviewRef.current) {
       videoPreviewRef.current.src = '';
@@ -186,6 +245,14 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
               className="w-full h-full object-cover"
             />
             
+            {/* Privacy Mode Indicator */}
+            {privacyMode && isRecording && (
+              <div className="absolute top-4 left-4 flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-full">
+                <Lock className="w-3 h-3" />
+                <span className="text-sm font-medium">Privacy Mode</span>
+              </div>
+            )}
+
             {/* Recording Indicator */}
             {isRecording && (
               <div className="absolute top-4 right-4 flex items-center gap-2 bg-destructive text-destructive-foreground px-3 py-1.5 rounded-full">
@@ -212,6 +279,26 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
             Maximum recording time: {maxDurationMinutes} minutes
           </p>
 
+          {/* Privacy Mode Toggle */}
+          {hasPermission && !recordedBlob && !isRecording && (
+            <div className="flex items-center justify-center gap-3 p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="privacy-mode"
+                  checked={privacyMode}
+                  onCheckedChange={setPrivacyMode}
+                />
+                <Label htmlFor="privacy-mode" className="cursor-pointer flex items-center gap-2">
+                  <Lock className="w-4 h-4" />
+                  Privacy Mode - Blur Face
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground max-w-md">
+                Your face will be automatically blurred in the recording. Voice transcription will work normally.
+              </p>
+            </div>
+          )}
+
           {/* Controls */}
           <div className="flex gap-2 justify-center">
             {!hasPermission && !recordedBlob && (
@@ -235,9 +322,22 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
             )}
 
             {hasPermission && !recordedBlob && !isRecording && (
-              <Button onClick={startRecording} className="gap-2">
-                <Play className="w-4 h-4" />
-                Start Recording
+              <Button 
+                onClick={startRecording} 
+                className="gap-2"
+                disabled={isProcessingVideo}
+              >
+                {isProcessingVideo ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Initializing Privacy Mode...
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" />
+                    Start Recording
+                  </>
+                )}
               </Button>
             )}
 
@@ -266,6 +366,7 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
             <div className="text-sm text-muted-foreground space-y-1 text-center">
               <p className="font-medium">Tips for a great video CV:</p>
               <ul className="text-xs space-y-1">
+                {privacyMode && <li>• Privacy mode is active - your face will be blurred</li>}
                 <li>• Introduce yourself and your background</li>
                 <li>• Highlight your Web3 experience and projects</li>
                 <li>• Mention your skills and role expertise</li>

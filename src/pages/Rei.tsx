@@ -11,9 +11,10 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { VideoRecorder } from '@/components/VideoRecorder';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info } from 'lucide-react';
+import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info, Sparkles, Briefcase, CheckCircle2, Video, Globe, Edit2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
 
 interface TwitterUser {
@@ -306,6 +307,8 @@ export default function Rei() {
   const userName = twitterUser?.display_name?.split(' ')[0] || twitterUser?.handle;
 
   if (isSuccess && registrationData && !isEditMode) {
+    const analysis = registrationData.profile_analysis as any;
+
     return (
       <div className="min-h-screen">
         <Navigation userName={userName} />
@@ -321,6 +324,127 @@ export default function Rei() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* AI Profile Analysis */}
+              {analysis && registrationData.profile_score && (
+                <div className="space-y-4 p-5 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-lg">Profile Analysis</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-3xl font-bold text-primary">
+                        {Math.round(registrationData.profile_score)}
+                      </span>
+                      <span className="text-sm text-muted-foreground">/100</span>
+                    </div>
+                  </div>
+
+                  {/* Summary */}
+                  {registrationData.analysis_summary && (
+                    <p className="text-sm text-muted-foreground italic">
+                      "{registrationData.analysis_summary}"
+                    </p>
+                  )}
+
+                  {/* Category Scores */}
+                  {analysis.category_scores && (
+                    <div className="grid grid-cols-2 gap-3">
+                      {Object.entries(analysis.category_scores).map(([category, score]: [string, any]) => (
+                        <div key={category} className="bg-background/50 rounded p-3">
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-xs capitalize">
+                              {category.replace('_', ' ')}
+                            </span>
+                            <span className="text-sm font-semibold">{score}/25</span>
+                          </div>
+                          <Progress value={(score / 25) * 100} className="h-1.5" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Key Strengths */}
+                  {analysis.key_strengths && analysis.key_strengths.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        Key Strengths
+                      </h4>
+                      <ul className="space-y-1">
+                        {analysis.key_strengths.map((strength: string, idx: number) => (
+                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span>{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Experience Highlights */}
+                  {analysis.experience_highlights && analysis.experience_highlights.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm flex items-center gap-2">
+                        <Briefcase className="h-4 w-4 text-primary" />
+                        Experience Highlights
+                      </h4>
+                      <ul className="space-y-1">
+                        {analysis.experience_highlights.map((exp: string, idx: number) => (
+                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                            <span className="text-primary">•</span>
+                            <span>{exp}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Wallet Verification */}
+                  {analysis.wallet_verification?.verified && (
+                    <div className="bg-background/50 rounded p-3">
+                      <h4 className="font-medium text-sm flex items-center gap-2 mb-2">
+                        <Shield className="h-4 w-4 text-green-500" />
+                        Wallet Verified
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Chain:</span>
+                          <span className="ml-1 font-medium">{analysis.wallet_verification.chain}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Account Age:</span>
+                          <span className="ml-1 font-medium">{analysis.wallet_verification.account_age_days} days</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Transactions:</span>
+                          <span className="ml-1 font-medium">{analysis.wallet_verification.transaction_count}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Bluechip Score:</span>
+                          <span className="ml-1 font-medium">{analysis.wallet_verification.bluechip_score}/100</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recommended Improvements */}
+                  {analysis.recommended_improvements && analysis.recommended_improvements.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4 text-amber-500" />
+                        Recommended Improvements
+                      </h4>
+                      <ul className="space-y-1">
+                        {analysis.recommended_improvements.map((improvement: string, idx: number) => (
+                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                            <span className="text-amber-500">→</span>
+                            <span>{improvement}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Twitter Identity */}
               <div>
                 <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Identity</h3>

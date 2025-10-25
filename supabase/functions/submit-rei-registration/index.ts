@@ -74,6 +74,47 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Run AI analysis if we have a transcript
+    let profileAnalysis = null;
+    let analysisSummary = null;
+    let profileScore = null;
+
+    if (processedFilePath.endsWith('_transcript.txt') || processedFilePath.endsWith('.txt')) {
+      console.log('Running AI analysis on transcript...');
+      
+      try {
+        // Get the transcript content
+        const { data: transcriptData, error: downloadError } = await supabase.storage
+          .from('rei-contributor-files')
+          .download(processedFilePath);
+
+        if (!downloadError && transcriptData) {
+          const transcriptText = await transcriptData.text();
+          
+          // Call analyze-rei-profile function
+          const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-rei-profile', {
+            body: {
+              transcript: transcriptText,
+              walletAddress: registrationData.wallet_address,
+              roleTags: registrationData.role_tags
+            }
+          });
+
+          if (!analysisError && analysisData?.analysis) {
+            profileAnalysis = analysisData.analysis;
+            analysisSummary = analysisData.analysis.summary;
+            profileScore = analysisData.analysis.overall_score;
+            console.log('AI analysis completed. Score:', profileScore);
+          } else {
+            console.warn('Analysis failed:', analysisError);
+          }
+        }
+      } catch (analysisError) {
+        console.warn('Failed to run AI analysis:', analysisError);
+        // Continue without analysis
+      }
+    }
+
     // Upsert registration data
     const { data, error } = await supabase
       .from('rei_registry')
@@ -85,10 +126,13 @@ Deno.serve(async (req) => {
           profile_image_url: registrationData.profile_image_url,
           verified: registrationData.verified,
           wallet_address: registrationData.wallet_address,
-          file_path: processedFilePath, // Use transcript file if video was transcribed
+          file_path: processedFilePath,
           portfolio_url: registrationData.portfolio_url,
           role_tags: registrationData.role_tags,
           consent: registrationData.consent,
+          profile_analysis: profileAnalysis,
+          analysis_summary: analysisSummary,
+          profile_score: profileScore,
         },
         { 
           onConflict: 'wallet_address',

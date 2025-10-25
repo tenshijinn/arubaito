@@ -7,6 +7,12 @@ site_url = "https://lovable.dev"
 [functions.analyze-cv]
 verify_jwt = true
 
+[functions.analyze-rei-profile]
+verify_jwt = false
+
+[functions.transcribe-video]
+verify_jwt = false
+
 [functions.twitter-oauth]
 verify_jwt = false
 

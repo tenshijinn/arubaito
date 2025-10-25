@@ -12,3 +12,12 @@ verify_jwt = false
 
 [functions.submit-rei-registration]
 verify_jwt = false
+
+[functions.submit-whitelist-request]
+verify_jwt = false
+
+[functions.approve-whitelist-submission]
+verify_jwt = true
+
+[functions.send-twitter-dm]
+verify_jwt = false

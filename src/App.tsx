@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Arubaito from "./pages/Arubaito";
 import Rei from "./pages/Rei";
 import Club from "./pages/Club";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/arubaito" element={<Arubaito />} />
             <Route path="/rei" element={<Rei />} />
             <Route path="/club" element={<Club />} />
+            <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

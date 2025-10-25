@@ -9,15 +9,138 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useNavigate } from 'react-router-dom';
 import bs58 from 'bs58';
 
+// Twitter OAuth callback handler
+if (typeof window !== 'undefined') {
+  const urlParams = new URLSearchParams(window.location.search);
+  const twitterCode = urlParams.get('code');
+  const twitterState = urlParams.get('state');
+  
+  if (twitterCode && twitterState === 'twitter_oauth') {
+    sessionStorage.setItem('twitter_code', twitterCode);
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
 export const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'main' | 'signin' | 'register'>('main');
   const [walletIntent, setWalletIntent] = useState<'signin' | 'register'>('register');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [twitterLoading, setTwitterLoading] = useState(false);
   const { toast } = useToast();
   const { publicKey, signMessage, connected } = useWallet();
   const navigate = useNavigate();
+
+  // Handle Twitter OAuth callback
+  useEffect(() => {
+    const handleTwitterCallback = async () => {
+      const twitterCode = sessionStorage.getItem('twitter_code');
+      const codeVerifier = sessionStorage.getItem('twitter_code_verifier');
+      
+      if (twitterCode && codeVerifier) {
+        setTwitterLoading(true);
+        sessionStorage.removeItem('twitter_code');
+        
+        try {
+          const { data, error } = await supabase.functions.invoke('twitter-oauth', {
+            body: {
+              action: 'exchangeToken',
+              code: twitterCode,
+              codeVerifier,
+              redirectUri: window.location.origin
+            }
+          });
+
+          if (error) throw error;
+
+          if (!data.isWhitelisted) {
+            toast({
+              title: "Access Denied",
+              description: "Your Twitter account is not on the bluechip whitelist.",
+              variant: "destructive",
+            });
+            sessionStorage.removeItem('twitter_code_verifier');
+            setTwitterLoading(false);
+            return;
+          }
+
+          // Create/sign in user with Twitter data
+          const twitterEmail = `${data.user.username}@twitter.oauth`;
+          const twitterPassword = data.user.id + '_twitter_auth';
+
+          // Try to sign in first
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: twitterEmail,
+            password: twitterPassword,
+          });
+
+          if (signInError) {
+            // If sign in fails, create account
+            const { error: signUpError } = await supabase.auth.signUp({
+              email: twitterEmail,
+              password: twitterPassword,
+              options: {
+                data: {
+                  twitter_username: data.user.username,
+                  twitter_id: data.user.id,
+                  full_name: data.user.name,
+                }
+              }
+            });
+
+            if (signUpError) throw signUpError;
+          }
+
+          toast({
+            title: "Welcome!",
+            description: `Signed in with Twitter as @${data.user.username}`,
+          });
+
+          sessionStorage.removeItem('twitter_code_verifier');
+          navigate('/club');
+        } catch (error) {
+          console.error('Twitter OAuth error:', error);
+          toast({
+            title: "Authentication Failed",
+            description: error instanceof Error ? error.message : "Failed to authenticate with Twitter",
+            variant: "destructive",
+          });
+          sessionStorage.removeItem('twitter_code_verifier');
+        } finally {
+          setTwitterLoading(false);
+        }
+      }
+    };
+
+    handleTwitterCallback();
+  }, [navigate, toast]);
+
+  const handleTwitterAuth = async () => {
+    try {
+      setTwitterLoading(true);
+      
+      const { data, error } = await supabase.functions.invoke('twitter-oauth', {
+        body: {
+          action: 'getAuthUrl',
+          redirectUri: window.location.origin
+        }
+      });
+
+      if (error) throw error;
+
+      sessionStorage.setItem('twitter_code_verifier', data.codeVerifier);
+      window.location.href = data.authUrl;
+    } catch (error) {
+      console.error('Twitter auth error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initiate Twitter authentication",
+        variant: "destructive",
+      });
+      setTwitterLoading(false);
+    }
+  };
 
   const handleGoogleAuth = async (isSignUp: boolean) => {
     try {
@@ -218,12 +341,12 @@ export const Auth = () => {
                     Sign up/sign in with...
                   </p>
                   <Button
-                    onClick={() => handleGoogleAuth(true)}
+                    onClick={handleTwitterAuth}
                     className="w-full h-14 text-lg font-medium rounded-xl"
                     variant="default"
-                    disabled={loading}
+                    disabled={loading || twitterLoading}
                   >
-                    Blue Chip Twitter
+                    {twitterLoading ? "Authenticating..." : "Blue Chip Twitter"}
                   </Button>
                   
                   <div className="wallet-button-wrapper w-full">

@@ -14,7 +14,7 @@ interface NavigationProps {
 
 export const Navigation = ({ userName }: NavigationProps) => {
   return (
-    <header className="border-b border-border bg-background m-2.5">
+    <header className="border border-border bg-transparent m-2.5 rounded-2xl">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left side: User name and menu */}

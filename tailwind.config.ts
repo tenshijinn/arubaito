@@ -66,6 +66,8 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 1px)",
         sm: "calc(var(--radius) - 2px)",
+        'card': '20px',
+        'button': '8px',
       },
       borderWidth: {
         DEFAULT: '1px',

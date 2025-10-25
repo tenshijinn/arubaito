@@ -5,16 +5,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-bold tracking-wider ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border-4 rounded-md",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-bold tracking-wider ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border-4 rounded-button",
   {
     variants: {
       variant: {
-        default: "bg-transparent text-primary border-primary hover:bg-primary/10",
-        destructive: "bg-transparent text-destructive border-destructive hover:bg-destructive/10",
-        outline: "bg-transparent border-primary text-foreground hover:bg-primary/10",
-        secondary: "bg-transparent text-secondary-foreground border-secondary hover:bg-secondary/10",
-        ghost: "border-transparent hover:bg-accent/10 hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline border-transparent",
+        default: "bg-transparent text-primary border-primary hover:bg-primary hover:text-background",
+        destructive: "bg-transparent text-destructive border-destructive hover:bg-primary hover:text-background",
+        outline: "bg-transparent border-primary text-foreground hover:bg-primary hover:text-background",
+        secondary: "bg-transparent text-secondary-foreground border-secondary hover:bg-primary hover:text-background",
+        ghost: "border-transparent hover:bg-primary hover:text-background",
+        link: "text-primary underline-offset-4 hover:underline border-transparent hover:bg-primary hover:text-background",
       },
       size: {
         default: "h-11 px-6 py-3",

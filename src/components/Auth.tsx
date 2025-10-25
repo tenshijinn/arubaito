@@ -226,7 +226,7 @@ export const Auth = () => {
                     Blue Chip Twitter
                   </Button>
                   
-                  <div className="wallet-button-wrapper">
+                  <div className="wallet-button-wrapper w-full">
                     <WalletMultiButton 
                       onClick={() => setWalletIntent('register')}
                       className="!h-14 !rounded-xl !font-medium !text-lg !w-full" 

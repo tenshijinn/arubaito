@@ -381,6 +381,11 @@ export const Auth = () => {
                       gap: 0.5rem !important;
                       padding-left: 2rem !important;
                       padding-right: 2rem !important;
+                      transition: all 0.2s ease !important;
+                    }
+                    .wallet-button-wrapper button:hover {
+                      background-color: hsl(var(--primary)) !important;
+                      color: hsl(var(--primary-foreground)) !important;
                     }
                     .wallet-button-wrapper button i {
                       margin: 0 !important;

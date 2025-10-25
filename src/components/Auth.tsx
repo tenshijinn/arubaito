@@ -235,6 +235,10 @@ export const Auth = () => {
                   <style>{`
                     .wallet-button-wrapper {
                       width: 100% !important;
+                      display: block !important;
+                    }
+                    .wallet-button-wrapper > * {
+                      width: 100% !important;
                     }
                     .wallet-button-wrapper button {
                       height: 3.5rem !important;
@@ -242,6 +246,8 @@ export const Auth = () => {
                       font-size: 1.125rem !important;
                       font-weight: 500 !important;
                       width: 100% !important;
+                      min-width: 100% !important;
+                      max-width: 100% !important;
                       background-color: transparent !important;
                       color: hsl(var(--primary)) !important;
                       border: 4px solid hsl(var(--primary)) !important;
@@ -249,6 +255,11 @@ export const Auth = () => {
                       align-items: center !important;
                       justify-content: center !important;
                       gap: 0.5rem !important;
+                      padding-left: 2rem !important;
+                      padding-right: 2rem !important;
+                    }
+                    .wallet-button-wrapper button i {
+                      margin: 0 !important;
                     }
                     .wallet-button-wrapper button::before {
                       content: 'Member NFT' !important;

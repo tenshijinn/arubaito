@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { supabase } from '@/integrations/supabase/client';
+import { Navigation } from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -263,10 +264,14 @@ export default function Rei() {
 
   const canSubmit = videoBlob && publicKey && consent && selectedRoles.length > 0 && twitterUser && verificationStatus?.bluechip_verified;
 
+  const userName = twitterUser?.display_name?.split(' ')[0] || twitterUser?.handle;
+
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-transparent">
+      <div className="min-h-screen">
+        <Navigation userName={userName} />
+        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
+          <Card className="w-full max-w-md bg-transparent">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
               <Check className="h-8 w-8 text-primary" />
@@ -286,13 +291,16 @@ export default function Rei() {
             </Button>
           </CardContent>
         </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl bg-transparent">
+    <div className="min-h-screen">
+      <Navigation userName={userName} />
+      <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
+        <Card className="w-full max-w-2xl bg-transparent">
         <CardHeader>
           <CardTitle className="text-3xl font-bold">Rei Proof-Of-Talent Portal</CardTitle>
           <CardDescription>
@@ -497,6 +505,7 @@ export default function Rei() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

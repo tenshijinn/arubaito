@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { supabase } from '@/integrations/supabase/client';
+import { Navigation } from '@/components/Navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -92,8 +93,12 @@ export default function Club() {
     );
   }
 
+  const userName = memberData?.display_name?.split(' ')[0] || memberData?.handle;
+
   return (
     <div className="min-h-screen">
+      <Navigation userName={userName} />
+      
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-6 py-8">

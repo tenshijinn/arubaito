@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CVUploader } from "@/components/CVUploader";
 import { CVAnalysis } from "@/components/CVAnalysis";
 import { Auth } from "@/components/Auth";
+import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { FileCheck, LogOut, History } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -81,8 +82,12 @@ const Index = () => {
     return <Auth />;
   }
 
+  const userName = user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0];
+
   return (
     <div className="min-h-screen">
+      <Navigation userName={userName} />
+      
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-4 py-6">

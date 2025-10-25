@@ -1,5 +1,3 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.1';
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -11,8 +9,109 @@ interface AnalysisRequest {
   roleTags: string[];
 }
 
-// Moralis MCP API endpoint
-const MORALIS_MCP_URL = 'http://localhost:7332';
+// Moralis MCP API endpoint (configurable via environment)
+const MORALIS_MCP_URL = Deno.env.get('MORALIS_MCP_URL') || 'http://localhost:7332';
+
+// Define MCP tools for Lovable AI
+const mcpTools = [
+  {
+    type: "function",
+    function: {
+      name: "getWalletTransactions",
+      description: "Fetch Solana wallet transaction history from Moralis to analyze wallet activity, account age, and interaction patterns",
+      parameters: {
+        type: "object",
+        properties: {
+          address: { 
+            type: "string", 
+            description: "Solana wallet address to query" 
+          },
+          chain: { 
+            type: "string", 
+            enum: ["solana"], 
+            description: "Blockchain network (always solana)" 
+          }
+        },
+        required: ["address", "chain"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "getWalletTokens",
+      description: "Fetch Solana wallet token holdings from Moralis to check token diversity and DeFi participation",
+      parameters: {
+        type: "object",
+        properties: {
+          address: { 
+            type: "string", 
+            description: "Solana wallet address to query" 
+          },
+          chain: { 
+            type: "string", 
+            enum: ["solana"], 
+            description: "Blockchain network (always solana)" 
+          }
+        },
+        required: ["address", "chain"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "getWalletNFTs",
+      description: "Fetch Solana wallet NFT holdings from Moralis to verify NFT collection activity and ecosystem engagement",
+      parameters: {
+        type: "object",
+        properties: {
+          address: { 
+            type: "string", 
+            description: "Solana wallet address to query" 
+          },
+          chain: { 
+            type: "string", 
+            enum: ["solana"], 
+            description: "Blockchain network (always solana)" 
+          }
+        },
+        required: ["address", "chain"]
+      }
+    }
+  }
+];
+
+// Execute MCP tool calls
+async function executeMCPTool(toolName: string, params: any) {
+  const mcpEndpoint = `${MORALIS_MCP_URL}/${toolName}`;
+  
+  console.log(`Executing MCP tool: ${toolName} with params:`, params);
+  
+  try {
+    const response = await fetch(mcpEndpoint, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('MORALIS_API_KEY') || ''}`
+      },
+      body: JSON.stringify(params)
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`MCP tool ${toolName} failed:`, response.status, errorText);
+      return { error: `MCP tool ${toolName} failed: ${response.status}` };
+    }
+    
+    const result = await response.json();
+    console.log(`MCP tool ${toolName} succeeded:`, result);
+    return result;
+  } catch (error) {
+    console.error(`Failed to execute MCP tool ${toolName}:`, error);
+    return { error: `Failed to execute ${toolName}: ${error instanceof Error ? error.message : 'Unknown error'}` };
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -20,16 +119,13 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
-
     const { transcript, walletAddress, roleTags }: AnalysisRequest = await req.json();
 
     console.log('Analyzing profile for wallet:', walletAddress);
 
-    // Prepare AI analysis prompt
-    const systemPrompt = `You are an expert Web3 talent evaluator. Analyze the provided video transcript and assess the contributor's profile.
+    // Enhanced AI system prompt with wallet verification capabilities
+    const systemPrompt = `You are an expert Web3 talent evaluator with access to blockchain data tools.
 
 Evaluation Criteria:
 1. **Communication Quality** (0-25): Clarity, professionalism, confidence
@@ -37,9 +133,24 @@ Evaluation Criteria:
 3. **Technical Skills** (0-25): Relevant skills for stated roles, depth of expertise
 4. **Role Fit** (0-25): Alignment with selected roles, potential contribution value
 
-Provide your analysis in the following JSON structure:
+When a Solana wallet address is provided, you MUST use the available tools to verify wallet history:
+1. Use getWalletTransactions to analyze wallet history and activity patterns
+2. Use getWalletTokens to check token holdings and diversity
+3. Use getWalletNFTs to verify NFT collections and ecosystem engagement
+
+Analyze blockchain data to calculate:
+- **Account age**: Days since first transaction
+- **Transaction patterns**: Frequency and activity level
+- **Notable interactions**: Identify and label programIds with recognizable Web3 projects (e.g., "Magic Eden", "Jupiter DEX", "Marinade Finance")
+- **Bluechip score** (0-100) based on:
+  * Account age: 3+ years = 40pts, 2+ years = 30pts, 1+ year = 20pts
+  * Transaction count: 100+ = 30pts, 50+ = 20pts, 10+ = 10pts
+  * Token diversity: 10+ = 15pts, 5+ = 10pts, 1+ = 5pts
+  * NFT holdings: 20+ = 15pts, 10+ = 10pts, 1+ = 5pts
+
+After analyzing the transcript and wallet data, provide your complete analysis in this JSON structure:
 {
-  "overall_score": <number 0-100>,
+  "overall_score": <number 0-100, boost by up to 15 points based on bluechip_score>,
   "category_scores": {
     "communication": <number 0-25>,
     "web3_experience": <number 0-25>,
@@ -54,162 +165,119 @@ Provide your analysis in the following JSON structure:
     "projects": [<array of Web3 projects mentioned>],
     "technologies": [<array of technologies/tools mentioned>],
     "achievements": [<array of achievements or contributions mentioned>]
+  },
+  "wallet_verification": {
+    "verified": <boolean>,
+    "chain": "Solana",
+    "first_transaction": "<ISO date string>",
+    "account_age_days": <number>,
+    "transaction_count": <number>,
+    "token_count": <number>,
+    "nft_count": <number>,
+    "bluechip_score": <number 0-100>,
+    "notable_interactions": [<array of labeled project names>]
   }
-}`;
+}
+
+If wallet verification fails or no wallet is provided, omit the wallet_verification field.`;
 
     const userPrompt = `Selected Roles: ${roleTags.join(', ')}
+${walletAddress ? `\nSolana Wallet Address: ${walletAddress}` : ''}
 
 Video Transcript:
 ${transcript}
 
-Please analyze this contributor's profile based on their video introduction.`;
+Please analyze this contributor's profile based on their video introduction${walletAddress ? ' and verify their wallet history using the available tools' : ''}.`;
 
-    // Call Lovable AI for analysis
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        response_format: { type: 'json_object' }
-      }),
-    });
+    // Initialize conversation messages
+    const messages: any[] = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ];
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('Lovable AI error:', aiResponse.status, errorText);
-      throw new Error(`AI analysis failed: ${errorText}`);
-    }
+    let finalAnalysis = null;
+    let iterationCount = 0;
+    const maxIterations = 10; // Prevent infinite loops
 
-    const aiData = await aiResponse.json();
-    const analysisText = aiData.choices[0].message.content;
-    let analysis = JSON.parse(analysisText);
+    console.log('Starting AI analysis with MCP tool calling...');
 
-    // Verify wallet history using Moralis MCP API
-    let walletVerification = null;
-    let bluechipScore = 0;
+    // Tool calling loop
+    while (!finalAnalysis && iterationCount < maxIterations) {
+      iterationCount++;
+      console.log(`AI iteration ${iterationCount}...`);
 
-    if (walletAddress) {
-      console.log('Verifying Solana wallet history via Moralis MCP...');
-      
-      try {
-        // Fetch wallet transactions from Moralis MCP
-        const txResponse = await fetch(`${MORALIS_MCP_URL}/getWalletTransactions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            address: walletAddress,
-            chain: 'solana'
-          })
-        });
+      const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages,
+          tools: walletAddress ? mcpTools : undefined, // Only enable tools if wallet provided
+          tool_choice: walletAddress ? 'auto' : undefined
+        }),
+      });
 
-        // Fetch wallet tokens from Moralis MCP
-        const tokensResponse = await fetch(`${MORALIS_MCP_URL}/getWalletTokens`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            address: walletAddress,
-            chain: 'solana'
-          })
-        });
+      if (!aiResponse.ok) {
+        const errorText = await aiResponse.text();
+        console.error('Lovable AI error:', aiResponse.status, errorText);
+        throw new Error(`AI analysis failed: ${errorText}`);
+      }
 
-        // Fetch wallet NFTs from Moralis MCP
-        const nftsResponse = await fetch(`${MORALIS_MCP_URL}/getWalletNFTs`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            address: walletAddress,
-            chain: 'solana'
-          })
-        });
+      const aiData = await aiResponse.json();
+      const assistantMessage = aiData.choices[0].message;
 
-        if (txResponse.ok) {
-          const txData = await txResponse.json();
-          const transactions = txData.result || txData.transactions || [];
+      // Check if AI wants to use tools
+      if (assistantMessage.tool_calls && assistantMessage.tool_calls.length > 0) {
+        console.log(`AI requesting ${assistantMessage.tool_calls.length} tool calls`);
+        
+        // Add assistant's message with tool calls to conversation
+        messages.push(assistantMessage);
+
+        // Execute all tool calls
+        for (const toolCall of assistantMessage.tool_calls) {
+          const toolName = toolCall.function.name;
+          const toolArgs = JSON.parse(toolCall.function.arguments);
           
-          if (transactions.length > 0) {
-            // Find oldest transaction
-            const timestamps = transactions
-              .map((tx: any) => tx.blockTime || tx.timestamp)
-              .filter((t: any) => t)
-              .sort((a: number, b: number) => a - b);
-            
-            if (timestamps.length > 0) {
-              const firstTxDate = new Date(timestamps[0] * 1000);
-              const accountAge = Math.floor((Date.now() - firstTxDate.getTime()) / (1000 * 60 * 60 * 24));
-              
-              // Calculate bluechip score based on account age and activity
-              if (accountAge > 1095) bluechipScore += 40; // 3+ years
-              else if (accountAge > 730) bluechipScore += 30; // 2+ years
-              else if (accountAge > 365) bluechipScore += 20; // 1+ year
-              
-              if (transactions.length > 100) bluechipScore += 30;
-              else if (transactions.length > 50) bluechipScore += 20;
-              else if (transactions.length > 10) bluechipScore += 10;
-
-              // Get token and NFT counts for additional scoring
-              let tokenCount = 0;
-              let nftCount = 0;
-
-              if (tokensResponse.ok) {
-                const tokensData = await tokensResponse.json();
-                tokenCount = (tokensData.result || tokensData.tokens || []).length;
-                if (tokenCount > 10) bluechipScore += 15;
-                else if (tokenCount > 5) bluechipScore += 10;
-                else if (tokenCount > 0) bluechipScore += 5;
-              }
-
-              if (nftsResponse.ok) {
-                const nftsData = await nftsResponse.json();
-                nftCount = (nftsData.result || nftsData.nfts || []).length;
-                if (nftCount > 20) bluechipScore += 15;
-                else if (nftCount > 10) bluechipScore += 10;
-                else if (nftCount > 0) bluechipScore += 5;
-              }
-
-              walletVerification = {
-                verified: true,
-                chain: 'Solana',
-                first_transaction: firstTxDate.toISOString(),
-                account_age_days: accountAge,
-                transaction_count: transactions.length,
-                token_count: tokenCount,
-                nft_count: nftCount,
-                bluechip_score: Math.min(bluechipScore, 100)
-              };
-
-              console.log('Wallet verified:', walletVerification);
-            }
-          }
-        } else {
-          console.warn('Moralis MCP transaction fetch failed:', await txResponse.text());
+          console.log(`Executing tool: ${toolName}`, toolArgs);
+          
+          // Execute MCP tool
+          const toolResult = await executeMCPTool(toolName, toolArgs);
+          
+          // Add tool result to conversation
+          messages.push({
+            role: 'tool',
+            tool_call_id: toolCall.id,
+            name: toolName,
+            content: JSON.stringify(toolResult)
+          });
         }
-      } catch (walletError) {
-        console.error('Wallet verification failed:', walletError);
-        walletVerification = { verified: false, error: 'Unable to verify wallet history via Moralis MCP' };
+      } else {
+        // AI has finished and returned final analysis
+        console.log('AI analysis complete');
+        const analysisText = assistantMessage.content;
+        
+        try {
+          finalAnalysis = JSON.parse(analysisText);
+        } catch (parseError) {
+          console.error('Failed to parse AI response as JSON:', analysisText);
+          throw new Error('AI returned invalid JSON response');
+        }
       }
     }
 
-    // Enhance analysis with wallet data
-    if (walletVerification?.verified) {
-      analysis.wallet_verification = walletVerification;
-      // Adjust overall score based on wallet verification
-      const walletBonus = Math.floor(bluechipScore * 0.15); // Up to 15 points bonus
-      analysis.overall_score = Math.min(100, analysis.overall_score + walletBonus);
+    if (!finalAnalysis) {
+      throw new Error('AI analysis exceeded maximum iterations');
     }
 
-    console.log('Analysis complete. Overall score:', analysis.overall_score);
+    console.log('Analysis complete. Overall score:', finalAnalysis.overall_score);
 
     return new Response(
       JSON.stringify({
         success: true,
-        analysis,
+        analysis: finalAnalysis,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

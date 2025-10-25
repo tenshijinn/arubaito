@@ -5,9 +5,10 @@ import { CVAnalysis } from "@/components/CVAnalysis";
 import { Auth } from "@/components/Auth";
 import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
-import { FileCheck, LogOut, History } from "lucide-react";
+import { FileCheck, LogOut, History, Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { CountdownTimer } from "@/components/CountdownTimer";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -96,9 +97,20 @@ const Index = () => {
               <div className="p-2 rounded-lg" style={{ background: 'var(--gradient-primary)' }}>
                 <FileCheck className="h-6 w-6 text-white" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">Private Membership Web3 Jobs Community</h1>
-                <p className="text-sm text-muted-foreground">AI-Powered CV Analysis</p>
+              <div className="flex items-center gap-2">
+                <div>
+                  <h1 className="text-xl font-bold text-foreground">Private Membership Web3 Jobs Community</h1>
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-5 w-5 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-sm">
+                      <p>Upload your CV for AI-powered analysis. Get detailed scores on content, structure, formatting, and more. Optional: Add wallet address for Bluechip Talent verification.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
             <div className="flex items-center gap-4">

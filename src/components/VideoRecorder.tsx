@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Video, Square, Play, RotateCcw, Loader2, Lock } from 'lucide-react';
+import { Video, Square, Play, RotateCcw, Loader2, Lock, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { FaceBlurProcessor } from '@/utils/faceBlurProcessor';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface VideoRecorderProps {
   onVideoReady: (videoBlob: Blob) => void;
@@ -264,20 +265,10 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
             {/* Instructions Overlay */}
             {!hasPermission && !recordedBlob && (
               <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-                <div className="text-center space-y-2">
-                  <Video className="w-12 h-12 mx-auto text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    Record a video introducing yourself<br />and your Web3 experience
-                  </p>
-                </div>
+                <Video className="w-12 h-12 mx-auto text-muted-foreground" />
               </div>
             )}
           </div>
-
-          {/* Recording Time Limit */}
-          <p className="text-xs text-muted-foreground text-center">
-            Maximum recording time: {maxDurationMinutes} minutes
-          </p>
 
           {/* Privacy Mode Toggle */}
           {hasPermission && !recordedBlob && !isRecording && (
@@ -290,12 +281,19 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
                 />
                 <Label htmlFor="privacy-mode" className="cursor-pointer flex items-center gap-2">
                   <Lock className="w-4 h-4" />
-                  Privacy Mode - Blur Face
+                  Privacy Mode
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm">
+                        <p>Your face will be automatically blurred in the recording. Voice transcription will work normally. Enable before starting recording.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </Label>
               </div>
-              <p className="text-xs text-muted-foreground max-w-md">
-                Your face will be automatically blurred in the recording. Voice transcription will work normally.
-              </p>
             </div>
           )}
 
@@ -361,19 +359,6 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
             )}
           </div>
 
-          {/* Guidance Text */}
-          {(hasPermission || isRecording) && !recordedBlob && (
-            <div className="text-sm text-muted-foreground space-y-1 text-center">
-              <p className="font-medium">Tips for a great video CV:</p>
-              <ul className="text-xs space-y-1">
-                {privacyMode && <li>• Privacy mode is active - your face will be blurred</li>}
-                <li>• Introduce yourself and your background</li>
-                <li>• Highlight your Web3 experience and projects</li>
-                <li>• Mention your skills and role expertise</li>
-                <li>• Keep it concise and professional</li>
-              </ul>
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>

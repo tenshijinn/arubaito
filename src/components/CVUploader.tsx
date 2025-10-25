@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Upload, FileText, Loader2, Wallet } from "lucide-react";
+import { Upload, FileText, Loader2, Wallet, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import * as pdfjsLib from 'pdfjs-dist';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CVUploaderProps {
   onAnalysisComplete: (analysisId: string) => void;
@@ -212,20 +213,36 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
               <Upload className="h-12 w-12 text-white" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-foreground">Upload Your CV</h3>
-              <p className="text-muted-foreground max-w-md">
-                Drag and drop your CV here, or click to browse
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Supports PDF, DOC, DOCX, TXT (Max 5MB)
-              </p>
+              <div className="flex items-center justify-center gap-2">
+                <h3 className="text-2xl font-bold text-foreground">Upload Your CV</h3>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-5 w-5 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-sm">
+                      <p>Drag and drop your CV or click to browse. Supports PDF, DOC, DOCX, TXT. Maximum file size: 5MB. Analysis includes content, structure, formatting, keywords, and experience scoring.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
             
             <div className="w-full max-w-md space-y-3 pt-4">
               <div className="space-y-2">
                 <Label htmlFor="wallet-address" className="flex items-center gap-2 text-sm">
                   <Wallet className="h-4 w-4" />
-                  Wallet Address (Optional - For Bluechip Talent Verification)
+                  Wallet Address (Optional)
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm">
+                        <p>Add your wallet address to verify early blockchain activity and showcase your Bluechip Talent status in the Web3 ecosystem.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </Label>
                 <Input
                   id="wallet-address"
@@ -235,9 +252,6 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
                   onChange={(e) => setWalletAddress(e.target.value)}
                   className="w-full"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Verify early blockchain activity to showcase Bluechip Talent status
-                </p>
               </div>
             </div>
 

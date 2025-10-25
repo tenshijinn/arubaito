@@ -6,8 +6,9 @@ import { Navigation } from '@/components/Navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, Loader2 } from 'lucide-react';
+import { Shield, Loader2, Info } from 'lucide-react';
 import { ClubTimeline } from '@/components/club/ClubTimeline';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { CVBuilder } from '@/components/club/CVBuilder';
 import { JobPitch } from '@/components/club/JobPitch';
 import { MemberShowcase } from '@/components/club/MemberShowcase';
@@ -70,15 +71,21 @@ export default function Club() {
             <Shield className="h-8 w-8 text-destructive" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-foreground font-mono">ACCESS DENIED</h1>
-            <p className="text-muted-foreground font-mono text-sm">
-              THIS AREA IS RESTRICTED TO VERIFIED MEMBERS ONLY
-            </p>
+            <div className="flex items-center justify-center gap-2">
+              <h1 className="text-2xl font-bold text-foreground font-mono">ACCESS DENIED</h1>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-5 w-5 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <p>This area is restricted to verified members only. {!publicKey ? 'Connect your wallet and complete verification' : 'Complete verification'} through the Rei portal to access exclusive member features.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
           <div className="pt-4 space-y-3">
-            <p className="text-xs text-muted-foreground font-mono">
-              {!publicKey ? 'CONNECT YOUR WALLET AND COMPLETE VERIFICATION' : 'COMPLETE VERIFICATION TO ACCESS'}
-            </p>
             <Button
               onClick={() => navigate('/rei')}
               className="w-full font-mono"
@@ -103,9 +110,21 @@ export default function Club() {
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-6 py-8">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-foreground font-mono">THE CLUBHOUSE</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-3xl font-bold text-foreground font-mono">THE CLUBHOUSE</h1>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-6 w-6 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <p>Exclusive member area for verified Web3 contributors. Access your timeline, manage your profile, create job pitches, and view the member spotlight.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <p className="text-sm text-muted-foreground font-mono">
-              EXCLUSIVE MEMBER AREA - {memberData?.display_name || memberData?.handle}
+              {memberData?.display_name || memberData?.handle}
             </p>
           </div>
         </div>

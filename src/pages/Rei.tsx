@@ -11,8 +11,9 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { VideoRecorder } from '@/components/VideoRecorder';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Twitter, Wallet, FileText, Shield, AlertCircle } from 'lucide-react';
+import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface TwitterUser {
   x_user_id: string;
@@ -294,10 +295,19 @@ export default function Rei() {
       <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
         <Card className="w-full max-w-2xl bg-transparent">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold">Rei Proof-Of-Talent Portal</CardTitle>
-          <CardDescription>
-            Register as a Web3 contributor and claim your Soul-Bound NFT
-          </CardDescription>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-3xl font-bold">Rei Proof-Of-Talent Portal</CardTitle>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-5 w-5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm">
+                  <p>Register as a Web3 contributor by verifying your identity, connecting your wallet, and submitting your video CV. Upon completion, you'll receive a Soul-Bound NFT proof of talent.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           
           {/* Progress indicator */}
           <div className="flex items-center gap-2 mt-6">
@@ -321,12 +331,6 @@ export default function Rei() {
 
             {!twitterUser ? (
               <div className="space-y-4">
-                <Alert>
-                  <Shield className="h-4 w-4" />
-                  <AlertDescription>
-                    Connect your X (Twitter) account to verify you're a real person.
-                  </AlertDescription>
-                </Alert>
                 <Button onClick={handleTwitterLogin} size="lg" className="w-full">
                   <Twitter className="mr-2 h-5 w-5" />
                   Verify with X (Twitter)
@@ -351,9 +355,6 @@ export default function Rei() {
                   <Check className="h-4 w-4 text-primary" />
                   <AlertDescription className="text-primary">
                     <strong>Identity Verified</strong>
-                    <span className="block text-sm mt-1">
-                      You can now proceed to connect your wallet.
-                    </span>
                   </AlertDescription>
                 </Alert>
               </div>
@@ -394,10 +395,19 @@ export default function Rei() {
               <div className="space-y-4">
                 {/* Video CV Recorder */}
                 <div>
-                  <Label>Record Your Video CV</Label>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Introduce yourself and share your Web3 experience (max 5 minutes)
-                  </p>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Label>Record Your Video CV</Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm">
+                          <p>Introduce yourself and share your Web3 experience. Maximum 5 minutes. Tips: mention your background, highlight projects, discuss skills, and keep it professional.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <VideoRecorder onVideoReady={handleVideoReady} />
                 </div>
 
@@ -437,8 +447,18 @@ export default function Rei() {
                     checked={consent}
                     onCheckedChange={(checked) => setConsent(checked as boolean)}
                   />
-                  <Label htmlFor="consent" className="text-sm cursor-pointer">
-                    I consent to Rei storing this data for talent matching and NFT issuance.
+                  <Label htmlFor="consent" className="text-sm cursor-pointer flex items-center gap-2">
+                    I consent to data storage *
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm">
+                          <p>Your data will be stored for talent matching purposes and NFT issuance. This includes your X profile, wallet address, video CV, and role preferences.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </Label>
                 </div>
 

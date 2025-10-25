@@ -9,14 +9,14 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useNavigate } from 'react-router-dom';
 import bs58 from 'bs58';
 
-// Twitter OAuth callback handler - only for root path
+// Twitter OAuth callback handler - for root and arubaito paths
 if (typeof window !== 'undefined') {
   const urlParams = new URLSearchParams(window.location.search);
   const twitterCode = urlParams.get('code');
   const twitterState = urlParams.get('state');
   
-  // Only process if on root path and we have a stored code verifier
-  if (twitterCode && twitterState && window.location.pathname === '/' && sessionStorage.getItem('twitter_code_verifier')) {
+  // Process if on root or arubaito path and we have a stored code verifier
+  if (twitterCode && twitterState && (window.location.pathname === '/' || window.location.pathname === '/arubaito') && sessionStorage.getItem('twitter_code_verifier')) {
     sessionStorage.setItem('twitter_code', twitterCode);
     window.history.replaceState({}, document.title, window.location.pathname);
   }
@@ -54,7 +54,7 @@ export const Auth = () => {
               action: 'exchangeToken',
               code: twitterCode,
               codeVerifier,
-              redirectUri: window.location.origin
+              redirectUri: window.location.origin + window.location.pathname
             }
           });
 
@@ -128,7 +128,7 @@ export const Auth = () => {
       const { data, error } = await supabase.functions.invoke('twitter-oauth', {
         body: {
           action: 'getAuthUrl',
-          redirectUri: window.location.origin
+          redirectUri: window.location.origin + window.location.pathname
         }
       });
 

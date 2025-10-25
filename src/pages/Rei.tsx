@@ -65,9 +65,10 @@ export default function Rei() {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     const state = params.get('state');
+    const storedVerifier = sessionStorage.getItem('twitter_code_verifier_rei');
     
-    // Only process if we have code, state, haven't processed yet, and no existing twitter user
-    if (code && state && !twitterUser && !isProcessingCallback) {
+    // Only process if we have code, state, verifier, haven't processed yet, and no existing twitter user
+    if (code && state && storedVerifier && !twitterUser && !isProcessingCallback) {
       // Immediately clean URL to prevent re-processing
       window.history.replaceState({}, '', '/rei');
       handleTwitterCallback(code);
@@ -110,7 +111,7 @@ export default function Rei() {
 
       if (error) throw error;
 
-      sessionStorage.setItem('twitter_code_verifier', data.codeVerifier);
+      sessionStorage.setItem('twitter_code_verifier_rei', data.codeVerifier);
       window.location.href = data.authUrl;
     } catch (error) {
       toast({
@@ -124,7 +125,8 @@ export default function Rei() {
   const handleTwitterCallback = async (code: string) => {
     setIsProcessingCallback(true);
     try {
-      const storedVerifier = sessionStorage.getItem('twitter_code_verifier');
+      const storedVerifier = sessionStorage.getItem('twitter_code_verifier_rei');
+      sessionStorage.removeItem('twitter_code_verifier_rei');
       const redirectUri = `${window.location.origin}/rei`;
       
       const { data, error } = await supabase.functions.invoke('twitter-oauth', {
@@ -143,7 +145,6 @@ export default function Rei() {
         bluechip_verified: data.bluechip_verified,
         verification_type: data.verification_type,
       });
-      sessionStorage.removeItem('twitter_code_verifier');
       
       // Clean URL
       window.history.replaceState({}, '', '/rei');

@@ -9,14 +9,14 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useNavigate } from 'react-router-dom';
 import bs58 from 'bs58';
 
-// Twitter OAuth callback handler
+// Twitter OAuth callback handler - only for root path
 if (typeof window !== 'undefined') {
   const urlParams = new URLSearchParams(window.location.search);
   const twitterCode = urlParams.get('code');
   const twitterState = urlParams.get('state');
   
-  // Check if we have a code and there's a stored code verifier (indicating Twitter OAuth flow)
-  if (twitterCode && twitterState && sessionStorage.getItem('twitter_code_verifier')) {
+  // Only process if on root path and we have a stored code verifier
+  if (twitterCode && twitterState && window.location.pathname === '/' && sessionStorage.getItem('twitter_code_verifier')) {
     sessionStorage.setItem('twitter_code', twitterCode);
     window.history.replaceState({}, document.title, window.location.pathname);
   }

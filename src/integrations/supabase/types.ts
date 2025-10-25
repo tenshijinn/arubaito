@@ -137,6 +137,8 @@ export type Database = {
           updated_at: string | null
           verification_type: Database["public"]["Enums"]["verification_type"]
           verified_by: string | null
+          welcome_dm_sent: boolean | null
+          welcome_dm_sent_at: string | null
         }
         Insert: {
           created_at?: string | null
@@ -146,6 +148,8 @@ export type Database = {
           updated_at?: string | null
           verification_type: Database["public"]["Enums"]["verification_type"]
           verified_by?: string | null
+          welcome_dm_sent?: boolean | null
+          welcome_dm_sent_at?: string | null
         }
         Update: {
           created_at?: string | null
@@ -155,12 +159,16 @@ export type Database = {
           updated_at?: string | null
           verification_type?: Database["public"]["Enums"]["verification_type"]
           verified_by?: string | null
+          welcome_dm_sent?: boolean | null
+          welcome_dm_sent_at?: string | null
         }
         Relationships: []
       }
       twitter_whitelist_submissions: {
         Row: {
           display_name: string | null
+          dm_sent: boolean | null
+          dm_sent_at: string | null
           id: string
           notes: string | null
           profile_image_url: string | null
@@ -173,6 +181,8 @@ export type Database = {
         }
         Insert: {
           display_name?: string | null
+          dm_sent?: boolean | null
+          dm_sent_at?: string | null
           id?: string
           notes?: string | null
           profile_image_url?: string | null
@@ -185,6 +195,8 @@ export type Database = {
         }
         Update: {
           display_name?: string | null
+          dm_sent?: boolean | null
+          dm_sent_at?: string | null
           id?: string
           notes?: string | null
           profile_image_url?: string | null
@@ -197,14 +209,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "user"
       contributor_role:
         | "dev"
         | "product"
@@ -344,6 +384,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "user"],
       contributor_role: [
         "dev",
         "product",

@@ -409,15 +409,21 @@ export const Auth = () => {
                   
                   <Button
                     onClick={() => setMode('register')}
-                    className="w-full h-14 text-lg font-medium rounded-xl"
+                    className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
                     variant="secondary"
-                    style={{ 
-                      color: '#f0e3c3',
-                      borderColor: '#f0e3c3'
-                    }}
                   >
                     Signup with CV Profile
                   </Button>
+                  <style>{`
+                    .cv-profile-button {
+                      color: #f0e3c3 !important;
+                      border-color: #f0e3c3 !important;
+                    }
+                    .cv-profile-button:hover {
+                      background-color: hsl(var(--primary)) !important;
+                      color: hsl(var(--background)) !important;
+                    }
+                  `}</style>
                 </div>
               </div>
             ) : (

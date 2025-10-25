@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        mono: ['Courier New', 'Courier', 'monospace'],
-        sans: ['Courier New', 'Courier', 'monospace'],
+        mono: ['IBM Plex Mono', 'monospace'],
+        sans: ['IBM Plex Mono', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -71,6 +71,7 @@ export default {
         DEFAULT: '1px',
         '0': '0',
         '2': '2px',
+        '4': '4px',
       },
       spacing: {
         '18': '4.5rem',

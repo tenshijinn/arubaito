@@ -89,25 +89,25 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'IBM Plex Mono', monospace;
     letter-spacing: 0.025em;
     line-height: 1.6;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
 
   button {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'IBM Plex Mono', monospace;
     letter-spacing: 0.05em;
   }
 
   input, textarea, select {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'IBM Plex Mono', monospace;
   }
 
   /* Ensure proper spacing throughout */

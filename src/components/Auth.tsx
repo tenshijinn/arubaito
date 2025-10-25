@@ -220,7 +220,7 @@ export const Auth = () => {
                   <Button
                     onClick={() => handleGoogleAuth(true)}
                     className="w-full h-14 text-lg font-medium rounded-xl"
-                    style={{ backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))' }}
+                    variant="default"
                     disabled={loading}
                   >
                     Blue Chip Twitter
@@ -230,10 +230,6 @@ export const Auth = () => {
                     <WalletMultiButton 
                       onClick={() => setWalletIntent('register')}
                       className="!h-14 !rounded-xl !font-medium !text-lg !w-full" 
-                      style={{ 
-                        backgroundColor: 'hsl(var(--primary))', 
-                        color: 'hsl(var(--primary-foreground))'
-                      }}
                     />
                   </div>
                   <style>{`
@@ -243,8 +239,9 @@ export const Auth = () => {
                       font-size: 1.125rem !important;
                       font-weight: 500 !important;
                       width: 100% !important;
-                      background-color: hsl(var(--primary)) !important;
-                      color: hsl(var(--primary-foreground)) !important;
+                      background-color: transparent !important;
+                      color: hsl(var(--primary)) !important;
+                      border: 4px solid hsl(var(--primary)) !important;
                     }
                     .wallet-button-wrapper button::before {
                       content: 'Member NFT' !important;
@@ -266,7 +263,7 @@ export const Auth = () => {
                   <Button
                     onClick={() => setMode('register')}
                     className="w-full h-14 text-lg font-medium rounded-xl"
-                    style={{ backgroundColor: 'hsl(var(--secondary))', color: 'hsl(var(--secondary-foreground))' }}
+                    variant="secondary"
                   >
                     Signup with CV Profile
                   </Button>

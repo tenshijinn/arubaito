@@ -1,9 +1,11 @@
-import { FaceDetection, Results } from '@mediapipe/face_detection';
-import { Camera } from '@mediapipe/camera_utils';
+// @ts-ignore - MediaPipe types
+import * as faceDetection from '@mediapipe/face_detection';
+// @ts-ignore - MediaPipe types
+import * as cameraUtils from '@mediapipe/camera_utils';
 
 export class FaceBlurProcessor {
-  private faceDetection: FaceDetection | null = null;
-  private camera: Camera | null = null;
+  private faceDetection: any = null;
+  private camera: any = null;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private videoElement: HTMLVideoElement;
@@ -29,9 +31,16 @@ export class FaceBlurProcessor {
 
   async initialize(): Promise<void> {
     try {
-      // Initialize MediaPipe Face Detection
-      this.faceDetection = new FaceDetection({
-        locateFile: (file) => {
+      // Initialize MediaPipe Face Detection with proper constructor
+      // @ts-ignore - MediaPipe global
+      const FaceDetectionConstructor = faceDetection.FaceDetection || window.FaceDetection;
+      
+      if (!FaceDetectionConstructor) {
+        throw new Error('FaceDetection not available');
+      }
+
+      this.faceDetection = new FaceDetectionConstructor({
+        locateFile: (file: string) => {
           return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection@0.4/${file}`;
         }
       });
@@ -41,7 +50,7 @@ export class FaceBlurProcessor {
         minDetectionConfidence: 0.5,
       });
 
-      this.faceDetection.onResults((results: Results) => {
+      this.faceDetection.onResults((results: any) => {
         this.processResults(results);
       });
 
@@ -52,7 +61,7 @@ export class FaceBlurProcessor {
     }
   }
 
-  private processResults(results: Results): void {
+  private processResults(results: any): void {
     if (!results.image) return;
 
     const { width, height } = results.image;
@@ -105,7 +114,9 @@ export class FaceBlurProcessor {
     this.isProcessing = true;
 
     // Initialize camera with MediaPipe
-    this.camera = new Camera(this.videoElement, {
+    // @ts-ignore - MediaPipe Camera
+    const CameraConstructor = cameraUtils.Camera || window.Camera;
+    this.camera = new CameraConstructor(this.videoElement, {
       onFrame: async () => {
         if (this.faceDetection && this.isProcessing) {
           await this.faceDetection.send({ image: this.videoElement });

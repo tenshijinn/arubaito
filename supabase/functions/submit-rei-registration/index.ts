@@ -37,39 +37,40 @@ Deno.serve(async (req) => {
     const isVideo = registrationData.file_path.match(/\.(webm|mp4|mov)$/i);
     
     if (isVideo) {
-      console.log('Video detected, transcribing...');
+      console.log('Video detected, attempting transcription...');
       
-      // Call transcribe-video function
-      const { data: transcribeData, error: transcribeError } = await supabase.functions.invoke('transcribe-video', {
-        body: { filePath: registrationData.file_path }
-      });
+      try {
+        // Call transcribe-video function
+        const { data: transcribeData, error: transcribeError } = await supabase.functions.invoke('transcribe-video', {
+          body: { filePath: registrationData.file_path }
+        });
 
-      if (transcribeError) {
-        console.error('Transcription error:', transcribeError);
-        throw new Error('Failed to transcribe video');
-      }
+        if (transcribeError) {
+          console.warn('Transcription not available, continuing without it:', transcribeError);
+          // Continue without transcription
+        } else if (transcribeData?.text) {
+          console.log('Video transcribed successfully');
+          
+          // Save transcription as text file
+          const textContent = transcribeData.text;
+          const textBlob = new Blob([textContent], { type: 'text/plain' });
+          const textFileName = registrationData.file_path.replace(/\.(webm|mp4|mov)$/i, '_transcript.txt');
+          
+          const { error: uploadError } = await supabase.storage
+            .from('rei-contributor-files')
+            .upload(textFileName, textBlob);
 
-      if (!transcribeData?.text) {
-        throw new Error('No transcription text received');
-      }
-
-      console.log('Video transcribed successfully');
-      
-      // Save transcription as text file
-      const textContent = transcribeData.text;
-      const textBlob = new Blob([textContent], { type: 'text/plain' });
-      const textFileName = registrationData.file_path.replace(/\.(webm|mp4|mov)$/i, '_transcript.txt');
-      
-      const { error: uploadError } = await supabase.storage
-        .from('rei-contributor-files')
-        .upload(textFileName, textBlob);
-
-      if (uploadError) {
-        console.error('Failed to save transcript:', uploadError);
-        // Continue anyway, we'll use the video file
-      } else {
-        processedFilePath = textFileName;
-        console.log('Transcript saved as:', textFileName);
+          if (uploadError) {
+            console.error('Failed to save transcript:', uploadError);
+            // Continue anyway, we'll use the video file
+          } else {
+            processedFilePath = textFileName;
+            console.log('Transcript saved as:', textFileName);
+          }
+        }
+      } catch (transcriptionError) {
+        console.warn('Transcription failed, continuing without it:', transcriptionError);
+        // Don't throw - allow registration to proceed without transcription
       }
     }
 

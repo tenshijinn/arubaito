@@ -7,6 +7,7 @@ import { WalletProvider } from "@/components/WalletProvider";
 import Index from "./pages/Index";
 import Arubaito from "./pages/Arubaito";
 import Rei from "./pages/Rei";
+import Club from "./pages/Club";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/arubaito" element={<Arubaito />} />
             <Route path="/rei" element={<Rei />} />
+            <Route path="/club" element={<Club />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

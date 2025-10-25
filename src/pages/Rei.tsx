@@ -89,18 +89,15 @@ export default function Rei() {
     }
   }, [connected, twitterUser]);
 
-  // Auto-redirect to Club if bluechip verified and wallet connected
+  // Show bluechip verification status
   useEffect(() => {
     if (verificationStatus?.bluechip_verified && connected && publicKey) {
       toast({
         title: '🎉 Bluechip Verified!',
-        description: 'Redirecting you to the Club...',
+        description: 'You have verified bluechip status!',
       });
-      setTimeout(() => {
-        navigate('/club');
-      }, 2000);
     }
-  }, [verificationStatus, connected, publicKey, navigate, toast]);
+  }, [verificationStatus, connected, publicKey, toast]);
 
   const handleTwitterLogin = async () => {
     try {
@@ -219,11 +216,6 @@ export default function Rei() {
         title: 'Success!',
         description: data.message,
       });
-
-      // Redirect to Club after successful registration
-      setTimeout(() => {
-        navigate('/club');
-      }, 3000);
     } catch (error) {
       toast({
         title: 'Error',
@@ -292,7 +284,7 @@ export default function Rei() {
             </div>
             <CardTitle className="text-2xl">Registration Complete!</CardTitle>
             <CardDescription>
-              Your Proof-of-Talent NFT will be minted shortly to your wallet. Redirecting you to the Club...
+              Your Proof-of-Talent NFT will be minted shortly to your wallet.
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">

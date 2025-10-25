@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { CheckCircle2, Circle, Clock } from 'lucide-react';
 
 interface TimelineEvent {
@@ -100,9 +101,9 @@ export function ClubTimeline() {
                 </div>
 
                 {/* Event card */}
-                <button
+                <div
                   onClick={() => setSelectedEvent(event)}
-                  className="w-full text-left group"
+                  className="w-full text-left group cursor-pointer"
                 >
                   <Card className="bg-transparent border border-border hover:border-primary/50 transition-all hover:shadow-[0_0_15px_rgba(237,86,90,0.1)]">
                     <CardContent className="p-4 space-y-3">
@@ -120,7 +121,7 @@ export function ClubTimeline() {
                       </p>
                     </CardContent>
                   </Card>
-                </button>
+                </div>
               </div>
             ))}
           </div>
@@ -152,12 +153,13 @@ export function ClubTimeline() {
                 </p>
               </div>
             )}
-            <button
+            <Button
               onClick={() => setSelectedEvent(null)}
-              className="text-xs text-primary hover:text-primary/80 font-mono underline"
+              variant="link"
+              className="font-mono text-xs p-0 h-auto"
             >
               CLOSE DETAILS
-            </button>
+            </Button>
           </CardContent>
         </Card>
       )}

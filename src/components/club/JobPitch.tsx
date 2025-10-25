@@ -121,17 +121,15 @@ export function JobPitch({ memberData }: JobPitchProps) {
               </Label>
               <div className="grid grid-cols-2 gap-2">
                 {RATE_TYPES.map((type) => (
-                  <button
+                  <Button
                     key={type}
                     onClick={() => setRateType(type)}
-                    className={`px-3 py-2 text-xs font-mono border transition-colors ${
-                      rateType === type
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-background text-foreground border-border hover:border-primary/50'
-                    }`}
+                    variant={rateType === type ? 'default' : 'outline'}
+                    size="sm"
+                    className="font-mono text-xs"
                   >
                     {type}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -155,17 +153,15 @@ export function JobPitch({ memberData }: JobPitchProps) {
             </Label>
             <div className="grid grid-cols-4 gap-2">
               {AVAILABILITY.map((avail) => (
-                <button
+                <Button
                   key={avail}
                   onClick={() => setAvailability(avail)}
-                  className={`px-3 py-2 text-xs font-mono border transition-colors ${
-                    availability === avail
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-background text-foreground border-border hover:border-primary/50'
-                  }`}
+                  variant={availability === avail ? 'default' : 'outline'}
+                  size="sm"
+                  className="font-mono text-xs"
                 >
                   {avail}
-                </button>
+                </Button>
               ))}
             </div>
           </div>

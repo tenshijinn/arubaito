@@ -4,6 +4,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Shield, Loader2 } from 'lucide-react';
 import { ClubTimeline } from '@/components/club/ClubTimeline';
 import { CVBuilder } from '@/components/club/CVBuilder';
@@ -77,12 +78,14 @@ export default function Club() {
             <p className="text-xs text-muted-foreground font-mono">
               {!publicKey ? 'CONNECT YOUR WALLET AND COMPLETE VERIFICATION' : 'COMPLETE VERIFICATION TO ACCESS'}
             </p>
-            <button
+            <Button
               onClick={() => navigate('/rei')}
-              className="w-full px-4 py-2 bg-primary text-primary-foreground font-mono text-sm hover:bg-primary/90 transition-colors border border-primary"
+              className="w-full font-mono"
+              variant="default"
+              size="lg"
             >
               GO TO VERIFICATION
-            </button>
+            </Button>
           </div>
         </Card>
       </div>

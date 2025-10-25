@@ -132,12 +132,14 @@ export function CVBuilder({ memberData }: CVBuilderProps) {
                     className="font-mono text-xs pl-3 pr-1 py-1 bg-primary/10 border-primary/20 text-foreground"
                   >
                     {skill.name}
-                    <button
+                    <Button
                       onClick={() => removeSkill(skill.id)}
-                      className="ml-2 hover:text-destructive"
+                      variant="ghost"
+                      size="icon"
+                      className="ml-2 h-4 w-4 p-0 hover:text-destructive"
                     >
                       <X className="h-3 w-3" />
-                    </button>
+                    </Button>
                   </Badge>
                 ))}
               </div>
@@ -158,12 +160,14 @@ export function CVBuilder({ memberData }: CVBuilderProps) {
                 <Card key={exp.id} className="bg-transparent border border-border">
                   <CardContent className="p-4 space-y-3">
                     <div className="flex justify-end">
-                      <button
+                      <Button
                         onClick={() => removeExperience(exp.id)}
-                        className="text-destructive hover:text-destructive/80"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive/80"
                       >
                         <X className="h-4 w-4" />
-                      </button>
+                      </Button>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">

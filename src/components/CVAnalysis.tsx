@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Award, TrendingUp, Target, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface CVAnalysisProps {
   analysisId: string;
@@ -47,6 +49,7 @@ interface Analysis {
 export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAnalysis = async () => {
@@ -66,6 +69,60 @@ export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
 
     fetchAnalysis();
   }, [analysisId]);
+
+  useEffect(() => {
+    const checkAndVerify = async () => {
+      if (!analysis) return;
+
+      const qualifiesForClub = 
+        analysis.overall_score > 89 || 
+        analysis.bluechip_verified;
+
+      if (qualifiesForClub && analysis.wallet_address) {
+        try {
+          // Check if already verified
+          const { data: existing } = await supabase
+            .from('rei_registry')
+            .select('verified')
+            .eq('wallet_address', analysis.wallet_address)
+            .single();
+
+          if (existing?.verified) {
+            // Already verified, just redirect
+            toast.success("Welcome back! Redirecting to Club...");
+            setTimeout(() => navigate('/club'), 2000);
+            return;
+          }
+
+          // Get current user
+          const { data: { user } } = await supabase.auth.getUser();
+          const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Member';
+
+          // Update or insert verification
+          const { error } = await supabase
+            .from('rei_registry')
+            .upsert({
+              wallet_address: analysis.wallet_address,
+              file_path: `/cv/${analysis.wallet_address}`,
+              verified: true,
+              display_name: displayName,
+              updated_at: new Date().toISOString(),
+            }, {
+              onConflict: 'wallet_address'
+            });
+
+          if (!error) {
+            toast.success("🎉 Congratulations! You've been verified. Redirecting to Club...");
+            setTimeout(() => navigate('/club'), 3000);
+          }
+        } catch (error) {
+          console.error('Error verifying user:', error);
+        }
+      }
+    };
+
+    checkAndVerify();
+  }, [analysis, navigate]);
 
   if (loading) {
     return <div className="text-center py-12 text-muted-foreground">Loading analysis...</div>;

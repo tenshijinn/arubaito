@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useNavigate } from 'react-router-dom';
 
 interface TwitterUser {
   x_user_id: string;
@@ -42,6 +43,7 @@ const ROLE_OPTIONS: { value: RoleTag; label: string }[] = [
 export default function Rei() {
   const { publicKey, connected } = useWallet();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const [step, setStep] = useState(1);
   const [twitterUser, setTwitterUser] = useState<TwitterUser | null>(null);
@@ -85,6 +87,19 @@ export default function Rei() {
       setStep(3);
     }
   }, [connected, twitterUser]);
+
+  // Auto-redirect to Club if bluechip verified and wallet connected
+  useEffect(() => {
+    if (verificationStatus?.bluechip_verified && connected && publicKey) {
+      toast({
+        title: '🎉 Bluechip Verified!',
+        description: 'Redirecting you to the Club...',
+      });
+      setTimeout(() => {
+        navigate('/club');
+      }, 2000);
+    }
+  }, [verificationStatus, connected, publicKey, navigate, toast]);
 
   const handleTwitterLogin = async () => {
     try {
@@ -203,6 +218,11 @@ export default function Rei() {
         title: 'Success!',
         description: data.message,
       });
+
+      // Redirect to Club after successful registration
+      setTimeout(() => {
+        navigate('/club');
+      }, 3000);
     } catch (error) {
       toast({
         title: 'Error',
@@ -271,7 +291,7 @@ export default function Rei() {
             </div>
             <CardTitle className="text-2xl">Registration Complete!</CardTitle>
             <CardDescription>
-              Your Proof-of-Talent NFT will be minted shortly to your wallet.
+              Your Proof-of-Talent NFT will be minted shortly to your wallet. Redirecting you to the Club...
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
@@ -279,8 +299,8 @@ export default function Rei() {
               <p className="text-sm text-muted-foreground mb-1">Wallet Address</p>
               <p className="text-xs font-mono break-all">{publicKey?.toString()}</p>
             </div>
-            <Button onClick={() => window.location.href = '/'} className="w-full">
-              Return Home
+            <Button onClick={() => navigate('/club')} className="w-full">
+              Go to Club
             </Button>
           </CardContent>
         </Card>

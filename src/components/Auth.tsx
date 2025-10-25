@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -32,6 +32,7 @@ export const Auth = () => {
   const { toast } = useToast();
   const { publicKey, signMessage, connected } = useWallet();
   const navigate = useNavigate();
+  const twitterProcessingRef = useRef(false);
 
   // Handle Twitter OAuth callback
   useEffect(() => {
@@ -39,9 +40,13 @@ export const Auth = () => {
       const twitterCode = sessionStorage.getItem('twitter_code');
       const codeVerifier = sessionStorage.getItem('twitter_code_verifier');
       
-      if (twitterCode && codeVerifier) {
+      if (twitterCode && codeVerifier && !twitterProcessingRef.current) {
+        twitterProcessingRef.current = true;
         setTwitterLoading(true);
+        
+        // Clear immediately to prevent reuse
         sessionStorage.removeItem('twitter_code');
+        sessionStorage.removeItem('twitter_code_verifier');
         
         try {
           const { data, error } = await supabase.functions.invoke('twitter-oauth', {
@@ -98,7 +103,6 @@ export const Auth = () => {
             description: `Signed in with Twitter as @${data.user.handle}`,
           });
 
-          sessionStorage.removeItem('twitter_code_verifier');
           navigate('/club');
         } catch (error) {
           console.error('Twitter OAuth error:', error);
@@ -107,9 +111,9 @@ export const Auth = () => {
             description: error instanceof Error ? error.message : "Failed to authenticate with Twitter",
             variant: "destructive",
           });
-          sessionStorage.removeItem('twitter_code_verifier');
         } finally {
           setTwitterLoading(false);
+          twitterProcessingRef.current = false;
         }
       }
     };

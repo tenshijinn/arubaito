@@ -422,6 +422,7 @@ export const Auth = () => {
                     .cv-profile-button:hover {
                       background-color: hsl(var(--primary)) !important;
                       color: hsl(var(--background)) !important;
+                      border-color: #ED565a !important;
                     }
                   `}</style>
                 </div>

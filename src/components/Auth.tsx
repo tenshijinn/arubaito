@@ -233,12 +233,19 @@ export const Auth = () => {
                     />
                   </div>
                   <style>{`
+                    .wallet-button-wrapper {
+                      width: 100% !important;
+                      display: block !important;
+                    }
                     .wallet-button-wrapper button {
                       height: 3.5rem !important;
                       border-radius: 0.75rem !important;
                       font-size: 1.125rem !important;
                       font-weight: 500 !important;
                       width: 100% !important;
+                      max-width: 100% !important;
+                      min-width: 100% !important;
+                      display: block !important;
                       background-color: transparent !important;
                       color: hsl(var(--primary)) !important;
                       border: 4px solid hsl(var(--primary)) !important;

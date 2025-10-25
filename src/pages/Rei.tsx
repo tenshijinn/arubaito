@@ -59,6 +59,9 @@ export default function Rei() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isSubmittingWhitelist, setIsSubmittingWhitelist] = useState(false);
   const [whitelistSubmitted, setWhitelistSubmitted] = useState(false);
+  const [registrationData, setRegistrationData] = useState<any>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isLoadingRegistration, setIsLoadingRegistration] = useState(false);
 
   // Check for OAuth callback
   useEffect(() => {
@@ -88,6 +91,36 @@ export default function Rei() {
       setStep(3);
     }
   }, [connected, twitterUser]);
+
+  // Check for existing registration after Twitter login
+  useEffect(() => {
+    const checkExistingRegistration = async () => {
+      if (twitterUser && !isLoadingRegistration) {
+        setIsLoadingRegistration(true);
+        try {
+          const { data, error } = await supabase
+            .from('rei_registry')
+            .select('*')
+            .eq('x_user_id', twitterUser.x_user_id)
+            .single();
+
+          if (data && !error) {
+            setRegistrationData(data);
+            setIsSuccess(true);
+            setPortfolioUrl(data.portfolio_url || '');
+            setSelectedRoles(data.role_tags || []);
+            setConsent(true);
+          }
+        } catch (error) {
+          console.error('Error checking registration:', error);
+        } finally {
+          setIsLoadingRegistration(false);
+        }
+      }
+    };
+
+    checkExistingRegistration();
+  }, [twitterUser]);
 
 
   const handleTwitterLogin = async () => {
@@ -202,10 +235,19 @@ export default function Rei() {
 
       if (error) throw error;
 
+      // Fetch the updated registration data
+      const { data: regData } = await supabase
+        .from('rei_registry')
+        .select('*')
+        .eq('x_user_id', twitterUser.x_user_id)
+        .single();
+
+      setRegistrationData(regData);
       setIsSuccess(true);
+      setIsEditMode(false);
       toast({
         title: 'Success!',
-        description: data.message,
+        description: isEditMode ? 'Your profile has been updated!' : data.message,
       });
     } catch (error) {
       toast({
@@ -263,28 +305,96 @@ export default function Rei() {
 
   const userName = twitterUser?.display_name?.split(' ')[0] || twitterUser?.handle;
 
-  if (isSuccess) {
+  if (isSuccess && registrationData && !isEditMode) {
     return (
       <div className="min-h-screen">
         <Navigation userName={userName} />
         <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
-          <Card className="w-full max-w-md bg-transparent">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <Check className="h-8 w-8 text-primary" />
-            </div>
-            <CardTitle className="text-2xl">Registration Complete!</CardTitle>
-            <CardDescription>
-              Your Proof-of-Talent NFT will be minted shortly to your wallet.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <div className="p-4 bg-muted rounded-lg">
-              <p className="text-sm text-muted-foreground mb-1">Wallet Address</p>
-              <p className="text-xs font-mono break-all">{publicKey?.toString()}</p>
-            </div>
-          </CardContent>
-        </Card>
+          <Card className="w-full max-w-2xl bg-transparent">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <Check className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-2xl">Registration Summary</CardTitle>
+              <CardDescription>
+                Your Proof-of-Talent registration is complete
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Twitter Identity */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Identity</h3>
+                <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                  {twitterUser?.profile_image_url && (
+                    <img src={twitterUser.profile_image_url} alt={twitterUser.handle} className="h-12 w-12 rounded-full" />
+                  )}
+                  <div className="flex-1">
+                    <p className="font-semibold">{registrationData.display_name}</p>
+                    <p className="text-sm text-muted-foreground">@{registrationData.handle}</p>
+                  </div>
+                  {registrationData.verified && (
+                    <Badge variant="secondary">X Verified</Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Wallet */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Wallet Address</h3>
+                <div className="p-4 bg-muted rounded-lg">
+                  <p className="text-xs font-mono break-all">{registrationData.wallet_address}</p>
+                </div>
+              </div>
+
+              {/* Portfolio */}
+              {registrationData.portfolio_url && (
+                <div>
+                  <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Portfolio</h3>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <a href={registrationData.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline break-all">
+                      {registrationData.portfolio_url}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Role Tags */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Role Tags</h3>
+                <div className="flex flex-wrap gap-2">
+                  {registrationData.role_tags?.map((role: string) => (
+                    <Badge key={role} variant="default">
+                      {ROLE_OPTIONS.find(r => r.value === role)?.label || role}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Video CV */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Video CV</h3>
+                <div className="p-4 bg-muted rounded-lg">
+                  <p className="text-sm">Video submitted: {new Date(registrationData.created_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+
+              {/* NFT Status */}
+              <Alert className={registrationData.nft_minted ? "border-primary bg-primary/10" : "border-yellow-500 bg-yellow-500/10"}>
+                <Shield className={`h-4 w-4 ${registrationData.nft_minted ? 'text-primary' : 'text-yellow-500'}`} />
+                <AlertDescription className={registrationData.nft_minted ? 'text-primary' : 'text-yellow-500'}>
+                  {registrationData.nft_minted ? (
+                    <strong>NFT Minted: Your Proof-of-Talent NFT has been minted!</strong>
+                  ) : (
+                    <strong>NFT Pending: Your Proof-of-Talent NFT will be minted shortly</strong>
+                  )}
+                </AlertDescription>
+              </Alert>
+
+              <Button onClick={() => setIsEditMode(true)} className="w-full" variant="outline">
+                Edit Profile
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -384,13 +494,13 @@ export default function Rei() {
           )}
 
           {/* Step 3: Registration Form */}
-          {twitterUser && connected && (
+          {twitterUser && connected && (!isSuccess || isEditMode) && (
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-8 w-8 rounded-full flex items-center justify-center bg-muted">
                   3
                 </div>
-                <h3 className="text-lg font-semibold">submit my details</h3>
+                <h3 className="text-lg font-semibold">{isEditMode ? 'Edit My Details' : 'Submit My Details'}</h3>
               </div>
 
               <div className="space-y-4">
@@ -464,14 +574,29 @@ export default function Rei() {
                 </div>
 
                 {/* Submit Button */}
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!canSubmit || isSubmitting}
-                  size="lg"
-                  className="w-full"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Register & Claim Proof-Of-Talent NFT'}
-                </Button>
+                <div className="flex gap-2">
+                  {isEditMode && (
+                    <Button
+                      onClick={() => {
+                        setIsEditMode(false);
+                        setVideoBlob(null);
+                      }}
+                      variant="outline"
+                      size="lg"
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={!canSubmit || isSubmitting}
+                    size="lg"
+                    className="flex-1"
+                  >
+                    {isSubmitting ? 'Submitting...' : isEditMode ? 'Update Profile' : 'Register & Claim Proof-Of-Talent NFT'}
+                  </Button>
+                </div>
               </div>
             </div>
           )}

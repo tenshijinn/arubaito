@@ -411,6 +411,10 @@ export const Auth = () => {
                     onClick={() => setMode('register')}
                     className="w-full h-14 text-lg font-medium rounded-xl"
                     variant="secondary"
+                    style={{ 
+                      color: '#f0e3c3',
+                      borderColor: '#f0e3c3'
+                    }}
                   >
                     Signup with CV Profile
                   </Button>

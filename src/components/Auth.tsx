@@ -203,7 +203,7 @@ export const Auth = () => {
   }, [connected, publicKey, signMessage, toast, walletIntent]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 font-mono" style={{ backgroundColor: 'hsl(var(--background))' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 font-mono">
       <div className="w-full max-w-5xl">
         <h1 className="text-4xl font-bold text-center mb-8" style={{ color: 'hsl(var(--foreground))' }}>
           Welcome to CV Checker

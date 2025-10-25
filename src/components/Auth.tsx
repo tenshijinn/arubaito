@@ -55,7 +55,7 @@ export const Auth = () => {
 
           if (error) throw error;
 
-          if (!data.isWhitelisted) {
+          if (!data.bluechip_verified) {
             toast({
               title: "Access Denied",
               description: "Your Twitter account is not on the bluechip whitelist.",
@@ -67,8 +67,8 @@ export const Auth = () => {
           }
 
           // Create/sign in user with Twitter data
-          const twitterEmail = `${data.user.username}@twitter.oauth`;
-          const twitterPassword = data.user.id + '_twitter_auth';
+          const twitterEmail = `${data.user.handle}@twitter.oauth`;
+          const twitterPassword = data.user.x_user_id + '_twitter_auth';
 
           // Try to sign in first
           const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -83,9 +83,9 @@ export const Auth = () => {
               password: twitterPassword,
               options: {
                 data: {
-                  twitter_username: data.user.username,
-                  twitter_id: data.user.id,
-                  full_name: data.user.name,
+                  twitter_username: data.user.handle,
+                  twitter_id: data.user.x_user_id,
+                  full_name: data.user.display_name,
                 }
               }
             });
@@ -95,7 +95,7 @@ export const Auth = () => {
 
           toast({
             title: "Welcome!",
-            description: `Signed in with Twitter as @${data.user.username}`,
+            description: `Signed in with Twitter as @${data.user.handle}`,
           });
 
           sessionStorage.removeItem('twitter_code_verifier');

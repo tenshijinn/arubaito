@@ -106,8 +106,8 @@ All colors MUST be HSL.
       0deg,
       transparent,
       transparent 2px,
-      hsl(350 20% 16% / 0.5) 2px,
-      hsl(350 20% 16% / 0.5) 3px
+      hsl(350 20% 12% / 0.8) 2px,
+      hsl(350 20% 12% / 0.8) 4px
     );
     pointer-events: none;
     z-index: 1;
@@ -115,7 +115,7 @@ All colors MUST be HSL.
 
   body > * {
     position: relative;
-    z-index: 2;
+    z-index: 10;
   }
 
   h1, h2, h3, h4, h5, h6 {

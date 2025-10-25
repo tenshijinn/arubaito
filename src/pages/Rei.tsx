@@ -73,17 +73,17 @@ export default function Rei() {
 
   // Auto-advance to step 2 when Twitter is verified
   useEffect(() => {
-    if (twitterUser && verificationStatus?.bluechip_verified && step === 1) {
+    if (twitterUser && step === 1) {
       setStep(2);
     }
-  }, [twitterUser, verificationStatus]);
+  }, [twitterUser]);
 
   // Auto-advance to step 3 when wallet is connected
   useEffect(() => {
-    if (connected && twitterUser && verificationStatus?.bluechip_verified && step === 2) {
+    if (connected && twitterUser && step === 2) {
       setStep(3);
     }
-  }, [connected, twitterUser, verificationStatus]);
+  }, [connected, twitterUser]);
 
   const handleTwitterLogin = async () => {
     try {
@@ -132,18 +132,10 @@ export default function Rei() {
       // Clean URL
       window.history.replaceState({}, '', '/rei');
       
-      if (data.bluechip_verified) {
-        toast({
-          title: 'Verified!',
-          description: `Welcome, @${data.user.handle}! Your account is verified as a blue-chip Web3 talent.`,
-        });
-      } else {
-        toast({
-          title: 'Not Verified',
-          description: `@${data.user.handle} is not on the verified list. Contact admin for access.`,
-          variant: 'destructive',
-        });
-      }
+      toast({
+        title: 'Identity Verified!',
+        description: `Welcome, @${data.user.handle}! Your identity has been verified.`,
+      });
     } catch (error) {
       toast({
         title: 'Error',
@@ -262,7 +254,7 @@ export default function Rei() {
     }
   };
 
-  const canSubmit = videoBlob && publicKey && consent && selectedRoles.length > 0 && twitterUser && verificationStatus?.bluechip_verified;
+  const canSubmit = videoBlob && publicKey && consent && selectedRoles.length > 0 && twitterUser;
 
   const userName = twitterUser?.display_name?.split(' ')[0] || twitterUser?.handle;
 
@@ -304,7 +296,7 @@ export default function Rei() {
         <CardHeader>
           <CardTitle className="text-3xl font-bold">Rei Proof-Of-Talent Portal</CardTitle>
           <CardDescription>
-            Join the verified Web3 contributor registry and claim your Soul-Bound NFT
+            Register as a Web3 contributor and claim your Soul-Bound NFT
           </CardDescription>
           
           {/* Progress indicator */}
@@ -321,10 +313,10 @@ export default function Rei() {
           {/* Step 1: Twitter Verification */}
           <div className={step !== 1 && twitterUser ? 'opacity-50' : ''}>
             <div className="flex items-center gap-2 mb-4">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${verificationStatus?.bluechip_verified ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                {verificationStatus?.bluechip_verified ? <Check className="h-4 w-4" /> : '1'}
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${twitterUser ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                {twitterUser ? <Check className="h-4 w-4" /> : '1'}
               </div>
-              <h3 className="text-lg font-semibold">Verify as Blue-Chip Web3 Talent</h3>
+              <h3 className="text-lg font-semibold">Verify Your Identity</h3>
             </div>
 
             {!twitterUser ? (
@@ -332,7 +324,7 @@ export default function Rei() {
                 <Alert>
                   <Shield className="h-4 w-4" />
                   <AlertDescription>
-                    Only verified Web3 talents can access this portal. Your Twitter account must be on our approved list.
+                    Connect your X (Twitter) account to verify you're a real person.
                   </AlertDescription>
                 </Alert>
                 <Button onClick={handleTwitterLogin} size="lg" className="w-full">
@@ -355,62 +347,21 @@ export default function Rei() {
                   )}
                 </div>
                 
-                {verificationStatus?.bluechip_verified ? (
-                  <Alert className="border-primary bg-primary/10">
-                    <Check className="h-4 w-4 text-primary" />
-                    <AlertDescription className="text-primary">
-                      <strong>Verified Blue-Chip Account</strong>
-                      {verificationStatus.verification_type && (
-                        <span className="block text-sm mt-1">
-                          Type: {verificationStatus.verification_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                        </span>
-                      )}
-                    </AlertDescription>
-                  </Alert>
-                ) : (
-                  <div className="space-y-3">
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        This account is not on the verified list.
-                      </AlertDescription>
-                    </Alert>
-                    
-                    {!whitelistSubmitted ? (
-                      <div className="p-4 bg-muted rounded-lg space-y-3">
-                        <p className="text-sm font-medium">Think you should be on the whitelist?</p>
-                        <p className="text-sm text-muted-foreground">
-                          Submit your Twitter account for blue-chip verification. Our team will review your request.
-                        </p>
-                        <Button
-                          onClick={handleWhitelistRequest}
-                          disabled={isSubmittingWhitelist}
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                        >
-                          {isSubmittingWhitelist ? 'Submitting...' : 'Request Whitelist Access'}
-                        </Button>
-                      </div>
-                    ) : (
-                      <Alert className="border-primary/50 bg-primary/5">
-                        <Check className="h-4 w-4 text-primary" />
-                        <AlertDescription>
-                          <strong>Request Submitted</strong>
-                          <span className="block text-sm mt-1 text-muted-foreground">
-                            Your whitelist request has been received. We'll review it and notify you if approved.
-                          </span>
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-                )}
+                <Alert className="border-primary bg-primary/10">
+                  <Check className="h-4 w-4 text-primary" />
+                  <AlertDescription className="text-primary">
+                    <strong>Identity Verified</strong>
+                    <span className="block text-sm mt-1">
+                      You can now proceed to connect your wallet.
+                    </span>
+                  </AlertDescription>
+                </Alert>
               </div>
             )}
           </div>
 
           {/* Step 2: Wallet Connection */}
-          {twitterUser && verificationStatus?.bluechip_verified && (
+          {twitterUser && (
             <div className={step !== 2 && connected ? 'opacity-50' : ''}>
               <div className="flex items-center gap-2 mb-4">
                 <div className={`h-8 w-8 rounded-full flex items-center justify-center ${connected ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
@@ -431,7 +382,7 @@ export default function Rei() {
           )}
 
           {/* Step 3: Registration Form */}
-          {twitterUser && verificationStatus?.bluechip_verified && connected && (
+          {twitterUser && connected && (
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-8 w-8 rounded-full flex items-center justify-center bg-muted">

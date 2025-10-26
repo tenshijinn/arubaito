@@ -68,13 +68,56 @@ export default function Rei() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoadingRegistration, setIsLoadingRegistration] = useState(false);
 
-  // Set up Supabase session persistence
+  // Set up Supabase session persistence and restore Twitter user state
   useEffect(() => {
+    const restoreTwitterUserFromSession = async (session: Session) => {
+      // Check if session contains Twitter user metadata
+      const metadata = session.user.user_metadata;
+      if (metadata?.twitter_id && metadata?.twitter_username) {
+        // Reconstruct Twitter user from session metadata
+        const restoredTwitterUser: TwitterUser = {
+          x_user_id: metadata.twitter_id,
+          handle: metadata.twitter_username,
+          display_name: metadata.full_name || metadata.twitter_username,
+          profile_image_url: metadata.avatar_url,
+          verified: false // Will be updated from database
+        };
+
+        // Check database for verification status
+        try {
+          const { data: whitelistData } = await supabase
+            .from('twitter_whitelist')
+            .select('verification_type')
+            .eq('twitter_handle', metadata.twitter_username)
+            .single();
+
+          if (whitelistData) {
+            setVerificationStatus({
+              bluechip_verified: !!whitelistData.verification_type,
+              verification_type: whitelistData.verification_type
+            });
+            restoredTwitterUser.verified = true;
+          }
+        } catch (error) {
+          console.log('No verification status found');
+        }
+
+        setTwitterUser(restoredTwitterUser);
+      }
+    };
+
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Restore Twitter user state if session exists
+        if (session) {
+          setTimeout(() => {
+            restoreTwitterUserFromSession(session);
+          }, 0);
+        }
       }
     );
 
@@ -82,6 +125,11 @@ export default function Rei() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      // Restore Twitter user state if session exists
+      if (session) {
+        restoreTwitterUserFromSession(session);
+      }
     });
 
     return () => subscription.unsubscribe();

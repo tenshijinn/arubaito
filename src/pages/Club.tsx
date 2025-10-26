@@ -54,17 +54,62 @@ export default function Club() {
     }
 
     try {
-      // Check if wallet is verified in rei_registry
-      const { data: reiData, error: reiError } = await supabase
+      const walletAddress = publicKey.toString();
+      let hasAccess = false;
+      let accessReason = '';
+      let data: any = null;
+
+      // Check 1: Get rei_registry data first (needed for multiple checks)
+      const { data: reiData } = await supabase
         .from('rei_registry')
         .select('*')
-        .eq('wallet_address', publicKey.toString())
-        .eq('verified', true)
-        .single();
+        .eq('wallet_address', walletAddress)
+        .maybeSingle();
 
-      if (!reiError && reiData) {
+      // Check 2: Twitter Whitelist
+      if (reiData?.handle) {
+        const { data: whitelistData } = await supabase
+          .from('twitter_whitelist')
+          .select('twitter_handle')
+          .eq('twitter_handle', reiData.handle)
+          .maybeSingle();
+
+        if (whitelistData) {
+          hasAccess = true;
+          accessReason = 'twitter_whitelist';
+          data = reiData;
+        }
+      }
+
+      // Check 3: NFT Holder
+      if (!hasAccess && reiData && (reiData.nft_minted || reiData.nft_mint_address)) {
+        hasAccess = true;
+        accessReason = 'nft_holder';
+        data = reiData;
+      }
+
+      // Check 4: High CV Score (89+)
+      if (!hasAccess) {
+        const { data: cvData } = await supabase
+          .from('cv_analyses')
+          .select('*')
+          .eq('wallet_address', walletAddress)
+          .gt('overall_score', 89)
+          .order('overall_score', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (cvData) {
+          hasAccess = true;
+          accessReason = 'high_cv_score';
+          data = reiData || { wallet_address: walletAddress };
+        }
+      }
+
+      if (hasAccess) {
         setIsVerified(true);
-        setMemberData(reiData);
+        setMemberData({ ...data, access_reason: accessReason });
+        console.log(`Club access granted via: ${accessReason}`);
       }
     } catch (error) {
       console.error('Access check error:', error);
@@ -100,7 +145,7 @@ export default function Club() {
                     <Info className="h-5 w-5 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
-                    <p>This area is restricted to verified members only. {!publicKey ? 'Connect your wallet and complete verification' : 'Complete verification'} through the Rei portal to access exclusive member features.</p>
+                    <p>This area is restricted to club members only. {!publicKey ? 'Connect your wallet to check membership.' : 'Access is granted if you are: (1) on the Twitter whitelist, (2) an NFT holder, or (3) have a CV score above 89.'}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

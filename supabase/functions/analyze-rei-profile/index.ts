@@ -159,10 +159,40 @@ When a Solana wallet address is provided, you MUST use the available tools to ve
 
 IMPORTANT: If any wallet tool calls fail, continue with the analysis using available data. Do not let API failures prevent you from completing the analysis.
 
+PROJECT IDENTIFICATION - You MUST analyze the data returned from tools and identify specific projects:
+
+**From getWalletSwaps data:**
+- Look for DEX platform names, program IDs, and swap destinations in the transaction data
+- Common Solana DEX Platforms: Jupiter, Raydium, Orca, Serum, Phoenix, Lifinity, Meteora, Aldrin, Saber, Mercurial
+- Label each as: "[Project Name] (DEX)"
+
+**From getWalletNFTs data:**
+- Extract NFT collection names from the metadata, name field, or symbol
+- Common Solana NFT Collections: Mad Lads, Tensorians, DeGods, y00ts, SMB (Solana Monkey Business), Okay Bears, ABC (Attic Babies Collection), Cets on Creck, Famous Fox Federation, Claynosaurz
+- Common NFT Marketplaces (if found in transaction history): Magic Eden, Tensor, Solanart, Exchange Art, Holaplex
+- Label collections as: "[Collection Name] (NFT Collection)"
+- Label marketplaces as: "[Marketplace Name] (NFT Marketplace)"
+
+**From getWalletTokens data:**
+- Identify known project tokens by their symbol or name
+- Common DeFi Protocols: Marinade Finance (mSOL), Lido (stSOL), Solend, Mango Markets, Drift Protocol, Kamino, Hubble Protocol, Port Finance, Tulip Protocol, Francium
+- Memecoins: BONK, WIF (dogwifhat), SAMO, MYRO
+- Stablecoins: USDC, USDT, USDH
+- Label DeFi as: "[Protocol Name] (DeFi/Staking/Lending)"
+- Label Memecoins as: "[Token Name] (Memecoin)"
+
+**Instructions:**
+- Parse ALL available data from the Moralis tools to extract project identifiers
+- Match contract addresses, program IDs, token symbols, and NFT metadata against the knowledge base above
+- Return specific, labeled project names in the notable_interactions array
+- If you identify a project not in the list above, still include it with an appropriate label
+- For unknown or unlabeled addresses, you may skip them
+- Focus on well-known and reputable projects that demonstrate Web3 expertise
+
 Analyze blockchain data to calculate:
 - **Account age**: Days since first transaction (from portfolio or swaps data)
 - **Transaction patterns**: Frequency and activity level from swap history
-- **Notable interactions**: Identify DEX platforms and protocols from swap data
+- **Notable interactions**: Array of identified project names with labels (e.g., "Jupiter (DEX)", "Mad Lads (NFT Collection)")
 - **Bluechip score** (0-100) based on:
   * Account age: 3+ years = 40pts, 2+ years = 30pts, 1+ year = 20pts
   * Swap count: 100+ = 30pts, 50+ = 20pts, 10+ = 10pts

@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AudioRecorder } from '@/components/AudioRecorder';
+import ReiChatbot from '@/components/ReiChatbot';
 import { useToast } from '@/hooks/use-toast';
 import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info, Sparkles, Briefcase, CheckCircle2, Mic, Globe, Edit2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -536,6 +537,14 @@ export default function Rei() {
               </Button>
             </CardContent>
           </Card>
+        </div>
+        
+        {/* Rei Chatbot */}
+        <div className="container max-w-4xl mx-auto px-4 pb-8">
+          <ReiChatbot 
+            walletAddress={registrationData.wallet_address} 
+            userMode="talent"
+          />
         </div>
       </div>
     );

@@ -15,7 +15,7 @@ interface VideoRecorderProps {
 
 export const VideoRecorder: React.FC<VideoRecorderProps> = ({ 
   onVideoReady,
-  maxDurationMinutes = 5 
+  maxDurationMinutes = 3 
 }) => {
   const { toast } = useToast();
   const [isRecording, setIsRecording] = useState(false);
@@ -175,6 +175,10 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
           const newTime = prev + 1000;
           if (newTime >= maxDurationMs) {
             stopRecording();
+            toast({
+              title: "Recording Complete",
+              description: `Maximum recording time of ${maxDurationMinutes} minutes reached. Recording stopped automatically to keep file size under limit.`,
+            });
           }
           return newTime;
         });

@@ -44,10 +44,25 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
 
   // Reset conversation when mode changes
   useEffect(() => {
-    if (conversationId) {
-      setMessages([]);
-      setConversationId(null);
-    }
+    const resetConversation = async () => {
+      if (conversationId) {
+        // Delete all messages from the database for this conversation
+        try {
+          await supabase
+            .from('chat_messages')
+            .delete()
+            .eq('conversation_id', conversationId);
+        } catch (error) {
+          console.error('Error deleting conversation messages:', error);
+        }
+        
+        // Clear local state
+        setMessages([]);
+        setConversationId(null);
+      }
+    };
+    
+    resetConversation();
   }, [userMode]);
 
   const loadConversation = async () => {

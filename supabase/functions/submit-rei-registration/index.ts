@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Upsert registration data
+    // Upsert registration data - use x_user_id for conflict since users can update their wallet
     const { data, error } = await supabase
       .from('rei_registry')
       .upsert(
@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
           profile_score: profileScore,
         },
         { 
-          onConflict: 'wallet_address',
+          onConflict: 'x_user_id',
           ignoreDuplicates: false 
         }
       )

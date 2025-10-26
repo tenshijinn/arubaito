@@ -14,22 +14,34 @@ const moralisTools = [
   {
     type: "function",
     function: {
-      name: "getWalletTransactions",
-      description: "Fetch Solana wallet transaction history from Moralis to analyze wallet activity, account age, and interaction patterns",
+      name: "getWalletPortfolio",
+      description: "Fetch Solana wallet portfolio overview from Moralis including balance, tokens, and NFT summary",
       parameters: {
         type: "object",
         properties: {
           address: { 
             type: "string", 
             description: "Solana wallet address to query" 
-          },
-          chain: { 
-            type: "string", 
-            enum: ["solana"], 
-            description: "Blockchain network (always solana)" 
           }
         },
-        required: ["address", "chain"]
+        required: ["address"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "getWalletSwaps",
+      description: "Fetch Solana wallet swap history from Moralis to analyze trading activity and DeFi interactions",
+      parameters: {
+        type: "object",
+        properties: {
+          address: { 
+            type: "string", 
+            description: "Solana wallet address to query" 
+          }
+        },
+        required: ["address"]
       }
     }
   },
@@ -44,14 +56,9 @@ const moralisTools = [
           address: { 
             type: "string", 
             description: "Solana wallet address to query" 
-          },
-          chain: { 
-            type: "string", 
-            enum: ["solana"], 
-            description: "Blockchain network (always solana)" 
           }
         },
-        required: ["address", "chain"]
+        required: ["address"]
       }
     }
   },
@@ -66,14 +73,9 @@ const moralisTools = [
           address: { 
             type: "string", 
             description: "Solana wallet address to query" 
-          },
-          chain: { 
-            type: "string", 
-            enum: ["solana"], 
-            description: "Blockchain network (always solana)" 
           }
         },
-        required: ["address", "chain"]
+        required: ["address"]
       }
     }
   }
@@ -91,7 +93,8 @@ async function executeMoralisAPI(toolName: string, params: any) {
   
   // Map tool names to Moralis API endpoints
   const endpointMap: Record<string, string> = {
-    'getWalletTransactions': `https://solana-gateway.moralis.io/account/mainnet/${address}/transactions`,
+    'getWalletPortfolio': `https://solana-gateway.moralis.io/account/mainnet/${address}/portfolio`,
+    'getWalletSwaps': `https://solana-gateway.moralis.io/account/mainnet/${address}/swaps`,
     'getWalletTokens': `https://solana-gateway.moralis.io/account/mainnet/${address}/tokens`,
     'getWalletNFTs': `https://solana-gateway.moralis.io/account/mainnet/${address}/nft`
   };
@@ -149,21 +152,26 @@ Evaluation Criteria:
 4. **Role Fit** (0-25): Alignment with selected roles, potential contribution value
 
 When a Solana wallet address is provided, you MUST use the available tools to verify wallet history:
-1. Use getWalletTransactions to analyze wallet history and activity patterns
-2. Use getWalletTokens to check token holdings and diversity
-3. Use getWalletNFTs to verify NFT collections and ecosystem engagement
+1. Use getWalletPortfolio to get overview of wallet balance and holdings
+2. Use getWalletSwaps to analyze trading history and DeFi activity patterns
+3. Use getWalletTokens to check token holdings and diversity
+4. Use getWalletNFTs to verify NFT collections and ecosystem engagement
+
+IMPORTANT: If any wallet tool calls fail, continue with the analysis using available data. Do not let API failures prevent you from completing the analysis.
 
 Analyze blockchain data to calculate:
-- **Account age**: Days since first transaction
-- **Transaction patterns**: Frequency and activity level
-- **Notable interactions**: Identify and label programIds with recognizable Web3 projects (e.g., "Magic Eden", "Jupiter DEX", "Marinade Finance")
+- **Account age**: Days since first transaction (from portfolio or swaps data)
+- **Transaction patterns**: Frequency and activity level from swap history
+- **Notable interactions**: Identify DEX platforms and protocols from swap data
 - **Bluechip score** (0-100) based on:
   * Account age: 3+ years = 40pts, 2+ years = 30pts, 1+ year = 20pts
-  * Transaction count: 100+ = 30pts, 50+ = 20pts, 10+ = 10pts
+  * Swap count: 100+ = 30pts, 50+ = 20pts, 10+ = 10pts
   * Token diversity: 10+ = 15pts, 5+ = 10pts, 1+ = 5pts
   * NFT holdings: 20+ = 15pts, 10+ = 10pts, 1+ = 5pts
 
-After analyzing the transcript and wallet data, provide your complete analysis in this JSON structure:
+CRITICAL: You MUST return ONLY valid JSON with no additional text, commentary, or explanation before or after the JSON object.
+
+After analyzing the transcript and wallet data, provide your complete analysis in this exact JSON structure:
 {
   "overall_score": <number 0-100, boost by up to 15 points based on bluechip_score>,
   "category_scores": {
@@ -194,7 +202,9 @@ After analyzing the transcript and wallet data, provide your complete analysis i
   }
 }
 
-If wallet verification fails or no wallet is provided, omit the wallet_verification field.`;
+If wallet verification fails or no wallet is provided, set wallet_verification.verified to false and use 0 for numeric fields.
+
+REMINDER: Return ONLY the JSON object above. No other text, explanations, or commentary.`;
 
     const userPrompt = `Selected Roles: ${roleTags.join(', ')}
 ${walletAddress ? `\nSolana Wallet Address: ${walletAddress}` : ''}

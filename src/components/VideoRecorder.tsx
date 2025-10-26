@@ -11,11 +11,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface VideoRecorderProps {
   onVideoReady: (videoBlob: Blob) => void;
   maxDurationMinutes?: number;
+  maxDurationSeconds?: number;
 }
 
 export const VideoRecorder: React.FC<VideoRecorderProps> = ({ 
   onVideoReady,
-  maxDurationMinutes = 3 
+  maxDurationMinutes,
+  maxDurationSeconds
 }) => {
   const { toast } = useToast();
   const [isRecording, setIsRecording] = useState(false);
@@ -35,7 +37,12 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
   const faceBlurProcessorRef = useRef<FaceBlurProcessor | null>(null);
   const processedStreamRef = useRef<MediaStream | null>(null);
 
-  const maxDurationMs = maxDurationMinutes * 60 * 1000;
+  const maxDurationMs = maxDurationSeconds 
+    ? maxDurationSeconds * 1000 
+    : (maxDurationMinutes || 3) * 60 * 1000;
+  const displayDuration = maxDurationSeconds 
+    ? `${maxDurationSeconds} seconds` 
+    : `${maxDurationMinutes || 3} minutes`;
 
   useEffect(() => {
     return () => {
@@ -177,7 +184,7 @@ export const VideoRecorder: React.FC<VideoRecorderProps> = ({
             stopRecording();
             toast({
               title: "Recording Complete",
-              description: `Maximum recording time of ${maxDurationMinutes} minutes reached. Recording stopped automatically to keep file size under limit.`,
+              description: `Maximum recording time of ${displayDuration} reached. Recording stopped automatically to keep file size under limit.`,
             });
           }
           return newTime;

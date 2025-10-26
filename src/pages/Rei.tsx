@@ -638,12 +638,12 @@ export default function Rei() {
                           <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-sm">
-                          <p>Introduce yourself and share your Web3 experience. Maximum 3 minutes. Tips: mention your background, highlight projects, discuss skills, and keep it professional.</p>
+                          <p>Introduce yourself and share your Web3 experience. Maximum 40 seconds. Tips: mention your background, highlight projects, discuss skills, and keep it professional.</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <VideoRecorder onVideoReady={handleVideoReady} maxDurationMinutes={3} />
+                  <VideoRecorder onVideoReady={handleVideoReady} maxDurationSeconds={40} />
                 </div>
 
                 {/* Portfolio URL */}

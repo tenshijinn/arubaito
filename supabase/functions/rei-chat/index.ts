@@ -12,6 +12,7 @@ interface ChatRequest {
   message: string;
   walletAddress: string;
   conversationId?: string;
+  userMode?: 'talent' | 'employer';
 }
 
 serve(async (req) => {
@@ -20,7 +21,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, walletAddress, conversationId }: ChatRequest = await req.json();
+    const { message, walletAddress, conversationId, userMode }: ChatRequest = await req.json();
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -34,6 +35,8 @@ serve(async (req) => {
 
     // Get or create conversation
     let convId = conversationId;
+    const selectedUserType = userMode || 'talent';
+    
     if (!convId) {
       const { data: existingConv } = await supabase
         .from('chat_conversations')
@@ -43,24 +46,28 @@ serve(async (req) => {
 
       if (existingConv) {
         convId = existingConv.id;
+        // Update user type if it changed
+        if (existingConv.user_type !== selectedUserType) {
+          await supabase
+            .from('chat_conversations')
+            .update({ user_type: selectedUserType })
+            .eq('id', existingConv.id);
+        }
       } else {
-        // Determine user type
-        const { data: talent } = await supabase
-          .from('rei_registry')
-          .select('x_user_id')
-          .eq('wallet_address', walletAddress)
-          .single();
-
-        const userType = talent ? 'talent' : 'employer';
-
         const { data: newConv } = await supabase
           .from('chat_conversations')
-          .insert({ wallet_address: walletAddress, user_type: userType })
+          .insert({ wallet_address: walletAddress, user_type: selectedUserType })
           .select()
           .single();
 
         convId = newConv.id;
       }
+    } else {
+      // Update existing conversation's user type
+      await supabase
+        .from('chat_conversations')
+        .update({ user_type: selectedUserType })
+        .eq('id', convId);
     }
 
     // Save user message

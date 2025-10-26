@@ -17,9 +17,10 @@ interface Message {
 
 interface ReiChatbotProps {
   walletAddress: string;
+  userMode: 'talent' | 'employer';
 }
 
-const ReiChatbot = ({ walletAddress }: ReiChatbotProps) => {
+const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,6 +41,14 @@ const ReiChatbot = ({ walletAddress }: ReiChatbotProps) => {
     // Load conversation history
     loadConversation();
   }, [walletAddress]);
+
+  // Reset conversation when mode changes
+  useEffect(() => {
+    if (conversationId) {
+      setMessages([]);
+      setConversationId(null);
+    }
+  }, [userMode]);
 
   const loadConversation = async () => {
     try {
@@ -83,8 +92,9 @@ const ReiChatbot = ({ walletAddress }: ReiChatbotProps) => {
       const { data, error } = await supabase.functions.invoke('rei-chat', {
         body: {
           message: input,
-          walletAddress: walletAddress,
-          conversationId: conversationId
+          walletAddress,
+          conversationId: conversationId || undefined,
+          userMode
         }
       });
 
@@ -138,8 +148,9 @@ const ReiChatbot = ({ walletAddress }: ReiChatbotProps) => {
       const { data, error } = await supabase.functions.invoke('rei-chat', {
         body: {
           message: verificationMessage,
-          walletAddress: walletAddress,
-          conversationId: conversationId
+          walletAddress,
+          conversationId: conversationId || undefined,
+          userMode
         }
       });
 

@@ -337,7 +337,7 @@ export const Auth = () => {
       <div className="w-full max-w-5xl">
         <h1 className="text-4xl font-bold text-center mb-8 uppercase tracking-wider" style={{ color: '#ED565A' }}>
           <TextRotator 
-            words={["WELCOME TO CV CHECKER", "enter the club"]}
+            words={["enter the club"]}
             isActive={isAnimating}
             className="inline-block"
           />

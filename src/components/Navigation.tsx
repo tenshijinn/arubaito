@@ -64,6 +64,16 @@ export const Navigation = ({ userName }: NavigationProps) => {
                       <li>
                         <NavigationMenuLink asChild>
                           <Link
+                            to="/askrei"
+                            className="block select-none rounded-sm p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground font-mono text-xs"
+                          >
+                            ASK REI
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
                             to="/club"
                             className="block select-none rounded-sm p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground font-mono text-xs"
                           >

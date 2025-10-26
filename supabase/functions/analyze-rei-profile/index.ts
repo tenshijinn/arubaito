@@ -9,11 +9,8 @@ interface AnalysisRequest {
   roleTags: string[];
 }
 
-// Moralis MCP API endpoint (configurable via environment)
-const MORALIS_MCP_URL = Deno.env.get('MORALIS_MCP_URL') || 'http://localhost:7332';
-
-// Define MCP tools for Lovable AI
-const mcpTools = [
+// Define tools for Lovable AI that will call Moralis API directly
+const moralisTools = [
   {
     type: "function",
     function: {
@@ -82,33 +79,51 @@ const mcpTools = [
   }
 ];
 
-// Execute MCP tool calls
-async function executeMCPTool(toolName: string, params: any) {
-  const mcpEndpoint = `${MORALIS_MCP_URL}/${toolName}`;
+// Execute Moralis API calls directly
+async function executeMoralisAPI(toolName: string, params: any) {
+  const moralisApiKey = Deno.env.get('MORALIS_API_KEY');
+  if (!moralisApiKey) {
+    console.error('MORALIS_API_KEY not configured');
+    return { error: 'Moralis API key not configured' };
+  }
+
+  const { address } = params;
   
-  console.log(`Executing MCP tool: ${toolName} with params:`, params);
+  // Map tool names to Moralis API endpoints
+  const endpointMap: Record<string, string> = {
+    'getWalletTransactions': `https://solana-gateway.moralis.io/account/mainnet/${address}/transactions`,
+    'getWalletTokens': `https://solana-gateway.moralis.io/account/mainnet/${address}/tokens`,
+    'getWalletNFTs': `https://solana-gateway.moralis.io/account/mainnet/${address}/nft`
+  };
+
+  const endpoint = endpointMap[toolName];
+  if (!endpoint) {
+    console.error(`Unknown tool: ${toolName}`);
+    return { error: `Unknown tool: ${toolName}` };
+  }
+
+  console.log(`Calling Moralis API: ${toolName} for address ${address}`);
   
   try {
-    const response = await fetch(mcpEndpoint, {
-      method: 'POST',
+    const response = await fetch(endpoint, {
+      method: 'GET',
       headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Deno.env.get('MORALIS_API_KEY') || ''}`
-      },
-      body: JSON.stringify(params)
+        'X-API-Key': moralisApiKey,
+        'Accept': 'application/json'
+      }
     });
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`MCP tool ${toolName} failed:`, response.status, errorText);
-      return { error: `MCP tool ${toolName} failed: ${response.status}` };
+      console.error(`Moralis API ${toolName} failed:`, response.status, errorText);
+      return { error: `Moralis API ${toolName} failed: ${response.status}` };
     }
     
     const result = await response.json();
-    console.log(`MCP tool ${toolName} succeeded:`, result);
+    console.log(`Moralis API ${toolName} succeeded with ${JSON.stringify(result).length} bytes`);
     return result;
   } catch (error) {
-    console.error(`Failed to execute MCP tool ${toolName}:`, error);
+    console.error(`Failed to call Moralis API ${toolName}:`, error);
     return { error: `Failed to execute ${toolName}: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
@@ -199,7 +214,7 @@ Please analyze this contributor's profile based on their video introduction${wal
     let iterationCount = 0;
     const maxIterations = 10; // Prevent infinite loops
 
-    console.log('Starting AI analysis with MCP tool calling...');
+    console.log('Starting AI analysis with Moralis API tool calling...');
 
     // Tool calling loop
     while (!finalAnalysis && iterationCount < maxIterations) {
@@ -215,7 +230,7 @@ Please analyze this contributor's profile based on their video introduction${wal
         body: JSON.stringify({
           model: 'google/gemini-2.5-flash',
           messages,
-          tools: walletAddress ? mcpTools : undefined, // Only enable tools if wallet provided
+          tools: walletAddress ? moralisTools : undefined, // Only enable tools if wallet provided
           tool_choice: walletAddress ? 'auto' : undefined
         }),
       });
@@ -243,8 +258,8 @@ Please analyze this contributor's profile based on their video introduction${wal
           
           console.log(`Executing tool: ${toolName}`, toolArgs);
           
-          // Execute MCP tool
-          const toolResult = await executeMCPTool(toolName, toolArgs);
+          // Execute Moralis API call
+          const toolResult = await executeMoralisAPI(toolName, toolArgs);
           
           // Add tool result to conversation
           messages.push({

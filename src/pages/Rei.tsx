@@ -18,6 +18,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface TwitterUser {
   x_user_id: string;
@@ -383,238 +384,256 @@ export default function Rei() {
     return (
       <div className="min-h-screen">
         <Navigation userName={userName} />
-        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
-          <Card className="w-full max-w-2xl bg-transparent">
-            <CardHeader className="text-center">
-              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Check className="h-8 w-8 text-primary" />
-              </div>
-              <CardTitle className="text-2xl">Registration Summary</CardTitle>
-              <CardDescription>
-                Your Proof-of-Talent registration is complete
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* AI Profile Analysis */}
-              {analysis && registrationData.profile_score && (
-                <div className="space-y-4 p-5 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border border-primary/20">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-lg">Profile Analysis</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="text-3xl font-bold text-primary">
-                        {Math.round(registrationData.profile_score)}
-                      </span>
-                      <span className="text-sm text-muted-foreground">/100</span>
-                    </div>
+        <div className="container mx-auto px-4 py-8">
+          <Tabs defaultValue="profile" className="w-full max-w-4xl mx-auto">
+            <TabsList className="w-full mb-6 h-12 bg-muted/30 p-1 rounded-lg grid grid-cols-2">
+              <TabsTrigger 
+                value="profile" 
+                className="font-mono text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                &gt; Talent Profile
+              </TabsTrigger>
+              <TabsTrigger 
+                value="askrei" 
+                className="font-mono text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                &gt; AskRei
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="profile" className="mt-0">
+              <Card className="w-full bg-transparent">
+                <CardHeader className="text-center">
+                  <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Check className="h-8 w-8 text-primary" />
                   </div>
-
-                  {/* Summary */}
-                  {registrationData.analysis_summary && (
-                    <p className="text-sm text-muted-foreground italic">
-                      "{registrationData.analysis_summary}"
-                    </p>
-                  )}
-
-                  {/* Category Scores */}
-                  {analysis.category_scores && (
-                    <div className="grid grid-cols-2 gap-3">
-                      {Object.entries(analysis.category_scores).map(([category, score]: [string, any]) => (
-                        <div key={category} className="bg-background/50 rounded p-3">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-xs capitalize">
-                              {category.replace('_', ' ')}
-                            </span>
-                            <span className="text-sm font-semibold">{score}/25</span>
-                          </div>
-                          <Progress value={(score / 25) * 100} className="h-1.5" />
+                  <CardTitle className="text-2xl">Registration Summary</CardTitle>
+                  <CardDescription>
+                    Your Proof-of-Talent registration is complete
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* AI Profile Analysis */}
+                  {analysis && registrationData.profile_score && (
+                    <div className="space-y-4 p-5 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-lg">Profile Analysis</h3>
+                        <div className="flex items-center gap-2">
+                          <span className="text-3xl font-bold text-primary">
+                            {Math.round(registrationData.profile_score)}
+                          </span>
+                          <span className="text-sm text-muted-foreground">/100</span>
                         </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Key Strengths */}
-                  {analysis.key_strengths && analysis.key_strengths.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-primary" />
-                        Key Strengths
-                      </h4>
-                      <ul className="space-y-1">
-                        {analysis.key_strengths.map((strength: string, idx: number) => (
-                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-green-500 mt-0.5 flex-shrink-0" />
-                            <span>{strength}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Experience Highlights */}
-                  {analysis.experience_highlights && analysis.experience_highlights.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm flex items-center gap-2">
-                        <Briefcase className="h-4 w-4 text-primary" />
-                        Experience Highlights
-                      </h4>
-                      <ul className="space-y-1">
-                        {analysis.experience_highlights.map((exp: string, idx: number) => (
-                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
-                            <span className="text-primary">•</span>
-                            <span>{exp}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Wallet Verification */}
-                  {analysis.wallet_verification?.verified && (
-                    <div className="bg-background/50 rounded p-3">
-                      <h4 className="font-medium text-sm flex items-center gap-2 mb-2">
-                        <Shield className="h-4 w-4 text-green-500" />
-                        Wallet Verified
-                      </h4>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <span className="text-muted-foreground">Chain:</span>
-                          <span className="ml-1 font-medium">{analysis.wallet_verification.chain}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Account Age:</span>
-                          <span className="ml-1 font-medium">{analysis.wallet_verification.account_age_days} days</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Transactions:</span>
-                          <span className="ml-1 font-medium">{analysis.wallet_verification.transaction_count}</span>
-                        </div>
-                      <div>
-                        <span className="text-muted-foreground">Bluechip Score:</span>
-                        <span className="ml-1 font-medium">{analysis.wallet_verification.bluechip_score}/100</span>
                       </div>
-                    </div>
 
-                    {/* Notable Interactions */}
-                    {analysis.wallet_verification.notable_interactions && 
-                     analysis.wallet_verification.notable_interactions.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-border/50">
-                        <h5 className="font-medium text-xs mb-2 text-muted-foreground">
-                          On-Chain Activity
-                        </h5>
-                        <div className="flex flex-wrap gap-1.5">
-                          {analysis.wallet_verification.notable_interactions.map((interaction: string, idx: number) => (
-                            <Badge key={idx} variant="secondary" className="text-xs">
-                              {interaction}
-                            </Badge>
+                      {/* Summary */}
+                      {registrationData.analysis_summary && (
+                        <p className="text-sm text-muted-foreground italic">
+                          "{registrationData.analysis_summary}"
+                        </p>
+                      )}
+
+                      {/* Category Scores */}
+                      {analysis.category_scores && (
+                        <div className="grid grid-cols-2 gap-3">
+                          {Object.entries(analysis.category_scores).map(([category, score]: [string, any]) => (
+                            <div key={category} className="bg-background/50 rounded p-3">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs capitalize">
+                                  {category.replace('_', ' ')}
+                                </span>
+                                <span className="text-sm font-semibold">{score}/25</span>
+                              </div>
+                              <Progress value={(score / 25) * 100} className="h-1.5" />
+                            </div>
                           ))}
                         </div>
+                      )}
+
+                      {/* Key Strengths */}
+                      {analysis.key_strengths && analysis.key_strengths.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm flex items-center gap-2">
+                            <Sparkles className="h-4 w-4 text-primary" />
+                            Key Strengths
+                          </h4>
+                          <ul className="space-y-1">
+                            {analysis.key_strengths.map((strength: string, idx: number) => (
+                              <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                                <CheckCircle2 className="h-3.5 w-3.5 text-green-500 mt-0.5 flex-shrink-0" />
+                                <span>{strength}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Experience Highlights */}
+                      {analysis.experience_highlights && analysis.experience_highlights.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm flex items-center gap-2">
+                            <Briefcase className="h-4 w-4 text-primary" />
+                            Experience Highlights
+                          </h4>
+                          <ul className="space-y-1">
+                            {analysis.experience_highlights.map((exp: string, idx: number) => (
+                              <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                                <span className="text-primary">•</span>
+                                <span>{exp}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Wallet Verification */}
+                      {analysis.wallet_verification?.verified && (
+                        <div className="bg-background/50 rounded p-3">
+                          <h4 className="font-medium text-sm flex items-center gap-2 mb-2">
+                            <Shield className="h-4 w-4 text-green-500" />
+                            Wallet Verified
+                          </h4>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <span className="text-muted-foreground">Chain:</span>
+                              <span className="ml-1 font-medium">{analysis.wallet_verification.chain}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Account Age:</span>
+                              <span className="ml-1 font-medium">{analysis.wallet_verification.account_age_days} days</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Transactions:</span>
+                              <span className="ml-1 font-medium">{analysis.wallet_verification.transaction_count}</span>
+                            </div>
+                          <div>
+                            <span className="text-muted-foreground">Bluechip Score:</span>
+                            <span className="ml-1 font-medium">{analysis.wallet_verification.bluechip_score}/100</span>
+                          </div>
+                        </div>
+
+                        {/* Notable Interactions */}
+                        {analysis.wallet_verification.notable_interactions && 
+                         analysis.wallet_verification.notable_interactions.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-border/50">
+                            <h5 className="font-medium text-xs mb-2 text-muted-foreground">
+                              On-Chain Activity
+                            </h5>
+                            <div className="flex flex-wrap gap-1.5">
+                              {analysis.wallet_verification.notable_interactions.map((interaction: string, idx: number) => (
+                                <Badge key={idx} variant="secondary" className="text-xs">
+                                  {interaction}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
-                )}
 
-                  {/* Recommended Improvements */}
-                  {analysis.recommended_improvements && analysis.recommended_improvements.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4 text-amber-500" />
-                        Recommended Improvements
-                      </h4>
-                      <ul className="space-y-1">
-                        {analysis.recommended_improvements.map((improvement: string, idx: number) => (
-                          <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
-                            <span className="text-amber-500">→</span>
-                            <span>{improvement}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      {/* Recommended Improvements */}
+                      {analysis.recommended_improvements && analysis.recommended_improvements.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm flex items-center gap-2">
+                            <AlertCircle className="h-4 w-4 text-amber-500" />
+                            Recommended Improvements
+                          </h4>
+                          <ul className="space-y-1">
+                            {analysis.recommended_improvements.map((improvement: string, idx: number) => (
+                              <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                                <span className="text-amber-500">→</span>
+                                <span>{improvement}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
-              )}
 
-              {/* Twitter Identity */}
-              <div>
-                <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Identity</h3>
-                <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
-                  {twitterUser?.profile_image_url && (
-                    <img src={twitterUser.profile_image_url} alt={twitterUser.handle} className="h-12 w-12 rounded-full" />
-                  )}
-                  <div className="flex-1">
-                    <p className="font-semibold">{registrationData.display_name}</p>
-                    <p className="text-sm text-muted-foreground">@{registrationData.handle}</p>
+                  {/* Twitter Identity */}
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Identity</h3>
+                    <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                      {twitterUser?.profile_image_url && (
+                        <img src={twitterUser.profile_image_url} alt={twitterUser.handle} className="h-12 w-12 rounded-full" />
+                      )}
+                      <div className="flex-1">
+                        <p className="font-semibold">{registrationData.display_name}</p>
+                        <p className="text-sm text-muted-foreground">@{registrationData.handle}</p>
+                      </div>
+                      {registrationData.verified && (
+                        <Badge variant="secondary">X Verified</Badge>
+                      )}
+                    </div>
                   </div>
-                  {registrationData.verified && (
-                    <Badge variant="secondary">X Verified</Badge>
-                  )}
-                </div>
-              </div>
 
-              {/* Wallet */}
-              <div>
-                <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Wallet Address</h3>
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="text-xs font-mono break-all">{registrationData.wallet_address}</p>
-                </div>
-              </div>
-
-              {/* Portfolio */}
-              {registrationData.portfolio_url && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Portfolio</h3>
-                  <div className="p-4 bg-muted rounded-lg">
-                    <a href={registrationData.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline break-all">
-                      {registrationData.portfolio_url}
-                    </a>
+                  {/* Wallet */}
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Wallet Address</h3>
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="text-xs font-mono break-all">{registrationData.wallet_address}</p>
+                    </div>
                   </div>
-                </div>
-              )}
 
-              {/* Role Tags */}
-              <div>
-                <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Role Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {registrationData.role_tags?.map((role: string) => (
-                    <Badge key={role} variant="default">
-                      {ROLE_OPTIONS.find(r => r.value === role)?.label || role}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Video CV */}
-              <div>
-                <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Video CV</h3>
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="text-sm">Video submitted: {new Date(registrationData.created_at).toLocaleDateString()}</p>
-                </div>
-              </div>
-
-              {/* NFT Status */}
-              <Alert className={registrationData.nft_minted ? "border-primary bg-primary/10" : "border-yellow-500 bg-yellow-500/10"}>
-                <Shield className={`h-4 w-4 ${registrationData.nft_minted ? 'text-primary' : 'text-yellow-500'}`} />
-                <AlertDescription className={registrationData.nft_minted ? 'text-primary' : 'text-yellow-500'}>
-                  {registrationData.nft_minted ? (
-                    <strong>NFT Minted: Your Proof-of-Talent NFT has been minted!</strong>
-                  ) : (
-                    <strong>NFT Pending: Your Proof-of-Talent NFT will be minted shortly</strong>
+                  {/* Portfolio */}
+                  {registrationData.portfolio_url && (
+                    <div>
+                      <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Portfolio</h3>
+                      <div className="p-4 bg-muted rounded-lg">
+                        <a href={registrationData.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline break-all">
+                          {registrationData.portfolio_url}
+                        </a>
+                      </div>
+                    </div>
                   )}
-                </AlertDescription>
-              </Alert>
 
-              <Button onClick={() => setIsEditMode(true)} className="w-full" variant="outline">
-                Edit Profile
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Rei Chatbot */}
-        <div className="container max-w-4xl mx-auto px-4 pb-8">
-          <ReiChatbot 
-            walletAddress={registrationData.wallet_address} 
-            userMode="talent"
-          />
+                  {/* Role Tags */}
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Role Tags</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {registrationData.role_tags?.map((role: string) => (
+                        <Badge key={role} variant="default">
+                          {ROLE_OPTIONS.find(r => r.value === role)?.label || role}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Video CV */}
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Video CV</h3>
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="text-sm">Video submitted: {new Date(registrationData.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+
+                  {/* NFT Status */}
+                  <Alert className={registrationData.nft_minted ? "border-primary bg-primary/10" : "border-yellow-500 bg-yellow-500/10"}>
+                    <Shield className={`h-4 w-4 ${registrationData.nft_minted ? 'text-primary' : 'text-yellow-500'}`} />
+                    <AlertDescription className={registrationData.nft_minted ? 'text-primary' : 'text-yellow-500'}>
+                      {registrationData.nft_minted ? (
+                        <strong>NFT Minted: Your Proof-of-Talent NFT has been minted!</strong>
+                      ) : (
+                        <strong>NFT Pending: Your Proof-of-Talent NFT will be minted shortly</strong>
+                      )}
+                    </AlertDescription>
+                  </Alert>
+
+                  <Button onClick={() => setIsEditMode(true)} className="w-full" variant="outline">
+                    Edit Profile
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="askrei" className="mt-0">
+              <ReiChatbot 
+                walletAddress={registrationData.wallet_address} 
+                userMode="talent"
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     );

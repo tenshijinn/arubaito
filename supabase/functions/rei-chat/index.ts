@@ -273,7 +273,7 @@ Always be helpful, concise, and professional. Focus on matching based on Web3 ex
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
+          model: 'openai/gpt-5',
           messages: aiMessages,
           tools: tools,
           tool_choice: 'auto'

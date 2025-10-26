@@ -249,7 +249,7 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-card rounded-lg border border-border overflow-hidden">
+    <div className="flex flex-col h-[600px] bg-card rounded-sm border border-border overflow-hidden">
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {messages.length === 0 && (

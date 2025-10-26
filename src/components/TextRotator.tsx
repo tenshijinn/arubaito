@@ -8,46 +8,84 @@ interface TextRotatorProps {
 
 export const TextRotator = ({ words, isActive, className = "" }: TextRotatorProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [displayText, setDisplayText] = useState("");
+  const [isTyping, setIsTyping] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isActive) {
-      const baseDelay = 1500;
-      const randomOffset = Math.random() * 1000;
-      const delay = baseDelay + randomOffset;
-
-      intervalRef.current = setInterval(() => {
-        setIsAnimating(true);
-        setTimeout(() => {
-          setCurrentIndex((prev) => (prev + 1) % words.length);
-          setIsAnimating(false);
-        }, 400);
-      }, delay);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      const currentWord = words[currentIndex];
+      
+      if (isTyping) {
+        // Typing effect
+        let charIndex = 0;
+        typingIntervalRef.current = setInterval(() => {
+          if (charIndex <= currentWord.length) {
+            setDisplayText(currentWord.slice(0, charIndex));
+            charIndex++;
+          } else {
+            if (typingIntervalRef.current) {
+              clearInterval(typingIntervalRef.current);
+            }
+            // Wait before starting to delete
+            setTimeout(() => {
+              setIsTyping(false);
+            }, 2000);
+          }
+        }, 80); // Typing speed
+      } else {
+        // Deleting effect
+        let charIndex = currentWord.length;
+        typingIntervalRef.current = setInterval(() => {
+          if (charIndex >= 0) {
+            setDisplayText(currentWord.slice(0, charIndex));
+            charIndex--;
+          } else {
+            if (typingIntervalRef.current) {
+              clearInterval(typingIntervalRef.current);
+            }
+            // Move to next word
+            setCurrentIndex((prev) => (prev + 1) % words.length);
+            setIsTyping(true);
+          }
+        }, 50); // Deleting speed (faster)
       }
     }
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
       }
     };
-  }, [isActive, words.length]);
+  }, [isActive, currentIndex, isTyping, words]);
 
   return (
     <span
-      className={`inline transition-all duration-400 ${
-        isAnimating ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-0"
-      } ${className}`}
+      className={`inline-block font-mono ${className}`}
       style={{
-        color: '#f0e3c3',
-        textShadow: isAnimating ? '0 0 8px rgba(240, 227, 195, 0.5)' : 'none'
+        color: '#ED565A',
+        textShadow: '0 0 10px rgba(237, 86, 90, 0.5)',
+        minHeight: '1.2em',
+        position: 'relative'
       }}
     >
-      {words[currentIndex]}
+      {displayText}
+      <span 
+        className="inline-block ml-1"
+        style={{
+          animation: 'blink 1s step-end infinite',
+          color: '#f0e3c3'
+        }}
+      >
+        _
+      </span>
+      <style>{`
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+      `}</style>
     </span>
   );
 };

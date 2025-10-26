@@ -8,6 +8,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useNavigate } from 'react-router-dom';
 import bs58 from 'bs58';
+import { TextRotator } from "@/components/TextRotator";
 
 // Twitter OAuth callback handler - for root and arubaito paths
 if (typeof window !== 'undefined') {
@@ -29,6 +30,7 @@ export const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [twitterLoading, setTwitterLoading] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(true);
   const { toast } = useToast();
   const { publicKey, signMessage, connected } = useWallet();
   const navigate = useNavigate();
@@ -333,8 +335,12 @@ export const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 font-mono">
       <div className="w-full max-w-5xl">
-        <h1 className="text-4xl font-bold text-center mb-8" style={{ color: 'hsl(var(--foreground))' }}>
-          Welcome to CV Checker
+        <h1 className="text-4xl font-bold text-center mb-8 uppercase tracking-wider" style={{ color: '#ED565A' }}>
+          <TextRotator 
+            words={["WELCOME TO CV CHECKER", "enter the club"]}
+            isActive={isAnimating}
+            className="inline-block"
+          />
         </h1>
         
         <div className="flex justify-center">
@@ -342,8 +348,8 @@ export const Auth = () => {
             {mode === 'main' ? (
               <div className="space-y-4">
                 <div className="space-y-3">
-                  <p className="text-sm font-medium text-center" style={{ color: 'hsl(var(--muted-foreground))' }}>
-                    Sign up/sign in with...
+                  <p className="text-sm font-medium text-center font-mono" style={{ color: 'hsl(var(--muted-foreground))' }}>
+                    sign in with
                   </p>
                   <Button
                     onClick={handleTwitterAuth}
@@ -395,7 +401,7 @@ export const Auth = () => {
                       margin: 0 !important;
                     }
                     .wallet-button-wrapper button::before {
-                      content: 'Member NFT' !important;
+                      content: 'Member NFT Connect' !important;
                     }
                     .wallet-button-wrapper button span {
                       display: none !important;

@@ -110,7 +110,8 @@ FOR TALENT USERS:
 - Example first response: "Hello! I can see you've connected your wallet. Would you like me to search for Web3 opportunities that match your profile?"
 - When they show interest or ask for jobs, automatically use the search_jobs tool with their wallet address
 - IMPORTANT: If the search_jobs tool returns an error "Talent profile not found", tell the user:
-  "I can see you've connected your wallet, but you need to register your profile first. Please visit the Rei page to complete your registration by uploading your CV or portfolio. Once registered, I'll be able to match you with relevant opportunities!"
+  "I can see you've connected your wallet, but you need to register your profile first. Please click the button below to complete your registration by uploading your CV or portfolio. Once registered, I'll be able to match you with relevant opportunities!"
+  AND include this EXACT JSON at the end of your response: {"action":"register","link":"/rei"}
 - Show match scores and explain why opportunities fit their profile
 
 FOR EMPLOYER USERS:

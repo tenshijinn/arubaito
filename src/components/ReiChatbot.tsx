@@ -115,9 +115,25 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
 
       if (error) throw error;
 
+      // Check if response contains action metadata
+      let metadata = null;
+      let cleanContent = data.response;
+      
+      // Extract JSON metadata from response if present
+      const jsonMatch = data.response.match(/\{"action":"[^"]+","link":"[^"]+"\}/);
+      if (jsonMatch) {
+        try {
+          metadata = JSON.parse(jsonMatch[0]);
+          cleanContent = data.response.replace(jsonMatch[0], '').trim();
+        } catch (e) {
+          console.error('Failed to parse metadata:', e);
+        }
+      }
+
       const assistantMessage: Message = {
         role: 'assistant',
-        content: data.response
+        content: cleanContent,
+        metadata
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -202,6 +218,18 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
           <div className="whitespace-pre-wrap break-words">
             {message.content}
           </div>
+          
+          {/* Render action button if metadata contains link */}
+          {!isUser && message.metadata?.action === 'register' && message.metadata?.link && (
+            <div className="mt-4">
+              <Button 
+                onClick={() => window.location.href = message.metadata.link}
+                className="w-full"
+              >
+                Complete Registration
+              </Button>
+            </div>
+          )}
           
           {/* Render special components based on content */}
           {!isUser && message.content.includes('"type": "job"') && (

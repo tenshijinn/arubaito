@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_conversations: {
+        Row: {
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_type: string | null
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_type?: string | null
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_type?: string | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cv_analyses: {
         Row: {
           bluechip_details: Json | null
@@ -71,6 +130,48 @@ export type Database = {
           structure_score?: number
           user_id?: string
           wallet_address?: string | null
+        }
+        Relationships: []
+      }
+      jobs: {
+        Row: {
+          compensation: string | null
+          created_at: string | null
+          description: string
+          employer_wallet: string
+          id: string
+          payment_tx_signature: string
+          requirements: string | null
+          role_tags: string[] | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          compensation?: string | null
+          created_at?: string | null
+          description: string
+          employer_wallet: string
+          id?: string
+          payment_tx_signature: string
+          requirements?: string | null
+          role_tags?: string[] | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          compensation?: string | null
+          created_at?: string | null
+          description?: string
+          employer_wallet?: string
+          id?: string
+          payment_tx_signature?: string
+          requirements?: string | null
+          role_tags?: string[] | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -134,6 +235,72 @@ export type Database = {
           verified?: boolean | null
           wallet_address?: string
           x_user_id?: string | null
+        }
+        Relationships: []
+      }
+      talent_views: {
+        Row: {
+          employer_wallet: string
+          id: string
+          payment_tx_signature: string
+          talent_x_user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          employer_wallet: string
+          id?: string
+          payment_tx_signature: string
+          talent_x_user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          employer_wallet?: string
+          id?: string
+          payment_tx_signature?: string
+          talent_x_user_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          compensation: string | null
+          created_at: string | null
+          description: string
+          employer_wallet: string
+          id: string
+          link: string
+          payment_tx_signature: string
+          role_tags: string[] | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          compensation?: string | null
+          created_at?: string | null
+          description: string
+          employer_wallet: string
+          id?: string
+          link: string
+          payment_tx_signature: string
+          role_tags?: string[] | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          compensation?: string | null
+          created_at?: string | null
+          description?: string
+          employer_wallet?: string
+          id?: string
+          link?: string
+          payment_tx_signature?: string
+          role_tags?: string[] | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

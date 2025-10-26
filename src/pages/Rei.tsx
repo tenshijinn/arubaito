@@ -69,69 +69,43 @@ export default function Rei() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoadingRegistration, setIsLoadingRegistration] = useState(false);
 
-  // Set up Supabase session persistence and restore Twitter user state
+  // Restore Twitter user state from localStorage on mount
   useEffect(() => {
-    const restoreTwitterUserFromSession = async (session: Session) => {
-      // Check if session contains Twitter user metadata
-      const metadata = session.user.user_metadata;
-      if (metadata?.twitter_id && metadata?.twitter_username) {
-        // Reconstruct Twitter user from session metadata
-        const restoredTwitterUser: TwitterUser = {
-          x_user_id: metadata.twitter_id,
-          handle: metadata.twitter_username,
-          display_name: metadata.full_name || metadata.twitter_username,
-          profile_image_url: metadata.avatar_url,
-          verified: false // Will be updated from database
-        };
-
-        // Check database for verification status
-        try {
-          const { data: whitelistData } = await supabase
-            .from('twitter_whitelist')
-            .select('verification_type')
-            .eq('twitter_handle', metadata.twitter_username)
-            .single();
-
-          if (whitelistData) {
-            setVerificationStatus({
-              bluechip_verified: !!whitelistData.verification_type,
-              verification_type: whitelistData.verification_type
-            });
-            restoredTwitterUser.verified = true;
+    const restoreTwitterState = async () => {
+      try {
+        const storedTwitterUser = localStorage.getItem('rei_twitter_user');
+        const storedVerification = localStorage.getItem('rei_verification_status');
+        
+        if (storedTwitterUser) {
+          const twitterUserData = JSON.parse(storedTwitterUser);
+          const verificationData = storedVerification ? JSON.parse(storedVerification) : null;
+          
+          setTwitterUser(twitterUserData);
+          if (verificationData) {
+            setVerificationStatus(verificationData);
           }
-        } catch (error) {
-          console.log('No verification status found');
         }
-
-        setTwitterUser(restoredTwitterUser);
+      } catch (error) {
+        console.error('Error restoring Twitter state:', error);
       }
     };
 
-    // Set up auth state listener first
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        // Restore Twitter user state if session exists
-        if (session) {
-          setTimeout(() => {
-            restoreTwitterUserFromSession(session);
-          }, 0);
-        }
       }
     );
 
-    // Then check for existing session
+    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
-      // Restore Twitter user state if session exists
-      if (session) {
-        restoreTwitterUserFromSession(session);
-      }
     });
+
+    // Restore Twitter state
+    restoreTwitterState();
 
     return () => subscription.unsubscribe();
   }, []);
@@ -234,11 +208,17 @@ export default function Rei() {
 
       if (error) throw error;
 
-      setTwitterUser(data.user);
-      setVerificationStatus({
+      const verificationStatus = {
         bluechip_verified: data.bluechip_verified,
         verification_type: data.verification_type,
-      });
+      };
+
+      setTwitterUser(data.user);
+      setVerificationStatus(verificationStatus);
+      
+      // Persist to localStorage for page refreshes
+      localStorage.setItem('rei_twitter_user', JSON.stringify(data.user));
+      localStorage.setItem('rei_verification_status', JSON.stringify(verificationStatus));
       
       // Clean URL
       window.history.replaceState({}, '', '/rei');

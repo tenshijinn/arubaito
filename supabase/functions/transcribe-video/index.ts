@@ -23,16 +23,16 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const { filePath } = await req.json();
 
-    console.log('Transcribing video from:', filePath);
+    console.log('Transcribing audio/video from:', filePath);
 
-    // Download video file from storage
+    // Download audio/video file from storage
     const { data: fileData, error: downloadError } = await supabase.storage
       .from('rei-contributor-files')
       .download(filePath);
 
     if (downloadError) {
       console.error('Download error:', downloadError);
-      throw new Error('Failed to download video file');
+      throw new Error('Failed to download audio/video file');
     }
 
     console.log('File downloaded, size:', fileData.size);
@@ -40,12 +40,12 @@ Deno.serve(async (req) => {
     // Check file size (Whisper API has 25MB limit)
     const maxSize = 25 * 1024 * 1024; // 25MB
     if (fileData.size > maxSize) {
-      throw new Error(`Video file too large (${(fileData.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 25MB. Please record a shorter video.`);
+      throw new Error(`File too large (${(fileData.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 25MB. Please record a shorter audio.`);
     }
 
     // Prepare form data for Whisper API
     const formData = new FormData();
-    formData.append('file', fileData, 'video.webm');
+    formData.append('file', fileData, 'audio.webm');
     formData.append('model', 'whisper-1');
     formData.append('response_format', 'json');
 

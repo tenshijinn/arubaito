@@ -32,12 +32,12 @@ Deno.serve(async (req) => {
 
     console.log('Submitting registration for:', registrationData.handle || registrationData.wallet_address);
 
-    // Check if file is a video and needs transcription
+    // Check if file is audio/video and needs transcription
     let processedFilePath = registrationData.file_path;
-    const isVideo = registrationData.file_path.match(/\.(webm|mp4|mov)$/i);
+    const isAudioVideo = registrationData.file_path.match(/\.(webm|mp4|mov|mp3|wav|m4a)$/i);
     
-    if (isVideo) {
-      console.log('Video detected, attempting transcription...');
+    if (isAudioVideo) {
+      console.log('Audio/video detected, attempting transcription...');
       
       try {
         // Call transcribe-video function
@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
           // Save transcription as text file
           const textContent = transcribeData.text;
           const textBlob = new Blob([textContent], { type: 'text/plain' });
-          const textFileName = registrationData.file_path.replace(/\.(webm|mp4|mov)$/i, '_transcript.txt');
+          const textFileName = registrationData.file_path.replace(/\.(webm|mp4|mov|mp3|wav|m4a)$/i, '_transcript.txt');
           
           const { error: uploadError } = await supabase.storage
             .from('rei-contributor-files')

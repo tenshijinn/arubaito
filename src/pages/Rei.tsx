@@ -9,9 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { VideoRecorder } from '@/components/VideoRecorder';
+import { AudioRecorder } from '@/components/AudioRecorder';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info, Sparkles, Briefcase, CheckCircle2, Video, Globe, Edit2 } from 'lucide-react';
+import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info, Sparkles, Briefcase, CheckCircle2, Mic, Globe, Edit2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
@@ -52,7 +52,7 @@ export default function Rei() {
   const [isProcessingCallback, setIsProcessingCallback] = useState(false);
   
   // Form state
-  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [portfolioUrl, setPortfolioUrl] = useState('');
   const [selectedRoles, setSelectedRoles] = useState<RoleTag[]>([]);
   const [consent, setConsent] = useState(false);
@@ -186,11 +186,11 @@ export default function Rei() {
     }
   };
 
-  const handleVideoReady = (blob: Blob) => {
-    setVideoBlob(blob);
+  const handleAudioReady = (blob: Blob) => {
+    setAudioBlob(blob);
     toast({
-      title: 'Video Ready',
-      description: 'Your video CV is ready to submit',
+      title: 'Audio Ready',
+      description: 'Your audio introduction is ready to submit',
     });
   };
 
@@ -203,18 +203,18 @@ export default function Rei() {
   };
 
   const handleSubmit = async () => {
-    if (!videoBlob || !publicKey || !consent || !twitterUser) return;
+    if (!audioBlob || !publicKey || !consent || !twitterUser) return;
 
     setIsSubmitting(true);
 
     try {
-      // Upload video file
-      const fileName = `${twitterUser.x_user_id}_${Date.now()}_video.webm`;
+      // Upload audio file
+      const fileName = `${twitterUser.x_user_id}_${Date.now()}_audio.webm`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('rei-contributor-files')
-        .upload(filePath, videoBlob);
+        .upload(filePath, audioBlob);
 
       if (uploadError) throw uploadError;
 
@@ -302,7 +302,7 @@ export default function Rei() {
     }
   };
 
-  const canSubmit = videoBlob && publicKey && consent && selectedRoles.length > 0 && twitterUser;
+  const canSubmit = audioBlob && publicKey && consent && selectedRoles.length > 0 && twitterUser;
 
   const userName = twitterUser?.display_name?.split(' ')[0] || twitterUser?.handle;
 
@@ -628,22 +628,22 @@ export default function Rei() {
               </div>
 
               <div className="space-y-4">
-                {/* Video CV Recorder */}
+                {/* Audio Introduction */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <Label>Record Your Video CV</Label>
+                    <Label>Record Your Introduction</Label>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-sm">
-                          <p>Introduce yourself and share your Web3 experience. Maximum 40 seconds. Tips: mention your background, highlight projects, discuss skills, and keep it professional.</p>
+                          <p>Introduce yourself and share your Web3 experience. Maximum 5 minutes. Tips: mention your background, highlight projects, discuss skills, and keep it professional.</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <VideoRecorder onVideoReady={handleVideoReady} maxDurationSeconds={40} />
+                  <AudioRecorder onAudioReady={handleAudioReady} maxDurationMinutes={5} />
                 </div>
 
                 {/* Portfolio URL */}
@@ -703,7 +703,7 @@ export default function Rei() {
                     <Button
                       onClick={() => {
                         setIsEditMode(false);
-                        setVideoBlob(null);
+                        setAudioBlob(null);
                       }}
                       variant="outline"
                       size="lg"

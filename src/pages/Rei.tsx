@@ -417,13 +417,30 @@ export default function Rei() {
                           <span className="text-muted-foreground">Transactions:</span>
                           <span className="ml-1 font-medium">{analysis.wallet_verification.transaction_count}</span>
                         </div>
-                        <div>
-                          <span className="text-muted-foreground">Bluechip Score:</span>
-                          <span className="ml-1 font-medium">{analysis.wallet_verification.bluechip_score}/100</span>
-                        </div>
+                      <div>
+                        <span className="text-muted-foreground">Bluechip Score:</span>
+                        <span className="ml-1 font-medium">{analysis.wallet_verification.bluechip_score}/100</span>
                       </div>
                     </div>
-                  )}
+
+                    {/* Notable Interactions */}
+                    {analysis.wallet_verification.notable_interactions && 
+                     analysis.wallet_verification.notable_interactions.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-border/50">
+                        <h5 className="font-medium text-xs mb-2 text-muted-foreground">
+                          On-Chain Activity
+                        </h5>
+                        <div className="flex flex-wrap gap-1.5">
+                          {analysis.wallet_verification.notable_interactions.map((interaction: string, idx: number) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {interaction}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                   {/* Recommended Improvements */}
                   {analysis.recommended_improvements && analysis.recommended_improvements.length > 0 && (

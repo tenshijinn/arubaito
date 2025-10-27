@@ -139,56 +139,24 @@ export default function Rei() {
     }
   }, [connected, twitterUser]);
 
-  // Check for existing registration after Twitter login OR wallet connection
+  // Check for existing registration after Twitter login
   useEffect(() => {
     const checkExistingRegistration = async () => {
-      if ((twitterUser || connected) && !isLoadingRegistration && !isSuccess) {
+      if (twitterUser && !isLoadingRegistration) {
         setIsLoadingRegistration(true);
         try {
-          // Try to find by Twitter user first
-          if (twitterUser) {
-            const { data, error } = await supabase
-              .from('rei_registry')
-              .select('*')
-              .eq('x_user_id', twitterUser.x_user_id)
-              .maybeSingle();
+          const { data, error } = await supabase
+            .from('rei_registry')
+            .select('*')
+            .eq('x_user_id', twitterUser.x_user_id)
+            .single();
 
-            if (data && !error) {
-              console.log('Found registration by Twitter:', data);
-              setRegistrationData(data);
-              setIsSuccess(true);
-              setPortfolioUrl(data.portfolio_url || '');
-              setSelectedRoles(data.role_tags || []);
-              setConsent(true);
-              setIsLoadingRegistration(false);
-              return;
-            }
-          }
-
-          // If wallet is connected and no Twitter match, try wallet address
-          if (connected && publicKey) {
-            const { data, error } = await supabase
-              .from('rei_registry')
-              .select('*')
-              .eq('wallet_address', publicKey.toString())
-              .maybeSingle();
-
-            if (data && !error) {
-              console.log('Found registration by wallet:', data);
-              // Restore Twitter user from registration data
-              setTwitterUser({
-                x_user_id: data.x_user_id || '',
-                handle: data.handle || '',
-                display_name: data.display_name || '',
-                profile_image_url: data.profile_image_url || '',
-                verified: data.verified || false,
-              });
-              setRegistrationData(data);
-              setIsSuccess(true);
-              setPortfolioUrl(data.portfolio_url || '');
-              setSelectedRoles(data.role_tags || []);
-              setConsent(true);
-            }
+          if (data && !error) {
+            setRegistrationData(data);
+            setIsSuccess(true);
+            setPortfolioUrl(data.portfolio_url || '');
+            setSelectedRoles(data.role_tags || []);
+            setConsent(true);
           }
         } catch (error) {
           console.error('Error checking registration:', error);
@@ -199,7 +167,7 @@ export default function Rei() {
     };
 
     checkExistingRegistration();
-  }, [twitterUser, connected, publicKey, isSuccess]);
+  }, [twitterUser]);
 
 
   const handleTwitterLogin = async () => {

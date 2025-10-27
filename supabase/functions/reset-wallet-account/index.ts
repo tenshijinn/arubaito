@@ -29,16 +29,29 @@ serve(async (req) => {
     const email = `${walletAddress}@wallet.local`;
     console.log('Looking for user with email:', email);
 
-    // Get user by email
-    const { data: { users }, error: getUserError } = await supabaseAdmin.auth.admin.listUsers();
+    // List all users and find by email (more reliable than pagination)
+    let allUsers: any[] = [];
+    let page = 1;
+    let hasMore = true;
     
-    if (getUserError) {
-      console.error('Error listing users:', getUserError);
-      throw getUserError;
+    while (hasMore) {
+      const { data: { users }, error: getUserError } = await supabaseAdmin.auth.admin.listUsers({
+        page,
+        perPage: 1000
+      });
+      
+      if (getUserError) {
+        console.error('Error listing users:', getUserError);
+        throw getUserError;
+      }
+      
+      allUsers = [...allUsers, ...users];
+      hasMore = users.length === 1000;
+      page++;
     }
 
-    const user = users.find(u => u.email === email);
-    console.log('User found:', user ? user.id : 'none');
+    const user = allUsers.find(u => u.email === email);
+    console.log('User found:', user ? user.id : 'none', 'out of', allUsers.length, 'users');
 
     if (user) {
       console.log('Deleting user:', user.id);

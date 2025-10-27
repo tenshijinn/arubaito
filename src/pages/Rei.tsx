@@ -362,11 +362,11 @@ export default function Rei() {
     const analysis = registrationData.profile_analysis as any;
 
     return (
-      <div className="min-h-screen">
+      <div className="flex flex-col h-screen overflow-hidden">
         <Navigation userName={userName} />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-4 flex-shrink-0">
           <Tabs defaultValue="profile" className="w-full max-w-4xl mx-auto">
-            <TabsList className="w-full mb-6 h-12 bg-muted/30 p-1 rounded-lg grid grid-cols-2">
+            <TabsList className="w-full mb-4 h-12 bg-muted/30 p-1 rounded-lg grid grid-cols-2">
               <TabsTrigger 
                 value="profile" 
                 className="font-mono text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -381,7 +381,7 @@ export default function Rei() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="profile" className="mt-0">
+            <TabsContent value="profile" className="mt-0 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 180px)' }}>
               <Card className="w-full bg-transparent">
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -607,7 +607,7 @@ export default function Rei() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="askrei" className="mt-0">
+            <TabsContent value="askrei" className="mt-0 h-full" style={{ height: 'calc(100vh - 180px)' }}>
               <ReiChatbot 
                 walletAddress={registrationData.wallet_address} 
                 userMode="talent"

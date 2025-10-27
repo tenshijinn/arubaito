@@ -244,7 +244,7 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
   };
 
   return (
-    <div className="relative h-screen">
+    <div className="relative h-full">
       {/* Messages area */}
       <div className="h-full overflow-y-auto px-8 py-12 pb-32 max-w-4xl mx-auto w-full scrollbar-hide">
         {messages.length === 0 && (

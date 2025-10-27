@@ -401,7 +401,7 @@ export const Auth = () => {
                       margin: 0 !important;
                     }
                     .wallet-button-wrapper button::before {
-                      content: 'Member NFT Connect' !important;
+                      content: 'Member NFT' !important;
                     }
                     .wallet-button-wrapper button span {
                       display: none !important;

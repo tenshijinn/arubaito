@@ -242,6 +242,8 @@ export const Auth = () => {
           const hashArray = Array.from(new Uint8Array(hashBuffer));
           const password = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
 
+          // Store wallet address in user metadata
+
           console.log('Wallet intent:', walletIntent);
           console.log('Attempting sign in...');
           
@@ -282,10 +284,15 @@ export const Auth = () => {
 
                 console.log('Attempting sign up after reset...');
                 
-                // Now try to sign up
+                // Now try to sign up with wallet address in metadata
                 const { error: signUpError } = await supabase.auth.signUp({
                   email: `${walletAddress}@wallet.local`,
                   password: password,
+                  options: {
+                    data: {
+                      wallet_address: walletAddress,
+                    }
+                  }
                 });
 
                 if (signUpError) {
@@ -437,23 +444,52 @@ export const Auth = () => {
                   `}</style>
                 </div>
               </div>
+            ) : mode === 'register' ? (
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold mb-4" style={{ color: 'hsl(var(--foreground))' }}>
+                  Connect Wallet to Continue
+                </h2>
+                
+                <div className="space-y-3 mb-6 p-4 rounded-lg bg-accent/30 border">
+                  <p className="text-sm font-medium text-foreground">
+                    ⚠️ Important: Verify Your Primary Wallet
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    This wallet will be assessed for:
+                  </p>
+                  <ul className="text-sm text-muted-foreground space-y-1 ml-4">
+                    <li>• OG status and Bluechip verification</li>
+                    <li>• Proof of talent and crypto experience</li>
+                    <li>• dApp usage, protocols, token/NFT holdings</li>
+                    <li>• Duration in the crypto space</li>
+                  </ul>
+                  <p className="text-sm font-medium" style={{ color: 'hsl(var(--primary))' }}>
+                    Everything you claim on your CV will be verified against your wallet's on-chain activity.
+                  </p>
+                </div>
+
+                <div className="wallet-button-wrapper w-full">
+                  <WalletMultiButton 
+                    onClick={() => setWalletIntent('register')}
+                    className="!h-14 !rounded-xl !font-medium !text-lg !w-full" 
+                  />
+                </div>
+                
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setMode('main')}
+                  className="w-full"
+                  disabled={loading}
+                >
+                  Back
+                </Button>
+              </div>
             ) : (
               <form onSubmit={handleEmailSubmit} className="space-y-4">
                 <h2 className="text-xl font-semibold mb-4" style={{ color: 'hsl(var(--foreground))' }}>
-                  {mode === 'register' ? 'Register with Email' : 'Sign in with Email'}
+                  Sign in with Email
                 </h2>
-                
-                {mode === 'register' && (
-                  <Button
-                    type="button"
-                    onClick={() => handleGoogleAuth(true)}
-                    variant="outline"
-                    className="w-full h-12 rounded-xl mb-4"
-                    disabled={loading}
-                  >
-                    Register with Google
-                  </Button>
-                )}
                 
                 <Input
                   type="email"
@@ -492,7 +528,7 @@ export const Auth = () => {
                     className="flex-1 h-12 rounded-xl"
                     disabled={loading}
                   >
-                    {loading ? "Loading..." : mode === 'register' ? 'Register' : 'Sign in'}
+                    {loading ? "Loading..." : 'Sign in'}
                   </Button>
                 </div>
               </form>

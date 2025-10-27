@@ -15,11 +15,10 @@ interface CVUploaderProps {
   onBack?: () => void;
 }
 
-export const CVUploader = ({ onAnalysisComplete, walletAddress: propWalletAddress, onBack }: CVUploaderProps) => {
+export const CVUploader = ({ onAnalysisComplete, walletAddress, onBack }: CVUploaderProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const [walletAddress, setWalletAddress] = useState(propWalletAddress || "");
   const { toast } = useToast();
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -112,7 +111,7 @@ export const CVUploader = ({ onAnalysisComplete, walletAddress: propWalletAddres
           body: { 
             fileName: file.name, 
             fileContent,
-            walletAddress: walletAddress.trim() || null
+            walletAddress: walletAddress || null
           }
         }
       );
@@ -133,7 +132,7 @@ export const CVUploader = ({ onAnalysisComplete, walletAddress: propWalletAddres
           keywords_score: analysisData.keywords_score,
           experience_score: analysisData.experience_score,
           feedback: analysisData.feedback,
-          wallet_address: walletAddress.trim() || null,
+          wallet_address: walletAddress || null,
           bluechip_verified: analysisData.bluechip_verified || false,
           bluechip_score: analysisData.bluechip_score || 0,
           bluechip_details: analysisData.bluechip_details || null,
@@ -151,7 +150,6 @@ export const CVUploader = ({ onAnalysisComplete, walletAddress: propWalletAddres
           : "Your CV has been analyzed successfully.",
       });
 
-      setWalletAddress("");
       onAnalysisComplete(savedAnalysis.id);
     } catch (error) {
       console.error('Error processing CV:', error);
@@ -237,32 +235,20 @@ export const CVUploader = ({ onAnalysisComplete, walletAddress: propWalletAddres
               </div>
             </div>
             
-            <div className="w-full max-w-md space-y-3 pt-4">
-              <div className="space-y-2">
-                <Label htmlFor="wallet-address" className="flex items-center gap-2 text-sm">
-                  <Wallet className="h-4 w-4" />
-                  Wallet Address (Optional)
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-sm">
-                        <p>Add your wallet address to verify early blockchain activity and showcase your Bluechip Talent status in the Web3 ecosystem.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </Label>
-                <Input
-                  id="wallet-address"
-                  type="text"
-                  placeholder="Enter your wallet address"
-                  value={walletAddress}
-                  onChange={(e) => setWalletAddress(e.target.value)}
-                  className="w-full"
-                />
+            {walletAddress && (
+              <div className="w-full max-w-md p-4 rounded-lg bg-accent/30 border">
+                <div className="flex items-center gap-2 text-sm">
+                  <Wallet className="h-4 w-4" style={{ color: 'hsl(var(--primary))' }} />
+                  <span className="font-medium text-foreground">Connected Wallet:</span>
+                </div>
+                <p className="mt-2 text-xs font-mono text-muted-foreground break-all">
+                  {walletAddress}
+                </p>
+                <p className="mt-2 text-xs" style={{ color: 'hsl(var(--primary))' }}>
+                  ✓ This wallet will be used for on-chain verification
+                </p>
               </div>
-            </div>
+            )}
 
             <label htmlFor="cv-upload">
               <Button asChild size="lg" className="cursor-pointer">

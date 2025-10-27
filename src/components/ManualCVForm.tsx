@@ -173,6 +173,20 @@ ${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
         <h2 className="text-2xl font-bold">Manual CV Profile Form</h2>
       </div>
 
+      {walletAddress && (
+        <Card className="p-4 bg-accent/30">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-medium text-foreground">Connected Wallet:</span>
+          </div>
+          <p className="mt-2 text-xs font-mono text-muted-foreground break-all">
+            {walletAddress}
+          </p>
+          <p className="mt-2 text-xs" style={{ color: 'hsl(var(--primary))' }}>
+            ✓ Your CV claims will be verified against this wallet's on-chain activity
+          </p>
+        </Card>
+      )}
+
       <Card className="p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Info */}

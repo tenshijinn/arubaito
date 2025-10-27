@@ -44,18 +44,20 @@ export default function Club() {
 
   useEffect(() => {
     checkMemberAccess();
-  }, [publicKey]);
+  }, [publicKey, user]);
 
   const checkMemberAccess = async () => {
     setIsLoading(true);
     
-    if (!publicKey) {
+    // Use wallet from authenticated session first, fallback to connected wallet
+    const walletAddress = user?.user_metadata?.wallet_address || publicKey?.toString();
+    
+    if (!walletAddress) {
       setIsLoading(false);
       return;
     }
 
     try {
-      const walletAddress = publicKey.toString();
       let hasAccess = false;
       let accessReason = '';
       let data: any = null;
@@ -162,7 +164,7 @@ export default function Club() {
     );
   }
 
-  if (!isVerified || !publicKey) {
+  if (!isVerified || (!publicKey && !user?.user_metadata?.wallet_address)) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="max-w-md w-full p-8 text-center space-y-6 bg-transparent">
@@ -178,7 +180,7 @@ export default function Club() {
                     <Info className="h-5 w-5 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
-                    <p>This area is restricted to club members only. {!publicKey ? 'Connect your wallet to check membership.' : 'Access is granted if you are: (1) on the Twitter whitelist, (2) an NFT holder, or (3) have a CV score above 89.'}</p>
+                    <p>This area is restricted to club members only. {!publicKey && !user?.user_metadata?.wallet_address ? 'Sign in with your wallet to check membership.' : 'Access is granted if you are: (1) on the Twitter whitelist, (2) an NFT holder, or (3) have a CV score above 89.'}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

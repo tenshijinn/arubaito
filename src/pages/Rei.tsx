@@ -149,14 +149,23 @@ export default function Rei() {
             .from('rei_registry')
             .select('*')
             .eq('x_user_id', twitterUser.x_user_id)
-            .single();
+            .maybeSingle();
 
-          if (data && !error) {
+          console.log('🔍 Checking existing registration for:', twitterUser.x_user_id);
+          console.log('📊 Registration data found:', data);
+          console.log('❌ Error (if any):', error);
+
+          if (error) {
+            console.error('Error fetching registration:', error);
+          } else if (data) {
+            console.log('✅ Loading existing profile');
             setRegistrationData(data);
             setIsSuccess(true);
             setPortfolioUrl(data.portfolio_url || '');
             setSelectedRoles(data.role_tags || []);
             setConsent(true);
+          } else {
+            console.log('ℹ️ No existing registration found');
           }
         } catch (error) {
           console.error('Error checking registration:', error);

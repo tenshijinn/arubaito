@@ -107,11 +107,11 @@ Deno.serve(async (req) => {
       const userData: TwitterUserResponse = await userResponse.json();
       console.log('User data received:', userData.data.username);
 
-      // Check if user is on the whitelist
+      // Check if user is on the whitelist (case-insensitive)
       const { data: whitelistEntry, error: whitelistError } = await supabase
         .from('twitter_whitelist')
         .select('*')
-        .eq('twitter_handle', userData.data.username)
+        .ilike('twitter_handle', userData.data.username)
         .maybeSingle();
 
       if (whitelistError) {

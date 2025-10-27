@@ -28,6 +28,7 @@ export default function Club() {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
+        console.log('Auth state changed:', { event: _event, user: session?.user, metadata: session?.user?.user_metadata });
         setSession(session);
         setUser(session?.user ?? null);
       }
@@ -35,6 +36,7 @@ export default function Club() {
 
     // Then check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Got session:', { user: session?.user, metadata: session?.user?.user_metadata });
       setSession(session);
       setUser(session?.user ?? null);
     });
@@ -43,7 +45,10 @@ export default function Club() {
   }, []);
 
   useEffect(() => {
-    checkMemberAccess();
+    // Only check access if we have a user session loaded
+    if (user !== null || publicKey) {
+      checkMemberAccess();
+    }
   }, [publicKey, user]);
 
   const checkMemberAccess = async () => {

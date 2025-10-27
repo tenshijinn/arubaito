@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Arubaito from "./pages/Arubaito";
 import Rei from "./pages/Rei";
 import Club from "./pages/Club";
+import MemberProfile from "./pages/MemberProfile";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/arubaito" element={<Arubaito />} />
             <Route path="/rei" element={<Rei />} />
             <Route path="/club" element={<Club />} />
+            <Route path="/club/profile/:handle" element={<MemberProfile />} />
             <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

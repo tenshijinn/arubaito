@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, X, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CVBuilderProps {
   memberData: any;
@@ -33,6 +34,45 @@ export function CVBuilder({ memberData }: CVBuilderProps) {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [portfolioLinks, setPortfolioLinks] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load profile data from database on mount
+  useEffect(() => {
+    const loadProfileData = async () => {
+      if (!memberData?.wallet_address) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("rei_registry")
+          .select("bio, skills, work_experience, portfolio_links, handle")
+          .eq("wallet_address", memberData.wallet_address)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setBio(data.bio || "");
+          setSkills((data.skills as unknown as Skill[]) || []);
+          setExperiences((data.work_experience as unknown as Experience[]) || []);
+          setPortfolioLinks(data.portfolio_links || "");
+        }
+      } catch (error) {
+        console.error("Error loading profile data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile data",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProfileData();
+  }, [memberData, toast]);
 
   const addSkill = () => {
     if (newSkill.trim()) {
@@ -69,15 +109,58 @@ export function CVBuilder({ memberData }: CVBuilderProps) {
   };
 
   const handleSave = async () => {
+    if (!memberData?.wallet_address) {
+      toast({
+        title: "Error",
+        description: "Wallet address not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
-    // Simulate save
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    toast({
-      title: 'Profile Saved',
-      description: 'Your professional profile has been updated',
-    });
+    
+    try {
+      const { error } = await supabase
+        .from("rei_registry")
+        .update({
+          bio,
+          skills: skills as any,
+          work_experience: experiences as any,
+          portfolio_links: portfolioLinks,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("wallet_address", memberData.wallet_address);
+
+      if (error) throw error;
+
+      toast({
+        title: "Profile Saved",
+        description: "Your professional profile has been updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save profile data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card className="bg-transparent border border-border">
+          <CardContent className="p-6">
+            <p className="text-center font-mono text-muted-foreground">LOADING PROFILE DATA...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -227,22 +310,37 @@ export function CVBuilder({ memberData }: CVBuilderProps) {
             />
           </div>
 
-          {/* Save Button */}
-          <Button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="w-full font-mono"
-            size="lg"
-          >
-            {isSaving ? (
-              <>SAVING...</>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                SAVE PROFILE
-              </>
-            )}
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (memberData?.handle) {
+                  window.location.href = `/club/profile/${memberData.handle}`;
+                }
+              }}
+              className="font-mono flex-1"
+              disabled={!memberData?.handle}
+            >
+              VIEW MY PUBLIC PROFILE
+            </Button>
+            
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="font-mono flex-1"
+              size="lg"
+            >
+              {isSaving ? (
+                <>SAVING...</>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  SAVE PROFILE
+                </>
+              )}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

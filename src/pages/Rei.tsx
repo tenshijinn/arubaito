@@ -288,20 +288,18 @@ export default function Rei() {
 
       if (error) throw error;
 
-      // Fetch the updated registration data
-      const { data: regData } = await supabase
-        .from('rei_registry')
-        .select('*')
-        .eq('x_user_id', twitterUser.x_user_id)
-        .single();
-
-      setRegistrationData(regData);
-      setIsSuccess(true);
-      setIsEditMode(false);
-      toast({
-        title: 'Success!',
-        description: isEditMode ? 'Your profile has been updated!' : data.message,
-      });
+      // Use the registration data returned by the edge function
+      if (data && data.registration) {
+        setRegistrationData(data.registration);
+        setIsSuccess(true);
+        setIsEditMode(false);
+        toast({
+          title: 'Success!',
+          description: isEditMode ? 'Your profile has been updated!' : (data.message || 'Registration successful!'),
+        });
+      } else {
+        throw new Error('Registration succeeded but no data returned');
+      }
     } catch (error) {
       toast({
         title: 'Error',

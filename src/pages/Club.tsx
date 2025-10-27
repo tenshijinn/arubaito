@@ -169,7 +169,7 @@ export default function Club() {
     );
   }
 
-  if (!isVerified || (!publicKey && !user?.user_metadata?.wallet_address)) {
+  if (!isVerified) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="max-w-md w-full p-8 text-center space-y-6 bg-transparent">

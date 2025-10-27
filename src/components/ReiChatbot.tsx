@@ -21,10 +21,17 @@ interface ReiChatbotProps {
 }
 
 const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Load messages from localStorage on mount
+    const stored = localStorage.getItem(`rei_chat_${walletAddress}`);
+    return stored ? JSON.parse(stored) : [];
+  });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [conversationId, setConversationId] = useState<string | null>(() => {
+    // Load conversationId from localStorage on mount
+    return localStorage.getItem(`rei_chat_id_${walletAddress}`) || null;
+  });
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -37,10 +44,26 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     scrollToBottom();
   }, [messages]);
 
+  // Save messages and conversationId to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem(`rei_chat_${walletAddress}`, JSON.stringify(messages));
+    }
+  }, [messages, walletAddress]);
+
+  useEffect(() => {
+    if (conversationId) {
+      localStorage.setItem(`rei_chat_id_${walletAddress}`, conversationId);
+    }
+  }, [conversationId, walletAddress]);
+
   // Load conversation on mount and when wallet changes
   useEffect(() => {
-    loadConversation();
-  }, [walletAddress]);
+    // Only load from database if we don't have localStorage data
+    if (messages.length === 0) {
+      loadConversation();
+    }
+  }, []); // Only run once on mount
 
   // Track previous userMode to detect actual changes
   const prevUserModeRef = useRef(userMode);
@@ -62,16 +85,18 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
             console.error('Error deleting conversation messages:', error);
           }
           
-          // Clear local state
+          // Clear local state and localStorage
           setMessages([]);
           setConversationId(null);
+          localStorage.removeItem(`rei_chat_${walletAddress}`);
+          localStorage.removeItem(`rei_chat_id_${walletAddress}`);
         }
       }
       prevUserModeRef.current = userMode;
     };
     
     resetConversation();
-  }, [userMode]); // Only depend on userMode, not conversationId
+  }, [userMode, walletAddress]); // Only depend on userMode, not conversationId
 
   const loadConversation = async () => {
     try {

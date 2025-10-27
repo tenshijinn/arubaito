@@ -216,7 +216,13 @@ export default function Club() {
     );
   }
 
-  const userName = memberData?.display_name?.split(' ')[0] || memberData?.handle;
+  // Prioritize Twitter data from user metadata or member data
+  const userName = user?.user_metadata?.full_name?.split(' ')[0]
+    || user?.user_metadata?.twitter_username
+    || user?.user_metadata?.display_name?.split(' ')[0]
+    || user?.user_metadata?.handle
+    || memberData?.display_name?.split(' ')[0] 
+    || memberData?.handle;
 
   return (
     <div className="min-h-screen">

@@ -99,7 +99,12 @@ const Index = () => {
     return <Auth />;
   }
 
-  const userName = user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0];
+  // Prioritize Twitter data from user metadata
+  const userName = user?.user_metadata?.full_name?.split(' ')[0] 
+    || user?.user_metadata?.twitter_username
+    || user?.user_metadata?.display_name?.split(' ')[0]
+    || user?.user_metadata?.handle 
+    || user?.email?.split('@')[0];
 
   return (
     <div className="min-h-screen">

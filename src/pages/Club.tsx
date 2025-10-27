@@ -53,6 +53,8 @@ export default function Club() {
     const walletAddress = user?.user_metadata?.wallet_address || publicKey?.toString();
     const twitterHandle = user?.user_metadata?.twitter_username;
     
+    console.log('Club access check:', { walletAddress, twitterHandle, userMetadata: user?.user_metadata });
+    
     if (!walletAddress && !twitterHandle) {
       setIsLoading(false);
       return;
@@ -68,8 +70,10 @@ export default function Club() {
         const { data: whitelistData } = await supabase
           .from('twitter_whitelist')
           .select('*')
-          .eq('twitter_handle', twitterHandle)
+          .ilike('twitter_handle', twitterHandle)
           .maybeSingle();
+
+        console.log('Twitter whitelist check:', { twitterHandle, whitelistData });
 
         if (whitelistData) {
           hasAccess = true;

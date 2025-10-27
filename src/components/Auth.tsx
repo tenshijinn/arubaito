@@ -224,17 +224,16 @@ export const Auth = () => {
       if (connected && publicKey && signMessage) {
         setLoading(true);
         try {
-          // Create a consistent message to sign (no timestamp to ensure same signature)
-          const message = `Sign this message to authenticate with CV Checker.\n\nWallet: ${publicKey.toBase58()}`;
-          const encodedMessage = new TextEncoder().encode(message);
-          const signature = await signMessage(encodedMessage);
-
           // Use wallet address as identifier
           const walletAddress = publicKey.toBase58();
           
-          // Create a deterministic password from signature
-          const signatureString = bs58.encode(signature);
-          const walletString = walletAddress + signatureString.slice(0, 32);
+          // Verify wallet ownership with signature (but don't use it in password)
+          const message = `Sign this message to authenticate with CV Checker.\n\nWallet: ${walletAddress}`;
+          const encodedMessage = new TextEncoder().encode(message);
+          await signMessage(encodedMessage);
+
+          // Create deterministic password based ONLY on wallet address
+          const walletString = walletAddress + '_wallet_auth_v1';
           const encoded = new TextEncoder().encode(walletString);
           const buffer = encoded.buffer.slice(encoded.byteOffset, encoded.byteOffset + encoded.byteLength) as ArrayBuffer;
           const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);

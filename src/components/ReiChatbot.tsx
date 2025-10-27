@@ -244,9 +244,9 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="relative h-screen">
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-8 py-12 max-w-4xl mx-auto w-full">
+      <div className="h-full overflow-y-auto px-8 py-12 pb-32 max-w-4xl mx-auto w-full">
         {messages.length === 0 && (
           <div className="font-mono text-muted-foreground space-y-4">
             <p className="text-sm">Hi! I'm Rei, your Web3 talent assistant.</p>
@@ -275,9 +275,9 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area - centered */}
-      <div className="pb-12 px-8">
-        <div className="max-w-2xl mx-auto relative">
+      {/* Input area - fixed center */}
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-8 z-10">
+        <div className="relative">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}

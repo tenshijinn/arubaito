@@ -408,7 +408,7 @@ export const Auth = () => {
                       <div className="w-full border-t" style={{ borderColor: 'hsl(var(--border))' }}></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-4 font-medium bg-transparent" style={{ color: 'hsl(var(--muted-foreground))' }}>or</span>
+                      <span className="px-4 font-medium bg-transparent" style={{ color: 'hsl(var(--muted-foreground))' }}>Signup with CV Profile</span>
                     </div>
                   </div>
                   
@@ -417,7 +417,7 @@ export const Auth = () => {
                     className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
                     variant="secondary"
                   >
-                    Signup with CV Profile
+                    Continue with CV Profile
                   </Button>
                   <style>{`
                     .cv-profile-button {

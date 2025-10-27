@@ -36,33 +36,41 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
     scrollToBottom();
   }, [messages]);
 
+  // Load conversation on mount and when wallet changes
   useEffect(() => {
-    // Load conversation history
     loadConversation();
   }, [walletAddress]);
 
-  // Reset conversation when mode changes
+  // Track previous userMode to detect actual changes
+  const prevUserModeRef = useRef(userMode);
+  
+  // Only reset conversation when mode actually changes (not on initial mount)
   useEffect(() => {
     const resetConversation = async () => {
-      if (conversationId) {
-        // Delete all messages from the database for this conversation
-        try {
-          await supabase
-            .from('chat_messages')
-            .delete()
-            .eq('conversation_id', conversationId);
-        } catch (error) {
-          console.error('Error deleting conversation messages:', error);
+      // Only reset if userMode actually changed (not initial mount)
+      if (prevUserModeRef.current !== undefined && prevUserModeRef.current !== userMode) {
+        console.log('User mode changed, resetting conversation');
+        if (conversationId) {
+          // Delete all messages from the database for this conversation
+          try {
+            await supabase
+              .from('chat_messages')
+              .delete()
+              .eq('conversation_id', conversationId);
+          } catch (error) {
+            console.error('Error deleting conversation messages:', error);
+          }
+          
+          // Clear local state
+          setMessages([]);
+          setConversationId(null);
         }
-        
-        // Clear local state
-        setMessages([]);
-        setConversationId(null);
       }
+      prevUserModeRef.current = userMode;
     };
     
     resetConversation();
-  }, [userMode]);
+  }, [userMode, conversationId]);
 
   const loadConversation = async () => {
     try {

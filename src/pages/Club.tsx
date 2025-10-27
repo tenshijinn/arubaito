@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shield, Loader2, Info } from 'lucide-react';
+import { toast } from 'sonner';
 import { ClubTimeline } from '@/components/club/ClubTimeline';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { CVBuilder } from '@/components/club/CVBuilder';
@@ -118,6 +119,38 @@ export default function Club() {
     }
   };
 
+  const handleWhitelistSubmission = async () => {
+    if (!user) {
+      toast.error('Please sign in with Twitter first');
+      return;
+    }
+
+    try {
+      const twitterHandle = user.user_metadata?.user_name || user.user_metadata?.preferred_username;
+      
+      if (!twitterHandle) {
+        toast.error('Twitter handle not found in your account');
+        return;
+      }
+
+      const { error } = await supabase.functions.invoke('submit-whitelist-request', {
+        body: {
+          twitter_handle: twitterHandle,
+          x_user_id: user.user_metadata?.provider_id,
+          display_name: user.user_metadata?.full_name || user.user_metadata?.name,
+          profile_image_url: user.user_metadata?.avatar_url,
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success('Whitelist request submitted for review!');
+    } catch (error: any) {
+      console.error('Whitelist submission error:', error);
+      toast.error(error.message || 'Failed to submit whitelist request');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -152,13 +185,21 @@ export default function Club() {
             </div>
           </div>
           <div className="pt-4 space-y-3">
+            {user && (
+              <button
+                onClick={handleWhitelistSubmission}
+                className="text-sm text-primary hover:underline font-mono"
+              >
+                Review my X account for the Club Whitelist
+              </button>
+            )}
             <Button
-              onClick={() => navigate('/rei')}
+              onClick={() => navigate('/arubaito')}
               className="w-full font-mono"
               variant="default"
               size="lg"
             >
-              GO TO VERIFICATION
+              Try another sign in method
             </Button>
           </div>
         </Card>

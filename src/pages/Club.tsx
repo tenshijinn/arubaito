@@ -126,7 +126,7 @@ export default function Club() {
     }
 
     try {
-      const twitterHandle = user.user_metadata?.user_name || user.user_metadata?.preferred_username;
+      const twitterHandle = user.user_metadata?.twitter_username;
       
       if (!twitterHandle) {
         toast.error('Twitter handle not found in your account');
@@ -136,8 +136,8 @@ export default function Club() {
       const { error } = await supabase.functions.invoke('submit-whitelist-request', {
         body: {
           twitter_handle: twitterHandle,
-          x_user_id: user.user_metadata?.provider_id,
-          display_name: user.user_metadata?.full_name || user.user_metadata?.name,
+          x_user_id: user.user_metadata?.twitter_id,
+          display_name: user.user_metadata?.full_name,
           profile_image_url: user.user_metadata?.avatar_url,
         },
       });
@@ -186,12 +186,14 @@ export default function Club() {
           </div>
           <div className="pt-4 space-y-3">
             {user && (
-              <button
+              <Button
                 onClick={handleWhitelistSubmission}
-                className="text-sm text-primary hover:underline font-mono"
+                className="w-full font-mono"
+                variant="outline"
+                size="lg"
               >
-                Review my X account for the Club Whitelist
-              </button>
+                Review my Twitter for Whitelist
+              </Button>
             )}
             <Button
               onClick={() => navigate('/arubaito')}

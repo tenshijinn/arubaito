@@ -4,16 +4,12 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session, User } from '@supabase/supabase-js';
 import { Navigation } from '@/components/Navigation';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shield, Loader2, Info } from 'lucide-react';
 import { toast } from 'sonner';
-import { ClubTimeline } from '@/components/club/ClubTimeline';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { CVBuilder } from '@/components/club/CVBuilder';
-import { JobPitch } from '@/components/club/JobPitch';
-import { MemberShowcase } from '@/components/club/MemberShowcase';
+import { CountdownTimer } from '@/components/CountdownTimer';
 
 export default function Club() {
   const navigate = useNavigate();
@@ -254,38 +250,32 @@ export default function Club() {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        <Tabs defaultValue="timeline" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-card border border-border">
-            <TabsTrigger value="timeline" className="font-mono text-xs py-3">
-              TIMELINE
-            </TabsTrigger>
-            <TabsTrigger value="cv" className="font-mono text-xs py-3">
-              MY PROFILE
-            </TabsTrigger>
-            <TabsTrigger value="pitch" className="font-mono text-xs py-3">
-              JOB PITCH
-            </TabsTrigger>
-            <TabsTrigger value="showcase" className="font-mono text-xs py-3">
-              SPOTLIGHT
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="timeline" className="space-y-6">
-            <ClubTimeline />
-          </TabsContent>
-
-          <TabsContent value="cv" className="space-y-6">
-            <CVBuilder memberData={memberData} />
-          </TabsContent>
-
-          <TabsContent value="pitch" className="space-y-6">
-            <JobPitch memberData={memberData} />
-          </TabsContent>
-
-          <TabsContent value="showcase" className="space-y-6">
-            <MemberShowcase />
-          </TabsContent>
-        </Tabs>
+        <Card className="max-w-3xl mx-auto p-8 bg-transparent border border-border">
+          <div className="space-y-8 text-center">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-foreground font-mono">
+                CLUBHOUSE LAUNCHING SOON
+              </h2>
+              <p className="text-sm text-muted-foreground font-mono">
+                EXCLUSIVE MEMBER FEATURES COMING DECEMBER 8TH
+              </p>
+            </div>
+            
+            <CountdownTimer targetDate={new Date('2025-12-08T00:00:00')} />
+            
+            <div className="pt-4 space-y-3">
+              <p className="text-xs text-muted-foreground font-mono leading-relaxed">
+                UPCOMING FEATURES:
+              </p>
+              <ul className="text-xs font-mono text-foreground space-y-1">
+                <li>• MEMBER TIMELINE & ACTIVITY FEED</li>
+                <li>• PROFILE BUILDER & CV MANAGEMENT</li>
+                <li>• JOB PITCH CREATION</li>
+                <li>• MEMBER SPOTLIGHT & SHOWCASE</li>
+              </ul>
+            </div>
+          </div>
+        </Card>
       </main>
     </div>
   );

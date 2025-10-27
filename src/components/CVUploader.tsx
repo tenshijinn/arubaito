@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Upload, FileText, Loader2, Wallet, Info } from "lucide-react";
+import { Upload, FileText, Loader2, Wallet, Info, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,13 +11,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 interface CVUploaderProps {
   onAnalysisComplete: (analysisId: string) => void;
+  walletAddress?: string;
+  onBack?: () => void;
 }
 
-export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
+export const CVUploader = ({ onAnalysisComplete, walletAddress: propWalletAddress, onBack }: CVUploaderProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const [walletAddress, setWalletAddress] = useState("");
+  const [walletAddress, setWalletAddress] = useState(propWalletAddress || "");
   const { toast } = useToast();
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -183,7 +185,14 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
   const isProcessing = isUploading || isAnalyzing;
 
   return (
-    <Card className="p-8 border-2 border-dashed transition-all duration-300 hover:shadow-lg"
+    <div className="space-y-4">
+      {onBack && (
+        <Button variant="ghost" onClick={onBack} disabled={isProcessing}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Methods
+        </Button>
+      )}
+      <Card className="p-8 border-2 border-dashed transition-all duration-300 hover:shadow-lg"
           style={{ 
             borderColor: dragActive ? 'hsl(var(--primary))' : 'hsl(var(--border))',
             background: dragActive ? 'hsl(var(--accent) / 0.05)' : 'transparent'
@@ -271,9 +280,10 @@ export const CVUploader = ({ onAnalysisComplete }: CVUploaderProps) => {
               onChange={handleFileInput}
               disabled={isProcessing}
             />
-          </>
+        </>
         )}
       </div>
     </Card>
+    </div>
   );
 };

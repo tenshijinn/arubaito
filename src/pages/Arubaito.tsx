@@ -4,6 +4,9 @@ import { CVUploader } from "@/components/CVUploader";
 import { CVAnalysis } from "@/components/CVAnalysis";
 import { Auth } from "@/components/Auth";
 import { Navigation } from "@/components/Navigation";
+import { CVProfileMethodSelector } from "@/components/CVProfileMethodSelector";
+import { ManualCVForm } from "@/components/ManualCVForm";
+import { LinkedInImport } from "@/components/LinkedInImport";
 import { supabase } from "@/integrations/supabase/client";
 import { FileCheck, LogOut, History, Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +18,7 @@ const Index = () => {
   const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null);
   const [recentAnalyses, setRecentAnalyses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMethod, setSelectedMethod] = useState<'form' | 'upload' | 'linkedin' | null>(null);
 
   useEffect(() => {
     // Check current session
@@ -69,7 +73,19 @@ const Index = () => {
 
   const handleNewAnalysis = () => {
     setCurrentAnalysisId(null);
+    setSelectedMethod(null);
   };
+
+  const handleMethodSelect = (method: 'form' | 'upload' | 'linkedin') => {
+    setSelectedMethod(method);
+  };
+
+  const handleBackToMethodSelector = () => {
+    setSelectedMethod(null);
+  };
+
+  // Get wallet address from user metadata if available
+  const walletAddress = user?.user_metadata?.wallet_address;
 
   if (loading) {
     return (
@@ -144,7 +160,30 @@ const Index = () => {
                 </div>
               </div>
 
-              <CVUploader onAnalysisComplete={handleAnalysisComplete} />
+              {!selectedMethod ? (
+                <CVProfileMethodSelector 
+                  onMethodSelect={handleMethodSelect}
+                  walletAddress={walletAddress}
+                />
+              ) : selectedMethod === 'form' ? (
+                <ManualCVForm 
+                  onBack={handleBackToMethodSelector}
+                  onComplete={handleAnalysisComplete}
+                  walletAddress={walletAddress}
+                />
+              ) : selectedMethod === 'upload' ? (
+                <CVUploader 
+                  onAnalysisComplete={handleAnalysisComplete}
+                  walletAddress={walletAddress}
+                  onBack={handleBackToMethodSelector}
+                />
+              ) : (
+                <LinkedInImport 
+                  onBack={handleBackToMethodSelector}
+                  onComplete={handleAnalysisComplete}
+                  walletAddress={walletAddress}
+                />
+              )}
 
               {/* Recent Analyses */}
               {recentAnalyses.length > 0 && (

@@ -253,42 +253,76 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
     analysis.experience_score = 0;
     analysis.feedback = `Total Score: ${analysis.total_score}/100\n\nTop Strengths:\n${(analysis.top_strengths || []).map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}\n\nRecommended Improvements:\n${(analysis.recommended_improvements || []).map((r: string, i: number) => `${i + 1}. ${r}`).join('\n')}`;
 
-    // Step 1: Scan CV for blockchain keywords
-    const blockchainKeywords = {
-      ethereum: /ethereum|eth\b/gi,
-      solana: /solana|sol\b/gi,
-      bsc: /binance smart chain|bsc\b/gi,
-      uniswap: /uniswap/gi,
-      serum: /serum/gi,
-      pancakeswap: /pancakeswap/gi
+    // Step 1: Extract company/project claims from CV
+    const projectKeywords = {
+      // DeFi Projects
+      uniswap: { regex: /uniswap/gi, contracts: ['0x1f9840a85d5af5bf1d1762f925bdaddc4201f984'] },
+      aave: { regex: /aave/gi, contracts: ['0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9'] },
+      compound: { regex: /compound/gi, contracts: ['0xc00e94cb662c3520282e6f5717214004a7f26888'] },
+      makerdao: { regex: /maker|makerdao|dai/gi, contracts: ['0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2'] },
+      curve: { regex: /curve\s*(finance)?/gi, contracts: ['0xd533a949740bb3306d119cc777fa900ba034cd52'] },
+      yearn: { regex: /yearn/gi, contracts: ['0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e'] },
+      sushi: { regex: /sushi(swap)?/gi, contracts: ['0x6b3595068778dd592e39a122f4f5a5cf09c90fe2'] },
+      
+      // Solana Projects
+      serum: { regex: /serum/gi, chain: 'solana' },
+      raydium: { regex: /raydium/gi, chain: 'solana' },
+      marinade: { regex: /marinade/gi, chain: 'solana' },
+      
+      // Layer 2s
+      arbitrum: { regex: /arbitrum/gi, chain: 'arbitrum' },
+      optimism: { regex: /optimism/gi, chain: 'optimism' },
+      polygon: { regex: /polygon|matic/gi, chain: 'polygon' },
+      
+      // NFT/Gaming
+      opensea: { regex: /opensea/gi, contracts: ['0x00000000006c3852cbef3e08e8df289169ede581'] },
+      blur: { regex: /blur/gi, contracts: ['0x29469395eaf6f95920e59f858042f0e28d98a20b'] },
+      
+      // General blockchain mentions
+      ethereum: { regex: /ethereum|eth\b/gi, chain: 'ethereum' },
+      solana: { regex: /solana|sol\b/gi, chain: 'solana' },
+      bsc: { regex: /binance smart chain|bsc\b/gi, chain: 'bsc' },
+      base: { regex: /base\s*(chain|network)?/gi, chain: 'base' },
     };
     
-    const detectedChains = [];
-    for (const [chain, regex] of Object.entries(blockchainKeywords)) {
-      if (regex.test(fileContent)) {
-        detectedChains.push(chain);
+    const claimedProjects = [];
+    const detectedChains = new Set();
+    
+    for (const [project, config] of Object.entries(projectKeywords)) {
+      if (config.regex.test(fileContent)) {
+        claimedProjects.push({
+          name: project,
+          contracts: config.contracts || [],
+          chain: config.chain || 'ethereum'
+        });
+        if (config.chain) {
+          detectedChains.add(config.chain);
+        }
       }
     }
     
-    console.log('Detected blockchain keywords:', detectedChains);
+    console.log('Claimed projects in CV:', claimedProjects);
+    console.log('Detected blockchain networks:', Array.from(detectedChains));
 
-    // Step 3 & 4: Wallet verification via Covalent API
+    // Step 2: Enhanced wallet verification with Proof-of-Work checks
     let bluechipVerified = false;
     let bluechipScore = 0;
     let bluechipDetails = null;
+    const verifiedProjects = [];
+    const unverifiedProjects = [];
 
     if (walletAddress && COVALENT_API_KEY) {
-      console.log('Starting wallet verification for:', walletAddress);
+      console.log('Starting Proof-of-Work verification for wallet:', walletAddress);
       
       const verificationResults = [];
       const earlyActivityThresholds = {
-        ethereum: { startDate: '2015-01-01', endDate: '2018-12-31', protocols: ['uniswap'] },
-        solana: { startDate: '2020-01-01', endDate: '2021-06-30', protocols: ['serum'] },
-        bsc: { startDate: '2020-09-01', endDate: '2021-06-30', protocols: ['pancakeswap'] }
+        ethereum: { startDate: '2015-01-01', endDate: '2018-12-31' },
+        solana: { startDate: '2020-01-01', endDate: '2021-06-30' },
+        bsc: { startDate: '2020-09-01', endDate: '2021-06-30' }
       };
 
-      // Check Ethereum
-      if (detectedChains.includes('ethereum') || detectedChains.includes('uniswap')) {
+      // Check Ethereum - Both early activity AND project interactions
+      if (detectedChains.has('ethereum') || claimedProjects.some(p => p.chain === 'ethereum')) {
         try {
           const ethResponse = await fetch(
             `https://api.covalenthq.com/v1/eth-mainnet/address/${walletAddress}/transactions_v3/?key=${COVALENT_API_KEY}`,
@@ -299,6 +333,7 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
             const ethData = await ethResponse.json();
             const transactions = ethData.data?.items || [];
             
+            // Check early activity (OG status)
             const earlyTxs = transactions.filter((tx: any) => {
               const txDate = new Date(tx.block_signed_at);
               return txDate >= new Date('2015-01-01') && txDate <= new Date('2018-12-31');
@@ -308,10 +343,48 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
               bluechipScore += 30;
               verificationResults.push({
                 chain: 'Ethereum',
+                verificationType: 'Early Activity (OG Status)',
                 period: '2015-2018',
                 transactions: earlyTxs.length,
                 earliestDate: earlyTxs[earlyTxs.length - 1]?.block_signed_at
               });
+            }
+            
+            // Verify claimed project interactions
+            const ethProjects = claimedProjects.filter(p => 
+              p.chain === 'ethereum' && p.contracts && p.contracts.length > 0
+            );
+            
+            for (const project of ethProjects) {
+              const projectTxs = transactions.filter((tx: any) => {
+                const toAddress = tx.to_address?.toLowerCase();
+                const fromAddress = tx.from_address?.toLowerCase();
+                return project.contracts.some(contract => 
+                  contract.toLowerCase() === toAddress || contract.toLowerCase() === fromAddress
+                );
+              });
+              
+              if (projectTxs.length > 0) {
+                bluechipScore += 10;
+                verifiedProjects.push({
+                  name: project.name,
+                  chain: 'Ethereum',
+                  interactions: projectTxs.length,
+                  firstInteraction: projectTxs[projectTxs.length - 1]?.block_signed_at
+                });
+                verificationResults.push({
+                  chain: 'Ethereum',
+                  verificationType: `Project Interaction: ${project.name}`,
+                  transactions: projectTxs.length,
+                  earliestDate: projectTxs[projectTxs.length - 1]?.block_signed_at
+                });
+              } else {
+                unverifiedProjects.push({
+                  name: project.name,
+                  chain: 'Ethereum',
+                  reason: 'No on-chain interactions found with project contracts'
+                });
+              }
             }
           }
         } catch (error) {
@@ -320,7 +393,7 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
       }
 
       // Check Solana
-      if (detectedChains.includes('solana') || detectedChains.includes('serum')) {
+      if (detectedChains.has('solana') || claimedProjects.some(p => p.chain === 'solana')) {
         try {
           const solResponse = await fetch(
             `https://api.covalenthq.com/v1/solana-mainnet/address/${walletAddress}/transactions_v3/?key=${COVALENT_API_KEY}`,
@@ -340,9 +413,24 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
               bluechipScore += 25;
               verificationResults.push({
                 chain: 'Solana',
+                verificationType: 'Early Activity (OG Status)',
                 period: '2020-early 2021',
                 transactions: earlyTxs.length,
                 earliestDate: earlyTxs[earlyTxs.length - 1]?.block_signed_at
+              });
+            }
+            
+            // Note: Solana project verification limited by Covalent API
+            const solProjects = claimedProjects.filter(p => p.chain === 'solana');
+            if (solProjects.length > 0 && earlyTxs.length > 0) {
+              // If they have early Solana activity and claim Solana projects, give partial credit
+              solProjects.forEach(project => {
+                verifiedProjects.push({
+                  name: project.name,
+                  chain: 'Solana',
+                  interactions: 'verified_by_early_activity',
+                  note: 'Verified by early Solana blockchain activity'
+                });
               });
             }
           }
@@ -352,7 +440,7 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
       }
 
       // Check BSC
-      if (detectedChains.includes('bsc') || detectedChains.includes('pancakeswap')) {
+      if (detectedChains.has('bsc') || claimedProjects.some(p => p.chain === 'bsc')) {
         try {
           const bscResponse = await fetch(
             `https://api.covalenthq.com/v1/bsc-mainnet/address/${walletAddress}/transactions_v3/?key=${COVALENT_API_KEY}`,
@@ -372,9 +460,23 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
               bluechipScore += 20;
               verificationResults.push({
                 chain: 'BSC',
+                verificationType: 'Early Activity (OG Status)',
                 period: 'Sept 2020-early 2021',
                 transactions: earlyTxs.length,
                 earliestDate: earlyTxs[earlyTxs.length - 1]?.block_signed_at
+              });
+            }
+            
+            // BSC project verification similar to Solana
+            const bscProjects = claimedProjects.filter(p => p.chain === 'bsc');
+            if (bscProjects.length > 0 && earlyTxs.length > 0) {
+              bscProjects.forEach(project => {
+                verifiedProjects.push({
+                  name: project.name,
+                  chain: 'BSC',
+                  interactions: 'verified_by_early_activity',
+                  note: 'Verified by early BSC blockchain activity'
+                });
               });
             }
           }
@@ -387,12 +489,36 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         bluechipVerified = true;
         bluechipDetails = {
           verifications: verificationResults,
-          detectedKeywords: detectedChains,
-          walletAddress: walletAddress
+          claimedProjects: claimedProjects.map(p => p.name),
+          verifiedProjects: verifiedProjects,
+          unverifiedProjects: unverifiedProjects,
+          detectedChains: Array.from(detectedChains),
+          walletAddress: walletAddress,
+          proofOfWork: {
+            totalClaimed: claimedProjects.length,
+            totalVerified: verifiedProjects.length,
+            verificationRate: claimedProjects.length > 0 
+              ? Math.round((verifiedProjects.length / claimedProjects.length) * 100) 
+              : 0
+          }
         };
       }
 
-      console.log('Wallet verification results:', { bluechipVerified, bluechipScore, bluechipDetails });
+      console.log('Proof-of-Work verification results:', { 
+        bluechipVerified, 
+        bluechipScore, 
+        verifiedProjects: verifiedProjects.length,
+        unverifiedProjects: unverifiedProjects.length,
+        bluechipDetails 
+      });
+    } else if (claimedProjects.length > 0 && !walletAddress) {
+      // If projects are claimed but no wallet provided, note this
+      console.log('WARNING: Projects claimed but no wallet provided for verification');
+      unverifiedProjects.push(...claimedProjects.map(p => ({
+        name: p.name,
+        chain: p.chain,
+        reason: 'No wallet address provided for verification'
+      })));
     }
 
     analysis.bluechip_verified = bluechipVerified;

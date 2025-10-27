@@ -254,7 +254,13 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
     analysis.feedback = `Total Score: ${analysis.total_score}/100\n\nTop Strengths:\n${(analysis.top_strengths || []).map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}\n\nRecommended Improvements:\n${(analysis.recommended_improvements || []).map((r: string, i: number) => `${i + 1}. ${r}`).join('\n')}`;
 
     // Step 1: Extract company/project claims from CV
-    const projectKeywords = {
+    type ProjectConfig = {
+      regex: RegExp;
+      contracts?: string[];
+      chain?: string;
+    };
+    
+    const projectKeywords: Record<string, ProjectConfig> = {
       // DeFi Projects
       uniswap: { regex: /uniswap/gi, contracts: ['0x1f9840a85d5af5bf1d1762f925bdaddc4201f984'] },
       aave: { regex: /aave/gi, contracts: ['0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9'] },
@@ -285,8 +291,8 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
       base: { regex: /base\s*(chain|network)?/gi, chain: 'base' },
     };
     
-    const claimedProjects = [];
-    const detectedChains = new Set();
+    const claimedProjects: Array<{ name: string; contracts: string[]; chain: string }> = [];
+    const detectedChains = new Set<string>();
     
     for (const [project, config] of Object.entries(projectKeywords)) {
       if (config.regex.test(fileContent)) {
@@ -307,14 +313,14 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
     // Step 2: Enhanced wallet verification with Proof-of-Work checks
     let bluechipVerified = false;
     let bluechipScore = 0;
-    let bluechipDetails = null;
-    const verifiedProjects = [];
-    const unverifiedProjects = [];
+    let bluechipDetails: any = null;
+    const verifiedProjects: Array<any> = [];
+    const unverifiedProjects: Array<any> = [];
 
     if (walletAddress && COVALENT_API_KEY) {
       console.log('Starting Proof-of-Work verification for wallet:', walletAddress);
       
-      const verificationResults = [];
+      const verificationResults: Array<any> = [];
       const earlyActivityThresholds = {
         ethereum: { startDate: '2015-01-01', endDate: '2018-12-31' },
         solana: { startDate: '2020-01-01', endDate: '2021-06-30' },

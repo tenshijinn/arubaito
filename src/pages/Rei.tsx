@@ -76,14 +76,19 @@ export default function Rei() {
         const storedTwitterUser = localStorage.getItem('rei_twitter_user');
         const storedVerification = localStorage.getItem('rei_verification_status');
         
+        console.log('[Rei] Restoring Twitter state from localStorage:', storedTwitterUser ? 'found' : 'not found');
+        
         if (storedTwitterUser) {
           const twitterUserData = JSON.parse(storedTwitterUser);
           const verificationData = storedVerification ? JSON.parse(storedVerification) : null;
           
+          console.log('[Rei] Twitter user restored:', twitterUserData.handle);
           setTwitterUser(twitterUserData);
           if (verificationData) {
             setVerificationStatus(verificationData);
           }
+        } else {
+          console.log('[Rei] No Twitter data in localStorage, will need to login');
         }
       } catch (error) {
         console.error('Error restoring Twitter state:', error);
@@ -143,18 +148,28 @@ export default function Rei() {
   useEffect(() => {
     const checkExistingRegistration = async () => {
       if ((twitterUser || connected) && !isLoadingRegistration && !isSuccess) {
+        console.log('[Rei] Checking for existing registration...', {
+          hasTwitterUser: !!twitterUser,
+          twitterUserId: twitterUser?.x_user_id,
+          isConnected: connected,
+          walletAddress: publicKey?.toString()
+        });
+        
         setIsLoadingRegistration(true);
         try {
           // Try to find by Twitter user first
           if (twitterUser) {
+            console.log('[Rei] Searching by x_user_id:', twitterUser.x_user_id);
             const { data, error } = await supabase
               .from('rei_registry')
               .select('*')
               .eq('x_user_id', twitterUser.x_user_id)
               .maybeSingle();
 
+            console.log('[Rei] Twitter search result:', { found: !!data, error });
+            
             if (data && !error) {
-              console.log('Found registration by Twitter:', data);
+              console.log('[Rei] Found registration by Twitter:', data.handle);
               setRegistrationData(data);
               setIsSuccess(true);
               setPortfolioUrl(data.portfolio_url || '');
@@ -167,14 +182,17 @@ export default function Rei() {
 
           // If wallet is connected and no Twitter match, try wallet address
           if (connected && publicKey) {
+            console.log('[Rei] Searching by wallet_address:', publicKey.toString());
             const { data, error } = await supabase
               .from('rei_registry')
               .select('*')
               .eq('wallet_address', publicKey.toString())
               .maybeSingle();
 
+            console.log('[Rei] Wallet search result:', { found: !!data, error });
+            
             if (data && !error) {
-              console.log('Found registration by wallet:', data);
+              console.log('[Rei] Found registration by wallet:', data.handle);
               // Restore Twitter user from registration data
               setTwitterUser({
                 x_user_id: data.x_user_id || '',
@@ -183,6 +201,14 @@ export default function Rei() {
                 profile_image_url: data.profile_image_url || '',
                 verified: data.verified || false,
               });
+              // Also restore to localStorage
+              localStorage.setItem('rei_twitter_user', JSON.stringify({
+                x_user_id: data.x_user_id,
+                handle: data.handle,
+                display_name: data.display_name,
+                profile_image_url: data.profile_image_url,
+                verified: data.verified,
+              }));
               setRegistrationData(data);
               setIsSuccess(true);
               setPortfolioUrl(data.portfolio_url || '');
@@ -190,8 +216,12 @@ export default function Rei() {
               setConsent(true);
             }
           }
+          
+          if (!twitterUser && !connected) {
+            console.log('[Rei] No Twitter user or wallet connected, showing registration form');
+          }
         } catch (error) {
-          console.error('Error checking registration:', error);
+          console.error('[Rei] Error checking registration:', error);
         } finally {
           setIsLoadingRegistration(false);
         }

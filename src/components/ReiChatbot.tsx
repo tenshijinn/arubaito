@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Card } from "./ui/card";
 import { Loader2, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
@@ -208,58 +207,54 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
 
   const renderMessage = (message: Message, index: number) => {
     const isUser = message.role === 'user';
+    const timestamp = new Date().toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false 
+    });
+    const username = isUser ? '@username' : '@Rei';
     
     return (
-      <div
-        key={index}
-        className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}
-      >
-        <Card className={`max-w-[80%] p-4 ${isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-          <div className="whitespace-pre-wrap break-words">
+      <div key={index} className="mb-6 font-mono">
+        <div className="flex gap-3 text-sm">
+          <span className="text-muted-foreground">[{timestamp}]</span>
+          <span className={isUser ? 'text-foreground' : 'text-primary'}>
+            {username}
+          </span>
+          <div className="flex-1 whitespace-pre-wrap break-words text-foreground">
             {message.content}
           </div>
-          
-          {/* Render action button if metadata contains link */}
-          {!isUser && message.metadata?.action === 'register' && message.metadata?.link && (
-            <div className="mt-4">
-              <Button 
-                onClick={() => window.location.href = message.metadata.link}
-                className="w-full"
-              >
-                Complete Registration
-              </Button>
-            </div>
-          )}
-          
-          {/* Render special components based on content */}
-          {!isUser && message.content.includes('"type": "job"') && (
-            <div className="mt-4">
-              {/* Parse and render JobCard components */}
-            </div>
-          )}
-          
-          {!isUser && message.content.includes('"matchScore"') && (
-            <div className="mt-4">
-              {/* Parse and render TalentCard components */}
-            </div>
-          )}
-        </Card>
+        </div>
+        
+        {/* Render action button if metadata contains link */}
+        {!isUser && message.metadata?.action === 'register' && message.metadata?.link && (
+          <div className="mt-3 ml-[120px]">
+            <Button 
+              onClick={() => window.location.href = message.metadata.link}
+              variant="outline"
+              className="text-sm"
+            >
+              Complete Registration
+            </Button>
+          </div>
+        )}
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-card rounded-sm border border-border overflow-hidden">
+    <div className="flex flex-col h-screen bg-background">
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+      <div className="flex-1 overflow-y-auto px-8 py-12 max-w-4xl mx-auto w-full">
         {messages.length === 0 && (
-          <div className="text-center text-muted-foreground py-12">
-            <p className="text-lg mb-2">Hi! I'm Rei, your Web3 talent assistant.</p>
+          <div className="font-mono text-muted-foreground space-y-4">
+            <p className="text-sm">Hi! I'm Rei, your Web3 talent assistant.</p>
             <p className="text-sm">How can I help you today?</p>
-            <div className="mt-6 space-y-2 text-sm">
-              <p>🎯 <strong>For Talent:</strong> "Find me jobs matching my profile"</p>
-              <p>💼 <strong>For Employers:</strong> "Show me React developers with DeFi experience"</p>
-              <p>📝 <strong>Post Opportunities:</strong> "I want to post a job" or "I want to post a task"</p>
+            <div className="mt-8 space-y-2 text-sm">
+              <p>🎯 For Talent: "Find me jobs matching my profile"</p>
+              <p>💼 For Employers: "Show me React developers with DeFi experience"</p>
+              <p>📝 Post Opportunities: "I want to post a job" or "I want to post a task"</p>
             </div>
           </div>
         )}
@@ -267,31 +262,36 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
         {messages.map((message, index) => renderMessage(message, index))}
         
         {loading && (
-          <div className="flex justify-start mb-4">
-            <Card className="bg-muted p-4">
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm text-muted-foreground">Rei is thinking...</span>
-              </div>
-            </Card>
+          <div className="font-mono text-sm mb-6 flex gap-3">
+            <span className="text-muted-foreground">[...]</span>
+            <span className="text-primary">@Rei</span>
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              <span className="text-muted-foreground">thinking...</span>
+            </div>
           </div>
         )}
         
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area */}
-      <div className="border-t border-border p-4">
-        <div className="flex gap-2">
+      {/* Input area - centered */}
+      <div className="pb-12 px-8">
+        <div className="max-w-2xl mx-auto relative">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
             placeholder="Type your message..."
             disabled={loading}
-            className="flex-1"
+            className="w-full pr-12 h-12 rounded-full border-2 border-primary/50 bg-transparent font-mono text-sm focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0"
           />
-          <Button onClick={handleSend} disabled={loading || !input.trim()}>
+          <Button 
+            onClick={handleSend} 
+            disabled={loading || !input.trim()}
+            size="icon"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 bg-primary hover:bg-primary/90"
+          >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

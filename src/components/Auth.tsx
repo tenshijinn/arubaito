@@ -26,7 +26,6 @@ if (typeof window !== 'undefined') {
 export const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'main' | 'signin' | 'register'>('main');
-  const [walletIntent, setWalletIntent] = useState<'signin' | 'register'>('register');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [twitterLoading, setTwitterLoading] = useState(false);
@@ -242,87 +241,44 @@ export const Auth = () => {
           const hashArray = Array.from(new Uint8Array(hashBuffer));
           const password = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
 
-          // Store wallet address in user metadata
-
-          console.log('Wallet intent:', walletIntent);
-          console.log('Attempting sign in...');
-          
-          // Try to sign in
+          // Try to sign in first
           const { error: signInError } = await supabase.auth.signInWithPassword({
             email: `${walletAddress}@wallet.local`,
             password: password,
           });
 
           if (signInError) {
-            console.log('Sign in failed:', signInError.message);
-            
-            // Only proceed with registration if intent is to register
-            if (walletIntent === 'register') {
-              // If invalid credentials, try to reset the account
-              if (signInError.message.includes('Invalid login credentials')) {
-                console.log('Resetting wallet account...');
-                
-                toast({
-                  title: "Resetting wallet account",
-                  description: "Updating your wallet authentication...",
-                });
-
-                // Call edge function to reset the account
-                const { data: resetData, error: resetError } = await supabase.functions.invoke('reset-wallet-account', {
-                  body: { walletAddress }
-                });
-
-                console.log('Reset response:', { resetData, resetError });
-
-                if (resetError) {
-                  console.error('Reset failed:', resetError);
-                  throw new Error('Failed to reset wallet account. Please try again.');
-                }
-
-                // Wait a moment for the deletion to propagate
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-                console.log('Attempting sign up after reset...');
-                
-                // Now try to sign up with wallet address in metadata
-                const { error: signUpError } = await supabase.auth.signUp({
-                  email: `${walletAddress}@wallet.local`,
-                  password: password,
-                  options: {
-                    data: {
-                      wallet_address: walletAddress,
-                    }
+            // If "Invalid login credentials" = new user → sign up
+            if (signInError.message.includes('Invalid login credentials')) {
+              const { error: signUpError } = await supabase.auth.signUp({
+                email: `${walletAddress}@wallet.local`,
+                password: password,
+                options: {
+                  data: {
+                    wallet_address: walletAddress,
                   }
-                });
-
-                if (signUpError) {
-                  console.error('Sign up failed:', signUpError);
-                  throw signUpError;
                 }
+              });
 
-                toast({
-                  title: "Connected!",
-                  description: `Authenticated with Phantom`,
-                });
-                return;
-              }
-            } else {
-              // If intent is sign-in only, show appropriate error
+              if (signUpError) throw signUpError;
+
               toast({
-                title: "Wallet not registered",
-                description: "This wallet hasn't been registered yet. Please register first.",
-                variant: "destructive",
+                title: "Account Created!",
+                description: `Authenticated with Phantom`,
               });
               return;
             }
-
+            
+            // Any other error = throw it
             throw signInError;
           }
 
+          // Sign-in successful = returning user
           toast({
-            title: "Connected!",
+            title: "Welcome Back!",
             description: `Authenticated with Phantom`,
           });
+
         } catch (error) {
           console.error('Wallet authentication error:', error);
           toast({
@@ -337,7 +293,7 @@ export const Auth = () => {
     };
 
     authenticateWallet();
-  }, [connected, publicKey, signMessage, toast, walletIntent]);
+  }, [connected, publicKey, signMessage, toast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 font-mono">
@@ -369,7 +325,6 @@ export const Auth = () => {
                   
                   <div className="wallet-button-wrapper w-full">
                     <WalletMultiButton 
-                      onClick={() => setWalletIntent('register')}
                       className="!h-14 !rounded-xl !font-medium !text-lg !w-full" 
                     />
                   </div>
@@ -470,7 +425,6 @@ export const Auth = () => {
 
                 <div className="wallet-button-wrapper w-full">
                   <WalletMultiButton 
-                    onClick={() => setWalletIntent('register')}
                     className="!h-14 !rounded-xl !font-medium !text-lg !w-full" 
                   />
                 </div>

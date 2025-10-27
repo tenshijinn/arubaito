@@ -51,8 +51,9 @@ export default function Club() {
     
     // Use wallet from authenticated session first, fallback to connected wallet
     const walletAddress = user?.user_metadata?.wallet_address || publicKey?.toString();
+    const twitterHandle = user?.user_metadata?.twitter_username;
     
-    if (!walletAddress) {
+    if (!walletAddress && !twitterHandle) {
       setIsLoading(false);
       return;
     }
@@ -62,50 +63,45 @@ export default function Club() {
       let accessReason = '';
       let data: any = null;
 
-      // Check 1: Get rei_registry data first (needed for multiple checks)
-      const { data: reiData } = await supabase
-        .from('rei_registry')
-        .select('*')
-        .eq('wallet_address', walletAddress)
-        .maybeSingle();
-
-      // Check 2: Twitter Whitelist
-      if (reiData?.handle) {
+      // Check 1: Twitter Whitelist - check if authenticated user's Twitter is whitelisted
+      if (twitterHandle) {
         const { data: whitelistData } = await supabase
           .from('twitter_whitelist')
-          .select('twitter_handle')
-          .eq('twitter_handle', reiData.handle)
+          .select('*')
+          .eq('twitter_handle', twitterHandle)
           .maybeSingle();
 
         if (whitelistData) {
           hasAccess = true;
           accessReason = 'twitter_whitelist';
-          data = reiData;
+          
+          // Get additional data from rei_registry if exists
+          if (walletAddress) {
+            const { data: reiData } = await supabase
+              .from('rei_registry')
+              .select('*')
+              .eq('wallet_address', walletAddress)
+              .maybeSingle();
+            
+            data = reiData || { wallet_address: walletAddress, handle: twitterHandle };
+          } else {
+            data = { handle: twitterHandle };
+          }
         }
       }
 
-      // Check 3: NFT Holder
-      if (!hasAccess && reiData && (reiData.nft_minted || reiData.nft_mint_address)) {
-        hasAccess = true;
-        accessReason = 'nft_holder';
-        data = reiData;
-      }
-
-      // Check 4: High CV Score (89+)
-      if (!hasAccess) {
-        const { data: cvData } = await supabase
-          .from('cv_analyses')
+      // Check 2: NFT Holder - check if wallet has member NFT
+      if (!hasAccess && walletAddress) {
+        const { data: reiData } = await supabase
+          .from('rei_registry')
           .select('*')
           .eq('wallet_address', walletAddress)
-          .gt('overall_score', 89)
-          .order('overall_score', { ascending: false })
-          .limit(1)
           .maybeSingle();
 
-        if (cvData) {
+        if (reiData && (reiData.nft_minted || reiData.nft_mint_address)) {
           hasAccess = true;
-          accessReason = 'high_cv_score';
-          data = reiData || { wallet_address: walletAddress };
+          accessReason = 'nft_holder';
+          data = reiData;
         }
       }
 
@@ -180,7 +176,7 @@ export default function Club() {
                     <Info className="h-5 w-5 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
-                    <p>This area is restricted to club members only. {!publicKey && !user?.user_metadata?.wallet_address ? 'Sign in with your wallet to check membership.' : 'Access is granted if you are: (1) on the Twitter whitelist, (2) an NFT holder, or (3) have a CV score above 89.'}</p>
+                    <p>This area is restricted to club members only. {!publicKey && !user?.user_metadata?.wallet_address ? 'Sign in with your wallet to check membership.' : 'Access is granted if you are: (1) on the Twitter whitelist, or (2) an NFT holder.'}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

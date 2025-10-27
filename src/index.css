@@ -138,4 +138,14 @@ All colors MUST be HSL.
   .container {
     @apply px-6 py-8;
   }
+
+  /* Hide scrollbar while keeping scrollability */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
 }

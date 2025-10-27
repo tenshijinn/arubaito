@@ -219,10 +219,10 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
       <div key={index} className="mb-6 font-mono">
         <div className="flex gap-3 text-sm">
           <span className="text-muted-foreground">[{timestamp}]</span>
-          <span className={isUser ? 'text-foreground' : 'text-primary'}>
+          <span style={{ color: isUser ? '#f1eee6' : '#e565a0' }}>
             {username}
           </span>
-          <div className="flex-1 whitespace-pre-wrap break-words text-foreground">
+          <div className="flex-1 whitespace-pre-wrap break-words" style={{ color: isUser ? '#f1eee6' : '#e565a0' }}>
             {message.content}
           </div>
         </div>
@@ -246,7 +246,7 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
   return (
     <div className="relative h-screen">
       {/* Messages area */}
-      <div className="h-full overflow-y-auto px-8 py-12 pb-32 max-w-4xl mx-auto w-full">
+      <div className="h-full overflow-y-auto px-8 py-12 pb-32 max-w-4xl mx-auto w-full scrollbar-hide">
         {messages.length === 0 && (
           <div className="font-mono text-muted-foreground space-y-4">
             <p className="text-sm">Hi! I'm Rei, your Web3 talent assistant.</p>
@@ -275,8 +275,9 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area - fixed center */}
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-8 z-10">
+      {/* Input area - absolute center */}
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-8 z-10 pointer-events-none">
+        <div className="pointer-events-auto">
         <div className="relative">
           <Input
             value={input}
@@ -298,6 +299,7 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
               <Send className="h-4 w-4" />
             )}
           </Button>
+        </div>
         </div>
       </div>
 

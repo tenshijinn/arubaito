@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { AudioRecorder } from '@/components/AudioRecorder';
 import ReiChatbot from '@/components/ReiChatbot';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info, Sparkles, Briefcase, CheckCircle2, Mic, Globe, Edit2, LogOut } from 'lucide-react';
+import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info, Sparkles, Briefcase, CheckCircle2, Mic, Globe, Edit2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
@@ -45,7 +45,7 @@ const ROLE_OPTIONS: { value: RoleTag; label: string }[] = [
 ];
 
 export default function Rei() {
-  const { publicKey, connected, disconnect } = useWallet();
+  const { publicKey, connected } = useWallet();
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -76,19 +76,14 @@ export default function Rei() {
         const storedTwitterUser = localStorage.getItem('rei_twitter_user');
         const storedVerification = localStorage.getItem('rei_verification_status');
         
-        console.log('[Rei] Restoring Twitter state from localStorage:', storedTwitterUser ? 'found' : 'not found');
-        
         if (storedTwitterUser) {
           const twitterUserData = JSON.parse(storedTwitterUser);
           const verificationData = storedVerification ? JSON.parse(storedVerification) : null;
           
-          console.log('[Rei] Twitter user restored:', twitterUserData.handle);
           setTwitterUser(twitterUserData);
           if (verificationData) {
             setVerificationStatus(verificationData);
           }
-        } else {
-          console.log('[Rei] No Twitter data in localStorage, will need to login');
         }
       } catch (error) {
         console.error('Error restoring Twitter state:', error);
@@ -144,84 +139,27 @@ export default function Rei() {
     }
   }, [connected, twitterUser]);
 
-  // Check for existing registration after Twitter login OR wallet connection
+  // Check for existing registration after Twitter login
   useEffect(() => {
     const checkExistingRegistration = async () => {
-      if ((twitterUser || connected) && !isLoadingRegistration && !isSuccess) {
-        console.log('[Rei] Checking for existing registration...', {
-          hasTwitterUser: !!twitterUser,
-          twitterUserId: twitterUser?.x_user_id,
-          isConnected: connected,
-          walletAddress: publicKey?.toString()
-        });
-        
+      if (twitterUser && !isLoadingRegistration) {
         setIsLoadingRegistration(true);
         try {
-          // Try to find by Twitter user first
-          if (twitterUser) {
-            console.log('[Rei] Searching by x_user_id:', twitterUser.x_user_id);
-            const { data, error } = await supabase
-              .from('rei_registry')
-              .select('*')
-              .eq('x_user_id', twitterUser.x_user_id)
-              .maybeSingle();
+          const { data, error } = await supabase
+            .from('rei_registry')
+            .select('*')
+            .eq('x_user_id', twitterUser.x_user_id)
+            .single();
 
-            console.log('[Rei] Twitter search result:', { found: !!data, error });
-            
-            if (data && !error) {
-              console.log('[Rei] Found registration by Twitter:', data.handle);
-              setRegistrationData(data);
-              setIsSuccess(true);
-              setPortfolioUrl(data.portfolio_url || '');
-              setSelectedRoles(data.role_tags || []);
-              setConsent(true);
-              setIsLoadingRegistration(false);
-              return;
-            }
-          }
-
-          // If wallet is connected and no Twitter match, try wallet address
-          if (connected && publicKey) {
-            console.log('[Rei] Searching by wallet_address:', publicKey.toString());
-            const { data, error } = await supabase
-              .from('rei_registry')
-              .select('*')
-              .eq('wallet_address', publicKey.toString())
-              .maybeSingle();
-
-            console.log('[Rei] Wallet search result:', { found: !!data, error });
-            
-            if (data && !error) {
-              console.log('[Rei] Found registration by wallet:', data.handle);
-              // Restore Twitter user from registration data
-              setTwitterUser({
-                x_user_id: data.x_user_id || '',
-                handle: data.handle || '',
-                display_name: data.display_name || '',
-                profile_image_url: data.profile_image_url || '',
-                verified: data.verified || false,
-              });
-              // Also restore to localStorage
-              localStorage.setItem('rei_twitter_user', JSON.stringify({
-                x_user_id: data.x_user_id,
-                handle: data.handle,
-                display_name: data.display_name,
-                profile_image_url: data.profile_image_url,
-                verified: data.verified,
-              }));
-              setRegistrationData(data);
-              setIsSuccess(true);
-              setPortfolioUrl(data.portfolio_url || '');
-              setSelectedRoles(data.role_tags || []);
-              setConsent(true);
-            }
-          }
-          
-          if (!twitterUser && !connected) {
-            console.log('[Rei] No Twitter user or wallet connected, showing registration form');
+          if (data && !error) {
+            setRegistrationData(data);
+            setIsSuccess(true);
+            setPortfolioUrl(data.portfolio_url || '');
+            setSelectedRoles(data.role_tags || []);
+            setConsent(true);
           }
         } catch (error) {
-          console.error('[Rei] Error checking registration:', error);
+          console.error('Error checking registration:', error);
         } finally {
           setIsLoadingRegistration(false);
         }
@@ -229,7 +167,7 @@ export default function Rei() {
     };
 
     checkExistingRegistration();
-  }, [twitterUser, connected, publicKey, isSuccess]);
+  }, [twitterUser]);
 
 
   const handleTwitterLogin = async () => {
@@ -420,41 +358,6 @@ export default function Rei() {
 
   const userName = twitterUser?.display_name?.split(' ')[0] || twitterUser?.handle;
 
-  const handleLogout = async () => {
-    try {
-      // Disconnect wallet
-      await disconnect();
-      
-      // Clear Twitter data from localStorage
-      localStorage.removeItem('rei_twitter_user');
-      localStorage.removeItem('rei_verification_status');
-      
-      // Reset all states
-      setTwitterUser(null);
-      setVerificationStatus(null);
-      setRegistrationData(null);
-      setIsSuccess(false);
-      setIsEditMode(false);
-      setStep(1);
-      setAudioBlob(null);
-      setPortfolioUrl('');
-      setSelectedRoles([]);
-      setConsent(false);
-      
-      toast({
-        title: 'Logged Out',
-        description: 'You have been logged out successfully',
-      });
-    } catch (error) {
-      console.error('Error logging out:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to log out completely',
-        variant: 'destructive',
-      });
-    }
-  };
-
   if (isSuccess && registrationData && !isEditMode) {
     const analysis = registrationData.profile_analysis as any;
 
@@ -480,16 +383,7 @@ export default function Rei() {
 
             <TabsContent value="profile" className="mt-0 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 180px)' }}>
               <Card className="w-full bg-transparent">
-                <CardHeader className="text-center relative">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleLogout}
-                    className="absolute top-4 right-4 gap-2"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Logout
-                  </Button>
+                <CardHeader className="text-center">
                   <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
                     <Check className="h-8 w-8 text-primary" />
                   </div>

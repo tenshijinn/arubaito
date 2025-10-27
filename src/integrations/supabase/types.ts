@@ -178,7 +178,6 @@ export type Database = {
       rei_registry: {
         Row: {
           analysis_summary: string | null
-          bio: string | null
           consent: boolean
           created_at: string
           display_name: string | null
@@ -187,22 +186,18 @@ export type Database = {
           id: string
           nft_mint_address: string | null
           nft_minted: boolean | null
-          portfolio_links: string | null
           portfolio_url: string | null
           profile_analysis: Json | null
           profile_image_url: string | null
           profile_score: number | null
           role_tags: Database["public"]["Enums"]["contributor_role"][] | null
-          skills: Json | null
           updated_at: string
           verified: boolean | null
           wallet_address: string
-          work_experience: Json | null
           x_user_id: string | null
         }
         Insert: {
           analysis_summary?: string | null
-          bio?: string | null
           consent?: boolean
           created_at?: string
           display_name?: string | null
@@ -211,22 +206,18 @@ export type Database = {
           id?: string
           nft_mint_address?: string | null
           nft_minted?: boolean | null
-          portfolio_links?: string | null
           portfolio_url?: string | null
           profile_analysis?: Json | null
           profile_image_url?: string | null
           profile_score?: number | null
           role_tags?: Database["public"]["Enums"]["contributor_role"][] | null
-          skills?: Json | null
           updated_at?: string
           verified?: boolean | null
           wallet_address: string
-          work_experience?: Json | null
           x_user_id?: string | null
         }
         Update: {
           analysis_summary?: string | null
-          bio?: string | null
           consent?: boolean
           created_at?: string
           display_name?: string | null
@@ -235,17 +226,14 @@ export type Database = {
           id?: string
           nft_mint_address?: string | null
           nft_minted?: boolean | null
-          portfolio_links?: string | null
           portfolio_url?: string | null
           profile_analysis?: Json | null
           profile_image_url?: string | null
           profile_score?: number | null
           role_tags?: Database["public"]["Enums"]["contributor_role"][] | null
-          skills?: Json | null
           updated_at?: string
           verified?: boolean | null
           wallet_address?: string
-          work_experience?: Json | null
           x_user_id?: string | null
         }
         Relationships: []

@@ -17,9 +17,10 @@ interface Message {
 interface ReiChatbotProps {
   walletAddress: string;
   userMode: 'talent' | 'employer';
+  twitterHandle?: string;
 }
 
-const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
+const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -70,7 +71,7 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
     };
     
     resetConversation();
-  }, [userMode, conversationId]);
+  }, [userMode]); // Only depend on userMode, not conversationId
 
   const loadConversation = async () => {
     try {
@@ -221,7 +222,7 @@ const ReiChatbot = ({ walletAddress, userMode }: ReiChatbotProps) => {
       second: '2-digit',
       hour12: false 
     });
-    const username = isUser ? '@username' : '@Rei';
+    const username = isUser ? `@${twitterHandle || 'user'}` : '@Rei';
     
     return (
       <div key={index} className="mb-6 font-mono">

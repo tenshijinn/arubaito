@@ -611,6 +611,7 @@ export default function Rei() {
               <ReiChatbot 
                 walletAddress={registrationData.wallet_address} 
                 userMode="talent"
+                twitterHandle={twitterUser?.handle}
               />
             </TabsContent>
           </Tabs>

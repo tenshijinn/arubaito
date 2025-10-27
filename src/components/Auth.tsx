@@ -247,7 +247,7 @@ export const Auth = () => {
           });
 
           if (signInError) {
-            // If "Invalid login credentials" = new user → sign up
+            // If "Invalid login credentials" = new user or old password scheme → sign up
             if (signInError.message.includes('Invalid login credentials')) {
               const { error: signUpError } = await supabase.auth.signUp({
                 email: `${walletAddress}@wallet.local`,
@@ -258,6 +258,40 @@ export const Auth = () => {
                   }
                 }
               });
+
+              // If "user already exists", reset the old account and retry
+              if (signUpError?.message.includes('User already registered')) {
+                console.log('Migrating old wallet account to new password scheme...');
+                
+                // Reset the old account
+                const { error: resetError } = await supabase.functions.invoke('reset-wallet-account', {
+                  body: { walletAddress }
+                });
+
+                if (resetError) {
+                  console.error('Failed to reset wallet account:', resetError);
+                  throw new Error('Failed to migrate wallet account. Please try again.');
+                }
+
+                // Retry signup with new password scheme
+                const { error: retrySignUpError } = await supabase.auth.signUp({
+                  email: `${walletAddress}@wallet.local`,
+                  password: password,
+                  options: {
+                    data: {
+                      wallet_address: walletAddress,
+                    }
+                  }
+                });
+
+                if (retrySignUpError) throw retrySignUpError;
+
+                toast({
+                  title: "Account Migrated!",
+                  description: `Wallet authenticated successfully`,
+                });
+                return;
+              }
 
               if (signUpError) throw signUpError;
 

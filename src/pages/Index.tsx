@@ -92,7 +92,7 @@ const Index = () => {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          Rei
+          Ask Rei
         </Button>
       </div>
     </div>

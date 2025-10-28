@@ -9,15 +9,19 @@ const Index = () => {
 
   const tasksWords = ["Jobs", "Tasks", "Gigs", "Bounties"];
   const humansWords = ["AI", "Humans"];
-  const web3Companies = [
-    "Arbitrum", "Ethereum", "Aave", "Solana", "Polygon", "Uniswap", "Cardano", 
-    "Optimism", "Chainlink", "MakerDAO", "Starknet", "Cosmos", "Zora", 
-    "Lens Protocol", "Avalanche", "Base", "DeGods", "Lido", "NEAR Protocol", 
-    "The Graph", "Tezos", "SushiSwap", "Dogecoin", "VitaDAO", "Celestia", 
-    "Filecoin", "Arweave", "GMX", "Azuki", "World of Women", "Balancer", 
-    "Curve", "dYdX", "Synthetix", "ENS", "Hedera", "VeChain", "IOTA", 
-    "Farcaster", "Zilliqa", "Shiba Inu", "DeSciWorld", "Floki", "Molecule", 
-    "Yuga Labs", "Tron", "Algorand", "MultiversX", "Compound"
+  const companies = [
+    "Binance", "Coinbase", "ConsenSys", "Chainlink", "Uniswap", "Aave", "Jupiter", 
+    "Magic Eden", "Phantom", "Marinade Finance", "Polygon", "Avalanche", "Near Protocol", 
+    "Arbitrum", "Optimism", "StarkWare", "Circle", "Ledger", "OpenSea", "Animoca Brands", 
+    "Messari", "The Graph", "dYdX", "Helium", "Drift Protocol", "Mad Lads", "Tensor", 
+    "Saga Phone", "Bonk", "Myro", "Pudgy Penguins", "Azuki", "Book of Meme", "Pepe", "Doodles"
+  ];
+  const jobTitles = [
+    "Smart Contract Developer", "Blockchain Engineer", "Frontend Developer", "Backend Developer", 
+    "Full Stack Developer", "Solidity Developer", "Rust Developer", "Protocol Engineer", 
+    "Security Auditor", "DevOps Engineer", "Product Manager", "Community Manager", 
+    "Partnerships Manager", "Growth Lead", "Marketing Manager", "UI/UX Designer", 
+    "Governance Lead", "DAO Coordinator", "Research Analyst", "Content Creator"
   ];
 
   const getBackgroundStyle = () => {
@@ -40,7 +44,7 @@ const Index = () => {
     <div className="min-h-screen relative font-mono" style={getBackgroundStyle()}>
       {/* Text rotators - positioned absolutely */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-8 max-w-4xl w-full">
-      {hoveredButton === 'rei' && (
+        {hoveredButton === 'rei' ? (
           <h1 
             className="text-base md:text-xl font-semibold leading-relaxed"
             style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
@@ -48,6 +52,14 @@ const Index = () => {
             Aggregating Web3 <TextRotator words={tasksWords} isActive={true} /> for <TextRotator words={humansWords} isActive={true} delay={0} />{' '}
             <span style={{ color: '#ed565a' }}>hiring</span>{' '}
             <TextRotator words={humansWords} isActive={true} delay={1300} />
+          </h1>
+        ) : hoveredButton === null && (
+          <h1 
+            className="text-base md:text-xl font-semibold leading-relaxed"
+            style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}
+          >
+            For <TextRotator words={companies} isActive={true} delay={0} /> looking for Ex-<TextRotator words={companies} isActive={true} delay={800} />{' '}
+            <TextRotator words={jobTitles} isActive={true} delay={1600} />
           </h1>
         )}
       </div>

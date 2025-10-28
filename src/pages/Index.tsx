@@ -71,8 +71,8 @@ const Index = () => {
         <Button
           onClick={() => navigate('/arubaito')}
           variant="outline"
-          size="lg"
-          className="text-xl px-12 py-8 bg-transparent border-2 font-mono"
+          size="default"
+          className="text-base px-8 py-4 bg-transparent border-2 font-mono"
           style={{ 
             borderColor: 'hsl(var(--landing-border))',
             color: 'hsl(var(--landing-border))',
@@ -84,8 +84,8 @@ const Index = () => {
         <Button
           onClick={() => navigate('/rei')}
           variant="outline"
-          size="lg"
-          className="text-xl px-12 py-8 bg-transparent border-2 transition-shadow duration-300 hover:bg-transparent font-mono"
+          size="default"
+          className="text-base px-8 py-4 bg-transparent border-2 transition-shadow duration-300 hover:bg-transparent font-mono"
           style={{ 
             borderColor: 'hsl(var(--landing-border))',
             color: 'hsl(var(--landing-border))',

@@ -20,6 +20,7 @@ import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WaitlistCountdown } from '@/components/WaitlistCountdown';
+import { TreasuryDisplay } from '@/components/TreasuryDisplay';
 
 interface TwitterUser {
   x_user_id: string;
@@ -833,6 +834,7 @@ export default function Rei() {
       </div>
 
       <WaitlistCountdown />
+      <TreasuryDisplay />
     </div>
   );
 }

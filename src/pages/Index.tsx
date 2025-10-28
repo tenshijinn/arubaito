@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { TextRotator } from "@/components/TextRotator";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
+import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -131,6 +132,7 @@ const Index = () => {
       </div>
 
       <WaitlistCountdown />
+      <TreasuryDisplay />
     </div>
   );
 };

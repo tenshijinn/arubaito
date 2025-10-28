@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import { WaitlistCountdown } from '@/components/WaitlistCountdown';
+import { TreasuryDisplay } from '@/components/TreasuryDisplay';
 
 interface Submission {
   id: string;
@@ -316,6 +317,7 @@ export default function Admin() {
       </div>
 
       <WaitlistCountdown />
+      <TreasuryDisplay />
     </div>
   );
 }

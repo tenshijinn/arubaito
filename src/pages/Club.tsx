@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { CountdownTimer } from '@/components/CountdownTimer';
 import { WaitlistCountdown } from '@/components/WaitlistCountdown';
+import { TreasuryDisplay } from '@/components/TreasuryDisplay';
 
 export default function Club() {
   const navigate = useNavigate();
@@ -280,6 +281,7 @@ export default function Club() {
       </main>
 
       <WaitlistCountdown />
+      <TreasuryDisplay />
     </div>
   );
 }

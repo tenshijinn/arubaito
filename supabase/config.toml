@@ -7,6 +7,9 @@ site_url = "https://lovable.dev"
 [functions.analyze-cv]
 verify_jwt = true
 
+[functions.get-treasury-data]
+verify_jwt = false
+
 [functions.analyze-rei-profile]
 verify_jwt = false
 

@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
+import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -231,6 +232,7 @@ const Index = () => {
       </main>
 
       <WaitlistCountdown />
+      <TreasuryDisplay />
     </div>
   );
 };

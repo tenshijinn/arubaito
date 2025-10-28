@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
+import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 
 const NotFound = () => {
   const location = useLocation();
@@ -23,6 +24,7 @@ const NotFound = () => {
       </div>
 
       <WaitlistCountdown />
+      <TreasuryDisplay />
     </div>
   );
 };

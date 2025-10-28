@@ -4,16 +4,27 @@ interface TextRotatorProps {
   words: string[];
   isActive: boolean;
   className?: string;
+  delay?: number;
 }
 
-export const TextRotator = ({ words, isActive, className = "" }: TextRotatorProps) => {
+export const TextRotator = ({ words, isActive, className = "", delay = 0 }: TextRotatorProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
+  const [isReady, setIsReady] = useState(delay === 0);
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (!isActive) {
+    if (delay > 0) {
+      const delayTimeout = setTimeout(() => {
+        setIsReady(true);
+      }, delay);
+      return () => clearTimeout(delayTimeout);
+    }
+  }, [delay]);
+
+  useEffect(() => {
+    if (!isActive || !isReady) {
       setDisplayText("");
       return;
     }
@@ -47,7 +58,7 @@ export const TextRotator = ({ words, isActive, className = "" }: TextRotatorProp
         clearTimeout(pauseTimeoutRef.current);
       }
     };
-  }, [isActive, words, currentIndex]);
+  }, [isActive, isReady, words, currentIndex]);
 
   return (
     <span

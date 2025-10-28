@@ -8,25 +8,7 @@ const Index = () => {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
   const tasksWords = ["Jobs", "Tasks", "Gigs", "Bounties"];
-  
-  // Shuffle function for randomizing hiring phrases
-  const shuffleArray = (array: string[]) => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
-
-  const hiringPhrasesBase = [
-    "AI hiring Humans",
-    "Humans hiring AI",
-    "AI hiring AI",
-    "Humans hiring Humans"
-  ];
-  const [hiringPhrases] = useState(() => shuffleArray(hiringPhrasesBase));
-  
+  const humansWords = ["AI", "Humans"];
   const web3Companies = [
     "Arbitrum", "Ethereum", "Aave", "Solana", "Polygon", "Uniswap", "Cardano", 
     "Optimism", "Chainlink", "MakerDAO", "Starknet", "Cosmos", "Zora", 
@@ -63,7 +45,9 @@ const Index = () => {
             className="text-base md:text-xl font-semibold leading-relaxed"
             style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
           >
-            Aggregating Web3 <TextRotator words={tasksWords} isActive={true} /> for <TextRotator words={hiringPhrases} isActive={true} />
+            Aggregating Web3 <TextRotator words={tasksWords} isActive={true} /> for <TextRotator words={humansWords} isActive={true} delay={0} />{' '}
+            <span style={{ color: '#ed565a' }}>hiring</span>{' '}
+            <TextRotator words={humansWords} isActive={true} delay={1300} />
           </h1>
         )}
       </div>

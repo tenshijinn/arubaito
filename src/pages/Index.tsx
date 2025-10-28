@@ -56,7 +56,6 @@ const Index = () => {
             </h1>
             <div className="mt-4 font-mono text-sm md:text-base" style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}>
               <p>Rei will find you anything from Zealy Tasks to C-Level Roles. [ALaaAA]</p>
-              <p>[Free to Use]</p>
             </div>
           </>
         ) : hoveredButton === null && (
@@ -72,7 +71,6 @@ const Index = () => {
             </h1>
             <div className="mt-4 font-mono text-sm md:text-base" style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}>
               <p>Private Member Club for Buildrs in Web3</p>
-              <p>[join waitlist]</p>
             </div>
           </>
         )}

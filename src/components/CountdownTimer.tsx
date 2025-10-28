@@ -46,7 +46,7 @@ export const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
 
 const TimeUnit = ({ value, label }: { value: number; label: string }) => (
   <div className="flex flex-col items-center">
-    <div className="text-3xl font-bold text-primary">{value.toString().padStart(2, '0')}</div>
-    <div className="text-sm text-muted-foreground">{label}</div>
+    <div className="text-xl font-bold text-primary">{value.toString().padStart(2, '0')}</div>
+    <div className="text-xs text-muted-foreground">{label}</div>
   </div>
 );

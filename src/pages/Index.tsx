@@ -45,24 +45,40 @@ const Index = () => {
       {/* Text rotators - positioned absolutely */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-8 max-w-4xl w-full">
         {hoveredButton === 'rei' ? (
-          <h1 
-            className="text-base md:text-xl font-semibold leading-relaxed"
-            style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
-          >
-            Aggregating Web3 <TextRotator words={tasksWords} isActive={true} /> for <TextRotator words={humansWords} isActive={true} delay={0} />{' '}
-            <span style={{ color: '#ed565a' }}>hiring</span>{' '}
-            <TextRotator words={humansWords} isActive={true} delay={1300} />
-          </h1>
+          <>
+            <h1 
+              className="text-base md:text-xl font-semibold leading-relaxed"
+              style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
+            >
+              Aggregating Web3 <TextRotator words={tasksWords} isActive={true} /> for <TextRotator words={humansWords} isActive={true} delay={0} />{' '}
+              <span style={{ color: '#ed565a' }}>hiring</span>{' '}
+              <TextRotator words={humansWords} isActive={true} delay={1300} />
+            </h1>
+            <p 
+              className="text-sm md:text-base mt-4 font-mono"
+              style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}
+            >
+              [Free to Use]
+            </p>
+          </>
         ) : hoveredButton === null && (
-          <h1 
-            className="text-base md:text-xl font-semibold leading-relaxed"
-            style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
-          >
-            <span style={{ color: '#ed565a' }}>Connecting</span> <TextRotator words={companies} isActive={true} delay={0} color="#faf6f4" /> <span style={{ color: '#ed565a' }}>to</span>
-            <br />
-            <span style={{ color: '#ed565a' }}>Ex-</span><TextRotator words={companies} isActive={true} delay={800} color="#faf6f4" />{' '}
-            <TextRotator words={jobTitles} isActive={true} delay={1600} color="#ed565a" />
-          </h1>
+          <>
+            <h1 
+              className="text-base md:text-xl font-semibold leading-relaxed"
+              style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
+            >
+              <span style={{ color: '#ed565a' }}>Connecting</span> <TextRotator words={companies} isActive={true} delay={0} color="#faf6f4" /> <span style={{ color: '#ed565a' }}>to</span>
+              <br />
+              <span style={{ color: '#ed565a' }}>Ex-</span><TextRotator words={companies} isActive={true} delay={800} color="#faf6f4" />{' '}
+              <TextRotator words={jobTitles} isActive={true} delay={1600} color="#ed565a" />
+            </h1>
+            <p 
+              className="text-sm md:text-base mt-4 font-mono"
+              style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}
+            >
+              [join waitlist]
+            </p>
+          </>
         )}
       </div>
 

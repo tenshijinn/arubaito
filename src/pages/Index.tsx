@@ -30,15 +30,6 @@ const Index = () => {
         transition: 'background-image 0.3s ease'
       };
     }
-    if (hoveredButton === 'arubaito') {
-      return {
-        backgroundColor: 'hsl(var(--landing-bg))',
-        backgroundImage: 'url(/arubaito-hover.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        transition: 'background-image 0.3s ease'
-      };
-    }
     return { 
       backgroundColor: 'hsl(var(--landing-bg))',
       transition: 'background-image 0.3s ease'

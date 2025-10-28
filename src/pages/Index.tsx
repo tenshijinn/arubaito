@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { TextRotator } from "@/components/TextRotator";
+import { AsciiBackground } from "@/components/AsciiBackground";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Index = () => {
   const getBackgroundStyle = () => {
     if (hoveredButton === 'rei') {
       return {
-        backgroundColor: 'hsl(var(--landing-bg))',
+        backgroundColor: '#181818',
         backgroundImage: 'url(/rei-hover.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -32,7 +33,7 @@ const Index = () => {
     }
     if (hoveredButton === 'arubaito') {
       return {
-        backgroundColor: 'hsl(var(--landing-bg))',
+        backgroundColor: '#181818',
         backgroundImage: 'url(/arubaito-hover.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -40,15 +41,17 @@ const Index = () => {
       };
     }
     return { 
-      backgroundColor: 'hsl(var(--landing-bg))',
+      backgroundColor: '#181818',
       transition: 'background-image 0.3s ease'
     };
   };
 
   return (
     <div className="min-h-screen relative font-mono" style={getBackgroundStyle()}>
+      <AsciiBackground />
+      
       {/* Text rotators - positioned absolutely */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-8 max-w-4xl w-full">
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-8 max-w-4xl w-full" style={{ zIndex: 10 }}>
         {hoveredButton === 'rei' && (
           <h1 
             className="text-base md:text-xl font-semibold leading-relaxed"
@@ -69,7 +72,7 @@ const Index = () => {
       </div>
 
       {/* Buttons - fixed in center */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-row gap-6">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-row gap-6" style={{ zIndex: 10 }}>
         <Button
           onClick={() => navigate('/rei')}
           variant="outline"

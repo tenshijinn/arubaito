@@ -45,7 +45,7 @@ const Index = () => {
             className="text-base md:text-xl font-semibold leading-relaxed"
             style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
           >
-            Aggregating Web3 <TextRotator words={tasksWords} isActive={true} /> to <TextRotator words={humansWords} isActive={true} /> hiring <TextRotator words={humansWords} isActive={true} />
+            Aggregating Web3 <TextRotator words={tasksWords} isActive={true} /> for <TextRotator words={humansWords} isActive={true} /> hiring <TextRotator words={humansWords} isActive={true} />
           </h1>
         )}
       </div>

@@ -42,8 +42,23 @@ const Index = () => {
 
   return (
     <div className="min-h-screen relative font-mono" style={getBackgroundStyle()}>
+      {/* Background video for default state */}
+      {hoveredButton === null && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ opacity: 0.6 }}
+        >
+          <source src="/arubaito-home.webm" type="video/webm" />
+        </video>
+      )}
+      
       {/* Text rotators - positioned absolutely */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-8 max-w-4xl w-full">
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-8 max-w-4xl w-full z-10">
         {hoveredButton === 'rei' ? (
           <>
             <h1 

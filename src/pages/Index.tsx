@@ -17,11 +17,11 @@ const Index = () => {
     "Saga Phone", "Bonk", "Myro", "Pudgy Penguins", "Azuki", "Book of Meme", "Pepe", "Doodles"
   ];
   const jobTitles = [
-    "Smart Contract Developer", "Blockchain Engineer", "Frontend Developer", "Backend Developer", 
-    "Full Stack Developer", "Solidity Developer", "Rust Developer", "Protocol Engineer", 
-    "Security Auditor", "DevOps Engineer", "Product Manager", "Community Manager", 
-    "Partnerships Manager", "Growth Lead", "Marketing Manager", "UI/UX Designer", 
-    "Governance Lead", "DAO Coordinator", "Research Analyst", "Content Creator"
+    "Smart Contract Developers", "Blockchain Engineers", "Frontend Developers", "Backend Developers", 
+    "Full Stack Developers", "Solidity Developers", "Rust Developers", "Protocol Engineers", 
+    "Security Auditors", "DevOps Engineers", "Product Managers", "Community Managers", 
+    "Partnerships Managers", "Growth Leads", "Marketing Managers", "UI/UX Designers", 
+    "Governance Leads", "DAO Coordinators", "Research Analysts", "Content Creators"
   ];
 
   const getBackgroundStyle = () => {

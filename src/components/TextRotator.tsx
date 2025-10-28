@@ -59,21 +59,6 @@ export const TextRotator = ({ words, isActive, className = "" }: TextRotatorProp
       }}
     >
       {displayText}
-      <span 
-        className="inline-block ml-1"
-        style={{
-          animation: 'blink 1s step-end infinite',
-          color: '#f0e3c3'
-        }}
-      >
-        _
-      </span>
-      <style>{`
-        @keyframes blink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
-        }
-      `}</style>
     </span>
   );
 };

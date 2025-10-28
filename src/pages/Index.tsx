@@ -54,12 +54,10 @@ const Index = () => {
               <span style={{ color: '#ed565a' }}>hiring</span>{' '}
               <TextRotator words={humansWords} isActive={true} delay={1300} />
             </h1>
-            <p 
-              className="text-sm md:text-base mt-4 font-mono"
-              style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}
-            >
-              [Free to Use]
-            </p>
+            <div className="mt-4 font-mono text-sm md:text-base" style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}>
+              <p>Rei will find you anything from Zealy Tasks to C-Level Roles. [ALaaAA]</p>
+              <p>[Free to Use]</p>
+            </div>
           </>
         ) : hoveredButton === null && (
           <>
@@ -72,12 +70,10 @@ const Index = () => {
               <span style={{ color: '#ed565a' }}>Ex-</span><TextRotator words={companies} isActive={true} delay={800} color="#faf6f4" />{' '}
               <TextRotator words={jobTitles} isActive={true} delay={1600} color="#ed565a" />
             </h1>
-            <p 
-              className="text-sm md:text-base mt-4 font-mono"
-              style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}
-            >
-              [join waitlist]
-            </p>
+            <div className="mt-4 font-mono text-sm md:text-base" style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}>
+              <p>Private Member Club for Buildrs in Web3</p>
+              <p>[join waitlist]</p>
+            </div>
           </>
         )}
       </div>

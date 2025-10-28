@@ -125,7 +125,7 @@ const Index = () => {
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          Ask Rei
+          @AskRei
         </Button>
       </div>
     </div>

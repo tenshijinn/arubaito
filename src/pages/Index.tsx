@@ -40,21 +40,12 @@ const Index = () => {
     <div className="min-h-screen relative font-mono" style={getBackgroundStyle()}>
       {/* Text rotators - positioned absolutely */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-8 max-w-4xl w-full">
-        {hoveredButton === 'rei' && (
+      {hoveredButton === 'rei' && (
           <h1 
             className="text-base md:text-xl font-semibold leading-relaxed"
             style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
           >
             Aggregating Web3 <TextRotator words={tasksWords} isActive={true} /> to <TextRotator words={humansWords} isActive={true} /> hiring <TextRotator words={humansWords} isActive={true} />
-          </h1>
-        )}
-        
-        {hoveredButton === 'arubaito' && (
-          <h1 
-            className="text-base md:text-xl font-semibold leading-relaxed"
-            style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
-          >
-            Connecting Ex-<TextRotator words={web3Companies} isActive={true} /> Talent to <TextRotator words={web3Companies} isActive={true} />
           </h1>
         )}
       </div>

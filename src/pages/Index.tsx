@@ -50,9 +50,9 @@ const Index = () => {
               className="text-base md:text-xl font-semibold leading-relaxed"
               style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
             >
-              Aggregating Web3 <TextRotator words={tasksWords} isActive={true} /> for <TextRotator words={humansWords} isActive={true} delay={0} />{' '}
+              Aggregating Web3 <TextRotator key="rei-tasks" words={tasksWords} isActive={true} /> for <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} />{' '}
               <span style={{ color: '#ed565a' }}>hiring</span>{' '}
-              <TextRotator words={humansWords} isActive={true} delay={1300} />
+              <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} />
             </h1>
             <div className="mt-4 font-mono text-sm md:text-base" style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}>
               <p>Rei will find you anything from Zealy Tasks to C-Level Roles. [ALaaAA]</p>
@@ -64,10 +64,10 @@ const Index = () => {
               className="text-base md:text-xl font-semibold leading-relaxed"
               style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
             >
-              <span style={{ color: '#ed565a' }}>Connecting</span> <TextRotator words={companies} isActive={true} delay={0} color="#faf6f4" /> <span style={{ color: '#ed565a' }}>to</span>
+              <span style={{ color: '#ed565a' }}>Connecting</span> <TextRotator key="default-companies-1" words={companies} isActive={true} delay={0} color="#faf6f4" /> <span style={{ color: '#ed565a' }}>to</span>
               <br />
-              <span style={{ color: '#ed565a' }}>Ex-</span><TextRotator words={companies} isActive={true} delay={800} color="#faf6f4" />{' '}
-              <TextRotator words={jobTitles} isActive={true} delay={1600} color="#ed565a" />
+              <span style={{ color: '#ed565a' }}>Ex-</span><TextRotator key="default-companies-2" words={companies} isActive={true} delay={800} color="#faf6f4" />{' '}
+              <TextRotator key="default-jobs" words={jobTitles} isActive={true} delay={1600} color="#ed565a" />
             </h1>
             <div className="mt-4 font-mono text-sm md:text-base" style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}>
               <p>Private Member Club for Buildrs in Web3</p>

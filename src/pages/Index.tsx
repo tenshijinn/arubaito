@@ -51,7 +51,28 @@ const Index = () => {
       </div>
 
       {/* Buttons - fixed in center */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-row gap-6">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-6">
+        <Button
+          onClick={() => navigate('/arubaito')}
+          variant="outline"
+          size="lg"
+          className="text-xl px-12 py-8 bg-transparent border-2 transition-shadow duration-300 hover:bg-transparent font-mono"
+          style={{ 
+            borderColor: 'hsl(var(--landing-border))',
+            color: 'hsl(var(--landing-border))',
+            fontFamily: 'Consolas, monospace'
+          }}
+          onMouseEnter={(e) => {
+            setHoveredButton('arubaito');
+            e.currentTarget.style.boxShadow = '0 0 20px hsl(var(--landing-border) / 0.6), inset 0 0 15px hsl(var(--landing-border) / 0.3)';
+          }}
+          onMouseLeave={(e) => {
+            setHoveredButton(null);
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          Enter Club
+        </Button>
         <Button
           onClick={() => navigate('/rei')}
           variant="outline"
@@ -72,27 +93,6 @@ const Index = () => {
           }}
         >
           Rei
-        </Button>
-        <Button
-          onClick={() => navigate('/arubaito')}
-          variant="outline"
-          size="lg"
-          className="text-xl px-12 py-8 bg-transparent border-2 transition-shadow duration-300 hover:bg-transparent font-mono"
-          style={{ 
-            borderColor: 'hsl(var(--landing-border))',
-            color: 'hsl(var(--landing-border))',
-            fontFamily: 'Consolas, monospace'
-          }}
-          onMouseEnter={(e) => {
-            setHoveredButton('arubaito');
-            e.currentTarget.style.boxShadow = '0 0 20px hsl(var(--landing-border) / 0.6), inset 0 0 15px hsl(var(--landing-border) / 0.3)';
-          }}
-          onMouseLeave={(e) => {
-            setHoveredButton(null);
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          Arubaito
         </Button>
       </div>
     </div>

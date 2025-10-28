@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 
 const NotFound = () => {
   const location = useLocation();
@@ -20,6 +21,8 @@ const NotFound = () => {
           RETURN TO HOME
         </a>
       </div>
+
+      <WaitlistCountdown />
     </div>
   );
 };

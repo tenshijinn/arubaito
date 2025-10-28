@@ -19,6 +19,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { WaitlistCountdown } from '@/components/WaitlistCountdown';
 
 interface TwitterUser {
   x_user_id: string;
@@ -830,6 +831,8 @@ export default function Rei() {
         </CardContent>
       </Card>
       </div>
+
+      <WaitlistCountdown />
     </div>
   );
 }

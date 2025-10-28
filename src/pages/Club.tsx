@@ -10,6 +10,7 @@ import { Shield, Loader2, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { CountdownTimer } from '@/components/CountdownTimer';
+import { WaitlistCountdown } from '@/components/WaitlistCountdown';
 
 export default function Club() {
   const navigate = useNavigate();
@@ -277,6 +278,8 @@ export default function Club() {
           </div>
         </Card>
       </main>
+
+      <WaitlistCountdown />
     </div>
   );
 }

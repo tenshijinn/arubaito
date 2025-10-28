@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { TextRotator } from "@/components/TextRotator";
+import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -128,6 +129,8 @@ const Index = () => {
           @AskRei
         </Button>
       </div>
+
+      <WaitlistCountdown />
     </div>
   );
 };

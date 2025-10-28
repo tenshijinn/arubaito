@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
+import { WaitlistCountdown } from '@/components/WaitlistCountdown';
 
 interface Submission {
   id: string;
@@ -313,6 +314,8 @@ export default function Admin() {
           )}
         </div>
       </div>
+
+      <WaitlistCountdown />
     </div>
   );
 }

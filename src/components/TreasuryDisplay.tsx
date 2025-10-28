@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { BarChart, Bar, XAxis, ResponsiveContainer } from "recharts";
 import { useEffect, useState } from "react";
+import solanaIcon from "@/assets/solana-icon.png";
 
 interface TreasuryData {
   balance: number;
@@ -70,11 +71,7 @@ export const TreasuryDisplay = () => {
       <HoverCard openDelay={0} closeDelay={100}>
         <HoverCardTrigger asChild>
           <div 
-            className="border-2 rounded-3xl px-6 py-3 backdrop-blur-sm cursor-pointer transition-all hover:scale-105"
-            style={{
-              borderColor: '#a78bfa',
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            }}
+            className="rounded-3xl px-6 py-3 cursor-pointer transition-all hover:scale-105"
           >
             <div 
               className="text-xs font-bold mb-1 tracking-wide"
@@ -83,10 +80,15 @@ export const TreasuryDisplay = () => {
               Treasury ^
             </div>
             <div 
-              className="text-2xl font-bold tracking-tight"
+              className="text-2xl font-bold tracking-tight flex items-center gap-2"
               style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
             >
-              {isLoading ? '...' : `${balance.toFixed(1)} ≡`}
+              {isLoading ? '...' : (
+                <>
+                  {balance.toFixed(1)}
+                  <img src={solanaIcon} alt="SOL" className="w-6 h-6" />
+                </>
+              )}
             </div>
           </div>
         </HoverCardTrigger>

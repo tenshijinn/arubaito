@@ -53,7 +53,7 @@ export const TextRotator = ({ words, isActive, className = "" }: TextRotatorProp
     <span
       className={`inline-block font-mono ${className}`}
       style={{
-        color: '#ED565A',
+        color: '#faf6f4',
         minHeight: '1.2em',
         position: 'relative'
       }}

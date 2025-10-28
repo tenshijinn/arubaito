@@ -37,7 +37,7 @@ export const TextRotator = ({ words, isActive, className = "" }: TextRotatorProp
           setCurrentIndex((prev) => (prev + 1) % words.length);
         }, 4500);
       }
-    }, 240); // Typing speed
+    }, 80); // Typing speed
 
     return () => {
       if (typingIntervalRef.current) {

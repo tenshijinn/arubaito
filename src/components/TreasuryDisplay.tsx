@@ -96,74 +96,70 @@ export const TreasuryDisplay = () => {
         <HoverCardContent 
           side="top" 
           align="start"
-          className="w-[400px] p-0 border-2"
+          className="w-[900px] p-0 border-[3px] rounded-[40px]"
           style={{
             borderColor: '#a78bfa',
             backgroundColor: 'rgba(0, 0, 0, 0.95)',
           }}
         >
-          <div className="p-6">
+          <div className="p-8">
             {/* Top Section: Distributing and Member Rewards */}
-            <div className="flex justify-between items-start mb-6">
+            <div className="flex justify-between items-start mb-8">
               <div className="flex-1">
                 <div 
-                  className="text-xs font-bold mb-2 tracking-wide"
-                  style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
+                  className="text-lg font-bold mb-3 tracking-wide"
+                  style={{ color: '#ffffff', fontFamily: 'Consolas, monospace' }}
                 >
                   Distributing
                 </div>
                 <div 
-                  className="text-sm font-mono"
-                  style={{ color: '#a78bfa' }}
+                  className="text-3xl font-bold"
+                  style={{ color: '#ffffff', fontFamily: 'Consolas, monospace' }}
                 >
-                  {countdown.days}d / {countdown.hours}hr / {countdown.minutes}m / {countdown.seconds}s
+                  {countdown.days}d / {countdown.hours}hr<br />
+                  {countdown.minutes}m / {countdown.seconds}s
                 </div>
               </div>
               
-              <div 
-                className="w-px h-12 mx-4"
-                style={{ 
-                  borderLeft: '1px dotted #a78bfa',
-                }}
-              />
-              
               <div className="flex-1 text-right">
                 <div 
-                  className="text-xs font-bold mb-2 tracking-wide"
+                  className="text-lg font-bold mb-3 tracking-wide"
                   style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
                 >
                   Member Rewards
                 </div>
                 <div 
-                  className="text-lg font-bold"
+                  className="text-5xl font-bold flex items-center justify-end gap-4"
                   style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
                 >
-                  {totalRewards.toFixed(1)} ≡
+                  {totalRewards.toFixed(1)}
+                  <img src={solanaIcon} alt="SOL" className="w-16 h-16" />
                 </div>
               </div>
             </div>
 
             {/* Dotted Separator */}
             <div 
-              className="w-full h-px mb-6"
+              className="w-full h-px mb-8"
               style={{ 
-                borderTop: '1px dotted #a78bfa',
+                borderTop: '2px dotted #a78bfa',
               }}
             />
 
             {/* Bar Chart */}
-            <div className="h-24">
+            <div className="h-32">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data?.dailyDeposits || []}>
                   <XAxis 
                     dataKey="day" 
-                    tick={{ fill: '#a78bfa', fontSize: 10, fontFamily: 'Consolas, monospace' }}
-                    axisLine={{ stroke: '#a78bfa' }}
+                    tick={{ fill: '#a78bfa', fontSize: 16, fontFamily: 'Consolas, monospace' }}
+                    axisLine={false}
+                    tickLine={false}
                   />
                   <Bar 
                     dataKey="amount" 
                     fill="#a78bfa" 
-                    radius={[4, 4, 0, 0]}
+                    radius={[12, 12, 12, 12]}
                   />
                 </BarChart>
               </ResponsiveContainer>

@@ -64,9 +64,9 @@ const Index = () => {
               className="text-base md:text-xl font-semibold leading-relaxed"
               style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
             >
-              <span style={{ color: '#ed565a' }}>Connecting</span> <TextRotator key="default-companies-1" words={companies} isActive={true} delay={0} color="#faf6f4" /> <span style={{ color: '#ed565a' }}>to</span>
+              <span style={{ color: '#ed565a' }}>Connecting</span> <TextRotator key="default-companies-1" words={companies} isActive={true} delay={0} color="#faf6f4" startIndex={0} /> <span style={{ color: '#ed565a' }}>to</span>
               <br />
-              <span style={{ color: '#ed565a' }}>Ex-</span><TextRotator key="default-companies-2" words={companies} isActive={true} delay={800} color="#faf6f4" />{' '}
+              <span style={{ color: '#ed565a' }}>Ex-</span><TextRotator key="default-companies-2" words={companies} isActive={true} delay={800} color="#faf6f4" startIndex={10} />{' '}
               <TextRotator key="default-jobs" words={jobTitles} isActive={true} delay={1600} color="#ed565a" />
             </h1>
             <div className="mt-4 font-mono text-sm md:text-base" style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}>

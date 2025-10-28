@@ -5,9 +5,10 @@ interface TextRotatorProps {
   isActive: boolean;
   className?: string;
   delay?: number;
+  color?: string;
 }
 
-export const TextRotator = ({ words, isActive, className = "", delay = 0 }: TextRotatorProps) => {
+export const TextRotator = ({ words, isActive, className = "", delay = 0, color = '#faf6f4' }: TextRotatorProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isReady, setIsReady] = useState(delay === 0);
@@ -64,7 +65,7 @@ export const TextRotator = ({ words, isActive, className = "", delay = 0 }: Text
     <span
       className={`inline-block font-mono ${className}`}
       style={{
-        color: '#faf6f4',
+        color: color,
         minHeight: '1.2em',
         position: 'relative'
       }}

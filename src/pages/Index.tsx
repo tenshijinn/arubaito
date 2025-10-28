@@ -58,10 +58,8 @@ const Index = () => {
             className="text-base md:text-xl font-semibold leading-relaxed"
             style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
           >
-            <span style={{ color: '#ed565a' }}>For</span> <TextRotator words={companies} isActive={true} delay={0} /> <span style={{ color: '#ed565a' }}>looking for</span>
-            <br />
-            <span style={{ color: '#ed565a' }}>Ex-</span><TextRotator words={companies} isActive={true} delay={800} />{' '}
-            <TextRotator words={jobTitles} isActive={true} delay={1600} />
+            <span style={{ color: '#ed565a' }}>Connecting</span> <TextRotator words={companies} isActive={true} delay={0} /> <span style={{ color: '#ed565a' }}>to Ex-</span><TextRotator words={companies} isActive={true} delay={800} />{' '}
+            <span style={{ color: '#ed565a' }}><TextRotator words={jobTitles} isActive={true} delay={1600} /></span>
           </h1>
         )}
       </div>

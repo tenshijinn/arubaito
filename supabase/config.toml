@@ -54,3 +54,9 @@ verify_jwt = false
 
 [functions.review-community-submission]
 verify_jwt = true
+
+[functions.verify-solana-pay]
+verify_jwt = false
+
+[functions.award-payment-points]
+verify_jwt = false

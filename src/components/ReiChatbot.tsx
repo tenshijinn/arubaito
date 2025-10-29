@@ -288,6 +288,20 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
             </Button>
           </div>
         )}
+
+        {/* Render Solana Pay QR code if metadata contains solanaPay */}
+        {!isUser && message.metadata?.solanaPay && (
+          <div className="mt-3 ml-[120px]">
+            <SolanaPayQR
+              qrCodeUrl={message.metadata.solanaPay.qrCodeUrl}
+              reference={message.metadata.solanaPay.reference}
+              paymentUrl={message.metadata.solanaPay.paymentUrl}
+              amount={message.metadata.solanaPay.amount}
+              recipient={message.metadata.solanaPay.recipient}
+              onPaymentComplete={handlePaymentComplete}
+            />
+          </div>
+        )}
       </div>
     );
   };

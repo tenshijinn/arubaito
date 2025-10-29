@@ -73,6 +73,69 @@ export type Database = {
           },
         ]
       }
+      community_submissions: {
+        Row: {
+          compensation: string | null
+          created_at: string | null
+          description: string
+          duplicate_of: string | null
+          id: string
+          link: string
+          og_image: string | null
+          points_awarded: number | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          role_tags: string[] | null
+          status: string | null
+          submission_type: string
+          submitter_wallet: string
+          submitter_x_user_id: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          compensation?: string | null
+          created_at?: string | null
+          description: string
+          duplicate_of?: string | null
+          id?: string
+          link: string
+          og_image?: string | null
+          points_awarded?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role_tags?: string[] | null
+          status?: string | null
+          submission_type: string
+          submitter_wallet: string
+          submitter_x_user_id?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          compensation?: string | null
+          created_at?: string | null
+          description?: string
+          duplicate_of?: string | null
+          id?: string
+          link?: string
+          og_image?: string | null
+          points_awarded?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role_tags?: string[] | null
+          status?: string | null
+          submission_type?: string
+          submitter_wallet?: string
+          submitter_x_user_id?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cv_analyses: {
         Row: {
           bluechip_details: Json | null
@@ -133,16 +196,56 @@ export type Database = {
         }
         Relationships: []
       }
+      job_sources: {
+        Row: {
+          config: Json
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          last_synced_at: string | null
+          name: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          config?: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_synced_at?: string | null
+          name: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          config?: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_synced_at?: string | null
+          name?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
           compensation: string | null
           created_at: string | null
           description: string
           employer_wallet: string
+          external_id: string | null
           id: string
+          link: string | null
+          og_image: string | null
           payment_tx_signature: string
           requirements: string | null
           role_tags: string[] | null
+          source: string | null
           status: string | null
           title: string
           updated_at: string | null
@@ -152,10 +255,14 @@ export type Database = {
           created_at?: string | null
           description: string
           employer_wallet: string
+          external_id?: string | null
           id?: string
+          link?: string | null
+          og_image?: string | null
           payment_tx_signature: string
           requirements?: string | null
           role_tags?: string[] | null
+          source?: string | null
           status?: string | null
           title: string
           updated_at?: string | null
@@ -165,15 +272,60 @@ export type Database = {
           created_at?: string | null
           description?: string
           employer_wallet?: string
+          external_id?: string | null
           id?: string
+          link?: string | null
+          og_image?: string | null
           payment_tx_signature?: string
           requirements?: string | null
           role_tags?: string[] | null
+          source?: string | null
           status?: string | null
           title?: string
           updated_at?: string | null
         }
         Relationships: []
+      }
+      points_transactions: {
+        Row: {
+          created_at: string | null
+          id: string
+          points: number
+          sol_amount: number | null
+          submission_id: string | null
+          transaction_type: string
+          tx_signature: string | null
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          points: number
+          sol_amount?: number | null
+          submission_id?: string | null
+          transaction_type: string
+          tx_signature?: string | null
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          points?: number
+          sol_amount?: number | null
+          submission_id?: string | null
+          transaction_type?: string
+          tx_signature?: string | null
+          wallet_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "points_transactions_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "community_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rei_registry: {
         Row: {
@@ -250,6 +402,30 @@ export type Database = {
         }
         Relationships: []
       }
+      rei_treasury_wallet: {
+        Row: {
+          balance_sol: number | null
+          id: string
+          last_updated_at: string | null
+          total_distributed: number | null
+          wallet_address: string
+        }
+        Insert: {
+          balance_sol?: number | null
+          id?: string
+          last_updated_at?: string | null
+          total_distributed?: number | null
+          wallet_address: string
+        }
+        Update: {
+          balance_sol?: number | null
+          id?: string
+          last_updated_at?: string | null
+          total_distributed?: number | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       talent_views: {
         Row: {
           employer_wallet: string
@@ -280,10 +456,13 @@ export type Database = {
           created_at: string | null
           description: string
           employer_wallet: string
+          external_id: string | null
           id: string
           link: string
+          og_image: string | null
           payment_tx_signature: string
           role_tags: string[] | null
+          source: string | null
           status: string | null
           title: string
           updated_at: string | null
@@ -293,10 +472,13 @@ export type Database = {
           created_at?: string | null
           description: string
           employer_wallet: string
+          external_id?: string | null
           id?: string
           link: string
+          og_image?: string | null
           payment_tx_signature: string
           role_tags?: string[] | null
+          source?: string | null
           status?: string | null
           title: string
           updated_at?: string | null
@@ -306,10 +488,13 @@ export type Database = {
           created_at?: string | null
           description?: string
           employer_wallet?: string
+          external_id?: string | null
           id?: string
           link?: string
+          og_image?: string | null
           payment_tx_signature?: string
           role_tags?: string[] | null
+          source?: string | null
           status?: string | null
           title?: string
           updated_at?: string | null
@@ -393,6 +578,39 @@ export type Database = {
           status?: string
           submitted_at?: string
           twitter_handle?: string
+          x_user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_points: {
+        Row: {
+          created_at: string | null
+          id: string
+          lifetime_earnings_sol: number | null
+          points_pending: number | null
+          total_points: number | null
+          updated_at: string | null
+          wallet_address: string
+          x_user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          lifetime_earnings_sol?: number | null
+          points_pending?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          wallet_address: string
+          x_user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          lifetime_earnings_sol?: number | null
+          points_pending?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+          wallet_address?: string
           x_user_id?: string | null
         }
         Relationships: []

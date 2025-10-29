@@ -7,6 +7,9 @@ import { useToast } from "./ui/use-toast";
 import PaymentModal from "./PaymentModal";
 import JobCard from "./JobCard";
 import TalentCard from "./TalentCard";
+import { PresetButton } from "./chat/PresetButton";
+import { QuickActionsPanel } from "./chat/QuickActionsPanel";
+import { getPresetsForMode, getWelcomePresets } from "./chat/chatPresets";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -33,8 +36,17 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     return localStorage.getItem(`rei_chat_id_${walletAddress}`) || null;
   });
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const placeholders = [
+    "> type command or select quick action...",
+    `> try: '${getWelcomePresets(userMode)[0]}'`,
+    "> try: 'check my points'",
+    "> try: 'submit opportunity'"
+  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -43,6 +55,14 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Cycle through placeholders
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex(prev => (prev + 1) % placeholders.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [userMode]);
 
   // Save messages and conversationId to localStorage whenever they change
   useEffect(() => {
@@ -126,6 +146,16 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     } catch (error) {
       console.error('Error loading conversation:', error);
     }
+  };
+
+  const handlePresetSelect = (preset: string) => {
+    setInput(preset);
+    setShowQuickActions(false);
+    // Auto-focus input field after selection
+    setTimeout(() => {
+      const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
+      inputElement?.focus();
+    }, 100);
   };
 
   const handleSend = async () => {
@@ -282,13 +312,22 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       {/* Messages area */}
       <div className="h-full overflow-y-auto px-8 py-12 pb-[calc(50vh+8rem)] max-w-4xl mx-auto w-full scrollbar-hide">
         {messages.length === 0 && (
-          <div className="font-mono text-muted-foreground space-y-4">
-            <p className="text-sm">Hi! I'm Rei, your Web3 talent assistant.</p>
-            <p className="text-sm">How can I help you today?</p>
-            <div className="mt-8 space-y-2 text-sm">
-              <p>🎯 For Talent: "Find me jobs matching my profile"</p>
-              <p>💼 For Employers: "Show me React developers with DeFi experience"</p>
-              <p>📝 Post Opportunities: "I want to post a job" or "I want to post a task"</p>
+          <div className="font-mono space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Hi! I'm Rei, your Web3 talent assistant.
+            </p>
+            <p className="text-sm text-muted-foreground mb-6">
+              Try one of these commands:
+            </p>
+            
+            <div className="space-y-2">
+              {getWelcomePresets(userMode).map((preset, idx) => (
+                <PresetButton
+                  key={idx}
+                  text={preset}
+                  onClick={() => handlePresetSelect(preset)}
+                />
+              ))}
             </div>
           </div>
         )}
@@ -313,13 +352,21 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-8 z-10 pointer-events-none">
         <div className="pointer-events-auto">
         <div className="relative">
+          <button
+            onClick={() => setShowQuickActions(!showQuickActions)}
+            className="absolute left-4 top-1/2 -translate-y-1/2 
+                       text-xs font-mono text-muted-foreground 
+                       hover:text-primary transition-colors z-10"
+          >
+            [?]
+          </button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            placeholder="Type your message..."
+            placeholder={placeholders[placeholderIndex]}
             disabled={loading}
-            className="w-full pr-12 h-12 rounded-full border-2 border-primary/50 bg-transparent font-mono text-sm focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="w-full pl-12 pr-12 h-12 rounded-full border-2 border-primary/50 bg-transparent font-mono text-sm focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50"
           />
           <Button 
             onClick={handleSend} 
@@ -336,6 +383,14 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         </div>
         </div>
       </div>
+
+      {/* Quick Actions Panel */}
+      <QuickActionsPanel
+        isOpen={showQuickActions}
+        onClose={() => setShowQuickActions(false)}
+        categories={getPresetsForMode(userMode)}
+        onSelect={handlePresetSelect}
+      />
 
       {/* Payment Modal */}
       {paymentRequest && (

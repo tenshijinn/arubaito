@@ -4,7 +4,7 @@ import { Input } from "./ui/input";
 import { Loader2, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
-import PaymentModal from "./PaymentModal";
+
 import JobCard from "./JobCard";
 import TalentCard from "./TalentCard";
 import { PresetButton } from "./chat/PresetButton";
@@ -35,7 +35,6 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     // Load conversationId from localStorage on mount
     return localStorage.getItem(`rei_chat_id_${walletAddress}`) || null;
   });
-  const [paymentRequest, setPaymentRequest] = useState<any>(null);
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -205,19 +204,6 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         setConversationId(data.conversationId);
       }
 
-      // Check if response contains payment request
-      if (data.response.includes('payment_required') || data.response.includes('$5')) {
-        // Parse payment request from response
-        try {
-          const match = data.response.match(/\{.*"payment_required".*\}/);
-          if (match) {
-            setPaymentRequest(JSON.parse(match[0]));
-          }
-        } catch (e) {
-          console.error('Failed to parse payment request:', e);
-        }
-      }
-
     } catch (error: any) {
       console.error('Chat error:', error);
       toast({
@@ -230,44 +216,6 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     }
   };
 
-  const handlePaymentComplete = async (signature: string) => {
-    setPaymentRequest(null);
-    
-    // Send payment verification message
-    const verificationMessage = `I've completed the payment. Transaction signature: ${signature}`;
-    setMessages(prev => [...prev, { role: 'user', content: verificationMessage }]);
-    setLoading(true);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('rei-chat', {
-        body: {
-          message: verificationMessage,
-          walletAddress,
-          conversationId: conversationId || undefined,
-          userMode
-        }
-      });
-
-      if (error) throw error;
-
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: data.response
-      };
-
-      setMessages(prev => [...prev, assistantMessage]);
-
-    } catch (error: any) {
-      console.error('Payment verification error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to verify payment",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const renderMessage = (message: Message, index: number) => {
     const isUser = message.role === 'user';
@@ -391,18 +339,6 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         categories={getPresetsForMode(userMode)}
         onSelect={handlePresetSelect}
       />
-
-      {/* Payment Modal */}
-      {paymentRequest && (
-        <PaymentModal
-          isOpen={!!paymentRequest}
-          onClose={() => setPaymentRequest(null)}
-          action={paymentRequest.action}
-          details={paymentRequest.details}
-          treasuryWallet={paymentRequest.treasury_wallet}
-          onPaymentComplete={handlePaymentComplete}
-        />
-      )}
     </div>
   );
 };

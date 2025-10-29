@@ -120,13 +120,11 @@ FOR EMPLOYER USERS:
 - Posting jobs requires $5 SOL payment
 - Posting task links requires $5 SOL payment
 - Use search_talent tool for finding candidates (shows summaries only)
-- After payment verification, use get_talent_profile to show full details
 
-PAYMENT FLOW:
-1. When user wants to view talent/post job/post task, explain the $5 SOL requirement
-2. Tell them to click the payment button
-3. Once they confirm transaction, use verify_payment tool with the signature
-4. If verified, complete the action (show profile, save job, save task)
+SOLANA PAY INTEGRATION (Coming Soon):
+- Payment system is being upgraded to use Solana Pay QR codes
+- Users will scan QR codes to complete payments securely
+- For now, inform users that payment features are being updated
 
 COMMUNICATION STYLE:
 - Keep responses SHORT (2-3 sentences max unless showing results)
@@ -176,40 +174,6 @@ Example bad responses:
               roleTags: { type: "array", items: { type: "string" }, description: "Required role tags" }
             },
             required: ["requirements"]
-          }
-        }
-      },
-      {
-        type: "function",
-        function: {
-          name: "request_payment",
-          description: "Request a $5 SOL payment for viewing talent profile, posting job, or posting task",
-          parameters: {
-            type: "object",
-            properties: {
-              action: { 
-                type: "string", 
-                enum: ["view_talent", "post_job", "post_task"],
-                description: "What the payment is for" 
-              },
-              details: { type: "object", description: "Additional details about the action" }
-            },
-            required: ["action", "details"]
-          }
-        }
-      },
-      {
-        type: "function",
-        function: {
-          name: "verify_payment",
-          description: "Verify a Solana payment transaction",
-          parameters: {
-            type: "object",
-            properties: {
-              txSignature: { type: "string", description: "Solana transaction signature" },
-              senderWallet: { type: "string", description: "Sender wallet address" }
-            },
-            required: ["txSignature", "senderWallet"]
           }
         }
       },
@@ -383,28 +347,6 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         body: { 
           requirements: args.requirements,
           roleTags: args.roleTags || []
-        }
-      });
-      return response.data || response.error;
-    }
-
-    case 'request_payment': {
-      return {
-        payment_required: true,
-        action: args.action,
-        amount_usd: 5,
-        treasury_wallet: TREASURY_WALLET,
-        details: args.details,
-        message: `Please send approximately $5 worth of SOL to ${TREASURY_WALLET} to ${args.action.replace('_', ' ')}`
-      };
-    }
-
-    case 'verify_payment': {
-      const response = await supabase.functions.invoke('verify-sol-payment', {
-        body: {
-          txSignature: args.txSignature,
-          expectedAmount: 5,
-          senderWallet: args.senderWallet
         }
       });
       return response.data || response.error;

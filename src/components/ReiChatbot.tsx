@@ -10,6 +10,7 @@ import TalentCard from "./TalentCard";
 import { PresetButton } from "./chat/PresetButton";
 import { QuickActionsPanel } from "./chat/QuickActionsPanel";
 import { getPresetsForMode, getWelcomePresets } from "./chat/chatPresets";
+import { SolanaPayQR } from "./SolanaPayQR";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -147,10 +148,45 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     }
   };
 
+  const handlePaymentComplete = async (reference: string) => {
+    // Send confirmation to AI by setting input and triggering send
+    const confirmMessage = `Payment completed with reference: ${reference}`;
+    setMessages(prev => [...prev, { role: 'user', content: confirmMessage }]);
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('rei-chat', {
+        body: {
+          message: confirmMessage,
+          walletAddress,
+          conversationId: conversationId || undefined,
+          userMode
+        }
+      });
+
+      if (error) throw error;
+
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: data.response,
+        metadata: data.metadata
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+      
+      if (!conversationId && data.conversationId) {
+        setConversationId(data.conversationId);
+      }
+    } catch (error: any) {
+      console.error('Payment confirmation error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePresetSelect = (preset: string) => {
     setInput(preset);
     setShowQuickActions(false);
-    // Auto-focus input field after selection
     setTimeout(() => {
       const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
       inputElement?.focus();
@@ -177,15 +213,16 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
 
       if (error) throw error;
 
-      // Check if response contains action metadata
-      let metadata = null;
+      // Check if response contains action or solanaPay metadata
+      let metadata = data.metadata || null;
       let cleanContent = data.response;
       
       // Extract JSON metadata from response if present
       const jsonMatch = data.response.match(/\{"action":"[^"]+","link":"[^"]+"\}/);
       if (jsonMatch) {
         try {
-          metadata = JSON.parse(jsonMatch[0]);
+          const actionMetadata = JSON.parse(jsonMatch[0]);
+          metadata = { ...metadata, ...actionMetadata };
           cleanContent = data.response.replace(jsonMatch[0], '').trim();
         } catch (e) {
           console.error('Failed to parse metadata:', e);

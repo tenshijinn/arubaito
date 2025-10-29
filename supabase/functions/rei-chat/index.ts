@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const TREASURY_WALLET = '6FmWdgfvBHeNjjg12cGuq3dPKLKh5BmEMiVSddtA1aU7';
+const TREASURY_WALLET = '5JXJQSFZMxiQNmG4nx3bs2FnoZZsgz6kpVrNDxfBjb1s';
 
 interface ChatRequest {
   message: string;
@@ -116,15 +116,69 @@ FOR TALENT USERS:
 
 FOR EMPLOYER USERS:
 - Help them find talent, post jobs, and post tasks
-- Viewing full talent profiles requires $5 SOL payment to ${TREASURY_WALLET}
-- Posting jobs requires $5 SOL payment
-- Posting task links requires $5 SOL payment
+- All paid actions require $5 payment in SOL or SPL tokens (≥$100M market cap)
 - Use search_talent tool for finding candidates (shows summaries only)
+- For full talent profiles, viewing requires payment - use generate_solana_pay_qr then get_talent_profile
+- For posting jobs or tasks, guide them through data collection then payment
 
-SOLANA PAY INTEGRATION (Coming Soon):
-- Payment system is being upgraded to use Solana Pay QR codes
-- Users will scan QR codes to complete payments securely
-- For now, inform users that payment features are being updated
+SOLANA PAY PAYMENT FLOW:
+- Job/task posting requires $5 payment in SOL or SPL tokens (with ≥$100M market cap)
+- Payments go to: ${TREASURY_WALLET}
+- Users earn 10 points per successful payment
+- Generate Solana Pay QR code with unique reference using generate_solana_pay_qr tool
+- Guide user through payment, then verify before posting
+
+JOB POSTING FLOW:
+Ask user: "Would you like to (1) manually enter job details or (2) provide a link?"
+
+Option 1 - Manual:
+  1. Role title (required)
+  2. Company/Project name (required)
+  3. Job description (required, max 500 chars - inform user of limit)
+  4. Wage/Pay (optional)
+  5. Deadline (optional, format: YYYY-MM-DD)
+  
+Option 2 - Link:
+  1. Ask for job post URL
+  2. Use extract_og_data tool to get title, description
+  3. Ask user to confirm/edit extracted data
+  4. Ask for company name (if not in OG data)
+  5. Ask for wage and deadline (optional)
+
+After collecting all data:
+  - Use generate_solana_pay_qr to create payment QR
+  - Return QR code data in metadata field: {"solanaPay": {...}}
+  - Wait for user to confirm payment
+  - Use verify_and_post_job to verify payment and post job
+  - Confirm success and points awarded
+
+TASK POSTING FLOW:
+Ask user: "Would you like to (1) manually enter task details or (2) provide a link?"
+
+Option 1 - Manual:
+  1. Task title (required)
+  2. Company/Project name (required)
+  3. Task description (required, max 500 chars - inform user of limit)
+  4. Pay/Reward (optional)
+  5. End date (optional, format: YYYY-MM-DD)
+  
+Option 2 - Link:
+  1. Ask for task post URL
+  2. Use extract_og_data tool to get title, description
+  3. Ask user to confirm/edit extracted data
+  4. Ask for company name (if not in OG data)
+  5. Ask for pay/reward and end date (optional)
+
+After collecting all data:
+  - Use generate_solana_pay_qr to create payment QR
+  - Return QR code data in metadata field: {"solanaPay": {...}}
+  - Wait for user to confirm payment
+  - Use verify_and_post_task to verify payment and post task
+  - Confirm success and points awarded
+
+IMPORTANT: 
+- Always validate description length (max 500 chars). If user provides longer text, inform them of the limit and ask them to shorten it.
+- When returning Solana Pay QR, include it in the message metadata as: {"solanaPay": {"qrCodeUrl": "...", "reference": "...", "paymentUrl": "...", "amount": 5, "recipient": "${TREASURY_WALLET}"}}
 
 COMMUNICATION STYLE:
 - Keep responses SHORT (2-3 sentences max unless showing results)
@@ -139,7 +193,7 @@ COMMUNICATION STYLE:
 Example good responses:
 - "Hey! 👋 I can see your wallet's connected. Want me to find some opportunities that match your skills?"
 - "Found 5 matches! Here are the top 3 based on your profile..."
-- "To view full profiles, I'll need you to send $5 SOL. Sound good?"
+- "Great! I'll generate a payment QR for you. Scan it to complete the $5 payment."
 
 Example bad responses:
 - Long paragraphs explaining features
@@ -180,56 +234,90 @@ Example bad responses:
       {
         type: "function",
         function: {
+          name: "extract_og_data",
+          description: "Extract Open Graph metadata (title, description, image) from a URL for job/task posting",
+          parameters: {
+            type: "object",
+            properties: {
+              url: { type: "string", description: "URL to extract metadata from" }
+            },
+            required: ["url"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "generate_solana_pay_qr",
+          description: "Generate Solana Pay QR code for $5 payment. Returns QR code data to be included in message metadata.",
+          parameters: {
+            type: "object",
+            properties: {
+              label: { type: "string", description: "Payment label (e.g., 'Job Posting')" },
+              message: { type: "string", description: "Payment message for user" }
+            },
+            required: ["label"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
           name: "get_talent_profile",
-          description: "Get full talent profile details after payment verification",
+          description: "Get full talent profile details after Solana Pay payment verification",
           parameters: {
             type: "object",
             properties: {
               xUserId: { type: "string", description: "Talent's X user ID" },
-              txSignature: { type: "string", description: "Verified payment transaction signature" },
+              reference: { type: "string", description: "Solana Pay reference (unique payment identifier)" },
               employerWallet: { type: "string", description: "Employer's wallet address" }
             },
-            required: ["xUserId", "txSignature", "employerWallet"]
+            required: ["xUserId", "reference", "employerWallet"]
           }
         }
       },
       {
         type: "function",
         function: {
-          name: "submit_job",
-          description: "Submit a job posting after payment verification",
+          name: "verify_and_post_job",
+          description: "Verify Solana Pay payment and post a job",
           parameters: {
             type: "object",
             properties: {
-              title: { type: "string" },
-              description: { type: "string" },
-              requirements: { type: "string" },
-              roleTags: { type: "array", items: { type: "string" } },
-              compensation: { type: "string" },
-              txSignature: { type: "string" },
-              employerWallet: { type: "string" }
+              reference: { type: "string", description: "Solana Pay reference" },
+              employerWallet: { type: "string", description: "Employer's wallet address" },
+              title: { type: "string", description: "Job title" },
+              companyName: { type: "string", description: "Company or project name" },
+              description: { type: "string", description: "Job description (max 500 chars)" },
+              requirements: { type: "string", description: "Job requirements" },
+              wage: { type: "string", description: "Wage/pay (optional)" },
+              deadline: { type: "string", description: "Application deadline (YYYY-MM-DD format, optional)" },
+              link: { type: "string", description: "External job link (optional)" },
+              roleTags: { type: "array", items: { type: "string" }, description: "Role tags" }
             },
-            required: ["title", "description", "txSignature", "employerWallet"]
+            required: ["reference", "employerWallet", "title", "companyName", "description"]
           }
         }
       },
       {
         type: "function",
         function: {
-          name: "submit_task",
-          description: "Submit a task link after payment verification",
+          name: "verify_and_post_task",
+          description: "Verify Solana Pay payment and post a task",
           parameters: {
             type: "object",
             properties: {
-              title: { type: "string" },
-              description: { type: "string" },
-              link: { type: "string" },
-              roleTags: { type: "array", items: { type: "string" } },
-              compensation: { type: "string" },
-              txSignature: { type: "string" },
-              employerWallet: { type: "string" }
+              reference: { type: "string", description: "Solana Pay reference" },
+              employerWallet: { type: "string", description: "Employer's wallet address" },
+              title: { type: "string", description: "Task title" },
+              companyName: { type: "string", description: "Company or project name" },
+              description: { type: "string", description: "Task description (max 500 chars)" },
+              link: { type: "string", description: "Task link" },
+              payReward: { type: "string", description: "Pay/reward (optional)" },
+              endDate: { type: "string", description: "End date (YYYY-MM-DD format, optional)" },
+              roleTags: { type: "array", items: { type: "string" }, description: "Role tags" }
             },
-            required: ["title", "description", "link", "txSignature", "employerWallet"]
+            required: ["reference", "employerWallet", "title", "companyName", "description", "link"]
           }
         }
       }
@@ -305,19 +393,35 @@ Example bad responses:
       }
     }
 
+    // Check if response contains metadata (e.g., Solana Pay QR)
+    let metadata = null;
+    try {
+      // Try to extract JSON metadata from response
+      const metadataMatch = finalResponse.match(/\{["\']solanaPay["\']\s*:\s*\{[^}]+\}\}/);
+      if (metadataMatch) {
+        metadata = JSON.parse(metadataMatch[0]);
+        // Remove metadata JSON from visible response
+        finalResponse = finalResponse.replace(metadataMatch[0], '').trim();
+      }
+    } catch (e) {
+      // No metadata found, that's fine
+    }
+
     // Save assistant response
     await supabase
       .from('chat_messages')
       .insert({
         conversation_id: convId,
         role: 'assistant',
-        content: finalResponse
+        content: finalResponse,
+        metadata: metadata
       });
 
     return new Response(
       JSON.stringify({ 
         response: finalResponse,
-        conversationId: convId
+        conversationId: convId,
+        metadata: metadata
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -352,12 +456,74 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       return response.data || response.error;
     }
 
+    case 'extract_og_data': {
+      const response = await supabase.functions.invoke('extract-og-image', {
+        body: { url: args.url }
+      });
+      
+      if (response.error) {
+        return { error: 'Failed to extract data from URL' };
+      }
+      
+      return {
+        title: response.data?.title || '',
+        description: response.data?.description || '',
+        image: response.data?.image || ''
+      };
+    }
+
+    case 'generate_solana_pay_qr': {
+      // Generate unique reference (public key)
+      const { PublicKey } = await import("npm:@solana/web3.js@^1.98.4");
+      const QRCode = await import("npm:qrcode@^1.5.3");
+      
+      const reference = PublicKey.unique().toString();
+      const amount = 5; // $5 USD equivalent
+      const recipient = '5JXJQSFZMxiQNmG4nx3bs2FnoZZsgz6kpVrNDxfBjb1s';
+      
+      // Create Solana Pay URL
+      const paymentUrl = `solana:${recipient}?amount=${amount}&reference=${reference}&label=${encodeURIComponent(args.label)}&message=${encodeURIComponent(args.message || 'Payment for Rei Portal')}`;
+      
+      // Generate QR code
+      const qrCodeUrl = await QRCode.default.toDataURL(paymentUrl, {
+        width: 400,
+        margin: 2
+      });
+      
+      // Return QR data as JSON string that will be parsed by AI
+      const qrData = {
+        qrCodeUrl,
+        reference,
+        paymentUrl,
+        amount,
+        recipient
+      };
+      
+      return {
+        success: true,
+        qrData: qrData,
+        message: `QR code generated. Return this data in your response metadata as: {"solanaPay": ${JSON.stringify(qrData)}}`
+      };
+    }
+
     case 'get_talent_profile': {
-      // First verify the payment hasn't been used
+      // Verify payment first
+      const verifyResponse = await supabase.functions.invoke('verify-solana-pay', {
+        body: {
+          reference: args.reference,
+          walletAddress: args.employerWallet
+        }
+      });
+
+      if (!verifyResponse.data?.verified) {
+        return { error: verifyResponse.data?.error || 'Payment verification failed' };
+      }
+
+      // Check if reference already used
       const { data: existingView } = await supabase
         .from('talent_views')
         .select('id')
-        .eq('payment_tx_signature', args.txSignature)
+        .eq('payment_tx_signature', verifyResponse.data.signature)
         .single();
 
       if (existingView) {
@@ -381,18 +547,41 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         .insert({
           employer_wallet: args.employerWallet,
           talent_x_user_id: args.xUserId,
-          payment_tx_signature: args.txSignature
+          payment_tx_signature: verifyResponse.data.signature
         });
 
-      return { talent };
+      // Award points
+      await supabase.functions.invoke('award-payment-points', {
+        body: {
+          walletAddress: args.employerWallet,
+          reference: args.reference,
+          amount: verifyResponse.data.amount,
+          tokenMint: verifyResponse.data.tokenMint,
+          tokenAmount: verifyResponse.data.tokenAmount
+        }
+      });
+
+      return { talent, pointsAwarded: 10 };
     }
 
-    case 'submit_job': {
-      // Check if payment already used
+    case 'verify_and_post_job': {
+      // Verify payment
+      const verifyResponse = await supabase.functions.invoke('verify-solana-pay', {
+        body: {
+          reference: args.reference,
+          walletAddress: args.employerWallet
+        }
+      });
+
+      if (!verifyResponse.data?.verified) {
+        return { error: verifyResponse.data?.error || 'Payment verification failed' };
+      }
+
+      // Check if reference already used
       const { data: existingJob } = await supabase
         .from('jobs')
         .select('id')
-        .eq('payment_tx_signature', args.txSignature)
+        .eq('solana_pay_reference', args.reference)
         .single();
 
       if (existingJob) {
@@ -404,12 +593,16 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         .from('jobs')
         .insert({
           title: args.title,
+          company_name: args.companyName,
           description: args.description,
           requirements: args.requirements || '',
           role_tags: args.roleTags || [],
-          compensation: args.compensation || '',
+          compensation: args.wage || args.compensation || '',
+          deadline: args.deadline || null,
+          link: args.link || null,
           employer_wallet: args.employerWallet,
-          payment_tx_signature: args.txSignature
+          payment_tx_signature: verifyResponse.data.signature,
+          solana_pay_reference: args.reference
         })
         .select()
         .single();
@@ -418,15 +611,38 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         return { error: error.message };
       }
 
-      return { success: true, job };
+      // Award points
+      await supabase.functions.invoke('award-payment-points', {
+        body: {
+          walletAddress: args.employerWallet,
+          reference: args.reference,
+          amount: verifyResponse.data.amount,
+          tokenMint: verifyResponse.data.tokenMint,
+          tokenAmount: verifyResponse.data.tokenAmount
+        }
+      });
+
+      return { success: true, job, pointsAwarded: 10 };
     }
 
-    case 'submit_task': {
-      // Check if payment already used
+    case 'verify_and_post_task': {
+      // Verify payment
+      const verifyResponse = await supabase.functions.invoke('verify-solana-pay', {
+        body: {
+          reference: args.reference,
+          walletAddress: args.employerWallet
+        }
+      });
+
+      if (!verifyResponse.data?.verified) {
+        return { error: verifyResponse.data?.error || 'Payment verification failed' };
+      }
+
+      // Check if reference already used
       const { data: existingTask } = await supabase
         .from('tasks')
         .select('id')
-        .eq('payment_tx_signature', args.txSignature)
+        .eq('solana_pay_reference', args.reference)
         .single();
 
       if (existingTask) {
@@ -438,12 +654,15 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         .from('tasks')
         .insert({
           title: args.title,
+          company_name: args.companyName,
           description: args.description,
           link: args.link,
           role_tags: args.roleTags || [],
-          compensation: args.compensation || '',
+          compensation: args.payReward || args.compensation || '',
+          end_date: args.endDate || null,
           employer_wallet: args.employerWallet,
-          payment_tx_signature: args.txSignature
+          payment_tx_signature: verifyResponse.data.signature,
+          solana_pay_reference: args.reference
         })
         .select()
         .single();
@@ -452,7 +671,18 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         return { error: error.message };
       }
 
-      return { success: true, task };
+      // Award points
+      await supabase.functions.invoke('award-payment-points', {
+        body: {
+          walletAddress: args.employerWallet,
+          reference: args.reference,
+          amount: verifyResponse.data.amount,
+          tokenMint: verifyResponse.data.tokenMint,
+          tokenAmount: verifyResponse.data.tokenAmount
+        }
+      });
+
+      return { success: true, task, pointsAwarded: 10 };
     }
 
     default:

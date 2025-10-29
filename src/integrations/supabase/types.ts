@@ -234,8 +234,10 @@ export type Database = {
       }
       jobs: {
         Row: {
+          company_name: string | null
           compensation: string | null
           created_at: string | null
+          deadline: string | null
           description: string
           employer_wallet: string
           external_id: string | null
@@ -245,14 +247,17 @@ export type Database = {
           payment_tx_signature: string
           requirements: string | null
           role_tags: string[] | null
+          solana_pay_reference: string | null
           source: string | null
           status: string | null
           title: string
           updated_at: string | null
         }
         Insert: {
+          company_name?: string | null
           compensation?: string | null
           created_at?: string | null
+          deadline?: string | null
           description: string
           employer_wallet: string
           external_id?: string | null
@@ -262,14 +267,17 @@ export type Database = {
           payment_tx_signature: string
           requirements?: string | null
           role_tags?: string[] | null
+          solana_pay_reference?: string | null
           source?: string | null
           status?: string | null
           title: string
           updated_at?: string | null
         }
         Update: {
+          company_name?: string | null
           compensation?: string | null
           created_at?: string | null
+          deadline?: string | null
           description?: string
           employer_wallet?: string
           external_id?: string | null
@@ -279,6 +287,7 @@ export type Database = {
           payment_tx_signature?: string
           requirements?: string | null
           role_tags?: string[] | null
+          solana_pay_reference?: string | null
           source?: string | null
           status?: string | null
           title?: string
@@ -290,8 +299,11 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          payment_token_amount: number | null
+          payment_token_mint: string | null
           points: number
           sol_amount: number | null
+          solana_pay_reference: string | null
           submission_id: string | null
           transaction_type: string
           tx_signature: string | null
@@ -300,8 +312,11 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          payment_token_amount?: number | null
+          payment_token_mint?: string | null
           points: number
           sol_amount?: number | null
+          solana_pay_reference?: string | null
           submission_id?: string | null
           transaction_type: string
           tx_signature?: string | null
@@ -310,8 +325,11 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          payment_token_amount?: number | null
+          payment_token_mint?: string | null
           points?: number
           sol_amount?: number | null
+          solana_pay_reference?: string | null
           submission_id?: string | null
           transaction_type?: string
           tx_signature?: string | null
@@ -452,48 +470,57 @@ export type Database = {
       }
       tasks: {
         Row: {
+          company_name: string | null
           compensation: string | null
           created_at: string | null
           description: string
           employer_wallet: string
+          end_date: string | null
           external_id: string | null
           id: string
           link: string
           og_image: string | null
           payment_tx_signature: string
           role_tags: string[] | null
+          solana_pay_reference: string | null
           source: string | null
           status: string | null
           title: string
           updated_at: string | null
         }
         Insert: {
+          company_name?: string | null
           compensation?: string | null
           created_at?: string | null
           description: string
           employer_wallet: string
+          end_date?: string | null
           external_id?: string | null
           id?: string
           link: string
           og_image?: string | null
           payment_tx_signature: string
           role_tags?: string[] | null
+          solana_pay_reference?: string | null
           source?: string | null
           status?: string | null
           title: string
           updated_at?: string | null
         }
         Update: {
+          company_name?: string | null
           compensation?: string | null
           created_at?: string | null
           description?: string
           employer_wallet?: string
+          end_date?: string | null
           external_id?: string | null
           id?: string
           link?: string
           og_image?: string | null
           payment_tx_signature?: string
           role_tags?: string[] | null
+          solana_pay_reference?: string | null
           source?: string | null
           status?: string | null
           title?: string

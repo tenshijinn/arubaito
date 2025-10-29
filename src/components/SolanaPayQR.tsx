@@ -1,0 +1,256 @@
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Check, Copy, ExternalLink, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface SolanaPayQRProps {
+  qrCodeUrl: string;
+  reference: string;
+  paymentUrl: string;
+  amount: number;
+  recipient: string;
+  onPaymentComplete: (reference: string) => void;
+}
+
+export const SolanaPayQR = ({
+  qrCodeUrl,
+  reference,
+  paymentUrl,
+  amount,
+  recipient,
+  onPaymentComplete
+}: SolanaPayQRProps) => {
+  const [status, setStatus] = useState<'pending' | 'verifying' | 'confirmed' | 'error'>('pending');
+  const [copied, setCopied] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const { toast } = useToast();
+
+  const truncateAddress = (addr: string) => {
+    if (addr.length <= 12) return addr;
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(recipient);
+      setCopied(true);
+      toast({
+        title: "Copied!",
+        description: "Address copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  };
+
+  const openWallet = () => {
+    window.open(paymentUrl, '_blank');
+  };
+
+  const verifyPayment = async () => {
+    setStatus('verifying');
+    setErrorMessage('');
+
+    try {
+      // Get wallet address from JWT claims
+      const walletAddress = localStorage.getItem('walletAddress');
+      if (!walletAddress) {
+        throw new Error('No wallet connected');
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-solana-pay`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+          },
+          body: JSON.stringify({
+            reference,
+            walletAddress
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.verified) {
+        setStatus('confirmed');
+        toast({
+          title: "Payment Verified! ✓",
+          description: `Your payment of $${data.amount.toFixed(2)} has been confirmed`,
+        });
+        onPaymentComplete(reference);
+      } else {
+        setStatus('error');
+        setErrorMessage(data.error || 'Payment verification failed');
+        toast({
+          title: "Verification Failed",
+          description: data.error || 'Unable to verify payment',
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      setStatus('error');
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      setErrorMessage(message);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Auto-poll for payment every 5 seconds
+  useEffect(() => {
+    if (status !== 'pending') return;
+
+    const interval = setInterval(async () => {
+      const walletAddress = localStorage.getItem('walletAddress');
+      if (!walletAddress) return;
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-solana-pay`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+            },
+            body: JSON.stringify({
+              reference,
+              walletAddress
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.verified) {
+          setStatus('confirmed');
+          toast({
+            title: "Payment Detected! ✓",
+            description: `Your payment of $${data.amount.toFixed(2)} has been confirmed`,
+          });
+          onPaymentComplete(reference);
+          clearInterval(interval);
+        }
+      } catch (error) {
+        // Silently fail auto-polling
+        console.error('Auto-poll error:', error);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [status, reference, onPaymentComplete, toast]);
+
+  return (
+    <div className="my-4 border border-primary/30 bg-background/50 p-4 rounded font-mono text-sm">
+      <div className="mb-3">
+        <div className="text-primary mb-1">&gt; PAYMENT REQUIRED</div>
+        <div className="text-muted-foreground text-xs mb-2">
+          Scan QR code or click to open wallet
+        </div>
+      </div>
+
+      {/* QR Code */}
+      <div className="flex justify-center my-4">
+        <img 
+          src={qrCodeUrl} 
+          alt="Solana Pay QR Code" 
+          className="w-48 h-48 border border-primary/20 rounded"
+        />
+      </div>
+
+      {/* Payment Details */}
+      <div className="space-y-2 text-xs mb-4">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Amount:</span>
+          <span className="text-primary font-bold">${amount.toFixed(2)} USD</span>
+        </div>
+        <div className="flex justify-between items-center gap-2">
+          <span className="text-muted-foreground">Destination:</span>
+          <div className="flex items-center gap-1">
+            <span className="text-primary">{truncateAddress(recipient)}</span>
+            <button
+              onClick={copyToClipboard}
+              className="text-muted-foreground hover:text-primary transition-colors"
+              title="Copy address"
+            >
+              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Status */}
+      <div className="mb-4">
+        {status === 'pending' && (
+          <div className="text-yellow-500 text-xs flex items-center gap-2">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+            Waiting for payment...
+          </div>
+        )}
+        {status === 'verifying' && (
+          <div className="text-blue-500 text-xs flex items-center gap-2">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            Verifying payment...
+          </div>
+        )}
+        {status === 'confirmed' && (
+          <div className="text-green-500 text-xs flex items-center gap-2">
+            <Check className="w-3 h-3" />
+            Payment confirmed! ✓
+          </div>
+        )}
+        {status === 'error' && errorMessage && (
+          <div className="text-destructive text-xs">
+            Error: {errorMessage}
+          </div>
+        )}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <Button
+          onClick={openWallet}
+          variant="outline"
+          size="sm"
+          className="flex-1 font-mono text-xs"
+          disabled={status === 'confirmed'}
+        >
+          <ExternalLink className="w-3 h-3 mr-1" />
+          Open Wallet
+        </Button>
+        <Button
+          onClick={verifyPayment}
+          size="sm"
+          className="flex-1 font-mono text-xs"
+          disabled={status === 'verifying' || status === 'confirmed'}
+        >
+          {status === 'verifying' ? (
+            <>
+              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              Checking...
+            </>
+          ) : status === 'confirmed' ? (
+            <>
+              <Check className="w-3 h-3 mr-1" />
+              Verified
+            </>
+          ) : (
+            "I've Paid"
+          )}
+        </Button>
+      </div>
+
+      <div className="mt-3 text-xs text-muted-foreground">
+        Accepts SOL or SPL tokens with ≥$100M market cap
+      </div>
+    </div>
+  );
+};

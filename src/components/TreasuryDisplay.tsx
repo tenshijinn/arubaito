@@ -1,4 +1,4 @@
-backup card  import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { BarChart, Bar, XAxis, ResponsiveContainer } from "recharts";
@@ -96,7 +96,7 @@ export const TreasuryDisplay = () => {
         <HoverCardContent 
           side="top" 
           align="start"
-          className=“w-[135px] p-0 border-[2px] rounded-[40px]"
+          className="w-[270px] p-0 border-[1px] rounded-[40px]"
           style={{
             borderColor: '#a78bfa',
             backgroundColor: 'rgba(0, 0, 0, 0.95)',

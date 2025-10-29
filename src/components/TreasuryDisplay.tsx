@@ -4,6 +4,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { BarChart, Bar, XAxis, ResponsiveContainer } from "recharts";
 import { useEffect, useState } from "react";
 import solanaIcon from "@/assets/solana-icon.png";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TreasuryData {
   balance: number;
@@ -52,6 +53,9 @@ const useCountdown = (targetDate: Date) => {
 };
 
 export const TreasuryDisplay = () => {
+  const isMobile = useIsMobile();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  
   const { data, isLoading } = useQuery({
     queryKey: ['treasury-data'],
     queryFn: async () => {
@@ -68,10 +72,11 @@ export const TreasuryDisplay = () => {
 
   return (
     <div className="fixed bottom-6 left-4 md:left-6 z-40">
-      <HoverCard openDelay={0} closeDelay={100}>
+      <HoverCard openDelay={0} closeDelay={100} open={isMobile ? mobileOpen : undefined}>
         <HoverCardTrigger asChild>
           <div 
             className="rounded-3xl px-3 py-2 md:px-6 md:py-3 cursor-pointer"
+            onClick={() => isMobile && setMobileOpen(!mobileOpen)}
           >
             <div 
               className="text-[10px] md:text-xs font-bold mb-0.5 md:mb-1 tracking-wide"

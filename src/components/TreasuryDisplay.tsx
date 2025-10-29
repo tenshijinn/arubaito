@@ -71,17 +71,17 @@ export const TreasuryDisplay = () => {
       <HoverCard openDelay={0} closeDelay={100}>
         <HoverCardTrigger asChild>
           <div 
-            className="rounded-3xl px-6 py-3 cursor-pointer transition-all hover:scale-105"
+            className="rounded-3xl px-6 py-3 cursor-pointer"
           >
             <div 
               className="text-xs font-bold mb-1 tracking-wide"
-              style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
+              style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
             >
               Treasury ^
             </div>
             <div 
               className="text-2xl font-bold tracking-tight flex items-center gap-2"
-              style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
+              style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
             >
               {isLoading ? '...' : (
                 <>
@@ -96,70 +96,74 @@ export const TreasuryDisplay = () => {
         <HoverCardContent 
           side="top" 
           align="start"
-          className="w-[135px] p-0 border-[3px] rounded-[40px]"
+          className="w-[420px] p-0 border-[3px] rounded-[32px]"
           style={{
             borderColor: '#a78bfa',
             backgroundColor: 'rgba(0, 0, 0, 0.95)',
           }}
         >
-          <div className="p-2">
-            {/* Top Section: Distributing and Member Rewards */}
-            <div className="flex flex-col gap-2 mb-2">
+          <div className="p-6">
+            {/* Top Section: Distributing and Member Rewards side by side */}
+            <div className="flex justify-between items-start mb-6">
               <div>
                 <div 
-                  className="text-[8px] font-bold mb-1 tracking-wide"
-                  style={{ color: '#ffffff', fontFamily: 'Consolas, monospace' }}
+                  className="text-sm font-bold mb-2 tracking-wide"
+                  style={{ color: '#ffffff', fontFamily: 'IBM Plex Mono, monospace' }}
                 >
                   Distributing
                 </div>
                 <div 
-                  className="text-[10px] font-bold leading-tight"
-                  style={{ color: '#ffffff', fontFamily: 'Consolas, monospace' }}
+                  className="text-xl font-bold leading-relaxed"
+                  style={{ color: '#ffffff', fontFamily: 'IBM Plex Mono, monospace' }}
                 >
                   {countdown.days}d / {countdown.hours}hr<br />
                   {countdown.minutes}m / {countdown.seconds}s
                 </div>
               </div>
               
-              <div>
+              <div className="text-right">
                 <div 
-                  className="text-[8px] font-bold mb-1 tracking-wide"
-                  style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
+                  className="text-sm font-bold mb-2 tracking-wide"
+                  style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
                 >
                   Member Rewards
                 </div>
                 <div 
-                  className="text-xs font-bold flex items-center gap-1"
-                  style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
+                  className="text-4xl font-bold flex items-center justify-end gap-2"
+                  style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
                 >
                   {totalRewards.toFixed(1)}
-                  <img src={solanaIcon} alt="SOL" className="w-3 h-3" />
+                  <img src={solanaIcon} alt="SOL" className="w-8 h-8" />
                 </div>
               </div>
             </div>
 
             {/* Dotted Separator */}
             <div 
-              className="w-full h-px mb-2"
+              className="w-full h-px mb-6"
               style={{ 
-                borderTop: '1px dotted #a78bfa',
+                borderTop: '2px dotted #a78bfa',
               }}
             />
 
             {/* Bar Chart */}
-            <div className="h-12">
+            <div className="h-24">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data?.dailyDeposits || []}>
+                <BarChart 
+                  data={data?.dailyDeposits || []}
+                  barCategoryGap="20%"
+                >
                   <XAxis 
                     dataKey="day" 
-                    tick={{ fill: '#a78bfa', fontSize: 6, fontFamily: 'Consolas, monospace' }}
+                    tick={{ fill: '#a78bfa', fontSize: 14, fontFamily: 'IBM Plex Mono, monospace' }}
                     axisLine={false}
                     tickLine={false}
+                    dy={8}
                   />
                   <Bar 
                     dataKey="amount" 
                     fill="#a78bfa" 
-                    radius={[3, 3, 3, 3]}
+                    radius={[8, 8, 8, 8]}
                   />
                 </BarChart>
               </ResponsiveContainer>

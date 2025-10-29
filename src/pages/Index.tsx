@@ -93,8 +93,8 @@ const Index = () => {
         )}
       </div>
 
-      {/* Buttons and Countdown - fixed in center */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-6 mt-8">
+      {/* Buttons - fixed in center */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-6 mt-8">
         <Button
           onClick={() => navigate('/arubaito')}
           variant="outline"
@@ -103,7 +103,7 @@ const Index = () => {
           style={{ 
             borderColor: 'hsl(var(--landing-border))',
             color: 'hsl(var(--landing-border))',
-            fontFamily: 'IBM Plex Mono, monospace'
+            fontFamily: 'Consolas, monospace'
           }}
         >
           Enter Club
@@ -116,7 +116,7 @@ const Index = () => {
           style={{ 
             borderColor: 'hsl(var(--landing-border))',
             color: 'hsl(var(--landing-border))',
-            fontFamily: 'IBM Plex Mono, monospace'
+            fontFamily: 'Consolas, monospace'
           }}
           onMouseEnter={(e) => {
             setHoveredButton('rei');
@@ -129,12 +129,9 @@ const Index = () => {
         >
           @AskRei
         </Button>
-        
-        <div className="mt-6">
-          <WaitlistCountdown />
-        </div>
       </div>
 
+      <WaitlistCountdown />
       <TreasuryDisplay />
     </div>
   );

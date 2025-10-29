@@ -42,3 +42,15 @@ verify_jwt = false
 
 [functions.rei-chat]
 verify_jwt = false
+
+[functions.extract-og-image]
+verify_jwt = false
+
+[functions.check-duplicate-opportunity]
+verify_jwt = false
+
+[functions.submit-community-opportunity]
+verify_jwt = false
+
+[functions.review-community-submission]
+verify_jwt = true

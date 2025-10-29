@@ -67,6 +67,23 @@ export const Navigation = ({ userName }: NavigationProps) => {
             >
               @ASKREI
             </Link>
+            <Link
+              to="/community"
+              className="text-sm font-mono transition-colors"
+              style={{
+                color: '#ed565a'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#ed565a';
+                e.currentTarget.style.color = '#181818';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#ed565a';
+              }}
+            >
+              COMMUNITY
+            </Link>
           </nav>
 
           {/* Right side: Logo */}

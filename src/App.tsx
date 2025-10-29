@@ -9,6 +9,7 @@ import Arubaito from "./pages/Arubaito";
 import Rei from "./pages/Rei";
 import Club from "./pages/Club";
 import Admin from "./pages/Admin";
+import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/rei" element={<Rei />} />
             <Route path="/club" element={<Club />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/community" element={<Community />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

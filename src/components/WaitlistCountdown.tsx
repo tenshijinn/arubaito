@@ -9,16 +9,16 @@ export const WaitlistCountdown = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-4 md:right-6 z-50">
       <div 
-        className="border-2 rounded-3xl p-4 backdrop-blur-sm"
+        className="border-2 rounded-3xl p-3 md:p-4 backdrop-blur-sm"
         style={{
           borderColor: '#ed565a',
           backgroundColor: 'transparent',
         }}
       >
         <h3 
-          className="text-xs font-bold mb-2 tracking-wide"
+          className="text-[10px] md:text-xs font-bold mb-1.5 md:mb-2 tracking-wide"
           style={{ color: '#ed565a', fontFamily: 'Consolas, monospace' }}
         >
           New Member Waitlist

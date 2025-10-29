@@ -35,7 +35,7 @@ export const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
   }, [targetDate]);
 
   return (
-    <div className="flex gap-4 justify-center items-center">
+    <div className="flex gap-2 md:gap-4 justify-center items-center">
       <TimeUnit value={timeLeft.days} label="Days" />
       <TimeUnit value={timeLeft.hours} label="Hours" />
       <TimeUnit value={timeLeft.minutes} label="Minutes" />
@@ -46,7 +46,7 @@ export const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
 
 const TimeUnit = ({ value, label }: { value: number; label: string }) => (
   <div className="flex flex-col items-center">
-    <div className="text-xl font-bold text-primary">{value.toString().padStart(2, '0')}</div>
-    <div className="text-xs text-muted-foreground">{label}</div>
+    <div className="text-base md:text-xl font-bold text-primary">{value.toString().padStart(2, '0')}</div>
+    <div className="text-[10px] md:text-xs text-muted-foreground">{label}</div>
   </div>
 );

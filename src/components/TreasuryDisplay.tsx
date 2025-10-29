@@ -59,29 +59,29 @@ export const TreasuryDisplay = () => {
       if (error) throw error;
       return data;
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
   });
 
   const countdown = useCountdown(getNextMonday());
   const balance = data?.balance || 0;
-  const totalRewards = balance * 0.1; // Example: 10% of treasury goes to rewards
+  const totalRewards = balance * 0.1;
 
   return (
-    <div className="fixed bottom-6 left-6 z-50">
+    <div className="fixed bottom-6 left-6 z-50" style={{ width: '20vw' }}>
       <HoverCard openDelay={0} closeDelay={100}>
         <HoverCardTrigger asChild>
           <div 
-            className="rounded-3xl px-6 py-3 cursor-pointer transition-all hover:scale-105"
+            className="rounded-3xl px-6 py-3 cursor-pointer"
           >
             <div 
               className="text-xs font-bold mb-1 tracking-wide"
-              style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
+              style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
             >
               Treasury ^
             </div>
             <div 
               className="text-2xl font-bold tracking-tight flex items-center gap-2"
-              style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
+              style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
             >
               {isLoading ? '...' : (
                 <>
@@ -96,70 +96,74 @@ export const TreasuryDisplay = () => {
         <HoverCardContent 
           side="top" 
           align="start"
-          className="w-[270px] p-0 border-[1px] rounded-[40px]"
+          className="p-0 border-[3px] rounded-[40px]"
           style={{
+            width: '20vw',
             borderColor: '#a78bfa',
             backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            transition: 'none',
+            animation: 'none',
           }}
         >
-          <div className="p-2">
+          <div className="p-6">
             {/* Top Section: Distributing and Member Rewards */}
-            <div className="flex flex-col gap-2 mb-2">
-              <div>
+            <div className="flex justify-between items-start mb-6">
+              <div className="flex-1">
                 <div 
-                  className="text-[8px] font-bold mb-1 tracking-wide"
-                  style={{ color: '#ffffff', fontFamily: 'Consolas, monospace' }}
+                  className="text-sm font-bold mb-2"
+                  style={{ color: '#ffffff', fontFamily: 'IBM Plex Mono, monospace' }}
                 >
                   Distributing
                 </div>
                 <div 
-                  className="text-[10px] font-bold leading-tight"
-                  style={{ color: '#ffffff', fontFamily: 'Consolas, monospace' }}
+                  className="text-2xl font-bold leading-tight"
+                  style={{ color: '#ffffff', fontFamily: 'IBM Plex Mono, monospace' }}
                 >
                   {countdown.days}d / {countdown.hours}hr<br />
                   {countdown.minutes}m / {countdown.seconds}s
                 </div>
               </div>
               
-              <div>
+              <div className="flex-1 text-right">
                 <div 
-                  className="text-[8px] font-bold mb-1 tracking-wide"
-                  style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
+                  className="text-sm font-bold mb-2"
+                  style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
                 >
                   Member Rewards
                 </div>
                 <div 
-                  className="text-xs font-bold flex items-center gap-1"
-                  style={{ color: '#a78bfa', fontFamily: 'Consolas, monospace' }}
+                  className="text-4xl font-bold flex items-center justify-end gap-2"
+                  style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
                 >
                   {totalRewards.toFixed(1)}
-                  <img src={solanaIcon} alt="SOL" className="w-3 h-3" />
+                  <img src={solanaIcon} alt="SOL" className="w-12 h-12" />
                 </div>
               </div>
             </div>
 
             {/* Dotted Separator */}
             <div 
-              className="w-full h-px mb-2"
+              className="w-full h-px mb-6"
               style={{ 
-                borderTop: '1px dotted #a78bfa',
+                borderTop: '2px dotted #a78bfa',
               }}
             />
 
             {/* Bar Chart */}
-            <div className="h-12">
+            <div className="h-24">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data?.dailyDeposits || []}>
+                <BarChart data={data?.dailyDeposits || []} barGap={4}>
                   <XAxis 
                     dataKey="day" 
-                    tick={{ fill: '#a78bfa', fontSize: 6, fontFamily: 'Consolas, monospace' }}
+                    tick={{ fill: '#a78bfa', fontSize: 12, fontFamily: 'IBM Plex Mono, monospace' }}
                     axisLine={false}
                     tickLine={false}
+                    tickMargin={8}
                   />
                   <Bar 
                     dataKey="amount" 
                     fill="#a78bfa" 
-                    radius={[3, 3, 3, 3]}
+                    radius={[8, 8, 8, 8]}
                   />
                 </BarChart>
               </ResponsiveContainer>

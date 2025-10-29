@@ -1,6 +1,14 @@
 import { CountdownTimer } from "./CountdownTimer";
+import { useLocation } from "react-router-dom";
 
 export const WaitlistCountdown = () => {
+  const location = useLocation();
+  
+  // Only show on home page
+  if (location.pathname !== '/') {
+    return null;
+  }
+
   // Calculate the first day of next month
   const getNextMonthFirstDay = () => {
     const now = new Date();
@@ -9,23 +17,15 @@ export const WaitlistCountdown = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <div 
-        className="border-2 rounded-3xl p-4 backdrop-blur-sm"
-        style={{
-          borderColor: '#ed565a',
-          backgroundColor: 'transparent',
-        }}
+    <div className="border-2 rounded-3xl p-4 backdrop-blur-sm" style={{ borderColor: '#ed565a', backgroundColor: 'transparent' }}>
+      <h3 
+        className="text-xs font-bold mb-2 tracking-wide"
+        style={{ color: '#ed565a', fontFamily: 'IBM Plex Mono, monospace' }}
       >
-        <h3 
-          className="text-xs font-bold mb-2 tracking-wide"
-          style={{ color: '#ed565a', fontFamily: 'Consolas, monospace' }}
-        >
-          New Member Waitlist
-        </h3>
-        <div style={{ color: '#ed565a' }}>
-          <CountdownTimer targetDate={getNextMonthFirstDay()} />
-        </div>
+        New Member Waitlist
+      </h3>
+      <div style={{ color: '#ed565a' }}>
+        <CountdownTimer targetDate={getNextMonthFirstDay()} />
       </div>
     </div>
   );

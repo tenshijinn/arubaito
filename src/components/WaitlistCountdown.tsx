@@ -21,7 +21,7 @@ export const WaitlistCountdown = () => {
           className="text-[10px] md:text-xs font-bold mb-1.5 md:mb-2 tracking-wide"
           style={{ color: '#ed565a', fontFamily: 'Consolas, monospace' }}
         >
-          New Member Waitlist
+          Club Member Waitlist
         </h3>
         <div style={{ color: '#ed565a' }}>
           <CountdownTimer targetDate={getNextMonthFirstDay()} />

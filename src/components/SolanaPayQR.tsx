@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Check, Copy, ExternalLink, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SolanaPayQRProps {
   qrCodeUrl: string;
@@ -26,6 +29,8 @@ export const SolanaPayQR = ({
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const { toast } = useToast();
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
 
   const truncateAddress = (addr: string) => {
     if (addr.length <= 12) return addr;
@@ -46,10 +51,86 @@ export const SolanaPayQR = ({
     }
   };
 
-  const openWallet = () => {
-    // Try to open wallet app via deep link
-    // On mobile this will trigger the wallet app
-    window.location.href = paymentUrl;
+  const sendPayment = async () => {
+    if (!publicKey) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet to send payment",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setStatus('verifying');
+    setErrorMessage('');
+
+    try {
+      // Parse the Solana Pay URL to extract amount
+      const urlParams = new URLSearchParams(paymentUrl.split('?')[1]);
+      const solAmount = parseFloat(urlParams.get('amount') || '0');
+      
+      if (solAmount === 0) {
+        throw new Error('Invalid payment amount');
+      }
+
+      // Create transaction
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: new PublicKey(recipient),
+          lamports: Math.floor(solAmount * LAMPORTS_PER_SOL),
+        })
+      );
+
+      // Add reference as a memo instruction (optional but helps with tracking)
+      const referencePublicKey = new PublicKey(reference);
+      transaction.add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: referencePublicKey,
+          lamports: 0, // Zero lamports to just add reference
+        })
+      );
+
+      // Send transaction
+      const signature = await sendTransaction(transaction, connection);
+      
+      toast({
+        title: "Transaction Sent",
+        description: "Waiting for confirmation...",
+      });
+
+      // Wait for confirmation
+      await connection.confirmTransaction(signature, 'confirmed');
+
+      // Verify payment
+      const response = await supabase.functions.invoke('verify-solana-pay', {
+        body: {
+          reference,
+          walletAddress
+        }
+      });
+
+      if (response.data?.verified) {
+        setStatus('confirmed');
+        toast({
+          title: "Payment Confirmed! ✓",
+          description: `Your payment of $${response.data.amount.toFixed(2)} has been confirmed`,
+        });
+        onPaymentComplete(reference);
+      } else {
+        throw new Error(response.data?.error || 'Payment verification failed');
+      }
+    } catch (error) {
+      setStatus('error');
+      const message = error instanceof Error ? error.message : 'Payment failed';
+      setErrorMessage(message);
+      toast({
+        title: "Payment Failed",
+        description: message,
+        variant: "destructive"
+      });
+    }
   };
 
   const verifyPayment = async () => {
@@ -217,17 +298,31 @@ export const SolanaPayQR = ({
       {/* Action Buttons */}
       <div className="flex gap-2">
         <Button
-          onClick={openWallet}
-          variant="outline"
+          onClick={sendPayment}
           size="sm"
           className="flex-1 font-mono text-xs"
-          disabled={status === 'confirmed'}
+          disabled={status === 'verifying' || status === 'confirmed' || !publicKey}
         >
-          <ExternalLink className="w-3 h-3 mr-1" />
-          Open Wallet
+          {status === 'verifying' ? (
+            <>
+              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              Processing...
+            </>
+          ) : status === 'confirmed' ? (
+            <>
+              <Check className="w-3 h-3 mr-1" />
+              Paid
+            </>
+          ) : (
+            <>
+              <ExternalLink className="w-3 h-3 mr-1" />
+              Pay Now with Wallet
+            </>
+          )}
         </Button>
         <Button
           onClick={verifyPayment}
+          variant="outline"
           size="sm"
           className="flex-1 font-mono text-xs"
           disabled={status === 'verifying' || status === 'confirmed'}

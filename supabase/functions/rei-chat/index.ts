@@ -498,10 +498,14 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       // Note: Wallet apps can send SPL tokens instead if they support it
       const paymentUrl = `solana:${recipient}?amount=${solAmount.toFixed(9)}&reference=${reference}&label=${encodeURIComponent(args.label)}&message=${encodeURIComponent(args.message || 'Payment for Rei Portal')}`;
       
-      // Generate QR code
+      // Generate QR code with custom colors
       const qrCodeUrl = await QRCode.default.toDataURL(paymentUrl, {
         width: 400,
-        margin: 2
+        margin: 2,
+        color: {
+          dark: '#181818',  // foreground dots
+          light: '#ed565a'  // background
+        }
       });
       
       // Return QR data as JSON string that will be parsed by AI

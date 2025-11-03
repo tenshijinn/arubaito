@@ -46,19 +46,9 @@ export const SolanaPayQR = ({
     }
   };
 
-  const openWallet = async () => {
-    // Copy payment URL to clipboard as fallback for desktop
-    try {
-      await navigator.clipboard.writeText(paymentUrl);
-      toast({
-        title: "Payment URL Copied!",
-        description: "Paste this URL into your Solana wallet to complete payment",
-      });
-    } catch (error) {
-      console.error('Failed to copy:', error);
-    }
-    
-    // Try to open wallet app via deep link (works on mobile if handler is registered)
+  const openWallet = () => {
+    // Try to open wallet app via deep link
+    // On mobile this will trigger the wallet app
     window.location.href = paymentUrl;
   };
 

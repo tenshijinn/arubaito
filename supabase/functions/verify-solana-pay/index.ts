@@ -7,8 +7,10 @@ const corsHeaders = {
 };
 
 const TREASURY_WALLET = '5JXJQSFZMxiQNmG4nx3bs2FnoZZsgz6kpVrNDxfBjb1s';
-const HELIUS_API_KEY = Deno.env.get('HELIUS_API_KEY');
-const SOLANA_RPC = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
+const HELIUS_API_KEY = Deno.env.get('HELIUS_API_KEY') || '';
+const SOLANA_RPC = HELIUS_API_KEY 
+  ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
+  : 'https://api.mainnet-beta.solana.com'; // Fallback to public RPC
 const REQUIRED_USD_AMOUNT = 5;
 const AMOUNT_VARIANCE = 0.02; // 2% variance allowed
 const MIN_MARKET_CAP = 100_000_000; // $100M minimum
@@ -27,6 +29,7 @@ serve(async (req) => {
     const { reference, walletAddress }: VerifyPaymentRequest = await req.json();
 
     console.log('Verifying Solana Pay payment:', { reference, walletAddress });
+    console.log('Using RPC:', HELIUS_API_KEY ? 'Helius' : 'Public mainnet');
 
     if (!reference || !walletAddress) {
       return new Response(

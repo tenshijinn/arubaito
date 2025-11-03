@@ -17,6 +17,23 @@ serve(async (req) => {
     const { Connection, PublicKey, LAMPORTS_PER_SOL } = await import('https://esm.sh/@solana/web3.js@1.95.0');
     
     const heliusApiKey = Deno.env.get('HELIUS_API_KEY');
+    
+    if (!heliusApiKey) {
+      console.error('HELIUS_API_KEY is not set in environment variables');
+      return new Response(
+        JSON.stringify({ 
+          error: 'RPC configuration error: HELIUS_API_KEY not found',
+          balance: 0,
+          dailyDeposits: [],
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
+    console.log('Using Helius API key:', heliusApiKey.substring(0, 8) + '...');
     const rpcEndpoint = `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`;
     const connection = new Connection(rpcEndpoint, 'confirmed');
     const walletAddress = new PublicKey('ogcBwDkmQe3NggoUS2yQk7CJmXpQBdcyyn1Qb5PcCa5');

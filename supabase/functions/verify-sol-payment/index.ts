@@ -7,8 +7,10 @@ const corsHeaders = {
 };
 
 const TREASURY_WALLET = '6FmWdgfvBHeNjjg12cGuq3dPKLKh5BmEMiVSddtA1aU7';
-const HELIUS_API_KEY = Deno.env.get('HELIUS_API_KEY');
-const SOLANA_RPC = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
+const HELIUS_API_KEY = Deno.env.get('HELIUS_API_KEY') || '';
+const SOLANA_RPC = HELIUS_API_KEY 
+  ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
+  : 'https://api.mainnet-beta.solana.com'; // Fallback to public RPC
 const REQUIRED_USD_AMOUNT = 5;
 const AMOUNT_VARIANCE = 0.05; // 5% variance allowed
 
@@ -27,6 +29,7 @@ serve(async (req) => {
     const { txSignature, expectedAmount, senderWallet }: VerifyPaymentRequest = await req.json();
 
     console.log('Verifying payment:', { txSignature, expectedAmount, senderWallet });
+    console.log('Using RPC:', HELIUS_API_KEY ? 'Helius' : 'Public mainnet');
 
     // Validate inputs
     if (!txSignature || !senderWallet) {

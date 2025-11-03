@@ -9,6 +9,7 @@ interface SolanaPayQRProps {
   paymentUrl: string;
   amount: number;
   recipient: string;
+  walletAddress: string;
   onPaymentComplete: (reference: string) => void;
 }
 
@@ -18,6 +19,7 @@ export const SolanaPayQR = ({
   paymentUrl,
   amount,
   recipient,
+  walletAddress,
   onPaymentComplete
 }: SolanaPayQRProps) => {
   const [status, setStatus] = useState<'pending' | 'verifying' | 'confirmed' | 'error'>('pending');
@@ -45,7 +47,9 @@ export const SolanaPayQR = ({
   };
 
   const openWallet = () => {
-    window.open(paymentUrl, '_blank');
+    // Try to open wallet app via deep link
+    // On mobile this will trigger the wallet app
+    window.location.href = paymentUrl;
   };
 
   const verifyPayment = async () => {
@@ -53,8 +57,6 @@ export const SolanaPayQR = ({
     setErrorMessage('');
 
     try {
-      // Get wallet address from JWT claims
-      const walletAddress = localStorage.getItem('walletAddress');
       if (!walletAddress) {
         throw new Error('No wallet connected');
       }
@@ -106,11 +108,9 @@ export const SolanaPayQR = ({
 
   // Auto-poll for payment every 5 seconds
   useEffect(() => {
-    if (status !== 'pending') return;
+    if (status !== 'pending' || !walletAddress) return;
 
     const interval = setInterval(async () => {
-      const walletAddress = localStorage.getItem('walletAddress');
-      if (!walletAddress) return;
 
       try {
         const response = await fetch(

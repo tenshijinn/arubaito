@@ -216,7 +216,12 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('rei-chat', {
+      // Add 30 second timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timed out')), 30000)
+      );
+      
+      const invokePromise = supabase.functions.invoke('rei-chat', {
         body: {
           message: input,
           walletAddress,
@@ -224,6 +229,8 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
           userMode
         }
       });
+
+      const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
 
       if (error) throw error;
 
@@ -376,6 +383,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
               paymentUrl={message.metadata.solanaPay.paymentUrl}
               amount={message.metadata.solanaPay.amount}
               recipient={message.metadata.solanaPay.recipient}
+              walletAddress={walletAddress}
               onPaymentComplete={handlePaymentComplete}
             />
           </div>

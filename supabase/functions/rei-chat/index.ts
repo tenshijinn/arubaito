@@ -396,14 +396,16 @@ Example bad responses:
     // Check if response contains metadata (e.g., Solana Pay QR)
     let metadata = null;
     try {
-      // Try to extract JSON metadata from response
-      const metadataMatch = finalResponse.match(/\{["\']solanaPay["\']\s*:\s*\{[^}]+\}\}/);
+      // Try to extract JSON metadata from response - look for nested solanaPay object
+      const metadataRegex = /\{\s*["']solanaPay["']\s*:\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}\s*\}/;
+      const metadataMatch = finalResponse.match(metadataRegex);
       if (metadataMatch) {
         metadata = JSON.parse(metadataMatch[0]);
         // Remove metadata JSON from visible response
         finalResponse = finalResponse.replace(metadataMatch[0], '').trim();
       }
     } catch (e) {
+      console.error('Failed to extract metadata:', e);
       // No metadata found, that's fine
     }
 

@@ -72,7 +72,7 @@ export const TreasuryDisplay = () => {
 
   return (
     <div className="fixed bottom-6 left-4 md:left-6 z-40">
-      <HoverCard openDelay={0} closeDelay={100} open={isMobile ? mobileOpen : undefined}>
+      <HoverCard openDelay={0} closeDelay={100} {...(isMobile ? { open: mobileOpen, onOpenChange: setMobileOpen } : {})}>
         <HoverCardTrigger asChild>
           <div 
             className="rounded-3xl px-3 py-2 md:px-6 md:py-3 cursor-pointer"

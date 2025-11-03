@@ -16,6 +16,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   metadata?: any;
+  timestamp?: string;
 }
 
 interface ReiChatbotProps {
@@ -166,10 +167,17 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
 
       if (error) throw error;
 
+      const timestamp = new Date().toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false 
+      });
       const assistantMessage: Message = {
         role: 'assistant',
         content: data.response,
-        metadata: data.metadata
+        metadata: data.metadata,
+        timestamp
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -196,7 +204,13 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
   const handleSend = async () => {
     if (!input.trim() || loading) return;
 
-    const userMessage: Message = { role: 'user', content: input };
+    const timestamp = new Date().toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false 
+    });
+    const userMessage: Message = { role: 'user', content: input, timestamp };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setLoading(true);
@@ -229,10 +243,17 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         }
       }
 
+      const timestamp = new Date().toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false 
+      });
       const assistantMessage: Message = {
         role: 'assistant',
         content: cleanContent,
-        metadata
+        metadata,
+        timestamp
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -254,40 +275,63 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
   };
 
 
-  const [displayedContent, setDisplayedContent] = useState<Record<number, string>>({});
+  const [displayedContent, setDisplayedContent] = useState<Record<number, string>>(() => {
+    // Initialize with all loaded messages already fully displayed
+    const stored = localStorage.getItem(`rei_chat_${walletAddress}`);
+    if (stored) {
+      const loadedMessages = JSON.parse(stored);
+      const initial: Record<number, string> = {};
+      loadedMessages.forEach((msg: Message, idx: number) => {
+        if (msg.role === 'assistant') {
+          initial[idx] = msg.content; // Show full content immediately for loaded messages
+        }
+      });
+      return initial;
+    }
+    return {};
+  });
+  const [lastMessageCount, setLastMessageCount] = useState(0);
 
-  // Typewriter effect for AI messages
+  // Typewriter effect for NEW AI messages only
   useEffect(() => {
-    const intervals: NodeJS.Timeout[] = [];
+    // Only apply typewriter to newly added messages
+    if (messages.length <= lastMessageCount) {
+      setLastMessageCount(messages.length);
+      return;
+    }
 
-    messages.forEach((message, index) => {
-      if (message.role === 'assistant' && !displayedContent[index]) {
-        const content = message.content;
-        let currentIndex = 0;
-        
-        const intervalId = setInterval(() => {
-          if (currentIndex <= content.length) {
-            setDisplayedContent(prev => ({
-              ...prev,
-              [index]: content.substring(0, currentIndex)
-            }));
-            currentIndex++;
-          } else {
-            clearInterval(intervalId);
-          }
-        }, 15); // 15ms per character for smooth typewriter
-        intervals.push(intervalId);
-      }
-    });
+    const intervals: NodeJS.Timeout[] = [];
+    const newMessageIndex = messages.length - 1;
+    const newMessage = messages[newMessageIndex];
+
+    if (newMessage.role === 'assistant' && !displayedContent[newMessageIndex]) {
+      const content = newMessage.content;
+      let currentIndex = 0;
+      
+      const intervalId = setInterval(() => {
+        if (currentIndex <= content.length) {
+          setDisplayedContent(prev => ({
+            ...prev,
+            [newMessageIndex]: content.substring(0, currentIndex)
+          }));
+          currentIndex++;
+        } else {
+          clearInterval(intervalId);
+        }
+      }, 15); // 15ms per character for smooth typewriter
+      intervals.push(intervalId);
+    }
+
+    setLastMessageCount(messages.length);
 
     return () => {
       intervals.forEach(i => clearInterval(i));
     };
-  }, [messages]); // Only depend on messages, not displayedContent
+  }, [messages.length]); // Only trigger when message count changes
 
   const renderMessage = (message: Message, index: number) => {
     const isUser = message.role === 'user';
-    const timestamp = new Date().toLocaleTimeString('en-US', { 
+    const timestamp = message.timestamp || new Date().toLocaleTimeString('en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
       second: '2-digit',

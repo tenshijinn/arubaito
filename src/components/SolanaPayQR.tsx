@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Check, Copy, ExternalLink, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -29,12 +28,10 @@ export const SolanaPayQR = ({
   const [status, setStatus] = useState<'pending' | 'verifying' | 'confirmed' | 'error'>('pending');
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [pendingPayment, setPendingPayment] = useState(false);
-  const [shouldPay, setShouldPay] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const { toast } = useToast();
   const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
-  const { setVisible } = useWalletModal();
+  const { publicKey, sendTransaction, connect, connected } = useWallet();
 
   const truncateAddress = (addr: string) => {
     if (addr.length <= 12) return addr;
@@ -55,63 +52,40 @@ export const SolanaPayQR = ({
     }
   };
 
-  // Watch for wallet connection after user clicks pay
-  useEffect(() => {
-    console.log('🔍 Wallet connection check:', {
-      pendingPayment,
-      publicKey: publicKey?.toString(),
-      walletAddress,
-      matches: publicKey?.toString() === walletAddress
-    });
-    
-    if (pendingPayment && publicKey && publicKey.toString() === walletAddress) {
-      console.log('✅ Wallet matched! Triggering payment...');
-      setPendingPayment(false);
-      setShouldPay(true);
-    }
-  }, [publicKey, pendingPayment, walletAddress]);
-
-  // Execute payment when flag is set
-  useEffect(() => {
-    if (shouldPay) {
-      console.log('💳 Executing payment from flag trigger...');
-      setShouldPay(false);
-      sendPayment();
-    }
-  }, [shouldPay]);
-
   const sendPayment = async () => {
-    console.log('💳 sendPayment called with:', {
-      publicKey: publicKey?.toString(),
-      walletAddress,
-      pendingPayment
-    });
-    
-    // If we have the stored wallet but no active connection
-    if (!publicKey && walletAddress) {
-      setPendingPayment(true);
-      setVisible(true);
-      toast({
-        title: "Connect Your Wallet",
-        description: "Please select your Phantom wallet to complete payment",
-      });
-      return;
-    }
-
-    // If no publicKey at all
-    if (!publicKey) {
-      toast({
-        title: "Wallet Not Connected",
-        description: "Please connect your wallet to send payment",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setStatus('verifying');
-    setErrorMessage('');
-
     try {
+      // If no wallet connected, prompt connection first
+      if (!publicKey || !connected) {
+        console.log('💳 No wallet connected, prompting connection...');
+        setIsConnecting(true);
+        
+        try {
+          await connect();
+          console.log('✅ Wallet connected successfully');
+          setIsConnecting(false);
+          
+          toast({
+            title: "Wallet Connected",
+            description: "Now processing payment...",
+          });
+          
+          // Small delay to ensure connection is fully established
+          await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (connectError) {
+          setIsConnecting(false);
+          console.error('❌ Wallet connection failed:', connectError);
+          toast({
+            title: "Connection Failed",
+            description: connectError instanceof Error ? connectError.message : "Failed to connect wallet",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
+      setStatus('verifying');
+      setErrorMessage('');
+
       // Parse the Solana Pay URL to extract amount
       const urlParams = new URLSearchParams(paymentUrl.split('?')[1]);
       const solAmount = parseFloat(urlParams.get('amount') || '0');
@@ -123,7 +97,7 @@ export const SolanaPayQR = ({
       // Create transaction
       const transaction = new Transaction().add(
         SystemProgram.transfer({
-          fromPubkey: publicKey,
+          fromPubkey: publicKey!,
           toPubkey: new PublicKey(recipient),
           lamports: Math.floor(solAmount * LAMPORTS_PER_SOL),
         })
@@ -133,7 +107,7 @@ export const SolanaPayQR = ({
       const referencePublicKey = new PublicKey(reference);
       transaction.add(
         SystemProgram.transfer({
-          fromPubkey: publicKey,
+          fromPubkey: publicKey!,
           toPubkey: referencePublicKey,
           lamports: 0, // Zero lamports to just add reference
         })
@@ -348,9 +322,14 @@ export const SolanaPayQR = ({
           onClick={sendPayment}
           size="sm"
           className="flex-1 font-mono text-xs"
-          disabled={status === 'verifying' || status === 'confirmed' || !walletAddress}
+          disabled={status === 'verifying' || status === 'confirmed' || isConnecting || !walletAddress}
         >
-          {status === 'verifying' ? (
+          {isConnecting ? (
+            <>
+              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              Connecting...
+            </>
+          ) : status === 'verifying' ? (
             <>
               <Loader2 className="w-3 h-3 mr-1 animate-spin" />
               Processing...
@@ -363,7 +342,7 @@ export const SolanaPayQR = ({
           ) : (
             <>
               <ExternalLink className="w-3 h-3 mr-1" />
-              {publicKey ? "Pay Now with Wallet" : "Connect & Pay"}
+              {connected ? "Pay Now" : "Connect & Pay"}
             </>
           )}
         </Button>

@@ -343,7 +343,7 @@ Example bad responses:
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'openai/gpt-4o-mini',
+          model: 'openai/gpt-5-mini',
           messages: aiMessages,
           tools: tools,
           tool_choice: 'auto'

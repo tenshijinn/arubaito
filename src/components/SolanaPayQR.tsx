@@ -28,6 +28,7 @@ export const SolanaPayQR = ({
   const [status, setStatus] = useState<'pending' | 'verifying' | 'confirmed' | 'error'>('pending');
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [pendingPayment, setPendingPayment] = useState(false);
   const { toast } = useToast();
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
@@ -51,7 +52,27 @@ export const SolanaPayQR = ({
     }
   };
 
+  // Watch for wallet connection after user clicks pay
+  useEffect(() => {
+    if (pendingPayment && publicKey && publicKey.toString() === walletAddress) {
+      // Wallet connected and matches stored address, proceed with payment
+      setPendingPayment(false);
+      sendPayment();
+    }
+  }, [publicKey, pendingPayment, walletAddress]);
+
   const sendPayment = async () => {
+    // If we have the stored wallet but no active connection
+    if (!publicKey && walletAddress) {
+      setPendingPayment(true);
+      toast({
+        title: "Connect Your Wallet",
+        description: "Please connect your Phantom wallet to complete payment",
+      });
+      return;
+    }
+
+    // If no publicKey at all
     if (!publicKey) {
       toast({
         title: "Wallet Not Connected",
@@ -301,7 +322,7 @@ export const SolanaPayQR = ({
           onClick={sendPayment}
           size="sm"
           className="flex-1 font-mono text-xs"
-          disabled={status === 'verifying' || status === 'confirmed' || !publicKey}
+          disabled={status === 'verifying' || status === 'confirmed' || !walletAddress}
         >
           {status === 'verifying' ? (
             <>
@@ -316,7 +337,7 @@ export const SolanaPayQR = ({
           ) : (
             <>
               <ExternalLink className="w-3 h-3 mr-1" />
-              Pay Now with Wallet
+              {publicKey ? "Pay Now with Wallet" : "Connect & Pay"}
             </>
           )}
         </Button>

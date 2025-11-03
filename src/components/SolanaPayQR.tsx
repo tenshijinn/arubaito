@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Check, Copy, ExternalLink, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -32,6 +33,7 @@ export const SolanaPayQR = ({
   const { toast } = useToast();
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+  const { setVisible } = useWalletModal();
 
   const truncateAddress = (addr: string) => {
     if (addr.length <= 12) return addr;
@@ -65,9 +67,10 @@ export const SolanaPayQR = ({
     // If we have the stored wallet but no active connection
     if (!publicKey && walletAddress) {
       setPendingPayment(true);
+      setVisible(true);
       toast({
         title: "Connect Your Wallet",
-        description: "Please connect your Phantom wallet to complete payment",
+        description: "Please select your Phantom wallet to complete payment",
       });
       return;
     }

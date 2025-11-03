@@ -30,6 +30,7 @@ export const SolanaPayQR = ({
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [pendingPayment, setPendingPayment] = useState(false);
+  const [shouldPay, setShouldPay] = useState(false);
   const { toast } = useToast();
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
@@ -56,14 +57,36 @@ export const SolanaPayQR = ({
 
   // Watch for wallet connection after user clicks pay
   useEffect(() => {
+    console.log('🔍 Wallet connection check:', {
+      pendingPayment,
+      publicKey: publicKey?.toString(),
+      walletAddress,
+      matches: publicKey?.toString() === walletAddress
+    });
+    
     if (pendingPayment && publicKey && publicKey.toString() === walletAddress) {
-      // Wallet connected and matches stored address, proceed with payment
+      console.log('✅ Wallet matched! Triggering payment...');
       setPendingPayment(false);
-      sendPayment();
+      setShouldPay(true);
     }
   }, [publicKey, pendingPayment, walletAddress]);
 
+  // Execute payment when flag is set
+  useEffect(() => {
+    if (shouldPay) {
+      console.log('💳 Executing payment from flag trigger...');
+      setShouldPay(false);
+      sendPayment();
+    }
+  }, [shouldPay]);
+
   const sendPayment = async () => {
+    console.log('💳 sendPayment called with:', {
+      publicKey: publicKey?.toString(),
+      walletAddress,
+      pendingPayment
+    });
+    
     // If we have the stored wallet but no active connection
     if (!publicKey && walletAddress) {
       setPendingPayment(true);

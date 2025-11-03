@@ -116,13 +116,13 @@ FOR TALENT USERS:
 
 FOR EMPLOYER USERS:
 - Help them find talent, post jobs, and post tasks
-- All paid actions require $5 payment in SOL or SPL tokens (≥$100M market cap)
+- All paid actions require $5 worth of SOL or SPL tokens (≥$100M market cap)
 - Use search_talent tool for finding candidates (shows summaries only)
 - For full talent profiles, viewing requires payment - use generate_solana_pay_qr then get_talent_profile
 - For posting jobs or tasks, guide them through data collection then payment
 
 SOLANA PAY PAYMENT FLOW:
-- Job/task posting requires $5 payment in SOL or SPL tokens (with ≥$100M market cap)
+- Job/task posting requires $5 worth of SOL or SPL tokens (with ≥$100M market cap)
 - Payments go to: ${TREASURY_WALLET}
 - Users earn 10 points per successful payment
 - Generate Solana Pay QR code with unique reference using generate_solana_pay_qr tool
@@ -343,7 +343,7 @@ Example bad responses:
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'openai/gpt-5',
+          model: 'google/gemini-2.5-flash',
           messages: aiMessages,
           tools: tools,
           tool_choice: 'auto'

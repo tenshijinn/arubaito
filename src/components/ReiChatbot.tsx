@@ -254,6 +254,43 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
   };
 
 
+  const [displayedContent, setDisplayedContent] = useState<Record<number, string>>({});
+
+  // Typewriter effect for AI messages
+  useEffect(() => {
+    const timeouts: NodeJS.Timeout[] = [];
+    const intervals: NodeJS.Timeout[] = [];
+
+    messages.forEach((message, index) => {
+      if (message.role === 'assistant' && !displayedContent[index]) {
+        const content = message.content;
+        let currentIndex = 0;
+        
+        // Add initial "thinking" delay
+        const timeout = setTimeout(() => {
+          const intervalId = setInterval(() => {
+            if (currentIndex <= content.length) {
+              setDisplayedContent(prev => ({
+                ...prev,
+                [index]: content.substring(0, currentIndex)
+              }));
+              currentIndex++;
+            } else {
+              clearInterval(intervalId);
+            }
+          }, 20); // 20ms per character for smooth typewriter
+          intervals.push(intervalId);
+        }, 300); // 300ms initial thinking delay
+        timeouts.push(timeout);
+      }
+    });
+
+    return () => {
+      timeouts.forEach(t => clearTimeout(t));
+      intervals.forEach(i => clearInterval(i));
+    };
+  }, [messages, displayedContent]);
+
   const renderMessage = (message: Message, index: number) => {
     const isUser = message.role === 'user';
     const timestamp = new Date().toLocaleTimeString('en-US', { 
@@ -263,6 +300,8 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       hour12: false 
     });
     const username = isUser ? `@${twitterHandle || 'user'}` : '@Rei';
+    const content = isUser ? message.content : (displayedContent[index] || '');
+    const isTyping = !isUser && content.length < message.content.length;
     
     return (
       <div key={index} className="mb-6 font-mono">
@@ -272,7 +311,8 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
             {username}
           </span>
           <div className="flex-1 whitespace-pre-wrap break-words" style={{ color: isUser ? '#f1eee6' : '#e565a0' }}>
-            {message.content}
+            {content}
+            {isTyping && <span className="animate-pulse">▋</span>}
           </div>
         </div>
         
@@ -307,9 +347,9 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
   };
 
   return (
-    <div className="relative h-full">
+    <div className="relative h-full flex flex-col">
       {/* Messages area */}
-      <div className="h-full overflow-y-auto px-8 py-12 pb-[calc(50vh+8rem)] max-w-4xl mx-auto w-full scrollbar-hide">
+      <div className="flex-1 overflow-y-auto px-8 py-6 pb-32 max-w-4xl mx-auto w-full scrollbar-hide">
         {messages.length === 0 && (
           <div className="font-mono space-y-4">
             <p className="text-sm text-muted-foreground">
@@ -347,9 +387,9 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area - absolute center */}
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-8 z-10 pointer-events-none">
-        <div className="pointer-events-auto">
+      {/* Input area - fixed to bottom */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-primary/20 z-10">
+        <div className="max-w-4xl mx-auto px-8 py-4">
         <div className="relative">
           <button
             onClick={() => setShowQuickActions(!showQuickActions)}

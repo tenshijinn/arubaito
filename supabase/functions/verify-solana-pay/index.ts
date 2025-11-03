@@ -7,7 +7,8 @@ const corsHeaders = {
 };
 
 const TREASURY_WALLET = '5JXJQSFZMxiQNmG4nx3bs2FnoZZsgz6kpVrNDxfBjb1s';
-const SOLANA_RPC = 'https://api.mainnet-beta.solana.com';
+const HELIUS_API_KEY = Deno.env.get('HELIUS_API_KEY');
+const SOLANA_RPC = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
 const REQUIRED_USD_AMOUNT = 5;
 const AMOUNT_VARIANCE = 0.02; // 2% variance allowed
 const MIN_MARKET_CAP = 100_000_000; // $100M minimum

@@ -16,7 +16,9 @@ serve(async (req) => {
     // Import Solana Web3.js dynamically
     const { Connection, PublicKey, LAMPORTS_PER_SOL } = await import('https://esm.sh/@solana/web3.js@1.95.0');
     
-    const connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+    const heliusApiKey = Deno.env.get('HELIUS_API_KEY');
+    const rpcEndpoint = `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`;
+    const connection = new Connection(rpcEndpoint, 'confirmed');
     const walletAddress = new PublicKey('ogcBwDkmQe3NggoUS2yQk7CJmXpQBdcyyn1Qb5PcCa5');
 
     // Fetch wallet balance

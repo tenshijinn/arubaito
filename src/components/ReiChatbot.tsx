@@ -215,9 +215,9 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     setLoading(true);
 
     try {
-      // Add 60 second timeout
+      // Add 60+ second timeout
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out")), 60000),
+        setTimeout(() => reject(new Error("Request timed out")), 120000),
       );
 
       const invokePromise = supabase.functions.invoke("rei-chat", {

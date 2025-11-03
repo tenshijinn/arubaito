@@ -478,11 +478,25 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       const QRCode = await import("npm:qrcode@^1.5.3");
       
       const reference = PublicKey.unique().toString();
-      const amount = 5; // $5 USD equivalent
+      const usdAmount = 5; // $5 USD
       const recipient = '5JXJQSFZMxiQNmG4nx3bs2FnoZZsgz6kpVrNDxfBjb1s';
       
-      // Create Solana Pay URL
-      const paymentUrl = `solana:${recipient}?amount=${amount}&reference=${reference}&label=${encodeURIComponent(args.label)}&message=${encodeURIComponent(args.message || 'Payment for Rei Portal')}`;
+      // Fetch current SOL price in USD
+      let solAmount = 0;
+      try {
+        const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+        const priceData = await priceResponse.json();
+        const solPriceUsd = priceData.solana.usd;
+        solAmount = usdAmount / solPriceUsd;
+      } catch (error) {
+        console.error('Failed to fetch SOL price, using fallback:', error);
+        // Fallback: assume SOL = $100 USD
+        solAmount = usdAmount / 100;
+      }
+      
+      // Create Solana Pay URL (accepts SOL by default)
+      // Note: Wallet apps can send SPL tokens instead if they support it
+      const paymentUrl = `solana:${recipient}?amount=${solAmount.toFixed(9)}&reference=${reference}&label=${encodeURIComponent(args.label)}&message=${encodeURIComponent(args.message || 'Payment for Rei Portal')}`;
       
       // Generate QR code
       const qrCodeUrl = await QRCode.default.toDataURL(paymentUrl, {
@@ -495,7 +509,8 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         qrCodeUrl,
         reference,
         paymentUrl,
-        amount,
+        amount: usdAmount,
+        solAmount,
         recipient
       };
       

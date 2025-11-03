@@ -72,7 +72,7 @@ serve(async (req) => {
     if (txSender !== senderWallet) {
       console.log('Sender mismatch:', txSender, 'vs', senderWallet);
       return new Response(
-        JSON.stringify({ verified: false, error: 'Transaction sender does not match' }),
+        JSON.stringify({ verified: false, error: 'Send funds only from the wallet that you signed up and verified from.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

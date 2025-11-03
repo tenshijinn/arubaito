@@ -258,7 +258,6 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
 
   // Typewriter effect for AI messages
   useEffect(() => {
-    const timeouts: NodeJS.Timeout[] = [];
     const intervals: NodeJS.Timeout[] = [];
 
     messages.forEach((message, index) => {
@@ -266,30 +265,25 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         const content = message.content;
         let currentIndex = 0;
         
-        // Add initial "thinking" delay
-        const timeout = setTimeout(() => {
-          const intervalId = setInterval(() => {
-            if (currentIndex <= content.length) {
-              setDisplayedContent(prev => ({
-                ...prev,
-                [index]: content.substring(0, currentIndex)
-              }));
-              currentIndex++;
-            } else {
-              clearInterval(intervalId);
-            }
-          }, 20); // 20ms per character for smooth typewriter
-          intervals.push(intervalId);
-        }, 300); // 300ms initial thinking delay
-        timeouts.push(timeout);
+        const intervalId = setInterval(() => {
+          if (currentIndex <= content.length) {
+            setDisplayedContent(prev => ({
+              ...prev,
+              [index]: content.substring(0, currentIndex)
+            }));
+            currentIndex++;
+          } else {
+            clearInterval(intervalId);
+          }
+        }, 15); // 15ms per character for smooth typewriter
+        intervals.push(intervalId);
       }
     });
 
     return () => {
-      timeouts.forEach(t => clearTimeout(t));
       intervals.forEach(i => clearInterval(i));
     };
-  }, [messages, displayedContent]);
+  }, [messages]); // Only depend on messages, not displayedContent
 
   const renderMessage = (message: Message, index: number) => {
     const isUser = message.role === 'user';

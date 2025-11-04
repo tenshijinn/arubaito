@@ -295,6 +295,45 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_references: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          memo: string | null
+          payer: string
+          payment_type: string
+          reference: string
+          status: string
+          tx_signature: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          memo?: string | null
+          payer: string
+          payment_type?: string
+          reference: string
+          status?: string
+          tx_signature?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          memo?: string | null
+          payer?: string
+          payment_type?: string
+          reference?: string
+          status?: string
+          tx_signature?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       points_transactions: {
         Row: {
           created_at: string | null

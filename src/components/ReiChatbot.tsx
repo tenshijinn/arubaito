@@ -11,6 +11,8 @@ import { PresetButton } from "./chat/PresetButton";
 import { QuickActionsPanel } from "./chat/QuickActionsPanel";
 import { getPresetsForMode, getWelcomePresets } from "./chat/chatPresets";
 import { SolanaPayQR } from "./SolanaPayQR";
+import { PaymentMethodSelector } from "./PaymentMethodSelector";
+import { X402Payment } from "./X402Payment";
 
 interface Message {
   role: "user" | "assistant";
@@ -38,6 +40,9 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     return localStorage.getItem(`rei_chat_id_${walletAddress}`) || null;
   });
   const [showQuickActions, setShowQuickActions] = useState(false);
+  const [showPaymentMethod, setShowPaymentMethod] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'solana-pay' | 'x402' | null>(null);
+  const [currentPaymentData, setCurrentPaymentData] = useState<any>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -149,6 +154,11 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
   };
 
   const handlePaymentComplete = async (reference: string) => {
+    // Reset payment UI state
+    setShowPaymentMethod(false);
+    setSelectedPaymentMethod(null);
+    setCurrentPaymentData(null);
+    
     // Send confirmation to AI by setting input and triggering send
     const confirmMessage = `Payment completed with reference: ${reference}`;
     setMessages((prev) => [...prev, { role: "user", content: confirmMessage }]);
@@ -189,6 +199,17 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePaymentMethodSelect = (method: 'solana-pay' | 'x402') => {
+    setSelectedPaymentMethod(method);
+    setShowPaymentMethod(false);
+  };
+
+  const handleCancelPayment = () => {
+    setShowPaymentMethod(false);
+    setSelectedPaymentMethod(null);
+    setCurrentPaymentData(null);
   };
 
   const handlePresetSelect = (preset: string) => {
@@ -374,15 +395,45 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         {/* Render Solana Pay QR code if metadata contains solanaPay */}
         {!isUser && message.metadata?.solanaPay && (
           <div className="mt-3 ml-[120px]">
-            <SolanaPayQR
-              qrCodeUrl={message.metadata.solanaPay.qrCodeUrl}
-              reference={message.metadata.solanaPay.reference}
-              paymentUrl={message.metadata.solanaPay.paymentUrl}
-              amount={message.metadata.solanaPay.amount}
-              recipient={message.metadata.solanaPay.recipient}
-              walletAddress={walletAddress}
-              onPaymentComplete={handlePaymentComplete}
-            />
+            {!selectedPaymentMethod && !showPaymentMethod && (
+              <button
+                onClick={() => {
+                  setCurrentPaymentData(message.metadata.solanaPay);
+                  setShowPaymentMethod(true);
+                }}
+                className="text-sm text-primary hover:underline font-mono"
+              >
+                [Choose Payment Method]
+              </button>
+            )}
+            
+            {showPaymentMethod && currentPaymentData === message.metadata.solanaPay && (
+              <PaymentMethodSelector
+                onMethodSelect={handlePaymentMethodSelect}
+                amount={message.metadata.solanaPay.amount}
+              />
+            )}
+            
+            {selectedPaymentMethod === 'solana-pay' && currentPaymentData === message.metadata.solanaPay && (
+              <SolanaPayQR
+                qrCodeUrl={message.metadata.solanaPay.qrCodeUrl}
+                reference={message.metadata.solanaPay.reference}
+                paymentUrl={message.metadata.solanaPay.paymentUrl}
+                amount={message.metadata.solanaPay.amount}
+                recipient={message.metadata.solanaPay.recipient}
+                walletAddress={walletAddress}
+                onPaymentComplete={handlePaymentComplete}
+              />
+            )}
+            
+            {selectedPaymentMethod === 'x402' && currentPaymentData === message.metadata.solanaPay && (
+              <X402Payment
+                amount={message.metadata.solanaPay.amount}
+                memo={message.metadata.solanaPay.memo || ''}
+                onSuccess={handlePaymentComplete}
+                onCancel={handleCancelPayment}
+              />
+            )}
           </div>
         )}
       </div>

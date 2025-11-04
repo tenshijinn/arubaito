@@ -60,3 +60,9 @@ verify_jwt = false
 
 [functions.award-payment-points]
 verify_jwt = false
+
+[functions.x402-create-payment]
+verify_jwt = false
+
+[functions.x402-verify-payment]
+verify_jwt = false

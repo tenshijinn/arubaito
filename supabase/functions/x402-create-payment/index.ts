@@ -31,15 +31,23 @@ serve(async (req) => {
     );
 
     // Treasury wallet (recipient)
-    const TREASURY_WALLET = 'AXxW9KS6BkXCyXQmTJyxoKCeufARXoCQj6W7D5NEwkZY';
+    const TREASURY_WALLET = '5JXJQSFZMxiQNmG4nx3bs2FnoZZsgz6kpVrNDxfBjb1s';
     const recipientPubkey = new PublicKey(TREASURY_WALLET);
     const payerPubkey = new PublicKey(payerPublicKey);
 
     // Generate unique reference for this payment
     const reference = Keypair.generate().publicKey;
 
+    // Fetch current SOL price in USD from CoinGecko
+    const solPriceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+    const solPriceData = await solPriceResponse.json();
+    const solPrice = solPriceData.solana.usd;
+
+    // Convert USD amount to SOL
+    const solAmount = amount / solPrice;
+
     // Convert SOL amount to lamports
-    const lamports = Math.floor(amount * 1e9);
+    const lamports = Math.floor(solAmount * 1e9);
 
     // Get recent blockhash
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('finalized');
@@ -82,7 +90,7 @@ serve(async (req) => {
       .from('payment_references')
       .insert({
         reference: reference.toString(),
-        amount,
+        amount: solAmount,
         memo: memo || null,
         payer: payerPublicKey,
         status: 'pending',
@@ -99,6 +107,8 @@ serve(async (req) => {
         transaction: serializedTransaction.toString('base64'),
         reference: reference.toString(),
         amount,
+        solAmount,
+        solPrice,
         blockhash,
         lastValidBlockHeight,
       }),

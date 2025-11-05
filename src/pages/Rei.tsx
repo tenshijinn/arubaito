@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AudioRecorder } from '@/components/AudioRecorder';
 import ReiChatbot from '@/components/ReiChatbot';
+import { PostToRei } from '@/components/PostToRei';
 import { useToast } from '@/hooks/use-toast';
 import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info, Sparkles, Briefcase, CheckCircle2, Mic, Globe, Edit2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -375,7 +376,7 @@ export default function Rei() {
         <Navigation userName={userName} />
         <div className="container mx-auto px-4 py-4 flex-shrink-0">
           <Tabs defaultValue="profile" className="w-full max-w-4xl mx-auto">
-            <TabsList className="w-full mb-4 h-12 bg-muted/30 p-1 rounded-lg grid grid-cols-2">
+            <TabsList className="w-full mb-4 h-12 bg-muted/30 p-1 rounded-lg grid grid-cols-3">
               <TabsTrigger 
                 value="profile" 
                 className="font-mono text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -387,6 +388,12 @@ export default function Rei() {
                 className="font-mono text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 &gt; AskRei
+              </TabsTrigger>
+              <TabsTrigger 
+                value="post" 
+                className="font-mono text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                &gt; Post To Rei
               </TabsTrigger>
             </TabsList>
 
@@ -622,6 +629,10 @@ export default function Rei() {
                 userMode="talent"
                 twitterHandle={twitterUser?.handle}
               />
+            </TabsContent>
+
+            <TabsContent value="post" className="mt-0">
+              <PostToRei />
             </TabsContent>
           </Tabs>
         </div>

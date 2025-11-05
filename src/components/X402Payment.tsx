@@ -18,6 +18,8 @@ export const X402Payment = ({ amount, memo, onSuccess, onCancel }: X402PaymentPr
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'creating' | 'signing' | 'verifying' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [solAmount, setSolAmount] = useState<number | null>(null);
+  const [solPrice, setSolPrice] = useState<number | null>(null);
 
   const handlePayment = async () => {
     if (!publicKey || !signTransaction) {
@@ -40,6 +42,10 @@ export const X402Payment = ({ amount, memo, onSuccess, onCancel }: X402PaymentPr
 
       if (createError) throw createError;
       if (!paymentData?.transaction) throw new Error('Failed to create payment transaction');
+
+      // Store SOL amount and price for display
+      setSolAmount(paymentData.solAmount);
+      setSolPrice(paymentData.solPrice);
 
       setPaymentStatus('signing');
 
@@ -128,8 +134,14 @@ export const X402Payment = ({ amount, memo, onSuccess, onCancel }: X402PaymentPr
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Amount:</span>
-              <span className="font-semibold">{amount} SOL</span>
+              <span className="font-semibold">${amount} USD</span>
             </div>
+            {solAmount && solPrice && (
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">SOL Amount:</span>
+                <span className="font-mono text-xs">{solAmount.toFixed(6)} SOL (${solPrice.toFixed(2)}/SOL)</span>
+              </div>
+            )}
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Method:</span>
               <span className="font-semibold">x402 Protocol</span>

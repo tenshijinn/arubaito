@@ -10,6 +10,7 @@ import { SolanaPayQR } from '@/components/SolanaPayQR';
 import { X402Payment } from '@/components/X402Payment';
 import { PaymentMethodSelector } from '@/components/PaymentMethodSelector';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
@@ -328,10 +329,16 @@ export const PostToRei = () => {
 
           {/* Payment Method Selection */}
           {paymentData && showPaymentMethod && (
-            <PaymentMethodSelector
-              onMethodSelect={handlePaymentMethodSelect}
-              amount={paymentData.amount}
-            />
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <WalletMultiButton className="!bg-primary hover:!bg-primary/90" />
+              </div>
+              <PaymentMethodSelector
+                onMethodSelect={handlePaymentMethodSelect}
+                amount={paymentData.amount}
+                solAmount={paymentData.solAmount}
+              />
+            </div>
           )}
 
           {/* Solana Pay QR */}

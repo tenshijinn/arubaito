@@ -5,15 +5,20 @@ import { QrCode, Zap } from "lucide-react";
 interface PaymentMethodSelectorProps {
   onMethodSelect: (method: 'solana-pay' | 'x402') => void;
   amount?: number;
+  solAmount?: number;
 }
 
-export const PaymentMethodSelector = ({ onMethodSelect, amount }: PaymentMethodSelectorProps) => {
+export const PaymentMethodSelector = ({ onMethodSelect, amount, solAmount }: PaymentMethodSelectorProps) => {
   return (
     <div className="space-y-4">
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold text-foreground">Choose Payment Method</h3>
         <p className="text-sm text-muted-foreground">
-          {amount ? `Amount: ${amount} SOL` : "Select how you'd like to pay"}
+          {amount && solAmount 
+            ? `Amount: $${amount} USD (~${solAmount.toFixed(4)} SOL)` 
+            : amount 
+            ? `Amount: $${amount} USD` 
+            : "Select how you'd like to pay"}
         </p>
       </div>
 

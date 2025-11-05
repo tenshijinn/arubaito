@@ -4,6 +4,8 @@ import { Input } from "./ui/input";
 import { Loader2, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 import JobCard from "./JobCard";
 import TalentCard from "./TalentCard";
@@ -28,6 +30,7 @@ interface ReiChatbotProps {
 }
 
 const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps) => {
+  const { publicKey } = useWallet();
   const [messages, setMessages] = useState<Message[]>(() => {
     // Load messages from localStorage on mount
     const stored = localStorage.getItem(`rei_chat_${walletAddress}`);
@@ -395,7 +398,14 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         {/* Render Solana Pay QR code if metadata contains solanaPay */}
         {!isUser && message.metadata?.solanaPay && (
           <div className="mt-3 ml-[120px]">
-            {!selectedPaymentMethod && !showPaymentMethod && (
+            {!publicKey && !selectedPaymentMethod && !showPaymentMethod && (
+              <div className="space-y-3 p-4 border border-primary/30 bg-background/50 rounded font-mono text-sm">
+                <p className="text-muted-foreground">Connect wallet to choose payment method:</p>
+                <WalletMultiButton className="!bg-primary hover:!bg-primary/90 w-full" />
+              </div>
+            )}
+            
+            {publicKey && !selectedPaymentMethod && !showPaymentMethod && (
               <button
                 onClick={() => {
                   setCurrentPaymentData(message.metadata.solanaPay);
@@ -411,6 +421,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
               <PaymentMethodSelector
                 onMethodSelect={handlePaymentMethodSelect}
                 amount={message.metadata.solanaPay.amount}
+                solAmount={message.metadata.solanaPay.solAmount}
               />
             )}
             

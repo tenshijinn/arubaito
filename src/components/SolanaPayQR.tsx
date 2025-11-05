@@ -257,6 +257,18 @@ export const SolanaPayQR = ({
         <div className="text-muted-foreground text-xs mb-2">
           Scan QR code or click to open wallet
         </div>
+        {!connected && (
+          <div className="mt-2 text-xs text-yellow-500 flex items-center gap-2">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+            Wallet not connected
+          </div>
+        )}
+        {connected && (
+          <div className="mt-2 text-xs text-green-500 flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full" />
+            Wallet connected
+          </div>
+        )}
       </div>
 
       {/* QR Code */}
@@ -322,7 +334,7 @@ export const SolanaPayQR = ({
           onClick={sendPayment}
           size="sm"
           className="flex-1 font-mono text-xs"
-          disabled={status === 'verifying' || status === 'confirmed' || isConnecting || !walletAddress}
+          disabled={status === 'verifying' || status === 'confirmed' || isConnecting}
         >
           {isConnecting ? (
             <>
@@ -339,10 +351,15 @@ export const SolanaPayQR = ({
               <Check className="w-3 h-3 mr-1" />
               Paid
             </>
+          ) : !connected ? (
+            <>
+              <ExternalLink className="w-3 h-3 mr-1" />
+              Connect Wallet First
+            </>
           ) : (
             <>
               <ExternalLink className="w-3 h-3 mr-1" />
-              {connected ? "Pay Now" : "Connect & Pay"}
+              Pay Now
             </>
           )}
         </Button>

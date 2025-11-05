@@ -118,18 +118,35 @@ export const X402Payment = ({ amount, memo, onSuccess, onCancel }: X402PaymentPr
 
   return (
     <Card className="p-6 space-y-6">
-      <div className="text-center space-y-4">
-        <div className="flex justify-center">
-          {isProcessing ? (
-            <Loader2 className="h-12 w-12 text-primary animate-spin" />
-          ) : (
-            getStatusIcon()
-          )}
+      {!publicKey ? (
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <XCircle className="h-12 w-12 text-yellow-500" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Wallet Not Connected</h3>
+            <p className="text-sm text-muted-foreground">
+              Please connect your wallet to proceed with x402 payment
+            </p>
+          </div>
+          <Button onClick={onCancel} variant="outline" className="w-full">
+            Go Back
+          </Button>
         </div>
-        
-        <div>
-          <h3 className="text-lg font-semibold mb-2">x402 Payment</h3>
-          <p className="text-sm text-muted-foreground mb-4">{getStatusText()}</p>
+      ) : (
+        <>
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              {isProcessing ? (
+                <Loader2 className="h-12 w-12 text-primary animate-spin" />
+              ) : (
+                getStatusIcon()
+              )}
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-2">x402 Payment</h3>
+              <p className="text-sm text-muted-foreground mb-4">{getStatusText()}</p>
           
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <div className="flex justify-between text-sm">
@@ -162,32 +179,34 @@ export const X402Payment = ({ amount, memo, onSuccess, onCancel }: X402PaymentPr
         )}
       </div>
 
-      <div className="flex gap-3">
-        <Button
-          onClick={onCancel}
-          variant="outline"
-          className="flex-1"
-          disabled={isProcessing}
-        >
-          Cancel
-        </Button>
-        <Button
-          onClick={handlePayment}
-          className="flex-1"
-          disabled={isProcessing || paymentStatus === 'success'}
-        >
-          {isProcessing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing
-            </>
-          ) : paymentStatus === 'success' ? (
-            'Completed'
-          ) : (
-            'Pay with x402'
-          )}
-        </Button>
-      </div>
+          <div className="flex gap-3">
+            <Button
+              onClick={onCancel}
+              variant="outline"
+              className="flex-1"
+              disabled={isProcessing}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handlePayment}
+              className="flex-1"
+              disabled={isProcessing || paymentStatus === 'success'}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing
+                </>
+              ) : paymentStatus === 'success' ? (
+                'Completed'
+              ) : (
+                'Pay with x402'
+              )}
+            </Button>
+          </div>
+        </>
+      )}
     </Card>
   );
 };

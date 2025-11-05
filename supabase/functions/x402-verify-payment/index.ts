@@ -40,14 +40,14 @@ serve(async (req) => {
       throw new Error('Payment reference already used');
     }
 
-    // Initialize Solana connection
-    const heliusApiKey = Deno.env.get('HELIUS_API_KEY');
-    if (!heliusApiKey) {
-      throw new Error('HELIUS_API_KEY not configured');
+    // Initialize Solana connection with Moralis RPC
+    const moralisApiKey = Deno.env.get('MORALIS_API_KEY');
+    if (!moralisApiKey) {
+      throw new Error('MORALIS_API_KEY not configured');
     }
 
     const connection = new Connection(
-      `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`,
+      `https://solana-mainnet.g.moralis.io/v1/${moralisApiKey}`,
       'confirmed'
     );
 

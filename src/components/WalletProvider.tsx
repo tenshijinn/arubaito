@@ -9,7 +9,7 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 export const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
   // Use Moralis RPC for reliable mainnet access
   const moralisApiKey = import.meta.env.VITE_MORALIS_API_KEY || 'demo-key';
-  const endpoint = useMemo(() => `https://solana-mainnet.g.moralis.io/${moralisApiKey}`, [moralisApiKey]);
+  const endpoint = useMemo(() => `https://solana-mainnet.g.moralis.io/v1/${moralisApiKey}`, [moralisApiKey]);
   
   // Configure Phantom wallet adapter
   const wallets = useMemo(() => [new PhantomWalletAdapter()], []);

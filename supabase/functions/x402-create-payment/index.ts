@@ -26,7 +26,7 @@ serve(async (req) => {
     }
 
     const connection = new Connection(
-      `https://solana-mainnet.g.moralis.io/${moralisApiKey}`,
+      `https://solana-mainnet.g.moralis.io/v1/${moralisApiKey}`,
       'confirmed'
     );
 

@@ -26,7 +26,7 @@ serve(async (req) => {
     }
 
     const connection = new Connection(
-      `https://solana-mainnet.g.moralis.io/v1/${moralisApiKey}`,
+      `https://solana-mainnet.g.moralis.io/${moralisApiKey}`,
       'confirmed'
     );
 
@@ -51,7 +51,7 @@ serve(async (req) => {
       lastValidBlockHeight,
     });
 
-    // Add transfer instruction
+    // Add transfer instruction with reference for tracking
     transaction.add(
       SystemProgram.transfer({
         fromPubkey: payerPubkey,
@@ -60,11 +60,11 @@ serve(async (req) => {
       })
     );
 
-    // Add reference as a non-signer key (for tracking)
-    transaction.add({
-      keys: [{ pubkey: reference, isSigner: false, isWritable: false }],
-      programId: SystemProgram.programId,
-      data: Buffer.from([]),
+    // Add reference as a read-only key (standard Solana Pay pattern)
+    transaction.instructions[0].keys.push({
+      pubkey: reference,
+      isSigner: false,
+      isWritable: false,
     });
 
     // Serialize transaction (without signatures)

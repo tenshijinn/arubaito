@@ -47,12 +47,12 @@ serve(async (req) => {
     }
 
     const connection = new Connection(
-      `https://solana-mainnet.g.moralis.io/v1/${moralisApiKey}`,
+      `https://solana-mainnet.g.moralis.io/${moralisApiKey}`,
       'confirmed'
     );
 
     // Deserialize and send transaction
-    const transactionBuffer = Buffer.from(signedTransaction, 'base64');
+    const transactionBuffer = Uint8Array.from(atob(signedTransaction), c => c.charCodeAt(0));
     const transaction = Transaction.from(transactionBuffer);
 
     // Send and confirm transaction

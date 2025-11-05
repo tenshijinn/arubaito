@@ -49,8 +49,8 @@ export const X402Payment = ({ amount, memo, onSuccess, onCancel }: X402PaymentPr
 
       setPaymentStatus('signing');
 
-      // Step 2: Decode and sign transaction
-      const transactionBuffer = Buffer.from(paymentData.transaction, 'base64');
+      // Step 2: Decode and sign transaction (browser-compatible)
+      const transactionBuffer = Uint8Array.from(atob(paymentData.transaction), c => c.charCodeAt(0));
       const { Transaction } = await import('@solana/web3.js');
       const transaction = Transaction.from(transactionBuffer);
 

@@ -7,9 +7,9 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 export const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  // Use Helius RPC for reliable mainnet access
-  const heliusApiKey = import.meta.env.VITE_HELIUS_API_KEY || 'demo-key';
-  const endpoint = useMemo(() => `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`, [heliusApiKey]);
+  // Use public RPC endpoint for mainnet access
+  // For production, add VITE_HELIUS_API_KEY to your environment variables
+  const endpoint = useMemo(() => 'https://api.mainnet-beta.solana.com', []);
   
   // Configure Phantom wallet adapter
   const wallets = useMemo(() => [new PhantomWalletAdapter()], []);

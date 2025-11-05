@@ -94,17 +94,32 @@ export const SolanaPayQR = ({
         throw new Error('Invalid payment amount');
       }
 
+      // Validate recipient address
+      let recipientPubkey;
+      try {
+        recipientPubkey = new PublicKey(recipient);
+      } catch (error) {
+        throw new Error('Invalid recipient address');
+      }
+
+      // Validate reference
+      let referencePublicKey;
+      try {
+        referencePublicKey = new PublicKey(reference);
+      } catch (error) {
+        throw new Error('Invalid payment reference');
+      }
+
       // Create transaction
       const transaction = new Transaction().add(
         SystemProgram.transfer({
           fromPubkey: publicKey!,
-          toPubkey: new PublicKey(recipient),
+          toPubkey: recipientPubkey,
           lamports: Math.floor(solAmount * LAMPORTS_PER_SOL),
         })
       );
 
       // Add reference as a memo instruction (optional but helps with tracking)
-      const referencePublicKey = new PublicKey(reference);
       transaction.add(
         SystemProgram.transfer({
           fromPubkey: publicKey!,

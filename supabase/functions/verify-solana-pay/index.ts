@@ -101,16 +101,42 @@ serve(async (req) => {
     let transferUSD = 0;
 
     if (isSOL) {
-      // SOL transfer - get SOL price from CoinGecko
-      const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
-      const priceData = await priceResponse.json();
-      const solPrice = priceData.solana?.usd || 0;
+      // SOL transfer - get SOL price from CoinGecko with retry
+      let solPrice = 0;
+      let lastError = '';
+      
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd', {
+            headers: { 'Accept': 'application/json' }
+          });
+          
+          if (!priceResponse.ok) {
+            lastError = `HTTP ${priceResponse.status}: ${priceResponse.statusText}`;
+            console.log(`Price fetch attempt ${attempt + 1} failed:`, lastError);
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1))); // backoff
+            continue;
+          }
+          
+          const priceData = await priceResponse.json();
+          solPrice = priceData.solana?.usd || 0;
+          
+          if (solPrice > 0) {
+            console.log('SOL price fetched:', solPrice);
+            break;
+          }
+        } catch (error) {
+          lastError = error instanceof Error ? error.message : 'Unknown error';
+          console.log(`Price fetch attempt ${attempt + 1} error:`, lastError);
+          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        }
+      }
 
       if (solPrice === 0) {
-        console.log('Failed to fetch SOL price');
+        console.log('Failed to fetch SOL price after retries:', lastError);
         return new Response(
-          JSON.stringify({ verified: false, error: 'Failed to verify payment amount' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ verified: false, error: 'Unable to verify payment price. Please try again in a moment.' }),
+          { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
@@ -154,23 +180,48 @@ serve(async (req) => {
       tokenMint = tokenTransfer.mint;
       tokenAmount = tokenTransfer.amount;
 
-      // Get token info and price from CoinGecko (via token address)
-      const tokenInfoResponse = await fetch(
-        `https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${tokenMint}&vs_currencies=usd&include_market_cap=true`
-      );
-      const tokenInfoData = await tokenInfoResponse.json();
-      const tokenData = tokenInfoData[tokenMint.toLowerCase()];
+      // Get token info and price from CoinGecko with retry
+      let tokenPrice = 0;
+      let marketCap = 0;
+      let lastError = '';
+      
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const tokenInfoResponse = await fetch(
+            `https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${tokenMint}&vs_currencies=usd&include_market_cap=true`,
+            { headers: { 'Accept': 'application/json' } }
+          );
+          
+          if (!tokenInfoResponse.ok) {
+            lastError = `HTTP ${tokenInfoResponse.status}: ${tokenInfoResponse.statusText}`;
+            console.log(`Token price fetch attempt ${attempt + 1} failed:`, lastError);
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+            continue;
+          }
+          
+          const tokenInfoData = await tokenInfoResponse.json();
+          const tokenData = tokenInfoData[tokenMint.toLowerCase()];
 
-      if (!tokenData || !tokenData.usd) {
-        console.log('Failed to fetch token price for:', tokenMint);
-        return new Response(
-          JSON.stringify({ verified: false, error: 'Unable to verify token payment' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+          if (tokenData && tokenData.usd) {
+            tokenPrice = tokenData.usd;
+            marketCap = tokenData.usd_market_cap || 0;
+            console.log('Token price fetched:', tokenPrice, 'Market cap:', marketCap);
+            break;
+          }
+        } catch (error) {
+          lastError = error instanceof Error ? error.message : 'Unknown error';
+          console.log(`Token price fetch attempt ${attempt + 1} error:`, lastError);
+          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        }
       }
 
-      const tokenPrice = tokenData.usd;
-      const marketCap = tokenData.usd_market_cap || 0;
+      if (tokenPrice === 0) {
+        console.log('Failed to fetch token price after retries:', lastError);
+        return new Response(
+          JSON.stringify({ verified: false, error: 'Unable to verify token payment price. Please try again in a moment.' }),
+          { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
 
       // Verify market cap
       if (marketCap < MIN_MARKET_CAP) {

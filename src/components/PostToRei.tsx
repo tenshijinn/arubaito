@@ -122,31 +122,87 @@ export const PostToRei = () => {
   const handlePaymentComplete = async (reference: string) => {
     setIsSubmitting(true);
     try {
-      // Verify payment and submit post
-      const { data, error } = await supabase.functions.invoke('rei-chat', {
+      // Verify payment
+      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-solana-pay', {
         body: {
-          message: `Payment completed with reference: ${reference}. Please ${postType === 'job' ? 'verify_and_post_job' : 'verify_and_post_task'} with these details: ${JSON.stringify({
-            title,
-            companyName,
-            description,
-            requirements: postType === 'job' ? requirements : undefined,
-            compensation: postType === 'job' ? compensation : undefined,
-            link,
-            deadline: postType === 'job' && deadline ? deadline : undefined,
-            payReward: postType === 'task' ? compensation : undefined,
-            endDate: postType === 'task' && deadline ? deadline : undefined,
-            roleTags: selectedRoles,
-            reference,
-            employerWallet: publicKey?.toString()
-          })}`,
-          walletAddress: publicKey?.toString(),
-          userMode: 'employer'
+          reference,
+          walletAddress: publicKey?.toString()
         }
       });
 
-      if (error) throw error;
+      if (verifyError || !verifyData?.verified) {
+        throw new Error(verifyData?.error || 'Payment verification failed');
+      }
 
-      toast.success(`${postType === 'job' ? 'Job' : 'Task'} posted successfully!`);
+      // Check if reference already used
+      const table = postType === 'job' ? 'jobs' : 'tasks';
+      const { data: existingPost } = await supabase
+        .from(table)
+        .select('id')
+        .eq('solana_pay_reference', reference)
+        .single();
+
+      if (existingPost) {
+        throw new Error('Payment already used for another posting');
+      }
+
+      // Insert job or task
+      if (postType === 'job') {
+        const { error: insertError } = await supabase
+          .from('jobs')
+          .insert({
+            title,
+            company_name: companyName,
+            description,
+            requirements: requirements || '',
+            role_tags: selectedRoles,
+            compensation: compensation || '',
+            deadline: deadline || null,
+            link: link || null,
+            employer_wallet: publicKey?.toString(),
+            payment_tx_signature: verifyData.signature,
+            solana_pay_reference: reference,
+            source: 'manual'
+          });
+
+        if (insertError) throw insertError;
+      } else {
+        // Task - requires link
+        if (!link) {
+          throw new Error('Link is required for tasks');
+        }
+
+        const { error: insertError } = await supabase
+          .from('tasks')
+          .insert({
+            title,
+            company_name: companyName,
+            description,
+            link,
+            role_tags: selectedRoles,
+            compensation: compensation || '',
+            end_date: deadline || null,
+            employer_wallet: publicKey?.toString(),
+            payment_tx_signature: verifyData.signature,
+            solana_pay_reference: reference,
+            source: 'manual'
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      // Award points
+      await supabase.functions.invoke('award-payment-points', {
+        body: {
+          walletAddress: publicKey?.toString(),
+          reference,
+          amount: verifyData.amount,
+          tokenMint: verifyData.tokenMint,
+          tokenAmount: verifyData.tokenAmount
+        }
+      });
+
+      toast.success(`${postType === 'job' ? 'Job' : 'Task'} posted successfully! 10 points awarded.`);
       
       // Reset form
       setTitle('');
@@ -161,7 +217,7 @@ export const PostToRei = () => {
       setSelectedPaymentMethod(null);
     } catch (error) {
       console.error('Submission error:', error);
-      toast.error('Failed to submit post');
+      toast.error(error instanceof Error ? error.message : 'Failed to submit post');
     } finally {
       setIsSubmitting(false);
     }

@@ -67,19 +67,13 @@ serve(async (req) => {
       );
     }
 
-    // Verify sender
+    // Log sender for debugging (but don't block payment)
     const accountKeys = 'accountKeys' in tx.transaction.message 
       ? tx.transaction.message.accountKeys 
       : tx.transaction.message.staticAccountKeys;
     
     const txSender = accountKeys[0].toString();
-    if (txSender !== walletAddress) {
-      console.log('Sender mismatch:', txSender, 'vs', walletAddress);
-      return new Response(
-        JSON.stringify({ verified: false, error: 'Payment sender does not match wallet. Send funds from the wallet you signed up & verified with' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    console.log('Payment sender:', txSender, 'Connected wallet:', walletAddress);
 
     // Find transfer to treasury
     const treasuryIndex = accountKeys.findIndex(

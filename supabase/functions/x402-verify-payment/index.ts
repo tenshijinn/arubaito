@@ -73,8 +73,8 @@ serve(async (req) => {
       .from('payment_references')
       .update({
         status: 'completed',
-        signature,
-        used_at: new Date().toISOString(),
+        tx_signature: signature,
+        updated_at: new Date().toISOString(),
       })
       .eq('reference', reference);
 

@@ -113,6 +113,11 @@ FOR TALENT USERS:
   "I can see you've connected your wallet, but you need to register your profile first. Please click the button below to complete your registration by uploading your CV or portfolio. Once registered, I'll be able to match you with relevant opportunities!"
   AND include this EXACT JSON at the end of your response: {"action":"register","link":"/rei"}
 - Show match scores and explain why opportunities fit their profile
+- COMMUNITY CONTRIBUTION: Talent users can also contribute jobs/tasks they find in the market!
+  - When they say "I found a job/task" or want to post an opportunity, guide them through the posting flow
+  - Explain: "Great! You'll earn 10 points for contributing this opportunity to the platform."
+  - Follow the same data collection and payment flow as employers ($5 payment required)
+  - These contributions are marked as 'community_contributed' and help the ecosystem grow
 
 FOR EMPLOYER USERS:
 - Help them find talent, post jobs, and post tasks
@@ -285,7 +290,7 @@ Example bad responses:
             type: "object",
             properties: {
               reference: { type: "string", description: "Solana Pay reference" },
-              employerWallet: { type: "string", description: "Employer's wallet address" },
+              employerWallet: { type: "string", description: "Employer's or contributor's wallet address" },
               title: { type: "string", description: "Job title" },
               companyName: { type: "string", description: "Company or project name" },
               description: { type: "string", description: "Job description (max 500 chars)" },
@@ -293,7 +298,8 @@ Example bad responses:
               wage: { type: "string", description: "Wage/pay (optional)" },
               deadline: { type: "string", description: "Application deadline (YYYY-MM-DD format, optional)" },
               link: { type: "string", description: "External job link (optional)" },
-              roleTags: { type: "array", items: { type: "string" }, description: "Role tags" }
+              roleTags: { type: "array", items: { type: "string" }, description: "Role tags" },
+              source: { type: "string", description: "Source: 'manual' (employer) or 'community_contributed' (talent contributor)" }
             },
             required: ["reference", "employerWallet", "title", "companyName", "description"]
           }
@@ -308,14 +314,15 @@ Example bad responses:
             type: "object",
             properties: {
               reference: { type: "string", description: "Solana Pay reference" },
-              employerWallet: { type: "string", description: "Employer's wallet address" },
+              employerWallet: { type: "string", description: "Employer's or contributor's wallet address" },
               title: { type: "string", description: "Task title" },
               companyName: { type: "string", description: "Company or project name" },
               description: { type: "string", description: "Task description (max 500 chars)" },
               link: { type: "string", description: "Task link" },
               payReward: { type: "string", description: "Pay/reward (optional)" },
               endDate: { type: "string", description: "End date (YYYY-MM-DD format, optional)" },
-              roleTags: { type: "array", items: { type: "string" }, description: "Role tags" }
+              roleTags: { type: "array", items: { type: "string" }, description: "Role tags" },
+              source: { type: "string", description: "Source: 'manual' (employer) or 'community_contributed' (talent contributor)" }
             },
             required: ["reference", "employerWallet", "title", "companyName", "description", "link"]
           }
@@ -623,7 +630,8 @@ async function executeTool(toolName: string, args: any, supabase: any) {
           link: args.link || null,
           employer_wallet: args.employerWallet,
           payment_tx_signature: verifyResponse.data.signature,
-          solana_pay_reference: args.reference
+          solana_pay_reference: args.reference,
+          source: args.source || 'manual'
         })
         .select()
         .single();
@@ -683,7 +691,8 @@ async function executeTool(toolName: string, args: any, supabase: any) {
           end_date: args.endDate || null,
           employer_wallet: args.employerWallet,
           payment_tx_signature: verifyResponse.data.signature,
-          solana_pay_reference: args.reference
+          solana_pay_reference: args.reference,
+          source: args.source || 'manual'
         })
         .select()
         .single();

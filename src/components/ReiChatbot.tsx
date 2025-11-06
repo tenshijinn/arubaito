@@ -47,6 +47,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'solana-pay' | 'x402' | null>(null);
   const [currentPaymentData, setCurrentPaymentData] = useState<any>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [operationStatus, setOperationStatus] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -215,6 +216,37 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     setCurrentPaymentData(null);
   };
 
+  const handleClearChat = async () => {
+    if (!confirm("Are you sure you want to clear the chat? This cannot be undone.")) {
+      return;
+    }
+
+    try {
+      // Delete from database if conversation exists
+      if (conversationId) {
+        await supabase.from("chat_messages").delete().eq("conversation_id", conversationId);
+      }
+
+      // Clear local state and localStorage
+      setMessages([]);
+      setConversationId(null);
+      localStorage.removeItem(`rei_chat_${walletAddress}`);
+      localStorage.removeItem(`rei_chat_id_${walletAddress}`);
+
+      toast({
+        title: "Chat Cleared",
+        description: "Your conversation has been reset.",
+      });
+    } catch (error) {
+      console.error("Error clearing chat:", error);
+      toast({
+        title: "Error",
+        description: "Failed to clear chat. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handlePresetSelect = (preset: string) => {
     setInput(preset);
     setShowQuickActions(false);
@@ -235,13 +267,32 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     });
     const userMessage: Message = { role: "user", content: input, timestamp };
     setMessages((prev) => [...prev, userMessage]);
+    
+    // Detect operation type for status messages
+    const isPostOperation = /post|submit|create|add.*job|add.*task|add.*gig/i.test(input);
+    
     setInput("");
     setLoading(true);
+    
+    // Progressive status updates
+    const statusTimers: NodeJS.Timeout[] = [];
+    
+    if (isPostOperation) {
+      setOperationStatus("Rei is thinking...");
+      statusTimers.push(setTimeout(() => setOperationStatus("Processing your request..."), 3000));
+      statusTimers.push(setTimeout(() => setOperationStatus("Generating payment details..."), 10000));
+      statusTimers.push(setTimeout(() => setOperationStatus("Fetching current SOL price..."), 25000));
+      statusTimers.push(setTimeout(() => setOperationStatus("Almost there, finalizing..."), 40000));
+      statusTimers.push(setTimeout(() => setOperationStatus("Still working on it, please wait..."), 60000));
+    } else {
+      setOperationStatus("Rei is thinking...");
+      statusTimers.push(setTimeout(() => setOperationStatus("Processing your request..."), 5000));
+    }
 
     try {
-      // Add 60+ second timeout
+      // Add 60 second timeout
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out")), 1200000),
+        setTimeout(() => reject(new Error("Request timed out")), 60000),
       );
 
       const invokePromise = supabase.functions.invoke("rei-chat", {
@@ -295,11 +346,16 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       console.error("Chat error:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to send message",
+        description: error.message === "Request timed out" 
+          ? "Request took too long. Please try again."
+          : error.message || "Failed to send message",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
+      setOperationStatus("");
+      // Clear all status timers
+      statusTimers.forEach(timer => clearTimeout(timer));
     }
   };
 
@@ -471,13 +527,20 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         {messages.map((message, index) => renderMessage(message, index))}
 
         {loading && (
-          <div className="font-mono text-sm mb-6 flex gap-3">
-            <span className="text-muted-foreground">[...]</span>
-            <span className="text-primary">@Rei</span>
-            <div className="flex items-center gap-2">
-              <Loader2 className="h-3 w-3 animate-spin" />
-              <span className="text-muted-foreground">thinking...</span>
+          <div className="font-mono text-sm mb-6 space-y-2">
+            <div className="flex gap-3">
+              <span className="text-muted-foreground">[...]</span>
+              <span className="text-primary">@Rei</span>
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span className="text-muted-foreground">thinking...</span>
+              </div>
             </div>
+            {operationStatus && (
+              <div className="ml-[120px] text-xs text-muted-foreground animate-pulse">
+                {operationStatus}
+              </div>
+            )}
           </div>
         )}
 
@@ -487,22 +550,32 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       {/* Input area - fixed to bottom */}
       <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-primary/20 z-10">
         <div className="max-w-4xl mx-auto px-8 py-4">
-          <div className="relative">
+          <div className="flex items-center gap-2 mb-2">
             <button
               onClick={() => setShowQuickActions(!showQuickActions)}
-              className="absolute left-4 top-1/2 -translate-y-1/2 
-                       text-xs font-mono text-muted-foreground 
-                       hover:text-primary transition-colors z-10"
+              className="text-xs font-mono text-muted-foreground 
+                       hover:text-primary transition-colors"
             >
               [?]
             </button>
+            {messages.length > 0 && (
+              <button
+                onClick={handleClearChat}
+                className="text-xs font-mono text-muted-foreground 
+                         hover:text-destructive transition-colors ml-auto"
+              >
+                [clear chat]
+              </button>
+            )}
+          </div>
+          <div className="relative">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
               placeholder={placeholders[placeholderIndex]}
               disabled={loading}
-              className="w-full pl-12 pr-12 h-12 rounded-full border-2 border-primary/50 bg-transparent font-mono text-sm focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50"
+              className="w-full pr-12 h-12 rounded-full border-2 border-primary/50 bg-transparent font-mono text-sm focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50"
             />
             <Button
               onClick={handleSend}

@@ -360,6 +360,7 @@ Example bad responses:
 
     while (iteration < maxIterations) {
       iteration++;
+      console.log(`[Iteration ${iteration}/${maxIterations}] Starting AI processing...`);
 
       const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -383,6 +384,7 @@ Example bad responses:
 
       const aiData = await aiResponse.json();
       const assistantMessage = aiData.choices[0].message;
+      console.log(`[Iteration ${iteration}] AI response received. Tool calls:`, assistantMessage.tool_calls?.length || 0);
 
       // Add assistant message to conversation
       aiMessages.push(assistantMessage);
@@ -398,8 +400,12 @@ Example bad responses:
 
           let toolResult;
           try {
+            const startTime = Date.now();
             toolResult = await executeTool(toolName, toolArgs, supabase);
+            const duration = Date.now() - startTime;
+            console.log(`Tool ${toolName} completed in ${duration}ms`);
           } catch (error) {
+            console.error(`Tool ${toolName} failed:`, error);
             toolResult = { error: error instanceof Error ? error.message : 'Tool execution failed' };
           }
 
@@ -413,6 +419,7 @@ Example bad responses:
         }
       } else {
         // No more tool calls, we have the final response
+        console.log(`[Iteration ${iteration}] Final response ready, length:`, assistantMessage.content?.length || 0);
         finalResponse = assistantMessage.content;
         break;
       }
@@ -500,6 +507,7 @@ async function executeTool(toolName: string, args: any, supabase: any) {
     }
 
     case 'generate_solana_pay_qr': {
+      console.log('[generate_solana_pay_qr] Starting QR generation...');
       // Generate truly unique reference using crypto
       const QRCode = await import("npm:qrcode@^1.5.3");
       const { Keypair } = await import("npm:@solana/web3.js@^1.98.4");
@@ -507,6 +515,7 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       // Generate a unique keypair and use its public key as reference
       const keypair = Keypair.generate();
       const reference = keypair.publicKey.toString();
+      console.log('[generate_solana_pay_qr] Generated reference:', reference);
       
       const usdAmount = 5; // $5 USD
       const recipient = '5JXJQSFZMxiQNmG4nx3bs2FnoZZsgz6kpVrNDxfBjb1s';
@@ -514,12 +523,14 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       // Fetch current SOL price in USD
       let solAmount = 0;
       try {
+        console.log('[generate_solana_pay_qr] Fetching SOL price from CoinGecko...');
         const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
         const priceData = await priceResponse.json();
         const solPriceUsd = priceData.solana.usd;
         solAmount = usdAmount / solPriceUsd;
+        console.log('[generate_solana_pay_qr] SOL price:', solPriceUsd, 'USD, amount:', solAmount, 'SOL');
       } catch (error) {
-        console.error('Failed to fetch SOL price, using fallback:', error);
+        console.error('[generate_solana_pay_qr] Failed to fetch SOL price, using fallback:', error);
         // Fallback: assume SOL = $100 USD
         solAmount = usdAmount / 100;
       }
@@ -528,6 +539,7 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       // Note: Wallet apps can send SPL tokens instead if they support it
       const paymentUrl = `solana:${recipient}?amount=${solAmount.toFixed(9)}&reference=${reference}&label=${encodeURIComponent(args.label)}&message=${encodeURIComponent(args.message || 'Payment for Rei Portal')}`;
       
+      console.log('[generate_solana_pay_qr] Generating QR code...');
       // Generate QR code with custom colors
       const qrCodeUrl = await QRCode.default.toDataURL(paymentUrl, {
         width: 400,
@@ -538,6 +550,7 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         }
       });
       
+      console.log('[generate_solana_pay_qr] QR code generated successfully');
       // Return QR data as JSON string that will be parsed by AI
       const qrData = {
         qrCodeUrl,

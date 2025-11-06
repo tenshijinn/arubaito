@@ -101,10 +101,10 @@ serve(async (req) => {
     let transferUSD = 0;
 
     if (isSOL) {
-      // SOL transfer - get SOL price
-      const priceResponse = await fetch('https://price.jup.ag/v6/price?ids=SOL');
+      // SOL transfer - get SOL price from CoinGecko
+      const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
       const priceData = await priceResponse.json();
-      const solPrice = priceData.data?.SOL?.price || 0;
+      const solPrice = priceData.solana?.usd || 0;
 
       if (solPrice === 0) {
         console.log('Failed to fetch SOL price');
@@ -154,14 +154,14 @@ serve(async (req) => {
       tokenMint = tokenTransfer.mint;
       tokenAmount = tokenTransfer.amount;
 
-      // Get token info and price from Jupiter
+      // Get token info and price from CoinGecko (via token address)
       const tokenInfoResponse = await fetch(
-        `https://price.jup.ag/v6/price?ids=${tokenMint}`
+        `https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${tokenMint}&vs_currencies=usd&include_market_cap=true`
       );
       const tokenInfoData = await tokenInfoResponse.json();
-      const tokenData = tokenInfoData.data?.[tokenMint];
+      const tokenData = tokenInfoData[tokenMint.toLowerCase()];
 
-      if (!tokenData || !tokenData.price) {
+      if (!tokenData || !tokenData.usd) {
         console.log('Failed to fetch token price for:', tokenMint);
         return new Response(
           JSON.stringify({ verified: false, error: 'Unable to verify token payment' }),
@@ -169,8 +169,8 @@ serve(async (req) => {
         );
       }
 
-      const tokenPrice = tokenData.price;
-      const marketCap = tokenData.marketCap || 0;
+      const tokenPrice = tokenData.usd;
+      const marketCap = tokenData.usd_market_cap || 0;
 
       // Verify market cap
       if (marketCap < MIN_MARKET_CAP) {

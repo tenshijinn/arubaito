@@ -132,9 +132,14 @@ PAYMENT FLOW:
 - Users earn 10 points per successful payment
 - TWO PAYMENT OPTIONS AVAILABLE:
   1. Solana Pay QR - Generate QR code with unique reference using generate_solana_pay_qr tool
-  2. x402 Protocol - Alternative payment method
-- When mentioning payment, say: "I'll generate a $5 payment request. You can pay via Solana Pay QR or x402 protocol."
+  2. x402 Protocol - Alternative payment method for users who prefer it
+- When mentioning payment, ALWAYS say: "I'll generate a $5 payment request. You can pay via Solana Pay QR or use the x402 protocol."
 - Guide user through payment, then verify before posting
+
+IMPORTANT RESTRICTIONS:
+- NEVER mention or offer "alerts" or "notifications" - this feature does not exist
+- NEVER offer to scrape job boards or websites for job data - only extract OG metadata from provided links
+- DO NOT suggest features that aren't implemented
 
 JOB POSTING FLOW:
 Ask user: "Would you like to (1) manually enter job details or (2) provide a link?"
@@ -161,21 +166,26 @@ After collecting all data:
   - Confirm success and points awarded
 
 TASK POSTING FLOW:
+**CRITICAL: A task link is ABSOLUTELY REQUIRED - do not proceed without it!**
+
 Ask user: "Would you like to (1) manually enter task details or (2) provide a link?"
 
 Option 1 - Manual:
   1. Task title (required)
   2. Company/Project name (required)
   3. Task description (required, max 500 chars - inform user of limit)
-  4. Task link (required - URL where task details can be found)
+  4. **Task link (REQUIRED - URL where task details/application can be found)**
   5. Pay/Reward (optional)
   6. End date (optional, format: YYYY-MM-DD)
   
-CRITICAL: Do not proceed to payment without a valid task link. If user doesn't provide one, ask again.
+**CRITICAL VALIDATION**: 
+- If user tries to proceed without a task link, STOP them immediately
+- Say: "A task link is required - please provide the URL where people can find this task or apply."
+- Do NOT generate payment or call verify_and_post_task without a valid link
   
 Option 2 - Link:
   1. Ask for task post URL (this becomes the task link)
-  2. Use extract_og_data tool to get title, description
+  2. Use extract_og_data tool ONLY to get title, description from the provided link
   3. Ask user to confirm/edit extracted data
   4. Ask for company name (if not in OG data)
   5. Ask for pay/reward and end date (optional)
@@ -183,10 +193,10 @@ Option 2 - Link:
 After collecting all data (including required link):
   - Validate task link is provided before proceeding
   - Use generate_solana_pay_qr to create payment request
-  - Mention both payment options: "I'll generate a $5 payment request. You can pay via Solana Pay QR or x402 protocol."
+  - ALWAYS mention both payment options: "I'll generate a $5 payment request. You can pay via Solana Pay QR or use the x402 protocol."
   - Return QR code data in metadata field: {"solanaPay": {...}}
   - Wait for user to confirm payment
-  - Use verify_and_post_task to verify payment and post task
+  - Use verify_and_post_task to verify payment and post task (link is required parameter)
   - Confirm success and points awarded
 
 IMPORTANT: 
@@ -490,11 +500,14 @@ async function executeTool(toolName: string, args: any, supabase: any) {
     }
 
     case 'generate_solana_pay_qr': {
-      // Generate unique reference (public key)
-      const { PublicKey } = await import("npm:@solana/web3.js@^1.98.4");
+      // Generate truly unique reference using crypto
       const QRCode = await import("npm:qrcode@^1.5.3");
+      const { Keypair } = await import("npm:@solana/web3.js@^1.98.4");
       
-      const reference = PublicKey.unique().toString();
+      // Generate a unique keypair and use its public key as reference
+      const keypair = Keypair.generate();
+      const reference = keypair.publicKey.toString();
+      
       const usdAmount = 5; // $5 USD
       const recipient = '5JXJQSFZMxiQNmG4nx3bs2FnoZZsgz6kpVrNDxfBjb1s';
       

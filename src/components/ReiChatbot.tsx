@@ -290,12 +290,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     }
 
     try {
-      // Add 60 second timeout
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Request timed out")), 60000),
-      );
-
-      const invokePromise = supabase.functions.invoke("rei-chat", {
+      const { data, error } = await supabase.functions.invoke("rei-chat", {
         body: {
           message: input,
           walletAddress,
@@ -303,8 +298,6 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
           userMode,
         },
       });
-
-      const { data, error } = (await Promise.race([invokePromise, timeoutPromise])) as any;
 
       if (error) throw error;
 
@@ -346,9 +339,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       console.error("Chat error:", error);
       toast({
         title: "Error",
-        description: error.message === "Request timed out" 
-          ? "Request took too long. Please try again."
-          : error.message || "Failed to send message",
+        description: error.message || "Failed to send message",
         variant: "destructive",
       });
     } finally {

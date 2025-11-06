@@ -94,20 +94,22 @@ export const SolanaPayQR = ({
         throw new Error('Invalid payment amount');
       }
 
-      // Validate recipient address
+      // Validate and create recipient address
       let recipientPubkey;
       try {
         recipientPubkey = new PublicKey(recipient);
       } catch (error) {
-        throw new Error('Invalid recipient address');
+        console.error('Recipient validation error:', error);
+        throw new Error('Invalid recipient address format');
       }
 
-      // Validate reference
+      // Validate and create reference public key
       let referencePublicKey;
       try {
         referencePublicKey = new PublicKey(reference);
       } catch (error) {
-        throw new Error('Invalid payment reference');
+        console.error('Reference validation error:', { reference, error });
+        throw new Error(`Invalid payment reference format: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
 
       // Create transaction

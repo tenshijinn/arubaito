@@ -94,150 +94,59 @@ serve(async (req) => {
 
     console.log('Transfer amount:', transferAmount, 'SOL');
 
-    // Determine if this is SOL or SPL token transfer
-    let isSOL = transferAmount > 0;
-    let tokenMint = 'SOL';
-    let tokenAmount = transferAmount;
-    let transferUSD = 0;
-
-    if (isSOL) {
-      // SOL transfer - get SOL price from CoinGecko with retry
-      let solPrice = 0;
-      let lastError = '';
-      
-      for (let attempt = 0; attempt < 3; attempt++) {
-        try {
-          const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd', {
-            headers: { 'Accept': 'application/json' }
-          });
-          
-          if (!priceResponse.ok) {
-            lastError = `HTTP ${priceResponse.status}: ${priceResponse.statusText}`;
-            console.log(`Price fetch attempt ${attempt + 1} failed:`, lastError);
-            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1))); // backoff
-            continue;
-          }
-          
-          const priceData = await priceResponse.json();
-          solPrice = priceData.solana?.usd || 0;
-          
-          if (solPrice > 0) {
-            console.log('SOL price fetched:', solPrice);
-            break;
-          }
-        } catch (error) {
-          lastError = error instanceof Error ? error.message : 'Unknown error';
-          console.log(`Price fetch attempt ${attempt + 1} error:`, lastError);
-          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-        }
-      }
-
-      if (solPrice === 0) {
-        console.log('Failed to fetch SOL price after retries:', lastError);
-        return new Response(
-          JSON.stringify({ verified: false, error: 'Unable to verify payment price. Please try again in a moment.' }),
-          { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      transferUSD = transferAmount * solPrice;
-      console.log('SOL payment - USD value:', transferUSD);
-    } else {
-      // SPL token transfer - parse from transaction
-      const postTokenBalances = tx.meta?.postTokenBalances || [];
-      const preTokenBalances = tx.meta?.preTokenBalances || [];
-
-      // Find token transfer to treasury
-      let tokenTransfer = null;
-      for (const postBalance of postTokenBalances) {
-        if (postBalance.owner === TREASURY_WALLET) {
-          const preBalance = preTokenBalances.find(
-            (pre) => pre.accountIndex === postBalance.accountIndex
-          );
-          const preAmount = preBalance ? parseFloat(preBalance.uiTokenAmount.uiAmountString || '0') : 0;
-          const postAmount = parseFloat(postBalance.uiTokenAmount.uiAmountString || '0');
-          const amount = postAmount - preAmount;
-
-          if (amount > 0) {
-            tokenTransfer = {
-              mint: postBalance.mint,
-              amount: amount,
-              decimals: postBalance.uiTokenAmount.decimals
-            };
-            break;
-          }
-        }
-      }
-
-      if (!tokenTransfer) {
-        console.log('No token transfer found');
-        return new Response(
-          JSON.stringify({ verified: false, error: 'No valid payment found' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      tokenMint = tokenTransfer.mint;
-      tokenAmount = tokenTransfer.amount;
-
-      // Get token info and price from CoinGecko with retry
-      let tokenPrice = 0;
-      let marketCap = 0;
-      let lastError = '';
-      
-      for (let attempt = 0; attempt < 3; attempt++) {
-        try {
-          const tokenInfoResponse = await fetch(
-            `https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${tokenMint}&vs_currencies=usd&include_market_cap=true`,
-            { headers: { 'Accept': 'application/json' } }
-          );
-          
-          if (!tokenInfoResponse.ok) {
-            lastError = `HTTP ${tokenInfoResponse.status}: ${tokenInfoResponse.statusText}`;
-            console.log(`Token price fetch attempt ${attempt + 1} failed:`, lastError);
-            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-            continue;
-          }
-          
-          const tokenInfoData = await tokenInfoResponse.json();
-          const tokenData = tokenInfoData[tokenMint.toLowerCase()];
-
-          if (tokenData && tokenData.usd) {
-            tokenPrice = tokenData.usd;
-            marketCap = tokenData.usd_market_cap || 0;
-            console.log('Token price fetched:', tokenPrice, 'Market cap:', marketCap);
-            break;
-          }
-        } catch (error) {
-          lastError = error instanceof Error ? error.message : 'Unknown error';
-          console.log(`Token price fetch attempt ${attempt + 1} error:`, lastError);
-          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-        }
-      }
-
-      if (tokenPrice === 0) {
-        console.log('Failed to fetch token price after retries:', lastError);
-        return new Response(
-          JSON.stringify({ verified: false, error: 'Unable to verify token payment price. Please try again in a moment.' }),
-          { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      // Verify market cap
-      if (marketCap < MIN_MARKET_CAP) {
-        console.log('Token market cap too low:', marketCap);
-        return new Response(
-          JSON.stringify({ 
-            verified: false, 
-            error: `Token market cap ($${(marketCap / 1e6).toFixed(1)}M) is below required $100M minimum` 
-          }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      transferUSD = tokenAmount * tokenPrice;
-      console.log('SPL token payment - Token:', tokenMint, 'Amount:', tokenAmount, 'USD value:', transferUSD);
+    // Only accept SOL transfers (SPL tokens temporarily disabled)
+    if (transferAmount <= 0) {
+      console.log('No SOL transfer detected');
+      return new Response(
+        JSON.stringify({ verified: false, error: 'No SOL payment detected. Please pay with SOL.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const tokenMint = 'SOL';
+    const tokenAmount = transferAmount;
+    
+    // SOL transfer - get SOL price from CoinGecko with retry
+    let solPrice = 0;
+    let lastError = '';
+    
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd', {
+          headers: { 'Accept': 'application/json' }
+        });
+        
+        if (!priceResponse.ok) {
+          lastError = `HTTP ${priceResponse.status}: ${priceResponse.statusText}`;
+          console.log(`Price fetch attempt ${attempt + 1} failed:`, lastError);
+          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1))); // backoff
+          continue;
+        }
+        
+        const priceData = await priceResponse.json();
+        solPrice = priceData.solana?.usd || 0;
+        
+        if (solPrice > 0) {
+          console.log('SOL price fetched:', solPrice);
+          break;
+        }
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : 'Unknown error';
+        console.log(`Price fetch attempt ${attempt + 1} error:`, lastError);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+      }
+    }
+
+    if (solPrice === 0) {
+      console.log('Failed to fetch SOL price after retries:', lastError);
+      return new Response(
+        JSON.stringify({ verified: false, error: 'Unable to verify payment price. Please try again in a moment.' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const transferUSD = transferAmount * solPrice;
+    console.log('SOL payment - USD value:', transferUSD);
 
     // Verify amount is $5 ±2%
     const minAmount = REQUIRED_USD_AMOUNT * (1 - AMOUNT_VARIANCE);

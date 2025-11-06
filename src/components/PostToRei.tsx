@@ -77,10 +77,9 @@ export const PostToRei = () => {
       const usdAmount = 5;
       const solAmount = usdAmount / solPrice;
       
-      // Generate reference
-      const reference = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
+      // Generate base58 reference (Solana PublicKey format)
+      const { PublicKey } = await import('@solana/web3.js');
+      const reference = PublicKey.unique().toString();
       
       const recipient = '5JXJQSFZMxiQNmG4nx3bs2FnoZZsgz6kpVrNDxfBjb1s';
       const label = postType === 'job' ? 'Job Posting' : 'Task Posting';

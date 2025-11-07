@@ -359,7 +359,18 @@ export const PostToRei = () => {
 
           {/* Payment Section */}
           {!paymentData && (
-            <div className="pt-4 border-t border-primary/20">
+            <div className="pt-4 border-t border-primary/20 space-y-3">
+              {/* Show wallet button when not connected */}
+              {!publicKey && (
+                <div className="flex flex-col items-center gap-2 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <p className="text-sm text-muted-foreground font-mono text-center">
+                    Connect your wallet to post opportunities
+                  </p>
+                  <WalletMultiButton className="!bg-primary hover:!bg-primary/90 !font-mono" />
+                </div>
+              )}
+              
+              {/* Generate Payment button */}
               <Button
                 onClick={generatePayment}
                 disabled={!canGeneratePayment || !publicKey || isGeneratingPayment}
@@ -375,9 +386,11 @@ export const PostToRei = () => {
                   `Generate Payment ($5 USD)`
                 )}
               </Button>
-              {!publicKey && (
-                <p className="text-xs text-muted-foreground mt-2 text-center font-mono">
-                  Connect wallet to continue
+              
+              {/* Helper text when form incomplete */}
+              {!canGeneratePayment && publicKey && (
+                <p className="text-xs text-muted-foreground text-center font-mono">
+                  Fill all required fields (*) to continue
                 </p>
               )}
             </div>

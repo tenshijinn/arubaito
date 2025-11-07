@@ -8,24 +8,6 @@ import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 const Index = () => {
   const navigate = useNavigate();
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
-  const [x402Html, setX402Html] = useState<string>('');
-  const [arubaitoHtml, setArubaitoHtml] = useState<string>('');
-  const [reiHtml, setReiHtml] = useState<string>('');
-
-  // Fetch and process ASCII art HTML files
-  useEffect(() => {
-    const loadHTML = async () => {
-      try {
-        const x402Response = await fetch('/ascii/x402.html');
-        const x402Html = await x402Response.text();
-        setX402Html(x402Html);
-      } catch (error) {
-        console.error('Error loading ASCII art HTML:', error);
-      }
-    };
-
-    loadHTML();
-  }, []);
 
   const tasksWords = ["Jobs", "Tasks", "Gigs", "Bounties"];
   const humansWords = ["AI", "Humans"];
@@ -177,10 +159,11 @@ const Index = () => {
         {/* Section 1 - Above the Fold */}
         <div className="min-h-screen flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16">
           {/* x402 ASCII Art Block */}
-          <div 
-            className="w-full max-w-md aspect-square mb-8 flex items-center justify-center"
+          <iframe 
+            src="/ascii/x402.html"
+            className="w-full max-w-md aspect-square mb-8 border-0"
             style={{ backgroundColor: 'transparent' }}
-            dangerouslySetInnerHTML={{ __html: x402Html }}
+            title="x402 Payment ASCII Art"
           />
           
           {/* Payment Info */}
@@ -221,10 +204,11 @@ const Index = () => {
             </div>
             
             {/* Arubaito ASCII Art Block */}
-            <div 
-              className="w-full max-w-md aspect-square mx-auto mt-8 flex items-center justify-center"
+            <iframe 
+              src="/ascii/arubaito.html"
+              className="w-full max-w-md aspect-square mx-auto mt-8 border-0"
               style={{ backgroundColor: 'transparent' }}
-              dangerouslySetInnerHTML={{ __html: arubaitoHtml }}
+              title="Arubaito ASCII Art"
             />
           </div>
         </div>
@@ -264,10 +248,11 @@ const Index = () => {
             </div>
             
             {/* Rei ASCII Art Block */}
-            <div 
-              className="w-full max-w-md aspect-square mx-auto mt-8 flex items-center justify-center"
+            <iframe 
+              src="/ascii/rei.html"
+              className="w-full max-w-md aspect-square mx-auto mt-8 border-0"
               style={{ backgroundColor: 'transparent' }}
-              dangerouslySetInnerHTML={{ __html: reiHtml }}
+              title="Rei ASCII Art"
             />
           </div>
         </div>

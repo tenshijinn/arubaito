@@ -8,12 +8,12 @@ import { CVProfileMethodSelector } from "@/components/CVProfileMethodSelector";
 import { ManualCVForm } from "@/components/ManualCVForm";
 import { LinkedInImport } from "@/components/LinkedInImport";
 import { supabase } from "@/integrations/supabase/client";
-import { FileCheck, LogOut, History, Info } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { CountdownTimer } from "@/components/CountdownTimer";
+import { FileCheck, LogOut, Plus, Info, ArrowLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
+import { CVProfilesEmpty } from "@/components/CVProfilesEmpty";
+import { CVProfileCard } from "@/components/CVProfileCard";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -50,10 +50,10 @@ const Index = () => {
   const fetchRecentAnalyses = async (userId: string) => {
     const { data, error } = await supabase
       .from('cv_analyses')
-      .select('id, file_name, overall_score, created_at')
+      .select('id, file_name, overall_score, created_at, bluechip_verified')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
-      .limit(5);
+      .limit(20);
 
     if (!error && data) {
       setRecentAnalyses(data);
@@ -122,7 +122,9 @@ const Index = () => {
               </div>
               <div className="flex items-center gap-2">
                 <div>
-                  <h1 className="text-xl font-bold text-foreground">Private Membership Web3 Jobs Community</h1>
+                  <h1 className="text-xl font-bold text-foreground">
+                    {currentAnalysisId ? "CV Analysis" : "CV Profile Manager"}
+                  </h1>
                 </div>
                 <TooltipProvider>
                   <Tooltip>
@@ -130,7 +132,7 @@ const Index = () => {
                       <Info className="h-5 w-5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-sm">
-                      <p>Upload your CV for AI-powered analysis. Get detailed scores on content, structure, formatting, and more. Optional: Add wallet address for Bluechip Talent verification.</p>
+                      <p>Manage your CV profiles and get AI-powered analysis. Upload multiple CVs to track improvements over time. Optional: Add wallet address for Bluechip Talent verification.</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -158,73 +160,82 @@ const Index = () => {
             <CVAnalysis analysisId={currentAnalysisId} />
           ) : (
             <div className="space-y-8">
-              <div className="text-center space-y-4 mb-12">
-                <h2 className="text-2xl font-bold text-foreground">
-                  New Member Onboarding
-                </h2>
-                <div className="text-lg text-muted-foreground">
-                  <CountdownTimer targetDate={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)} />
-                </div>
-              </div>
-
+              {/* Upload New CV Button or Method Selector */}
               {!selectedMethod ? (
-                <CVProfileMethodSelector 
-                  onMethodSelect={handleMethodSelect}
-                  walletAddress={walletAddress}
-                />
-              ) : selectedMethod === 'form' ? (
-                <ManualCVForm 
-                  onBack={handleBackToMethodSelector}
-                  onComplete={handleAnalysisComplete}
-                  walletAddress={walletAddress}
-                />
-              ) : selectedMethod === 'upload' ? (
-                <CVUploader 
-                  onAnalysisComplete={handleAnalysisComplete}
-                  walletAddress={walletAddress}
-                  onBack={handleBackToMethodSelector}
-                />
-              ) : (
-                <LinkedInImport 
-                  onBack={handleBackToMethodSelector}
-                  onComplete={handleAnalysisComplete}
-                  walletAddress={walletAddress}
-                />
-              )}
-
-              {/* Recent Analyses */}
-              {recentAnalyses.length > 0 && (
-                <Card className="bg-transparent">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <History className="h-5 w-5" style={{ color: 'hsl(var(--primary))' }} />
-                      <h3 className="text-lg font-semibold text-foreground">Recent Analyses</h3>
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-foreground">Your CV Profiles</h2>
+                      <p className="text-muted-foreground mt-1">
+                        Manage and analyze your curriculum vitae profiles
+                      </p>
                     </div>
-                    <div className="space-y-2">
+                    <Button 
+                      size="lg"
+                      onClick={() => setSelectedMethod('upload')}
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      Upload New CV
+                    </Button>
+                  </div>
+
+                  {/* CV Profiles Grid or Empty State */}
+                  {recentAnalyses.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {recentAnalyses.map((analysis) => (
-                        <button
+                        <CVProfileCard
                           key={analysis.id}
-                          onClick={() => setCurrentAnalysisId(analysis.id)}
-                          className="w-full flex items-center justify-between p-4 rounded-lg border hover:bg-accent transition-colors"
-                        >
-                          <div className="flex items-center gap-3">
-                            <FileCheck className="h-4 w-4 text-muted-foreground" />
-                            <div className="text-left">
-                              <p className="font-medium text-foreground">{analysis.file_name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {new Date(analysis.created_at).toLocaleDateString()}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-2xl font-bold" 
-                               style={{ color: analysis.overall_score >= 70 ? 'hsl(var(--success))' : 'hsl(var(--warning))' }}>
-                            {analysis.overall_score}
-                          </div>
-                        </button>
+                          id={analysis.id}
+                          fileName={analysis.file_name}
+                          overallScore={analysis.overall_score}
+                          createdAt={analysis.created_at}
+                          bluechipVerified={analysis.bluechip_verified}
+                          onClick={setCurrentAnalysisId}
+                        />
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  ) : (
+                    <CVProfilesEmpty onUploadClick={() => setSelectedMethod('upload')} />
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Back to profiles button */}
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleBackToMethodSelector}
+                    className="mb-4"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Profiles
+                  </Button>
+
+                  {/* Method Selector or Upload Forms */}
+                  {selectedMethod === 'upload' && !selectedMethod.startsWith('form') && !selectedMethod.startsWith('linkedin') ? (
+                    <CVProfileMethodSelector 
+                      onMethodSelect={handleMethodSelect}
+                      walletAddress={walletAddress}
+                    />
+                  ) : selectedMethod === 'form' ? (
+                    <ManualCVForm 
+                      onBack={handleBackToMethodSelector}
+                      onComplete={handleAnalysisComplete}
+                      walletAddress={walletAddress}
+                    />
+                  ) : selectedMethod === 'linkedin' ? (
+                    <LinkedInImport 
+                      onBack={handleBackToMethodSelector}
+                      onComplete={handleAnalysisComplete}
+                      walletAddress={walletAddress}
+                    />
+                  ) : (
+                    <CVUploader 
+                      onAnalysisComplete={handleAnalysisComplete}
+                      walletAddress={walletAddress}
+                      onBack={handleBackToMethodSelector}
+                    />
+                  )}
+                </div>
               )}
             </div>
           )}

@@ -71,7 +71,7 @@ export const TreasuryDisplay = () => {
   const totalRewards = balance * 0.1; // Example: 10% of treasury goes to rewards
 
   return (
-    <div className="fixed bottom-6 left-4 md:left-6 z-40">
+    <div>
       <HoverCard openDelay={0} closeDelay={100} {...(isMobile ? { open: mobileOpen, onOpenChange: setMobileOpen } : {})}>
         <HoverCardTrigger asChild>
           <div 

@@ -9,7 +9,7 @@ export const WaitlistCountdown = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-4 md:right-6 z-50">
+    <div>
       <div 
         className="border-2 rounded-3xl p-3 md:p-4 backdrop-blur-sm"
         style={{

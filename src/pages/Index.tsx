@@ -14,47 +14,11 @@ const Index = () => {
 
   // Fetch and process ASCII art HTML files
   useEffect(() => {
-    const processRTFtoHTML = (rtfContent: string): string => {
-      // Extract HTML content from RTF format
-      // Find the start of HTML content (after RTF header)
-      const htmlStart = rtfContent.indexOf('<');
-      if (htmlStart === -1) return '';
-      
-      // Extract everything from first < to the end, remove RTF formatting
-      let htmlContent = rtfContent.substring(htmlStart);
-      
-      // Remove RTF escape sequences and backslashes before HTML tags
-      htmlContent = htmlContent.replace(/\\</g, '<');
-      htmlContent = htmlContent.replace(/\\>/g, '>');
-      htmlContent = htmlContent.replace(/\\"/g, '"');
-      htmlContent = htmlContent.replace(/\\\'/g, "'");
-      htmlContent = htmlContent.replace(/\\\n/g, '\n');
-      htmlContent = htmlContent.replace(/\\par/g, '');
-      htmlContent = htmlContent.replace(/\}/g, '');
-      
-      // Clean up any remaining RTF artifacts
-      htmlContent = htmlContent.trim();
-      
-      return htmlContent;
-    };
-
     const loadHTML = async () => {
       try {
-        const [x402Response, arubaitoResponse, reiResponse] = await Promise.all([
-          fetch('/ascii/x402.html'),
-          fetch('/ascii/arubaito.html'),
-          fetch('/ascii/rei.html')
-        ]);
-
-        const [x402RTF, arubaitoRTF, reiRTF] = await Promise.all([
-          x402Response.text(),
-          arubaitoResponse.text(),
-          reiResponse.text()
-        ]);
-
-        setX402Html(processRTFtoHTML(x402RTF));
-        setArubaitoHtml(processRTFtoHTML(arubaitoRTF));
-        setReiHtml(processRTFtoHTML(reiRTF));
+        const x402Response = await fetch('/ascii/x402.html');
+        const x402Html = await x402Response.text();
+        setX402Html(x402Html);
       } catch (error) {
         console.error('Error loading ASCII art HTML:', error);
       }

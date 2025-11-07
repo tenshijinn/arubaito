@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TextRotator } from "@/components/TextRotator";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
@@ -8,6 +8,60 @@ import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 const Index = () => {
   const navigate = useNavigate();
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
+  const [x402Html, setX402Html] = useState<string>('');
+  const [arubaitoHtml, setArubaitoHtml] = useState<string>('');
+  const [reiHtml, setReiHtml] = useState<string>('');
+
+  // Fetch and process ASCII art HTML files
+  useEffect(() => {
+    const processRTFtoHTML = (rtfContent: string): string => {
+      // Extract HTML content from RTF format
+      // Find the start of HTML content (after RTF header)
+      const htmlStart = rtfContent.indexOf('<');
+      if (htmlStart === -1) return '';
+      
+      // Extract everything from first < to the end, remove RTF formatting
+      let htmlContent = rtfContent.substring(htmlStart);
+      
+      // Remove RTF escape sequences and backslashes before HTML tags
+      htmlContent = htmlContent.replace(/\\</g, '<');
+      htmlContent = htmlContent.replace(/\\>/g, '>');
+      htmlContent = htmlContent.replace(/\\"/g, '"');
+      htmlContent = htmlContent.replace(/\\\'/g, "'");
+      htmlContent = htmlContent.replace(/\\\n/g, '\n');
+      htmlContent = htmlContent.replace(/\\par/g, '');
+      htmlContent = htmlContent.replace(/\}/g, '');
+      
+      // Clean up any remaining RTF artifacts
+      htmlContent = htmlContent.trim();
+      
+      return htmlContent;
+    };
+
+    const loadHTML = async () => {
+      try {
+        const [x402Response, arubaitoResponse, reiResponse] = await Promise.all([
+          fetch('/ascii/x402.html'),
+          fetch('/ascii/arubaito.html'),
+          fetch('/ascii/rei.html')
+        ]);
+
+        const [x402RTF, arubaitoRTF, reiRTF] = await Promise.all([
+          x402Response.text(),
+          arubaitoResponse.text(),
+          reiResponse.text()
+        ]);
+
+        setX402Html(processRTFtoHTML(x402RTF));
+        setArubaitoHtml(processRTFtoHTML(arubaitoRTF));
+        setReiHtml(processRTFtoHTML(reiRTF));
+      } catch (error) {
+        console.error('Error loading ASCII art HTML:', error);
+      }
+    };
+
+    loadHTML();
+  }, []);
 
   const tasksWords = ["Jobs", "Tasks", "Gigs", "Bounties"];
   const humansWords = ["AI", "Humans"];
@@ -158,18 +212,12 @@ const Index = () => {
       <div className="w-full lg:w-1/2 min-h-screen overflow-y-auto scroll-smooth">
         {/* Section 1 - Above the Fold */}
         <div className="min-h-screen flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16">
-          {/* Square HTML Block Placeholder */}
+          {/* x402 ASCII Art Block */}
           <div 
-            className="w-full max-w-md aspect-square border-2 rounded-lg mb-8 flex items-center justify-center"
-            style={{ borderColor: '#ed565a', backgroundColor: 'transparent' }}
-          >
-            <div 
-              className="text-center font-mono text-sm"
-              style={{ color: '#ed565a' }}
-            >
-              SQUARE HTML BLOCK
-            </div>
-          </div>
+            className="w-full max-w-md aspect-square mb-8 flex items-center justify-center"
+            style={{ backgroundColor: 'transparent' }}
+            dangerouslySetInnerHTML={{ __html: x402Html }}
+          />
           
           {/* Payment Info */}
           <div className="text-center space-y-3">
@@ -179,10 +227,6 @@ const Index = () => {
                 Post & Pay with x402 or SolanaPay
               </p>
             </div>
-            <p className="font-mono text-xs max-w-sm mx-auto leading-relaxed" style={{ color: '#a0a0a0' }}>
-              Native Web3 payments for verified job posts.<br />
-              Fast, permissionless, and fully on-chain.
-            </p>
             <button 
               className="mt-4 text-xs font-mono flex items-center gap-1 mx-auto hover:opacity-80 transition-opacity"
               style={{ color: '#ed565a' }}
@@ -210,29 +254,13 @@ const Index = () => {
                 Your access pass is a Member NFT — proof of entry to a curated space 
                 where top talent meets trusted projects.
               </p>
-              
-              <ol className="space-y-4 text-sm" style={{ color: '#d0d0d0' }}>
-                <li>
-                  <span style={{ color: '#ed565a' }}>1.</span> Mint your Member NFT — your key to access the network.
-                </li>
-                <li>
-                  <span style={{ color: '#ed565a' }}>2.</span> Set up your Profile — Rei pulls your on-chain work history automatically.
-                </li>
-                <li>
-                  <span style={{ color: '#ed565a' }}>3.</span> Get Matched to Work — projects post directly to members.
-                </li>
-              </ol>
-              
-              <p className="text-sm italic" style={{ color: '#a0a0a0' }}>
-                No recruiters. No noise.<br />
-                Just builders working with builders.
-              </p>
             </div>
             
-            {/* Optional: Square HTML block for visual */}
+            {/* Arubaito ASCII Art Block */}
             <div 
-              className="w-64 h-64 mt-8 border-2 rounded-lg"
-              style={{ borderColor: '#ed565a', backgroundColor: 'rgba(237, 85, 90, 0.05)' }}
+              className="w-full max-w-md aspect-square mx-auto mt-8 flex items-center justify-center"
+              style={{ backgroundColor: 'transparent' }}
+              dangerouslySetInnerHTML={{ __html: arubaitoHtml }}
             />
           </div>
         </div>
@@ -246,8 +274,7 @@ const Index = () => {
             
             <div className="space-y-6 font-mono leading-relaxed" style={{ color: '#faf6f4' }}>
               <p className="text-sm" style={{ color: '#d0d0d0' }}>
-                Rei is your AI agent inside Arubaito.
-                Instead of browsing listings, you just ask.
+                Rei is your open AI Agent that's open to anyone. Instead of browsing for crypto tasks, bounties and tasks, you just ask her tasks are suitable for you.
               </p>
               
               <p className="text-sm" style={{ color: '#d0d0d0' }}>
@@ -270,16 +297,13 @@ const Index = () => {
                 Rei learns from your work, tracks your on-chain reputation, and curates 
                 better matches over time.
               </p>
-              
-              <p className="text-sm font-semibold italic" style={{ color: '#a0a0a0' }}>
-                AI-driven. Wallet-native. Always on-chain.
-              </p>
             </div>
             
-            {/* Optional: Square HTML block for visual */}
+            {/* Rei ASCII Art Block */}
             <div 
-              className="w-64 h-64 mt-8 border-2 rounded-lg"
-              style={{ borderColor: '#ed565a', backgroundColor: 'rgba(237, 85, 90, 0.05)' }}
+              className="w-full max-w-md aspect-square mx-auto mt-8 flex items-center justify-center"
+              style={{ backgroundColor: 'transparent' }}
+              dangerouslySetInnerHTML={{ __html: reiHtml }}
             />
           </div>
         </div>

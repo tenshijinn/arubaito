@@ -155,7 +155,7 @@ const Index = () => {
       </div>
 
       {/* RIGHT COLUMN - Scrollable */}
-      <div className="w-full lg:w-1/2 min-h-screen overflow-y-auto scroll-smooth">
+      <div className="w-full lg:w-1/2 min-h-screen overflow-y-auto scroll-smooth" style={{ backgroundColor: '#181818' }}>
         {/* Section 1 - Above the Fold */}
         <div className="min-h-screen flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16">
           {/* x402 ASCII Art Block */}

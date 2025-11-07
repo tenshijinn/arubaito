@@ -155,9 +155,9 @@ const Index = () => {
       </div>
 
       {/* RIGHT COLUMN - Scrollable */}
-      <div className="w-full lg:w-1/2 min-h-screen overflow-y-auto scroll-smooth" style={{ backgroundColor: '#181818' }}>
+      <div className="w-full lg:w-1/2 min-h-screen overflow-y-auto scroll-smooth snap-y snap-mandatory" style={{ backgroundColor: '#181818' }}>
         {/* Section 1 - Above the Fold */}
-        <div className="min-h-screen flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16">
+        <div className="min-h-screen flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
           {/* x402 ASCII Art Block */}
           <iframe 
             src="/ascii/x402.html"
@@ -185,7 +185,7 @@ const Index = () => {
         </div>
 
         {/* Section 2 - How the Club Works */}
-        <div id="how-club-works" className="min-h-screen flex items-center px-8 md:px-12 lg:px-16 py-16">
+        <div id="how-club-works" className="min-h-screen flex items-center px-8 md:px-12 lg:px-16 py-16 snap-start">
           <div className="max-w-xl">
             <h2 className="text-3xl font-bold mb-6 font-mono" style={{ color: '#ed565a' }}>
               How the Club Works
@@ -214,7 +214,7 @@ const Index = () => {
         </div>
 
         {/* Section 3 - How Rei Works */}
-        <div className="min-h-screen flex items-center px-8 md:px-12 lg:px-16 py-16">
+        <div className="min-h-screen flex items-center px-8 md:px-12 lg:px-16 py-16 snap-start">
           <div className="max-w-xl">
             <h2 className="text-3xl font-bold mb-6 font-mono" style={{ color: '#ed565a' }}>
               How Rei Works

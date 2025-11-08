@@ -187,6 +187,14 @@ const Index = () => {
         {/* Section 2 - How the Club Works */}
         <div id="how-club-works" className="min-h-screen flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
           <div className="max-w-xl text-center">
+            {/* Arubaito ASCII Art Block - Moved above title */}
+            <iframe 
+              src="/ascii/arubaito.html"
+              className="w-full max-w-md aspect-square mx-auto mb-8 border-0"
+              style={{ backgroundColor: 'transparent' }}
+              title="Arubaito ASCII Art"
+            />
+            
             <h2 className="text-3xl font-bold mb-6 font-mono" style={{ color: '#ed565a' }}>
               How the Club Works
             </h2>
@@ -202,20 +210,20 @@ const Index = () => {
                 where top talent meets trusted projects.
               </p>
             </div>
-            
-            {/* Arubaito ASCII Art Block */}
-            <iframe 
-              src="/ascii/arubaito.html"
-              className="w-full max-w-md aspect-square mx-auto mt-8 border-0"
-              style={{ backgroundColor: 'transparent' }}
-              title="Arubaito ASCII Art"
-            />
           </div>
         </div>
 
         {/* Section 3 - How Rei Works */}
         <div className="min-h-screen flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
           <div className="max-w-xl text-center">
+            {/* Rei ASCII Art Block - Moved above title */}
+            <iframe 
+              src="/ascii/rei.html"
+              className="w-full max-w-md aspect-square mx-auto mb-8 border-0"
+              style={{ backgroundColor: 'transparent' }}
+              title="Rei ASCII Art"
+            />
+            
             <h2 className="text-3xl font-bold mb-6 font-mono" style={{ color: '#ed565a' }}>
               How Rei Works
             </h2>
@@ -246,14 +254,6 @@ const Index = () => {
                 better matches over time.
               </p>
             </div>
-            
-            {/* Rei ASCII Art Block */}
-            <iframe 
-              src="/ascii/rei.html"
-              className="w-full max-w-md aspect-square mx-auto mt-8 border-0"
-              style={{ backgroundColor: 'transparent' }}
-              title="Rei ASCII Art"
-            />
           </div>
         </div>
       </div>

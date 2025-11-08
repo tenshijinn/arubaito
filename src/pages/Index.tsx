@@ -73,8 +73,8 @@ const Index = () => {
           />
         )}
         
-        {/* Treasury and Waitlist - top right corner */}
-        <div className="absolute top-4 right-4 flex gap-3 z-50 hidden lg:flex text-xs">
+        {/* Treasury and Waitlist - top right corner, smaller size */}
+        <div className="absolute top-3 right-3 flex gap-2 z-50 hidden lg:flex" style={{ fontSize: '0.7rem' }}>
           <TreasuryDisplay />
           <WaitlistCountdown />
         </div>
@@ -115,23 +115,27 @@ const Index = () => {
             )}
           </div>
 
-          {/* Buttons side by side - smaller */}
-          <div className="flex gap-4 w-full">
+          {/* Buttons side by side - smaller with highlight effect */}
+          <div className="flex gap-3 w-full">
             <Button
               onClick={() => navigate('/arubaito')}
               variant="outline"
               size="sm"
-              className="flex-1 text-sm px-4 py-2 bg-transparent border-2 font-mono transition-all duration-300 hover:bg-transparent"
+              className="flex-1 text-xs px-3 py-2 bg-transparent border font-mono transition-all duration-300"
               style={{ 
                 borderColor: 'hsl(var(--landing-border))',
                 color: 'hsl(var(--landing-border))',
                 fontFamily: 'Consolas, monospace'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 0 15px hsl(var(--landing-border) / 0.6), inset 0 0 10px hsl(var(--landing-border) / 0.3)';
+                e.currentTarget.style.backgroundColor = '#ed565a';
+                e.currentTarget.style.color = '#ffffff';
+                e.currentTarget.style.borderColor = '#ed565a';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = 'hsl(var(--landing-border))';
+                e.currentTarget.style.borderColor = 'hsl(var(--landing-border))';
               }}
             >
               Enter Club
@@ -140,7 +144,7 @@ const Index = () => {
               onClick={() => navigate('/rei')}
               variant="outline"
               size="sm"
-              className="flex-1 text-sm px-4 py-2 bg-transparent border-2 transition-all duration-300 hover:bg-transparent font-mono"
+              className="flex-1 text-xs px-3 py-2 bg-transparent border font-mono transition-all duration-300"
               style={{ 
                 borderColor: 'hsl(var(--landing-border))',
                 color: 'hsl(var(--landing-border))',
@@ -148,11 +152,15 @@ const Index = () => {
               }}
               onMouseEnter={(e) => {
                 setHoveredButton('rei');
-                e.currentTarget.style.boxShadow = '0 0 15px hsl(var(--landing-border) / 0.6), inset 0 0 10px hsl(var(--landing-border) / 0.3)';
+                e.currentTarget.style.backgroundColor = '#ed565a';
+                e.currentTarget.style.color = '#ffffff';
+                e.currentTarget.style.borderColor = '#ed565a';
               }}
               onMouseLeave={(e) => {
                 setHoveredButton(null);
-                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = 'hsl(var(--landing-border))';
+                e.currentTarget.style.borderColor = 'hsl(var(--landing-border))';
               }}
             >
               @AskRei

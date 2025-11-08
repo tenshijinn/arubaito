@@ -75,23 +75,23 @@ export const TreasuryDisplay = () => {
       <HoverCard openDelay={0} closeDelay={100} {...(isMobile ? { open: mobileOpen, onOpenChange: setMobileOpen } : {})}>
         <HoverCardTrigger asChild>
           <div 
-            className="rounded-3xl px-3 py-2 md:px-6 md:py-3 cursor-pointer"
+            className="cursor-pointer"
             onClick={() => isMobile && setMobileOpen(!mobileOpen)}
           >
             <div 
-              className="text-[10px] md:text-xs font-bold mb-0.5 md:mb-1 tracking-wide"
+              className="text-[8px] font-bold mb-0.5 tracking-wide"
               style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
             >
               Treasury ^
             </div>
             <div 
-              className="text-lg md:text-2xl font-bold tracking-tight flex items-center gap-1.5 md:gap-2"
+              className="text-sm font-bold tracking-tight flex items-center gap-1"
               style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
             >
               {isLoading ? '...' : (
                 <>
                   {balance.toFixed(1)}
-                  <img src={solanaIcon} alt="SOL" className="w-4 h-4 md:w-6 md:h-6" />
+                  <img src={solanaIcon} alt="SOL" className="w-3 h-3" />
                 </>
               )}
             </div>

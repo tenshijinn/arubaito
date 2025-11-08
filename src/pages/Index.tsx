@@ -73,84 +73,91 @@ const Index = () => {
           />
         )}
         
-        {/* Text rotators - positioned absolutely */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-8 max-w-4xl w-full z-10">
-          {hoveredButton === 'rei' ? (
-            <>
-              <h1 
-                className="text-base md:text-xl font-semibold leading-relaxed"
-                style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
-              >
-                Aggregating Web3 <TextRotator key="rei-tasks" words={tasksWords} isActive={true} /> for <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} />{' '}
-                <span style={{ color: '#ed565a' }}>hiring</span>{' '}
-                <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} />
-              </h1>
-              <div className="mt-4 font-mono text-sm md:text-base" style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}>
-                <p>Rei will find you anything from Zealy Tasks to C-Level Roles. [ALaaAA]</p>
-              </div>
-            </>
-          ) : hoveredButton === null && (
-            <>
-              <h1 
-                className="text-base md:text-xl font-semibold leading-relaxed"
-                style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}
-              >
-                <span style={{ color: '#ed565a' }}>Connecting</span> <TextRotator key="default-companies-1" words={companies} isActive={true} delay={0} color="#faf6f4" startIndex={0} /> <span style={{ color: '#ed565a' }}>to</span>
-                <br />
-                <span style={{ color: '#ed565a' }}>Ex-</span><TextRotator key="default-companies-2" words={companies} isActive={true} delay={800} color="#faf6f4" startIndex={10} />{' '}
-                <TextRotator key="default-jobs" words={jobTitles} isActive={true} delay={1600} color="#ed565a" />
-              </h1>
-              <div className="mt-4 font-mono text-sm md:text-base" style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}>
-                <p>Private Member Club for Buildrs in Web3</p>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Buttons - fixed in center */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-6 mt-8 z-10">
-          <Button
-            onClick={() => navigate('/arubaito')}
-            variant="outline"
-            size="default"
-            className="text-base px-8 py-4 bg-transparent border-2 font-mono"
-            style={{ 
-              borderColor: 'hsl(var(--landing-border))',
-              color: 'hsl(var(--landing-border))',
-              fontFamily: 'Consolas, monospace'
-            }}
-          >
-            Enter Club
-          </Button>
-          <Button
-            onClick={() => navigate('/rei')}
-            variant="outline"
-            size="default"
-            className="text-base px-8 py-4 bg-transparent border-2 transition-shadow duration-300 hover:bg-transparent font-mono"
-            style={{ 
-              borderColor: 'hsl(var(--landing-border))',
-              color: 'hsl(var(--landing-border))',
-              fontFamily: 'Consolas, monospace'
-            }}
-            onMouseEnter={(e) => {
-              setHoveredButton('rei');
-              e.currentTarget.style.boxShadow = '0 0 20px hsl(var(--landing-border) / 0.6), inset 0 0 15px hsl(var(--landing-border) / 0.3)';
-            }}
-            onMouseLeave={(e) => {
-              setHoveredButton(null);
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          >
-            @AskRei
-          </Button>
-        </div>
-
-        {/* Treasury and Waitlist - repositioned for left column */}
-        <div className="absolute bottom-6 left-4 md:left-6 z-40 hidden lg:block">
+        {/* Treasury and Waitlist - top right corner */}
+        <div className="absolute top-4 right-4 flex gap-3 z-50 hidden lg:flex text-xs">
           <TreasuryDisplay />
-        </div>
-        <div className="absolute bottom-6 right-4 md:right-6 z-50 hidden lg:block">
           <WaitlistCountdown />
+        </div>
+
+        {/* Logo in centre */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-6 z-10 w-full max-w-md px-8">
+          <div className="text-center mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold mb-2" style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}>
+              ARUBAITO.
+            </h1>
+          </div>
+
+          {/* Left aligned text with rotating words */}
+          <div className="w-full text-left">
+            {hoveredButton === 'rei' ? (
+              <p 
+                className="text-sm md:text-base font-mono leading-relaxed"
+                style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}
+              >
+                Aggregating Web3 <span className="underline"><TextRotator key="rei-tasks" words={tasksWords} isActive={true} /></span> for <span className="underline"><TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} /></span>{' '}
+                <span style={{ color: '#ed565a' }}>hiring</span>{' '}
+                <span className="underline"><TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} /></span>
+                <br />
+                <span className="text-xs mt-2 block">Rei will find you anything from Zealy Tasks to C-Level Roles. [ALaaAA]</span>
+              </p>
+            ) : hoveredButton === null && (
+              <p 
+                className="text-sm md:text-base font-mono leading-relaxed"
+                style={{ fontFamily: 'Consolas, monospace', color: '#faf6f4' }}
+              >
+                <span style={{ color: '#ed565a' }}>Connecting</span> <span className="underline"><TextRotator key="default-companies-1" words={companies} isActive={true} delay={0} color="#faf6f4" startIndex={0} /></span> <span style={{ color: '#ed565a' }}>to</span>
+                <br />
+                <span style={{ color: '#ed565a' }}>Ex-</span><span className="underline"><TextRotator key="default-companies-2" words={companies} isActive={true} delay={800} color="#faf6f4" startIndex={10} /></span>{' '}
+                <span className="underline"><TextRotator key="default-jobs" words={jobTitles} isActive={true} delay={1600} color="#ed565a" /></span>
+                <br />
+                <span className="text-xs mt-2 block">Private Member Club for Buildrs in Web3</span>
+              </p>
+            )}
+          </div>
+
+          {/* Buttons side by side - smaller */}
+          <div className="flex gap-4 w-full">
+            <Button
+              onClick={() => navigate('/arubaito')}
+              variant="outline"
+              size="sm"
+              className="flex-1 text-sm px-4 py-2 bg-transparent border-2 font-mono transition-all duration-300 hover:bg-transparent"
+              style={{ 
+                borderColor: 'hsl(var(--landing-border))',
+                color: 'hsl(var(--landing-border))',
+                fontFamily: 'Consolas, monospace'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 0 15px hsl(var(--landing-border) / 0.6), inset 0 0 10px hsl(var(--landing-border) / 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              Enter Club
+            </Button>
+            <Button
+              onClick={() => navigate('/rei')}
+              variant="outline"
+              size="sm"
+              className="flex-1 text-sm px-4 py-2 bg-transparent border-2 transition-all duration-300 hover:bg-transparent font-mono"
+              style={{ 
+                borderColor: 'hsl(var(--landing-border))',
+                color: 'hsl(var(--landing-border))',
+                fontFamily: 'Consolas, monospace'
+              }}
+              onMouseEnter={(e) => {
+                setHoveredButton('rei');
+                e.currentTarget.style.boxShadow = '0 0 15px hsl(var(--landing-border) / 0.6), inset 0 0 10px hsl(var(--landing-border) / 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                setHoveredButton(null);
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              @AskRei
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -231,27 +238,6 @@ const Index = () => {
             <div className="space-y-6 font-mono leading-relaxed" style={{ color: '#faf6f4' }}>
               <p className="text-sm" style={{ color: '#d0d0d0' }}>
                 Rei is your open AI Agent that's open to anyone. Instead of browsing for crypto tasks, bounties and tasks, you just ask her tasks are suitable for you.
-              </p>
-              
-              <p className="text-sm" style={{ color: '#d0d0d0' }}>
-                Rei searches across major Web3 job and task platforms — Layer3, Galxe, 
-                TaskOn, Zealy — and filters verified, paying opportunities that fit your skills.
-              </p>
-              
-              <div className="space-y-3">
-                <p className="text-sm font-semibold" style={{ color: '#faf6f4' }}>
-                  Examples:
-                </p>
-                <ul className="space-y-2 text-sm" style={{ color: '#a0a0a0' }}>
-                  <li>"Marketing tasks paying in SOL"</li>
-                  <li>"DAO ops roles this week"</li>
-                  <li>"Rust bounties under Galxe"</li>
-                </ul>
-              </div>
-              
-              <p className="text-sm" style={{ color: '#d0d0d0' }}>
-                Rei learns from your work, tracks your on-chain reputation, and curates 
-                better matches over time.
               </p>
             </div>
           </div>

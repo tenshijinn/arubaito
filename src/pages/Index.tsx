@@ -185,8 +185,8 @@ const Index = () => {
         </div>
 
         {/* Section 2 - How the Club Works */}
-        <div id="how-club-works" className="min-h-screen flex items-center px-8 md:px-12 lg:px-16 py-16 snap-start">
-          <div className="max-w-xl">
+        <div id="how-club-works" className="min-h-screen flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
+          <div className="max-w-xl text-center">
             <h2 className="text-3xl font-bold mb-6 font-mono" style={{ color: '#ed565a' }}>
               How the Club Works
             </h2>
@@ -214,8 +214,8 @@ const Index = () => {
         </div>
 
         {/* Section 3 - How Rei Works */}
-        <div className="min-h-screen flex items-center px-8 md:px-12 lg:px-16 py-16 snap-start">
-          <div className="max-w-xl">
+        <div className="min-h-screen flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
+          <div className="max-w-xl text-center">
             <h2 className="text-3xl font-bold mb-6 font-mono" style={{ color: '#ed565a' }}>
               How Rei Works
             </h2>
@@ -234,7 +234,7 @@ const Index = () => {
                 <p className="text-sm font-semibold" style={{ color: '#faf6f4' }}>
                   Examples:
                 </p>
-                <ul className="space-y-2 text-sm pl-4" style={{ color: '#a0a0a0' }}>
+                <ul className="space-y-2 text-sm" style={{ color: '#a0a0a0' }}>
                   <li>"Marketing tasks paying in SOL"</li>
                   <li>"DAO ops roles this week"</li>
                   <li>"Rust bounties under Galxe"</li>

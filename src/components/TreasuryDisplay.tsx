@@ -80,18 +80,18 @@ export const TreasuryDisplay = () => {
           >
             <div 
               className="text-[8px] font-bold mb-0.5 tracking-wide"
-              style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
+              style={{ color: '#ed565a', fontFamily: 'IBM Plex Mono, monospace' }}
             >
               Treasury ^
             </div>
             <div 
-              className="text-sm font-bold tracking-tight flex items-center gap-1"
-              style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
+              className="text-2xl font-bold tracking-tight flex items-center gap-1"
+              style={{ color: '#ed565a', fontFamily: 'IBM Plex Mono, monospace' }}
             >
               {isLoading ? '...' : (
                 <>
                   {balance.toFixed(1)}
-                  <img src={solanaIcon} alt="SOL" className="w-3 h-3" />
+                  <img src={solanaIcon} alt="SOL" className="w-4 h-4" />
                 </>
               )}
             </div>

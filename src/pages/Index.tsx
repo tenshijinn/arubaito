@@ -73,16 +73,20 @@ const Index = () => {
           />
         )}
         
-        {/* Treasury and Waitlist - top right corner, smaller size */}
-        <div className="absolute top-3 right-3 flex gap-2 z-50 hidden lg:flex" style={{ fontSize: '0.7rem' }}>
+        {/* Treasury - top left corner */}
+        <div className="absolute top-3 left-3 z-50 hidden lg:block">
           <TreasuryDisplay />
+        </div>
+
+        {/* Waitlist - top right corner */}
+        <div className="absolute top-3 right-3 z-50 hidden lg:block">
           <WaitlistCountdown />
         </div>
 
-        {/* Logo in centre */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-6 z-10 w-full max-w-md px-8">
-          <div className="text-center mb-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-2" style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}>
+        {/* Logo, text, and buttons - bottom left corner */}
+        <div className="absolute bottom-8 left-8 flex flex-col gap-4 z-10 w-full max-w-md px-0">
+          <div className="text-left">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'Consolas, monospace', color: '#ed565a' }}>
               ARUBAITO.
             </h1>
           </div>
@@ -115,27 +119,28 @@ const Index = () => {
             )}
           </div>
 
-          {/* Buttons side by side - smaller with highlight effect */}
-          <div className="flex gap-3 w-full">
+          {/* Buttons side by side */}
+          <div className="flex gap-3 w-full max-w-xs">
             <Button
               onClick={() => navigate('/arubaito')}
               variant="outline"
               size="sm"
-              className="flex-1 text-xs px-3 py-2 bg-transparent border font-mono transition-all duration-300"
+              className="flex-1 text-xs px-3 py-2 border font-mono transition-all duration-300"
               style={{ 
-                borderColor: 'hsl(var(--landing-border))',
-                color: 'hsl(var(--landing-border))',
+                backgroundColor: '#ed565a',
+                borderColor: '#ed565a',
+                color: '#181818',
                 fontFamily: 'Consolas, monospace'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#ed565a';
-                e.currentTarget.style.color = '#ffffff';
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#ed565a';
                 e.currentTarget.style.borderColor = '#ed565a';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = 'hsl(var(--landing-border))';
-                e.currentTarget.style.borderColor = 'hsl(var(--landing-border))';
+                e.currentTarget.style.backgroundColor = '#ed565a';
+                e.currentTarget.style.color = '#181818';
+                e.currentTarget.style.borderColor = '#ed565a';
               }}
             >
               Enter Club

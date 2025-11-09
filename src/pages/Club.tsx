@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { supabase } from '@/integrations/supabase/client';
-import type { Session, User } from '@supabase/supabase-js';
-import { Navigation } from '@/components/Navigation';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Shield, Loader2, Info } from 'lucide-react';
-import { toast } from 'sonner';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { CountdownTimer } from '@/components/CountdownTimer';
-import { WaitlistCountdown } from '@/components/WaitlistCountdown';
-import { TreasuryDisplay } from '@/components/TreasuryDisplay';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Session, User } from "@supabase/supabase-js";
+import { Navigation } from "@/components/Navigation";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Shield, Loader2, Info } from "lucide-react";
+import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CountdownTimer } from "@/components/CountdownTimer";
+import { WaitlistCountdown } from "@/components/WaitlistCountdown";
+import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 
 export default function Club() {
   const navigate = useNavigate();
@@ -24,17 +24,21 @@ export default function Club() {
 
   useEffect(() => {
     // Set up auth state listener first
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        console.log('Auth state changed:', { event: _event, user: session?.user, metadata: session?.user?.user_metadata });
-        setSession(session);
-        setUser(session?.user ?? null);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", {
+        event: _event,
+        user: session?.user,
+        metadata: session?.user?.user_metadata,
+      });
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
 
     // Then check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Got session:', { user: session?.user, metadata: session?.user?.user_metadata });
+      console.log("Got session:", { user: session?.user, metadata: session?.user?.user_metadata });
       setSession(session);
       setUser(session?.user ?? null);
     });
@@ -51,13 +55,13 @@ export default function Club() {
 
   const checkMemberAccess = async () => {
     setIsLoading(true);
-    
+
     // Use wallet from authenticated session first, fallback to connected wallet
     const walletAddress = user?.user_metadata?.wallet_address || publicKey?.toString();
     const twitterHandle = user?.user_metadata?.twitter_username;
-    
-    console.log('Club access check:', { walletAddress, twitterHandle, userMetadata: user?.user_metadata });
-    
+
+    console.log("Club access check:", { walletAddress, twitterHandle, userMetadata: user?.user_metadata });
+
     if (!walletAddress && !twitterHandle) {
       setIsLoading(false);
       return;
@@ -65,31 +69,31 @@ export default function Club() {
 
     try {
       let hasAccess = false;
-      let accessReason = '';
+      let accessReason = "";
       let data: any = null;
 
       // Check 1: Twitter Whitelist - check if authenticated user's Twitter is whitelisted
       if (twitterHandle) {
         const { data: whitelistData } = await supabase
-          .from('twitter_whitelist')
-          .select('*')
-          .ilike('twitter_handle', twitterHandle)
+          .from("twitter_whitelist")
+          .select("*")
+          .ilike("twitter_handle", twitterHandle)
           .maybeSingle();
 
-        console.log('Twitter whitelist check:', { twitterHandle, whitelistData });
+        console.log("Twitter whitelist check:", { twitterHandle, whitelistData });
 
         if (whitelistData) {
           hasAccess = true;
-          accessReason = 'twitter_whitelist';
-          
+          accessReason = "twitter_whitelist";
+
           // Get additional data from rei_registry if exists
           if (walletAddress) {
             const { data: reiData } = await supabase
-              .from('rei_registry')
-              .select('*')
-              .eq('wallet_address', walletAddress)
+              .from("rei_registry")
+              .select("*")
+              .eq("wallet_address", walletAddress)
               .maybeSingle();
-            
+
             data = reiData || { wallet_address: walletAddress, handle: twitterHandle };
           } else {
             data = { handle: twitterHandle };
@@ -100,14 +104,14 @@ export default function Club() {
       // Check 2: NFT Holder - check if wallet has member NFT
       if (!hasAccess && walletAddress) {
         const { data: reiData } = await supabase
-          .from('rei_registry')
-          .select('*')
-          .eq('wallet_address', walletAddress)
+          .from("rei_registry")
+          .select("*")
+          .eq("wallet_address", walletAddress)
           .maybeSingle();
 
         if (reiData && (reiData.nft_minted || reiData.nft_mint_address)) {
           hasAccess = true;
-          accessReason = 'nft_holder';
+          accessReason = "nft_holder";
           data = reiData;
         }
       }
@@ -118,7 +122,7 @@ export default function Club() {
         console.log(`Club access granted via: ${accessReason}`);
       }
     } catch (error) {
-      console.error('Access check error:', error);
+      console.error("Access check error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -126,19 +130,19 @@ export default function Club() {
 
   const handleWhitelistSubmission = async () => {
     if (!user) {
-      toast.error('Please sign in with Twitter first');
+      toast.error("Please sign in with Twitter first");
       return;
     }
 
     try {
       const twitterHandle = user.user_metadata?.twitter_username;
-      
+
       if (!twitterHandle) {
-        toast.error('Twitter handle not found in your account');
+        toast.error("Twitter handle not found in your account");
         return;
       }
 
-      const { error } = await supabase.functions.invoke('submit-whitelist-request', {
+      const { error } = await supabase.functions.invoke("submit-whitelist-request", {
         body: {
           twitter_handle: twitterHandle,
           x_user_id: user.user_metadata?.twitter_id,
@@ -149,10 +153,10 @@ export default function Club() {
 
       if (error) throw error;
 
-      toast.success('Whitelist request submitted for review!');
+      toast.success("Whitelist request submitted for review!");
     } catch (error: any) {
-      console.error('Whitelist submission error:', error);
-      toast.error(error.message || 'Failed to submit whitelist request');
+      console.error("Whitelist submission error:", error);
+      toast.error(error.message || "Failed to submit whitelist request");
     }
   };
 
@@ -183,7 +187,12 @@ export default function Club() {
                     <Info className="h-5 w-5 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
-                    <p>This area is restricted to club members only. {!publicKey && !user?.user_metadata?.wallet_address ? 'Sign in with your wallet to check membership.' : 'Access is granted if you are: (1) on the Twitter whitelist, or (2) an NFT holder.'}</p>
+                    <p>
+                      This area is restricted to club members only.{" "}
+                      {!publicKey && !user?.user_metadata?.wallet_address
+                        ? "Sign in with your wallet to check membership."
+                        : "Access is granted if you are: (1) on the Twitter whitelist, or (2) an NFT holder."}
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -191,21 +200,11 @@ export default function Club() {
           </div>
           <div className="pt-4 space-y-3">
             {user && (
-              <Button
-                onClick={handleWhitelistSubmission}
-                className="w-full font-mono"
-                variant="outline"
-                size="lg"
-              >
+              <Button onClick={handleWhitelistSubmission} className="w-full font-mono" variant="outline" size="lg">
                 Review my Twitter for Whitelist
               </Button>
             )}
-            <Button
-              onClick={() => navigate('/arubaito')}
-              className="w-full font-mono"
-              variant="default"
-              size="lg"
-            >
+            <Button onClick={() => navigate("/arubaito")} className="w-full font-mono" variant="default" size="lg">
               Try another sign in method
             </Button>
           </div>
@@ -215,37 +214,39 @@ export default function Club() {
   }
 
   // Prioritize Twitter data from user metadata or member data
-  const userName = user?.user_metadata?.full_name?.split(' ')[0]
-    || user?.user_metadata?.twitter_username
-    || user?.user_metadata?.display_name?.split(' ')[0]
-    || user?.user_metadata?.handle
-    || memberData?.display_name?.split(' ')[0] 
-    || memberData?.handle;
+  const userName =
+    user?.user_metadata?.full_name?.split(" ")[0] ||
+    user?.user_metadata?.twitter_username ||
+    user?.user_metadata?.display_name?.split(" ")[0] ||
+    user?.user_metadata?.handle ||
+    memberData?.display_name?.split(" ")[0] ||
+    memberData?.handle;
 
   return (
     <div className="min-h-screen">
       <Navigation userName={userName} />
-      
+
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-6 py-8">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold text-foreground font-mono">THE CLUBHOUSE</h1>
+              <h1 className="text-3xl font-bold text-foreground font-mono">THE CLUB</h1>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="h-6 w-6 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
-                    <p>Exclusive member area for verified Web3 contributors. Access your timeline, manage your profile, create job pitches, and view the member spotlight.</p>
+                    <p>
+                      Exclusive member area for verified Web3 contributors. Access your timeline, manage your profile,
+                      create job pitches, and view the member spotlight.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <p className="text-sm text-muted-foreground font-mono">
-              {memberData?.display_name || memberData?.handle}
-            </p>
+            <p className="text-sm text-muted-foreground font-mono">{memberData?.display_name || memberData?.handle}</p>
           </div>
         </div>
       </header>
@@ -255,20 +256,14 @@ export default function Club() {
         <Card className="max-w-3xl mx-auto p-8 bg-transparent border border-border">
           <div className="space-y-8 text-center">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-foreground font-mono">
-                CLUBHOUSE LAUNCHING SOON
-              </h2>
-              <p className="text-sm text-muted-foreground font-mono">
-                EXCLUSIVE MEMBER FEATURES COMING DECEMBER 8TH
-              </p>
+              <h2 className="text-2xl font-bold text-foreground font-mono">CLUB OPENS SOON</h2>
+              <p className="text-sm text-muted-foreground font-mono">EXCLUSIVE MEMBER FEATURES COMING DECEMBER 8TH</p>
             </div>
-            
-            <CountdownTimer targetDate={new Date('2025-12-08T00:00:00')} />
-            
+
+            <CountdownTimer targetDate={new Date("2025-12-08T00:00:00")} />
+
             <div className="pt-4 space-y-3">
-              <p className="text-xs text-muted-foreground font-mono leading-relaxed">
-                UPCOMING FEATURES:
-              </p>
+              <p className="text-xs text-muted-foreground font-mono leading-relaxed">UPCOMING FEATURES:</p>
               <ul className="text-xs font-mono text-foreground space-y-1">
                 <li>• MEMBER TIMELINE & ACTIVITY FEED</li>
                 <li>• PROFILE BUILDER & CV MANAGEMENT</li>

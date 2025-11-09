@@ -312,11 +312,14 @@ const Index = () => {
               How the Club Works
             </h2>
 
+            <div className="space-y-6 font-mono leading-relaxed" style={{ color: "#faf6f4" }}>
+              <p className="text-lg font-semibold"></p>
+
               <p className="text-sm" style={{ color: "#d0d0d0" }}>
                 Arubaito is a members-only network for verified builders. Your access pass is a Member NFT — proof of
                 entry to a curated space where top talent meets trusted projects.
               </p>
-              
+
               <button
                 onClick={() => navigate("/arubaito")}
                 className="text-sm font-mono mt-4 hover:opacity-80 transition-opacity underline"
@@ -348,7 +351,7 @@ const Index = () => {
                 Rei is your open AI Agent that's open to anyone. Instead of browsing for crypto tasks, bounties and
                 tasks, you just ask her tasks are suitable for you.
               </p>
-              
+
               <button
                 onClick={() => navigate("/rei")}
                 className="text-sm font-mono mt-4 hover:opacity-80 transition-opacity underline"

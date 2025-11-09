@@ -121,13 +121,13 @@ const Index = () => {
           />
         )}
 
-        {/* Treasury - bottom left corner */}
-        <div className="absolute bottom-3 left-3 z-50 hidden lg:block">
+        {/* Treasury - top left corner */}
+        <div className="absolute top-4 left-4 z-50 hidden lg:block">
           <TreasuryDisplay />
         </div>
 
-        {/* Waitlist - bottom right corner */}
-        <div className="absolute bottom-3 right-3 z-50 hidden lg:block">
+        {/* Waitlist - top right corner */}
+        <div className="absolute top-4 right-4 z-50 hidden lg:block">
           <WaitlistCountdown />
         </div>
 
@@ -263,11 +263,11 @@ const Index = () => {
 
       {/* RIGHT COLUMN - Scrollable */}
       <div
-        className="w-full lg:w-1/2 min-h-screen overflow-y-auto snap-y snap-mandatory"
-        style={{ backgroundColor: "#181818", scrollBehavior: "smooth" }}
+        className="w-full lg:w-1/2 h-screen overflow-y-scroll snap-y snap-mandatory"
+        style={{ backgroundColor: "#181818" }}
       >
         {/* Section 1 - Above the Fold */}
-        <div className="min-h-screen flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start snap-always">
+        <div className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
           {/* x402 ASCII Art Block */}
           <iframe
             src="/ascii/x402.html"
@@ -297,7 +297,7 @@ const Index = () => {
         {/* Section 2 - How the Club Works */}
         <div
           id="how-club-works"
-          className="min-h-screen flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start snap-always"
+          className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
         >
           <div className="max-w-xl text-center">
             {/* Arubaito ASCII Art Block - Moved above title */}
@@ -332,7 +332,7 @@ const Index = () => {
         </div>
 
         {/* Section 3 - How Rei Works */}
-        <div className="min-h-screen flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start snap-always">
+        <div className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
           <div className="max-w-xl text-center">
             {/* Rei ASCII Art Block - Moved above title */}
             <iframe

@@ -263,11 +263,11 @@ const Index = () => {
 
       {/* RIGHT COLUMN - Scrollable */}
       <div
-        className="w-full lg:w-1/2 min-h-screen overflow-y-auto scroll-smooth snap-y snap-mandatory"
-        style={{ backgroundColor: "#181818" }}
+        className="w-full lg:w-1/2 min-h-screen overflow-y-auto snap-y snap-mandatory"
+        style={{ backgroundColor: "#181818", scrollBehavior: "smooth" }}
       >
         {/* Section 1 - Above the Fold */}
-        <div className="min-h-screen flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
+        <div className="min-h-screen flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start snap-always">
           {/* x402 ASCII Art Block */}
           <iframe
             src="/ascii/x402.html"
@@ -297,7 +297,7 @@ const Index = () => {
         {/* Section 2 - How the Club Works */}
         <div
           id="how-club-works"
-          className="min-h-screen flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
+          className="min-h-screen flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start snap-always"
         >
           <div className="max-w-xl text-center">
             {/* Arubaito ASCII Art Block - Moved above title */}
@@ -319,12 +319,20 @@ const Index = () => {
                 Arubaito is a members-only network for verified builders. Your access pass is a Member NFT — proof of
                 entry to a curated space where top talent meets trusted projects.
               </p>
+              
+              <button
+                onClick={() => navigate("/arubaito")}
+                className="text-sm font-mono mt-4 hover:opacity-80 transition-opacity underline"
+                style={{ color: "#ed565a" }}
+              >
+                Apply for membership →
+              </button>
             </div>
           </div>
         </div>
 
         {/* Section 3 - How Rei Works */}
-        <div className="min-h-screen flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
+        <div className="min-h-screen flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start snap-always">
           <div className="max-w-xl text-center">
             {/* Rei ASCII Art Block - Moved above title */}
             <iframe
@@ -343,6 +351,14 @@ const Index = () => {
                 Rei is your open AI Agent that's open to anyone. Instead of browsing for crypto tasks, bounties and
                 tasks, you just ask her tasks are suitable for you.
               </p>
+              
+              <button
+                onClick={() => navigate("/rei")}
+                className="text-sm font-mono mt-4 hover:opacity-80 transition-opacity underline"
+                style={{ color: "#ed565a" }}
+              >
+                Chat with Rei →
+              </button>
             </div>
           </div>
         </div>

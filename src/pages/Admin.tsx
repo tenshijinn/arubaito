@@ -31,9 +31,10 @@ export default function Admin() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   useEffect(() => {
-    checkAdminStatus();
+    checkTwitterAuth();
   }, []);
 
   useEffect(() => {
@@ -42,17 +43,65 @@ export default function Admin() {
     }
   }, [isAdmin]);
 
+  const checkTwitterAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // Not logged in, stay on loading screen
+        setLoading(false);
+        return;
+      }
+
+      // Check if user is logged in with Twitter and has correct username
+      const twitterUsername = session.user.user_metadata?.twitter_username;
+      
+      if (twitterUsername !== 'wayneanthonyd') {
+        toast({
+          title: "Access Denied",
+          description: "Only @wayneanthonyd can access the admin panel",
+          variant: "destructive",
+        });
+        await supabase.auth.signOut();
+        setLoading(false);
+        return;
+      }
+
+      // Valid Twitter user, now check admin role
+      await checkAdminStatus();
+    } catch (error) {
+      console.error('Error checking Twitter auth:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleTwitterLogin = async () => {
+    setIsAuthenticating(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: `${window.location.origin}/admin`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Twitter login error:', error);
+      toast({
+        title: "Login Failed",
+        description: error.message || "Failed to login with Twitter",
+        variant: "destructive",
+      });
+      setIsAuthenticating(false);
+    }
+  };
+
   const checkAdminStatus = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        toast({
-          title: "Access Denied",
-          description: "Please log in to access the admin panel",
-          variant: "destructive",
-        });
-        navigate('/');
         return;
       }
 
@@ -69,14 +118,14 @@ export default function Admin() {
           description: "You don't have admin privileges",
           variant: "destructive",
         });
-        navigate('/');
+        await supabase.auth.signOut();
+        setLoading(false);
         return;
       }
 
       setIsAdmin(true);
     } catch (error) {
       console.error('Error checking admin status:', error);
-      navigate('/');
     } finally {
       setLoading(false);
     }
@@ -148,7 +197,33 @@ export default function Admin() {
   }
 
   if (!isAdmin) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="max-w-md w-full p-8 text-center space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-foreground font-mono">ADMIN LOGIN</h1>
+            <p className="text-sm text-muted-foreground">
+              Admin access is restricted to @wayneanthonyd
+            </p>
+          </div>
+          <Button
+            onClick={handleTwitterLogin}
+            disabled={isAuthenticating}
+            className="w-full font-mono"
+            size="lg"
+          >
+            {isAuthenticating ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Connecting...
+              </>
+            ) : (
+              'Login with Twitter'
+            )}
+          </Button>
+        </Card>
+      </div>
+    );
   }
 
   const pendingSubmissions = submissions.filter(s => s.status === 'pending');
@@ -316,8 +391,12 @@ export default function Admin() {
         </div>
       </div>
 
-      <WaitlistCountdown />
-      <TreasuryDisplay />
+      <div className="fixed bottom-4 right-4 z-50">
+        <WaitlistCountdown />
+      </div>
+      <div className="fixed bottom-4 left-4 z-50">
+        <TreasuryDisplay />
+      </div>
     </div>
   );
 }

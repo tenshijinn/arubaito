@@ -242,8 +242,12 @@ const Index = () => {
         </div>
       </main>
 
-      <WaitlistCountdown />
-      <TreasuryDisplay />
+      <div className="fixed bottom-4 right-4 z-50">
+        <WaitlistCountdown />
+      </div>
+      <div className="fixed bottom-4 left-4 z-50">
+        <TreasuryDisplay />
+      </div>
     </div>
   );
 };

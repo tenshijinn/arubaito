@@ -121,13 +121,13 @@ const Index = () => {
           />
         )}
 
-        {/* Treasury - top left corner */}
-        <div className="absolute top-3 left-3 z-50 hidden lg:block">
+        {/* Treasury - bottom left corner */}
+        <div className="absolute bottom-3 left-3 z-50 hidden lg:block">
           <TreasuryDisplay />
         </div>
 
-        {/* Waitlist - top right corner */}
-        <div className="absolute top-3 right-3 z-50 hidden lg:block">
+        {/* Waitlist - bottom right corner */}
+        <div className="absolute bottom-3 right-3 z-50 hidden lg:block">
           <WaitlistCountdown />
         </div>
 

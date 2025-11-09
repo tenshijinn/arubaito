@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trophy, Send } from "lucide-react";
 import { WalletProvider } from "@/components/WalletProvider";
+import { WaitlistCountdown } from "@/components/WaitlistCountdown";
+import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 
 const CommunityContent = () => {
   const { publicKey } = useWallet();
@@ -180,6 +182,13 @@ const CommunityContent = () => {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="fixed bottom-4 right-4 z-50">
+        <WaitlistCountdown />
+      </div>
+      <div className="fixed bottom-4 left-4 z-50">
+        <TreasuryDisplay />
       </div>
     </div>
   );

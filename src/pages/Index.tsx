@@ -281,7 +281,7 @@ const Index = () => {
             <div className="flex items-center justify-center gap-2">
               <div className="w-6 h-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full" />
               <p className="font-mono text-sm" style={{ color: "#faf6f4" }}>
-                Post & Pay with x402 or SolanaPay
+                Promote Jobs or Tasks | Pay with x402 or SolanaPay
               </p>
             </div>
             <button

@@ -312,9 +312,6 @@ const Index = () => {
               How the Club Works
             </h2>
 
-            <div className="space-y-6 font-mono leading-relaxed" style={{ color: "#faf6f4" }}>
-              <p className="text-lg font-semibold">Private. Verified. Token-gated.</p>
-
               <p className="text-sm" style={{ color: "#d0d0d0" }}>
                 Arubaito is a members-only network for verified builders. Your access pass is a Member NFT — proof of
                 entry to a curated space where top talent meets trusted projects.

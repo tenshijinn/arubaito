@@ -230,7 +230,7 @@ export default function Admin() {
   const processedSubmissions = submissions.filter(s => s.status !== 'pending');
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-20">
       <Navigation />
       
       <div className="container mx-auto px-4 py-8 max-w-6xl">

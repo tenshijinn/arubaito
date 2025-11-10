@@ -372,7 +372,7 @@ export default function Rei() {
     const analysis = registrationData.profile_analysis as any;
 
     return (
-      <div className="flex flex-col h-screen overflow-hidden">
+      <div className="flex flex-col h-screen overflow-hidden pt-20">
         <Navigation userName={userName} hideMenuItems={true} brandingText="REI" />
         <div className="container mx-auto px-4 py-4 flex-shrink-0">
           <Tabs defaultValue="profile" className="w-full max-w-4xl mx-auto">
@@ -641,7 +641,7 @@ export default function Rei() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pt-20">
       <Navigation userName={userName} hideMenuItems={true} brandingText="REI" />
       <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
         <Card className="w-full max-w-2xl bg-transparent">

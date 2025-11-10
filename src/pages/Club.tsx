@@ -223,7 +223,7 @@ export default function Club() {
     memberData?.handle;
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-screen">
       <Navigation userName={userName} />
 
       {/* Header */}

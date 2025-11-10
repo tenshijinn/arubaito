@@ -8,7 +8,7 @@ interface NavigationProps {
 
 export const Navigation = ({ userName, hideMenuItems = false, brandingText = 'ARUBAITO' }: NavigationProps) => {
   return (
-    <header className="fixed top-0 left-0 right-0 border border-border m-2.5 rounded-2xl z-50" style={{ backgroundColor: '#181818' }}>
+    <header className="border border-border bg-transparent m-2.5 rounded-2xl">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left side: User name */}

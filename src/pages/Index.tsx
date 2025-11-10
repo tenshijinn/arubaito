@@ -349,12 +349,12 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Mobile: Show Treasury and Waitlist at bottom on mobile */}
+      {/* Mobile: Show Treasury and Waitlist at top on mobile */}
       <div className="lg:hidden">
-        <div className="fixed bottom-6 left-4 md:left-6 z-40">
+        <div className="fixed top-4 left-4 md:left-6 z-40">
           <TreasuryDisplay />
         </div>
-        <div className="fixed bottom-6 right-4 md:right-6 z-50">
+        <div className="fixed top-4 right-4 md:right-6 z-50">
           <WaitlistCountdown />
         </div>
       </div>

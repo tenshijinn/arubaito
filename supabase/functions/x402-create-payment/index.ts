@@ -38,13 +38,82 @@ serve(async (req) => {
     // Generate unique reference for this payment
     const reference = Keypair.generate().publicKey;
 
-    // Fetch current SOL price in USD from CoinGecko
-    const solPriceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
-    const solPriceData = await solPriceResponse.json();
-    const solPrice = solPriceData.solana.usd;
+    // Fetch current SOL price in USD from CoinGecko with retry logic
+    console.log(`[x402-create-payment] Fetching SOL price for $${amount} USD...`);
+    let solPrice = 0;
+    const maxRetries = 3;
+    const timeout = 10000; // 10 seconds
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`[x402-create-payment] Attempt ${attempt}/${maxRetries}: CoinGecko request started`);
+        const startTime = Date.now();
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        const solPriceResponse = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd',
+          { 
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal
+          }
+        );
+        clearTimeout(timeoutId);
+        
+        const responseTime = Date.now() - startTime;
+        
+        if (!solPriceResponse.ok) {
+          const statusText = solPriceResponse.statusText;
+          console.log(`[x402-create-payment] Attempt ${attempt}/${maxRetries}: Failed - HTTP ${solPriceResponse.status} ${statusText}`);
+          
+          if (solPriceResponse.status === 429) {
+            console.log('[x402-create-payment] Rate limited by CoinGecko');
+          } else if (solPriceResponse.status === 503 || solPriceResponse.status === 502) {
+            console.log('[x402-create-payment] CoinGecko service unavailable');
+          }
+          
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // exponential backoff
+          }
+          continue;
+        }
+        
+        const solPriceData = await solPriceResponse.json();
+        solPrice = solPriceData?.solana?.usd || 0;
+        
+        if (solPrice > 0 && solPrice >= 10 && solPrice <= 1000) {
+          console.log(`[x402-create-payment] Attempt ${attempt}/${maxRetries}: Success - SOL price $${solPrice} (response time: ${responseTime}ms)`);
+          break;
+        } else {
+          console.log(`[x402-create-payment] Attempt ${attempt}/${maxRetries}: Invalid price data: ${solPrice}`);
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+        }
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.log(`[x402-create-payment] Attempt ${attempt}/${maxRetries}: Request timed out`);
+        } else {
+          console.log(`[x402-create-payment] Attempt ${attempt}/${maxRetries}: Network error - ${error.message}`);
+        }
+        
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+      }
+    }
+    
+    // Use fallback price if all retries failed
+    if (solPrice === 0 || solPrice < 10 || solPrice > 1000) {
+      const fallbackPrice = 100;
+      console.log(`[x402-create-payment] All retries exhausted. Using fallback price $${fallbackPrice}`);
+      solPrice = fallbackPrice;
+    }
 
     // Convert USD amount to SOL
     const solAmount = amount / solPrice;
+    console.log(`[x402-create-payment] Converted $${amount} USD to ${solAmount} SOL${solPrice === 100 ? ' (FALLBACK PRICE)' : ''}`)
 
     // Convert SOL amount to lamports
     const lamports = Math.floor(solAmount * 1e9);

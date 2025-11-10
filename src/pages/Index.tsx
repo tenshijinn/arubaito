@@ -94,21 +94,6 @@ const Index = () => {
     >
       {/* LEFT COLUMN - Static */}
       <div className="w-full lg:w-1/2 min-h-screen lg:h-screen lg:sticky lg:top-0 relative flex items-center justify-center overflow-hidden">
-        {/* Background video for default state */}
-        {hoveredButton === null && (
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ opacity: 0.6 }}
-          >
-            <source src="/arubaito-home.webm" type="video/webm" />
-          </video>
-        )}
-
         {/* Background image for hover state */}
         {hoveredButton === "rei" && (
           <div
@@ -264,7 +249,7 @@ const Index = () => {
       {/* RIGHT COLUMN - Scrollable */}
       <div
         className="w-full lg:w-1/2 h-screen overflow-y-scroll snap-y snap-mandatory"
-        style={{ backgroundColor: "#181818" }}
+        style={{ backgroundColor: "#181818", scrollSnapType: "y mandatory", scrollSnapStop: "always" }}
       >
         {/* Section 1 - Above the Fold */}
         <div className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
@@ -322,7 +307,7 @@ const Index = () => {
 
               <button
                 onClick={() => navigate("/arubaito")}
-                className="text-sm font-mono mt-4 hover:opacity-80 transition-opacity underline"
+                className="text-sm font-mono mt-4 hover:opacity-80 transition-opacity"
                 style={{ color: "#ed565a" }}
               >
                 Apply for membership →
@@ -354,7 +339,7 @@ const Index = () => {
 
               <button
                 onClick={() => navigate("/rei")}
-                className="text-sm font-mono mt-4 hover:opacity-80 transition-opacity underline"
+                className="text-sm font-mono mt-4 hover:opacity-80 transition-opacity"
                 style={{ color: "#ed565a" }}
               >
                 Chat with Rei →

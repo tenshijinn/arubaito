@@ -78,7 +78,7 @@ export const Navigation = ({ userName, hideMenuItems = false, brandingText = 'AR
           )}
 
           {/* Right side: Logo */}
-          <div className="text-sm font-mono font-bold text-foreground">
+          <div className="text-sm font-mono font-bold text-foreground hidden md:block">
             {brandingText}
           </div>
         </div>

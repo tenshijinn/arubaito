@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { User } from 'lucide-react';
 
 interface NavigationProps {
   userName?: string | null;
@@ -8,7 +9,7 @@ interface NavigationProps {
 
 export const Navigation = ({ userName, hideMenuItems = false, brandingText = 'ARUBAITO' }: NavigationProps) => {
   return (
-    <header className="border border-border bg-transparent m-2.5 rounded-2xl">
+    <header className="fixed top-0 left-0 right-0 z-50 border border-border m-2.5 rounded-2xl" style={{ backgroundColor: '#181818' }}>
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left side: User name */}
@@ -38,7 +39,7 @@ export const Navigation = ({ userName, hideMenuItems = false, brandingText = 'AR
               </Link>
               <Link
                 to="/arubaito"
-                className="text-sm font-mono transition-colors"
+                className="text-sm font-mono transition-colors flex items-center gap-1.5"
                 style={{
                   color: '#ed565a'
                 }}
@@ -51,7 +52,10 @@ export const Navigation = ({ userName, hideMenuItems = false, brandingText = 'AR
                   e.currentTarget.style.color = '#ed565a';
                 }}
               >
-                CV PROFILE
+                <span className="hidden md:inline">CV PROFILE</span>
+                <span className="md:hidden flex items-center gap-1">
+                  CV <User size={14} />
+                </span>
               </Link>
               <Link
                 to="/rei"

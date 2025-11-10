@@ -109,7 +109,7 @@ const Index = () => {
     || user?.email?.split('@')[0];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pt-20">
       <Navigation userName={userName} />
       
       {/* Header */}

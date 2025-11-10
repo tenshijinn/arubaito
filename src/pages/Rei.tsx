@@ -641,7 +641,7 @@ export default function Rei() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pt-20">
       <Navigation userName={userName} hideMenuItems={true} brandingText="REI" />
       <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
         <Card className="w-full max-w-2xl bg-transparent">

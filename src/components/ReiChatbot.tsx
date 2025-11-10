@@ -299,7 +299,11 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         },
       });
 
+      // Check for errors in both the Supabase error and the response data
       if (error) throw error;
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       // Check if response contains action or solanaPay metadata
       let metadata = data.metadata || null;

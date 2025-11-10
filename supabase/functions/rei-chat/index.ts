@@ -378,8 +378,17 @@ Example bad responses:
 
       if (!aiResponse.ok) {
         const errorText = await aiResponse.text();
-        console.error('AI API error:', errorText);
-        throw new Error(`AI API error: ${aiResponse.status}`);
+        console.error('AI API error:', aiResponse.status, errorText);
+        
+        if (aiResponse.status === 402) {
+          throw new Error('AI credits exhausted. Please add credits to your Lovable workspace to continue using Rei.');
+        }
+        
+        if (aiResponse.status === 429) {
+          throw new Error('Rate limit exceeded. Please try again in a moment.');
+        }
+        
+        throw new Error(`AI service error (${aiResponse.status}). Please try again.`);
       }
 
       const aiData = await aiResponse.json();

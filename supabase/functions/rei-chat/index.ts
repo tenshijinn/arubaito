@@ -505,8 +505,7 @@ Example bad responses:
           model: 'openai/gpt-5-mini',
           messages: aiMessages,
           tools: tools,
-          tool_choice: 'auto',
-          max_completion_tokens: 500
+          tool_choice: 'auto'
         })
       });
 
@@ -562,8 +561,17 @@ Example bad responses:
         }
       } else {
         // No more tool calls, we have the final response
-        console.log(`[Iteration ${iteration}] Final response ready, length:`, assistantMessage.content?.length || 0);
-        finalResponse = assistantMessage.content;
+        const content = assistantMessage.content || '';
+        console.log(`[Iteration ${iteration}] Final response ready, length:`, content.length);
+        
+        // Handle empty responses gracefully
+        if (!content || content.trim() === '') {
+          console.error('[ERROR] AI returned empty content');
+          console.error('[ERROR] Last user message:', aiMessages[aiMessages.length - 1]?.content);
+          finalResponse = "I apologize, I didn't quite catch that. Could you rephrase what you'd like me to help with?";
+        } else {
+          finalResponse = content;
+        }
         break;
       }
     }

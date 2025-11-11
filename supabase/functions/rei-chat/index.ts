@@ -79,12 +79,16 @@ serve(async (req) => {
         content: message
       });
 
-    // Get conversation history
-    const { data: messages } = await supabase
+    // Get conversation history (limit to last 15 messages to prevent context bleed)
+    const { data: allMessages } = await supabase
       .from('chat_messages')
       .select('role, content')
       .eq('conversation_id', convId)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: false })
+      .limit(15);
+    
+    // Reverse to get chronological order
+    const messages = (allMessages || []).reverse();
 
     // Check user type
     const { data: conv } = await supabase
@@ -102,29 +106,44 @@ Current user type: ${userType}
 User's wallet address: ${walletAddress}
 Treasury wallet: ${TREASURY_WALLET}
 
+KEY ACTIONS & WHEN TO USE EACH TOOL:
+
+1. **JOB SEARCH** (Talent) - User says "find jobs", "show jobs", "job opportunities"
+   → Use search_jobs tool immediately
+
+2. **TASK SEARCH** (Talent) - User says "find tasks", "show tasks", "available bounties"
+   → Use search_tasks tool immediately
+
+3. **POST PAID JOB** (Employer/Talent) - User says "post a job", "I want to hire", "create job post"
+   → Use start_paid_job_posting tool to signal intent
+   → Then collect job details and proceed with payment flow
+
+4. **POST PAID TASK** (Employer/Talent) - User says "post a task", "list a bounty"
+   → Use start_paid_task_posting tool to signal intent
+   → Then collect task details and proceed with payment flow
+
+5. **CONTRIBUTE OPPORTUNITY** (Talent) - User says "I found a job to share", "submit opportunity", "contribute"
+   → Use start_community_contribution tool to signal intent
+   → Explain they'll earn points but still need to pay $5
+   → Collect details and proceed with payment flow
+
+6. **MY PROFILE** (Talent) - User says "check my points", "show my stats", "submission history"
+   → Use get_my_profile tool immediately
+
 FOR TALENT USERS:
-- The user has already connected their wallet (${walletAddress})
-- NEVER ask for their wallet address - you already have it in the system
-- When a talent user first connects or greets you (e.g., "hello", "hey", "hi"), immediately offer to search for jobs matching their profile
-- Be proactive: don't wait for them to explicitly ask, offer the job search right away
-- Example first response: "Hello! I can see you've connected your wallet. Would you like me to search for Web3 opportunities that match your profile?"
-- When they show interest or ask for jobs, automatically use the search_jobs tool with their wallet address
-- IMPORTANT: If the search_jobs tool returns an error "Talent profile not found", tell the user:
-  "I can see you've connected your wallet, but you need to register your profile first. Please click the button below to complete your registration by uploading your CV or portfolio. Once registered, I'll be able to match you with relevant opportunities!"
-  AND include this EXACT JSON at the end of your response: {"action":"register","link":"/rei"}
-- Show match scores and explain why opportunities fit their profile
-- COMMUNITY CONTRIBUTION: Talent users can also contribute jobs/tasks they find in the market!
-  - When they say "I found a job/task" or want to post an opportunity, guide them through the posting flow
-  - Explain: "Great! You'll earn 10 points for contributing this opportunity to the platform."
-  - Follow the same data collection and payment flow as employers ($5 payment required)
-  - These contributions are marked as 'community_contributed' and help the ecosystem grow
+- Wallet already connected (${walletAddress}) - NEVER ask for it again
+- When greeting, offer to search jobs/tasks immediately
+- If search_jobs/search_tasks returns "profile not found" error:
+  Say: "You need to register your profile first. Click below to upload your CV/portfolio."
+  Include: {"action":"register","link":"/rei"}
+- Show match scores and explain why opportunities fit
+- Talent can ALSO post jobs/tasks as contributions (earns points, still requires $5 payment)
 
 FOR EMPLOYER USERS:
-- Help them find talent, post jobs, and post tasks
-- All paid actions require $5 worth of SOL or SPL tokens (≥$100M market cap)
-- Use search_talent tool for finding candidates (shows summaries only)
-- For full talent profiles, viewing requires payment - use generate_solana_pay_qr then get_talent_profile
-- For posting jobs or tasks, guide them through data collection then payment
+- Help find talent, post jobs, post tasks
+- Use search_talent for finding candidates (summaries only)
+- Full profiles require $5 payment
+- All postings require $5 payment
 
 PAYMENT FLOW:
 - Job/task posting requires $5 worth of SOL or SPL tokens (with ≥$100M market cap)
@@ -225,11 +244,12 @@ Example bad responses:
 
     // Define tools
     const tools = [
+      // === TALENT SEARCH TOOLS ===
       {
         type: "function",
         function: {
           name: "search_jobs",
-          description: "Search for jobs and tasks matching a talent's profile",
+          description: "Search for job opportunities matching talent's profile. Use when talent asks to 'find jobs', 'show jobs', 'job search'.",
           parameters: {
             type: "object",
             properties: {
@@ -239,6 +259,84 @@ Example bad responses:
           }
         }
       },
+      {
+        type: "function",
+        function: {
+          name: "search_tasks",
+          description: "Search for task/bounty opportunities matching talent's skills. Use when talent asks to 'find tasks', 'show tasks', 'available bounties'.",
+          parameters: {
+            type: "object",
+            properties: {
+              walletAddress: { type: "string", description: "Talent's wallet address" }
+            },
+            required: ["walletAddress"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "get_my_profile",
+          description: "Get user's profile including points, submission history, and stats. Use when user asks 'check my points', 'show my profile', 'view my stats'.",
+          parameters: {
+            type: "object",
+            properties: {
+              walletAddress: { type: "string", description: "User's wallet address" }
+            },
+            required: ["walletAddress"]
+          }
+        }
+      },
+      
+      // === POSTING INTENT SIGNALS ===
+      {
+        type: "function",
+        function: {
+          name: "start_paid_job_posting",
+          description: "Signal that user wants to post a paid job listing. Use when user says 'post a job', 'I want to hire', 'create job post'. Returns acknowledgment to begin data collection.",
+          parameters: {
+            type: "object",
+            properties: {
+              userType: { type: "string", description: "employer or talent" }
+            },
+            required: ["userType"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "start_paid_task_posting",
+          description: "Signal that user wants to post a paid task/bounty. Use when user says 'post a task', 'list a bounty'. Returns acknowledgment to begin data collection.",
+          parameters: {
+            type: "object",
+            properties: {
+              userType: { type: "string", description: "employer or talent" }
+            },
+            required: ["userType"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "start_community_contribution",
+          description: "Signal that talent wants to submit job/task as community contribution (earns points). Use when talent says 'I found a job to share', 'submit opportunity', 'contribute'.",
+          parameters: {
+            type: "object",
+            properties: {
+              submissionType: { 
+                type: "string", 
+                enum: ["job", "task"],
+                description: "Type of opportunity to contribute"
+              }
+            },
+            required: ["submissionType"]
+          }
+        }
+      },
+      
+      // === EMPLOYER TOOLS ===
       {
         type: "function",
         function: {
@@ -487,6 +585,124 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         body: { walletAddress: args.walletAddress }
       });
       return response.data || response.error;
+    }
+    
+    case 'search_tasks': {
+      // Search tasks matching talent profile
+      const { data: talent } = await supabase
+        .from('rei_registry')
+        .select('*')
+        .eq('wallet_address', args.walletAddress)
+        .single();
+      
+      if (!talent) {
+        return { error: 'Talent profile not found. Please register first.' };
+      }
+      
+      // Get all active tasks
+      const { data: tasks, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      
+      if (error) {
+        return { error: 'Failed to fetch tasks' };
+      }
+      
+      // Simple matching based on role tags
+      const matchedTasks = tasks.map((task: any) => {
+        let matchScore = 0;
+        let matchReasons = [];
+        
+        // Check role tag overlap
+        const talentTags = talent.role_tags || [];
+        const taskTags = task.role_tags || [];
+        const matchingTags = talentTags.filter((tag: string) => taskTags.includes(tag));
+        
+        if (matchingTags.length > 0) {
+          matchScore += matchingTags.length * 20;
+          matchReasons.push(`Matches ${matchingTags.length} role tag(s): ${matchingTags.join(', ')}`);
+        }
+        
+        return {
+          ...task,
+          matchScore: Math.min(matchScore, 100),
+          matchReason: matchReasons.join('. ')
+        };
+      });
+      
+      // Sort by match score
+      matchedTasks.sort((a, b) => b.matchScore - a.matchScore);
+      
+      return {
+        tasks: matchedTasks.slice(0, 10),
+        talentProfile: {
+          wallet_address: talent.wallet_address,
+          role_tags: talent.role_tags
+        }
+      };
+    }
+    
+    case 'get_my_profile': {
+      // Get user points
+      const { data: pointsData } = await supabase
+        .from('user_points')
+        .select('*')
+        .eq('wallet_address', args.walletAddress)
+        .single();
+      
+      // Get submission history
+      const { data: submissions } = await supabase
+        .from('community_submissions')
+        .select('*')
+        .eq('submitter_wallet', args.walletAddress)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      // Get points transactions
+      const { data: transactions } = await supabase
+        .from('points_transactions')
+        .select('*')
+        .eq('wallet_address', args.walletAddress)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      return {
+        points: {
+          total: pointsData?.total_points || 0,
+          pending: pointsData?.points_pending || 0,
+          lifetime_earnings_sol: pointsData?.lifetime_earnings_sol || 0
+        },
+        submissions: submissions || [],
+        recent_transactions: transactions || []
+      };
+    }
+    
+    case 'start_paid_job_posting': {
+      return {
+        success: true,
+        message: `Acknowledged: ${args.userType === 'talent' ? 'Talent' : 'Employer'} wants to post a paid job. Begin collecting job details (title, company, description, requirements, wage, deadline). After collection, generate payment QR with generate_solana_pay_qr.`,
+        flow: 'paid_job_posting'
+      };
+    }
+    
+    case 'start_paid_task_posting': {
+      return {
+        success: true,
+        message: `Acknowledged: ${args.userType === 'talent' ? 'Talent' : 'Employer'} wants to post a paid task. Begin collecting task details (title, company, description, link REQUIRED, pay, end date). After collection, generate payment QR with generate_solana_pay_qr.`,
+        flow: 'paid_task_posting'
+      };
+    }
+    
+    case 'start_community_contribution': {
+      return {
+        success: true,
+        message: `Acknowledged: Talent wants to contribute a ${args.submissionType}. Explain they'll earn 10 points and follow the same $5 payment flow. Begin collecting ${args.submissionType} details.`,
+        flow: 'community_contribution',
+        submissionType: args.submissionType
+      };
     }
 
     case 'search_talent': {

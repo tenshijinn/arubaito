@@ -18,15 +18,33 @@ export const talentPresets: PresetCategory[] = [
     prompts: [
       "show available web3 tasks",
       "find quick bounties",
-      "smart contract auditing tasks"
+      "smart contract auditing tasks",
+      "show me tasks matching my skills"
+    ]
+  },
+  {
+    name: "POST JOB",
+    prompts: [
+      "I want to post a job",
+      "create a job listing",
+      "hire for a web3 position"
+    ]
+  },
+  {
+    name: "POST TASK",
+    prompts: [
+      "post a task or bounty",
+      "list a new task",
+      "create a bounty"
     ]
   },
   {
     name: "CONTRIBUTE",
     prompts: [
-      "submit job opportunity",
-      "submit task i found",
-      "share new opportunity"
+      "I found a job to share",
+      "submit opportunity I found",
+      "contribute a job posting",
+      "share a task I discovered"
     ]
   },
   {
@@ -34,7 +52,8 @@ export const talentPresets: PresetCategory[] = [
     prompts: [
       "check my points",
       "show submission history",
-      "view my stats"
+      "view my stats",
+      "how many points do I have"
     ]
   }
 ];
@@ -50,11 +69,19 @@ export const employerPresets: PresetCategory[] = [
     ]
   },
   {
-    name: "POST OPPORTUNITIES",
+    name: "POST JOB",
     prompts: [
-      "post job opening",
-      "post task",
-      "list smart contract role"
+      "post a job opening",
+      "list a full-time position",
+      "hire for a role"
+    ]
+  },
+  {
+    name: "POST TASK",
+    prompts: [
+      "post a task or bounty",
+      "list a contract gig",
+      "create a one-off task"
     ]
   },
   {

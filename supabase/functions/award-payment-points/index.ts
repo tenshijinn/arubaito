@@ -57,7 +57,7 @@ serve(async (req) => {
       .from('points_transactions')
       .insert({
         wallet_address: walletAddress,
-        transaction_type: 'payment',
+        transaction_type: 'earned',
         points: POINTS_PER_PAYMENT,
         solana_pay_reference: reference,
         payment_token_mint: tokenMint,

@@ -123,16 +123,43 @@ export const PostToRei = () => {
   const handlePaymentComplete = async (reference: string) => {
     setIsSubmitting(true);
     try {
-      // Verify payment
-      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-solana-pay', {
-        body: {
-          reference,
-          walletAddress: publicKey?.toString()
-        }
-      });
+      // Check if payment reference already completed (x402 case)
+      const { data: paymentRef, error: refError } = await supabase
+        .from('payment_references')
+        .select('*')
+        .eq('reference', reference)
+        .maybeSingle();
 
-      if (verifyError || !verifyData?.verified) {
-        throw new Error(verifyData?.error || 'Payment verification failed');
+      if (refError) {
+        throw new Error('Payment reference not found');
+      }
+
+      let verifyData;
+
+      if (paymentRef && paymentRef.status === 'completed') {
+        // x402 payment - already verified
+        console.log('Using pre-verified x402 payment');
+        verifyData = {
+          verified: true,
+          signature: paymentRef.tx_signature,
+          amount: Number(paymentRef.amount),
+          tokenMint: 'So11111111111111111111111111111111111111112', // Native SOL
+          tokenAmount: Number(paymentRef.amount)
+        };
+      } else {
+        // Solana Pay - needs verification
+        const { data, error: verifyError } = await supabase.functions.invoke('verify-solana-pay', {
+          body: {
+            reference,
+            walletAddress: publicKey?.toString()
+          }
+        });
+
+        if (verifyError || !data?.verified) {
+          throw new Error(data?.error || 'Payment verification failed');
+        }
+
+        verifyData = data;
       }
 
       // Check if reference already used

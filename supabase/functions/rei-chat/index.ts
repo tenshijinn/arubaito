@@ -150,10 +150,12 @@ PAYMENT FLOW:
 - Payments go to: ${TREASURY_WALLET}
 - Users earn 10 points per successful payment
 - TWO PAYMENT OPTIONS AVAILABLE:
-  1. Solana Pay QR - Generate QR code with unique reference using generate_solana_pay_qr tool
-  2. x402 Protocol - Alternative payment method for users who prefer it
-- When mentioning payment, ALWAYS say: "I'll generate a $5 payment request. You can pay via Solana Pay QR or use the x402 protocol."
-- Guide user through payment, then verify before posting
+  1. Solana Pay QR - Generate QR code with unique reference
+  2. x402 Protocol - Alternative payment method
+- When payment is ready, simply say: "Payment ready! Connect your wallet and choose your preferred payment method below."
+- DO NOT ask users which payment method they prefer - the UI will show both options automatically
+- Immediately generate the payment using generate_solana_pay_qr tool after collecting all details
+- Return payment data in metadata, and the UI will display both payment options as cards
 
 IMPORTANT RESTRICTIONS:
 - NEVER mention or offer "alerts" or "notifications" - this feature does not exist
@@ -178,9 +180,11 @@ Option 2 - Link:
   5. Ask for wage and deadline (optional)
 
 After collecting all data:
-  - Use generate_solana_pay_qr to create payment QR
+  - Immediately use generate_solana_pay_qr to create payment data
+  - Say something brief like: "Payment ready! Connect your wallet and choose your payment method below."
   - Return QR code data in metadata field: {"solanaPay": {...}}
-  - Wait for user to confirm payment
+  - The UI will automatically show both Solana Pay and x402 options as cards
+  - Wait for user to complete payment
   - Use verify_and_post_job to verify payment and post job
   - Confirm success and points awarded
 
@@ -211,10 +215,12 @@ Option 2 - Link:
 
 After collecting all data (including required link):
   - Validate task link is provided before proceeding
-  - Use generate_solana_pay_qr to create payment request
-  - ALWAYS mention both payment options: "I'll generate a $5 payment request. You can pay via Solana Pay QR or use the x402 protocol."
+  - Immediately use generate_solana_pay_qr to create payment request
+  - Simply say: "Payment ready! Connect your wallet and choose your payment method below."
+  - DO NOT ask which payment method - the UI handles this automatically
   - Return QR code data in metadata field: {"solanaPay": {...}}
-  - Wait for user to confirm payment
+  - The UI will automatically show both Solana Pay and x402 options as cards
+  - Wait for user to complete payment
   - Use verify_and_post_task to verify payment and post task (link is required parameter)
   - Confirm success and points awarded
 
@@ -634,7 +640,7 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       });
       
       // Sort by match score
-      matchedTasks.sort((a, b) => b.matchScore - a.matchScore);
+      matchedTasks.sort((a: any, b: any) => b.matchScore - a.matchScore);
       
       return {
         tasks: matchedTasks.slice(0, 10),

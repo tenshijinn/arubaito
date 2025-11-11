@@ -196,6 +196,57 @@ export type Database = {
         }
         Relationships: []
       }
+      job_drafts: {
+        Row: {
+          company_name: string | null
+          compensation: string | null
+          created_at: string | null
+          deadline: string | null
+          description: string | null
+          id: string
+          link: string | null
+          og_image: string | null
+          requirements: string | null
+          role_tags: string[] | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          wallet_address: string
+        }
+        Insert: {
+          company_name?: string | null
+          compensation?: string | null
+          created_at?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          link?: string | null
+          og_image?: string | null
+          requirements?: string | null
+          role_tags?: string[] | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          wallet_address: string
+        }
+        Update: {
+          company_name?: string | null
+          compensation?: string | null
+          created_at?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          link?: string | null
+          og_image?: string | null
+          requirements?: string | null
+          role_tags?: string[] | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       job_sources: {
         Row: {
           config: Json
@@ -504,6 +555,54 @@ export type Database = {
           payment_tx_signature?: string
           talent_x_user_id?: string
           viewed_at?: string | null
+        }
+        Relationships: []
+      }
+      task_drafts: {
+        Row: {
+          company_name: string | null
+          compensation: string | null
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          link: string | null
+          og_image: string | null
+          role_tags: string[] | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          wallet_address: string
+        }
+        Insert: {
+          company_name?: string | null
+          compensation?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          link?: string | null
+          og_image?: string | null
+          role_tags?: string[] | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          wallet_address: string
+        }
+        Update: {
+          company_name?: string | null
+          compensation?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          link?: string | null
+          og_image?: string | null
+          role_tags?: string[] | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          wallet_address?: string
         }
         Relationships: []
       }

@@ -446,6 +446,61 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
           </div>
         )}
 
+        {/* Render draft selection buttons if metadata contains drafts */}
+        {!isUser && message.metadata?.drafts && Array.isArray(message.metadata.drafts) && (
+          <div className="mt-3 ml-[120px] space-y-2">
+            {message.metadata.drafts.map((draft: any) => (
+              <button
+                key={draft.id}
+                onClick={() => {
+                  setInput(`load draft ${draft.id} ${draft.type}`);
+                  handleSend();
+                }}
+                className="w-full text-left px-4 py-3 border border-primary/30 rounded hover:border-primary hover:bg-primary/5 transition-colors font-mono text-sm"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{draft.emoji}</span>
+                  <div className="flex-1">
+                    <div className="text-primary font-medium">
+                      Draft {draft.type === 'job' ? 'Job' : 'Task'}: {draft.title}
+                    </div>
+                    <div className="text-muted-foreground text-xs mt-1">
+                      Status: {draft.status}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))}
+            <button
+              onClick={() => {
+                setInput("start a new one");
+                handleSend();
+              }}
+              className="w-full text-left px-4 py-3 border border-primary/30 rounded hover:border-primary hover:bg-primary/5 transition-colors font-mono text-sm text-muted-foreground"
+            >
+              ✨ Start a new one instead
+            </button>
+          </div>
+        )}
+
+        {/* Render quick action buttons if metadata contains quickActions */}
+        {!isUser && message.metadata?.quickActions && Array.isArray(message.metadata.quickActions) && (
+          <div className="mt-3 ml-[120px] flex flex-wrap gap-2">
+            {message.metadata.quickActions.map((action: any, idx: number) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  setInput(action.value);
+                  handleSend();
+                }}
+                className="px-3 py-2 border border-primary/30 rounded hover:border-primary hover:bg-primary/5 transition-colors font-mono text-sm"
+              >
+                {action.emoji} {action.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Render Solana Pay QR code if metadata contains solanaPay */}
         {!isUser && message.metadata?.solanaPay && (
           <div className="mt-3 ml-[120px]">

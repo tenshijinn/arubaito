@@ -153,12 +153,16 @@ KEY ACTIONS & WHEN TO USE EACH TOOL:
 
 3. **POST PAID JOB** (Employer/Talent) - User wants to create a job listing
    Examples: "post a job", "I'm hiring", "need to list a role", "want to add a position"
-   → Use start_paid_job_posting tool to signal intent
+   → FIRST call check_my_drafts to see if user has existing drafts
+   → If drafts exist, show them with emoji CTAs and let user choose
+   → If no drafts OR user chooses to start new, use start_paid_job_posting tool
    → Then collect job details and proceed with payment flow
 
 4. **POST PAID TASK** (Employer/Talent) - User wants to create a task/bounty/gig
    Examples: "post a task", "list a bounty", "create a gig", "add a quick job"
-   → Use start_paid_task_posting tool to signal intent
+   → FIRST call check_my_drafts to see if user has existing drafts
+   → If drafts exist, show them with emoji CTAs and let user choose
+   → If no drafts OR user chooses to start new, use start_paid_task_posting tool
    → Then collect task details and proceed with payment flow
 
 5. **CONTRIBUTE OPPORTUNITY** (Talent) - User found a job/task to share with community
@@ -170,6 +174,13 @@ KEY ACTIONS & WHEN TO USE EACH TOOL:
 6. **MY PROFILE** (Talent) - User wants to see their stats/points/history
    Examples: "check my points", "show my profile", "what's my score", "my submissions"
    → Use get_my_profile tool immediately
+
+DRAFT MANAGEMENT TOOLS:
+- **check_my_drafts** - Check if user has in-progress drafts for jobs/tasks
+- **load_draft** - Load a specific draft by ID to continue working on it
+- **save_draft** - Save progress to database after each field collected
+- **delete_draft** - Discard a draft permanently
+- **complete_draft** - Convert draft to actual posting after payment verification
 
 FOR TALENT USERS:
 - Wallet already connected (${walletAddress}) - NEVER ask for it again
@@ -204,7 +215,14 @@ IMPORTANT RESTRICTIONS:
 - DO NOT suggest features that aren't implemented
 
 JOB POSTING FLOW:
-STATE 1 - INTENT: Call start_paid_job_posting tool ONCE when user says "post a job"
+STATE 0 - CHECK DRAFTS: 
+- When user says "post a job", FIRST call check_my_drafts tool
+- If drafts exist, present them with emoji CTAs (1️⃣, 2️⃣, etc.) in metadata.drafts format
+- Ask user which draft to continue or start a new one
+- If user selects existing draft → call load_draft and skip to STATE 3 (CONFIRMING)
+- If user chooses new draft OR no drafts exist → proceed to STATE 1
+
+STATE 1 - INTENT: Call start_paid_job_posting tool ONCE when starting a new job posting
 
 STATE 2 - COLLECTING:
 Ask user: "Would you like to (1) manually enter job details or (2) provide a link?"
@@ -216,6 +234,7 @@ Option 1 - Manual:
   3. Job description (required, max 500 chars - inform user of limit)
   4. Wage/Pay (optional)
   5. Deadline (optional, format: YYYY-MM-DD)
+  → Call save_draft after EACH field is collected
   → Move to STATE 3 when all required fields collected
    
 Option 2 - Link:
@@ -228,6 +247,7 @@ Option 2 - Link:
   3. Show extracted data to user
   4. Ask for company name (if not in OG data)
   5. Ask for wage and deadline (optional)
+  → Call save_draft with all extracted and collected data
   → Move to STATE 3 when data is extracted and additional fields collected
 
 STATE 3 - CONFIRMING/EDITING:
@@ -242,14 +262,16 @@ Present all collected data clearly:
 Reply with any edits (e.g., 'change title to X', or paste updated description), or say 'looks good' to proceed."
 
 User response interpretation:
-- Long text (>100 chars) → Treat as updated job description, stay in STATE 3
-- "change [field] to [value]" → Update that specific field, stay in STATE 3
-- Short affirmations ("looks good", "yes", "perfect", "post it") → Move to STATE 4
+- Long text (>100 chars) → Treat as updated job description, call save_draft, stay in STATE 3
+- "change [field] to [value]" → Update that specific field, call save_draft, stay in STATE 3
+- Short affirmations ("looks good", "yes", "perfect", "post it") → Update draft status to 'confirming', move to STATE 4
 - Questions → Answer and stay in STATE 3
 
 IMPORTANT: DO NOT call start_paid_job_posting again during CONFIRMING state!
+IMPORTANT: Call save_draft after ANY field update
 
 STATE 4 - PAYMENT:
+- Update draft status to 'payment_pending' via save_draft
 - Show appreciation: "This looks great! Let me generate the payment for you."
 - Call generate_solana_pay_qr with amount=5, memo="Job posting: [title]"
 - Respond with EXACTLY: "Payment ready! Connect your wallet and choose your preferred payment method below."
@@ -258,12 +280,20 @@ STATE 4 - PAYMENT:
 
 STATE 5 - SUCCESS:
 - Call verify_and_post_job to verify payment and post job
+- If successful, call complete_draft to delete the draft from database
 - Celebrate: "🎉 Awesome! Your job is live and you've earned 10 points. Thanks for helping build this community!"
 
 TASK POSTING FLOW:
 **CRITICAL: A task link is ABSOLUTELY REQUIRED - do not proceed without it!**
 
-STATE 1 - INTENT: Call start_paid_task_posting tool ONCE when user says "post a task"
+STATE 0 - CHECK DRAFTS:
+- When user says "post a task", FIRST call check_my_drafts tool
+- If drafts exist, present them with emoji CTAs (1️⃣, 2️⃣, etc.) in metadata.drafts format
+- Ask user which draft to continue or start a new one
+- If user selects existing draft → call load_draft and skip to STATE 3 (CONFIRMING)
+- If user chooses new draft OR no drafts exist → proceed to STATE 1
+
+STATE 1 - INTENT: Call start_paid_task_posting tool ONCE when starting a new task posting
 
 STATE 2 - COLLECTING:
 Ask user: "Would you like to (1) manually enter task details or (2) provide a link?"
@@ -281,6 +311,7 @@ Option 1 - Manual:
   - If user tries to proceed without a task link, STOP them immediately
   - Say: "A task link is required - please provide the URL where people can find this task or apply."
   - Do NOT move to STATE 3 without a valid link
+  → Call save_draft after EACH field is collected
   → Move to STATE 3 when all required fields (including link) collected
    
 Option 2 - Link:
@@ -289,6 +320,7 @@ Option 2 - Link:
   3. Show extracted data to user
   4. Ask for company name (if not in OG data)
   5. Ask for pay/reward and end date (optional)
+  → Call save_draft with all extracted and collected data
   → Move to STATE 3 when data extracted and additional fields collected
 
 STATE 3 - CONFIRMING/EDITING:
@@ -509,6 +541,100 @@ Example bad responses:
               walletAddress: { type: "string", description: "User's wallet address" }
             },
             required: ["walletAddress"]
+          }
+        }
+      },
+      
+      // === DRAFT MANAGEMENT TOOLS ===
+      {
+        type: "function",
+        function: {
+          name: "check_my_drafts",
+          description: "Check if user has any in-progress job or task drafts. Use when user says 'post a job' or 'post a task' to see if they have existing drafts to continue.",
+          parameters: {
+            type: "object",
+            properties: {
+              walletAddress: { type: "string", description: "User's wallet address" }
+            },
+            required: ["walletAddress"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "load_draft",
+          description: "Load a specific draft by ID to continue working on it",
+          parameters: {
+            type: "object",
+            properties: {
+              draftId: { type: "string", description: "Draft ID (UUID)" },
+              draftType: { type: "string", enum: ["job", "task"], description: "Type of draft to load" }
+            },
+            required: ["draftId", "draftType"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "save_draft",
+          description: "Save or update draft progress to database. Call after each field is collected or updated.",
+          parameters: {
+            type: "object",
+            properties: {
+              walletAddress: { type: "string", description: "User's wallet address" },
+              draftType: { type: "string", enum: ["job", "task"], description: "Type of draft" },
+              draftId: { type: "string", description: "Draft ID (UUID) if updating existing draft, omit if creating new" },
+              data: {
+                type: "object",
+                description: "Draft data fields to save/update",
+                properties: {
+                  title: { type: "string" },
+                  description: { type: "string" },
+                  company_name: { type: "string" },
+                  compensation: { type: "string" },
+                  link: { type: "string" },
+                  requirements: { type: "string" },
+                  deadline: { type: "string" },
+                  end_date: { type: "string" },
+                  role_tags: { type: "array", items: { type: "string" } },
+                  og_image: { type: "string" },
+                  status: { type: "string", enum: ["draft", "confirming", "payment_pending"] }
+                }
+              }
+            },
+            required: ["walletAddress", "draftType", "data"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "delete_draft",
+          description: "Delete a draft permanently. Use when user says 'delete draft' or 'forget it'.",
+          parameters: {
+            type: "object",
+            properties: {
+              draftId: { type: "string", description: "Draft ID (UUID)" },
+              draftType: { type: "string", enum: ["job", "task"], description: "Type of draft" }
+            },
+            required: ["draftId", "draftType"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "complete_draft",
+          description: "Delete draft after successful payment and job/task posting. Use after verify_and_post_job or verify_and_post_task succeeds.",
+          parameters: {
+            type: "object",
+            properties: {
+              draftId: { type: "string", description: "Draft ID (UUID)" },
+              draftType: { type: "string", enum: ["job", "task"], description: "Type of draft" }
+            },
+            required: ["draftId", "draftType"]
           }
         }
       },
@@ -911,6 +1037,155 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         },
         submissions: submissions || [],
         recent_transactions: transactions || []
+      };
+    }
+    
+    case 'check_my_drafts': {
+      // Get all job drafts for user
+      const { data: jobDrafts } = await supabase
+        .from('job_drafts')
+        .select('*')
+        .eq('wallet_address', args.walletAddress)
+        .order('created_at', { ascending: false });
+      
+      // Get all task drafts for user
+      const { data: taskDrafts } = await supabase
+        .from('task_drafts')
+        .select('*')
+        .eq('wallet_address', args.walletAddress)
+        .order('created_at', { ascending: false });
+      
+      const allDrafts = [
+        ...(jobDrafts || []).map((d: any) => ({ ...d, type: 'job' })),
+        ...(taskDrafts || []).map((d: any) => ({ ...d, type: 'task' }))
+      ];
+      
+      if (allDrafts.length === 0) {
+        return { drafts: [], hasDrafts: false };
+      }
+      
+      // Sort by created_at descending
+      allDrafts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      
+      // Add emoji indicators
+      const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+      const draftsWithEmoji = allDrafts.map((draft: any, idx: number) => ({
+        id: draft.id,
+        type: draft.type,
+        title: draft.title || `Untitled ${draft.type}`,
+        status: draft.status,
+        emoji: emojis[idx] || '➕',
+        created_at: draft.created_at
+      }));
+      
+      return {
+        drafts: draftsWithEmoji,
+        hasDrafts: true,
+        message: `Found ${allDrafts.length} draft(s). Return them in metadata.drafts format for UI rendering.`
+      };
+    }
+    
+    case 'load_draft': {
+      const tableName = args.draftType === 'job' ? 'job_drafts' : 'task_drafts';
+      
+      const { data: draft, error } = await supabase
+        .from(tableName)
+        .select('*')
+        .eq('id', args.draftId)
+        .single();
+      
+      if (error || !draft) {
+        return { error: 'Draft not found' };
+      }
+      
+      return {
+        success: true,
+        draft: draft,
+        message: `Loaded ${args.draftType} draft: ${draft.title || 'Untitled'}. Current status: ${draft.status}`
+      };
+    }
+    
+    case 'save_draft': {
+      const tableName = args.draftType === 'job' ? 'job_drafts' : 'task_drafts';
+      
+      if (args.draftId) {
+        // Update existing draft
+        const { data: updated, error } = await supabase
+          .from(tableName)
+          .update({
+            ...args.data,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', args.draftId)
+          .select()
+          .single();
+        
+        if (error) {
+          return { error: error.message };
+        }
+        
+        return {
+          success: true,
+          draftId: args.draftId,
+          message: `Draft updated successfully`
+        };
+      } else {
+        // Create new draft
+        const { data: created, error } = await supabase
+          .from(tableName)
+          .insert({
+            wallet_address: args.walletAddress,
+            ...args.data
+          })
+          .select()
+          .single();
+        
+        if (error) {
+          return { error: error.message };
+        }
+        
+        return {
+          success: true,
+          draftId: created.id,
+          message: `New draft created successfully. Draft ID: ${created.id}`
+        };
+      }
+    }
+    
+    case 'delete_draft': {
+      const tableName = args.draftType === 'job' ? 'job_drafts' : 'task_drafts';
+      
+      const { error } = await supabase
+        .from(tableName)
+        .delete()
+        .eq('id', args.draftId);
+      
+      if (error) {
+        return { error: error.message };
+      }
+      
+      return {
+        success: true,
+        message: `Draft deleted successfully`
+      };
+    }
+    
+    case 'complete_draft': {
+      const tableName = args.draftType === 'job' ? 'job_drafts' : 'task_drafts';
+      
+      const { error } = await supabase
+        .from(tableName)
+        .delete()
+        .eq('id', args.draftId);
+      
+      if (error) {
+        console.log(`[complete_draft] Error deleting draft: ${error.message}`);
+        // Don't fail if draft deletion fails - the posting was successful
+      }
+      
+      return {
+        success: true,
+        message: `Draft completed and removed from database`
       };
     }
     

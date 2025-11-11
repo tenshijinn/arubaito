@@ -138,28 +138,37 @@ User responses during CONFIRMING state:
 - Specific changes ("change title to X") = Update that field only
 - Questions = Answer and stay in CONFIRMING state
 
+**INTENT RECOGNITION PHILOSOPHY:**
+Trust your natural language understanding - don't require exact phrases. Recognize what users MEAN, not just what they say.
+
 KEY ACTIONS & WHEN TO USE EACH TOOL:
 
-1. **JOB SEARCH** (Talent) - User says "find jobs", "show jobs", "job opportunities"
+1. **JOB SEARCH** (Talent) - User wants to find job opportunities
+   Examples: "find jobs", "show me roles", "what positions are available", "looking for work"
    → Use search_jobs tool immediately
 
-2. **TASK SEARCH** (Talent) - User says "find tasks", "show tasks", "available bounties"
+2. **TASK SEARCH** (Talent) - User wants to find tasks/bounties/gigs
+   Examples: "find tasks", "show bounties", "got any gigs", "quick work available"
    → Use search_tasks tool immediately
 
-3. **POST PAID JOB** (Employer/Talent) - User says "post a job", "I want to hire", "create job post"
+3. **POST PAID JOB** (Employer/Talent) - User wants to create a job listing
+   Examples: "post a job", "I'm hiring", "need to list a role", "want to add a position"
    → Use start_paid_job_posting tool to signal intent
    → Then collect job details and proceed with payment flow
 
-4. **POST PAID TASK** (Employer/Talent) - User says "post a task", "list a bounty"
+4. **POST PAID TASK** (Employer/Talent) - User wants to create a task/bounty/gig
+   Examples: "post a task", "list a bounty", "create a gig", "add a quick job"
    → Use start_paid_task_posting tool to signal intent
    → Then collect task details and proceed with payment flow
 
-5. **CONTRIBUTE OPPORTUNITY** (Talent) - User says "I found a job to share", "submit opportunity", "contribute"
+5. **CONTRIBUTE OPPORTUNITY** (Talent) - User found a job/task to share with community
+   Examples: "I found a job", "want to share an opportunity", "saw this listing", "contribute"
    → Use start_community_contribution tool to signal intent
    → Explain they'll earn points but still need to pay $5
    → Collect details and proceed with payment flow
 
-6. **MY PROFILE** (Talent) - User says "check my points", "show my stats", "submission history"
+6. **MY PROFILE** (Talent) - User wants to see their stats/points/history
+   Examples: "check my points", "show my profile", "what's my score", "my submissions"
    → Use get_my_profile tool immediately
 
 FOR TALENT USERS:
@@ -493,7 +502,7 @@ Example bad responses:
         type: "function",
         function: {
           name: "get_my_profile",
-          description: "Get user's profile including points, submission history, and stats. Use when user asks 'check my points', 'show my profile', 'view my stats'.",
+          description: "Get user's profile including points, submission history, and stats. Use when user wants to see their profile/points/stats in any phrasing.",
           parameters: {
             type: "object",
             properties: {
@@ -509,7 +518,7 @@ Example bad responses:
         type: "function",
         function: {
           name: "start_paid_job_posting",
-          description: "Signal that user wants to post a paid job listing. Use when user says 'post a job', 'I want to hire', 'create job post'. Returns acknowledgment to begin data collection.",
+          description: "Signal that user wants to post a paid job listing. Recognize intent from natural language - any phrasing that means 'I want to create/post/list a job position'. Returns acknowledgment to begin data collection.",
           parameters: {
             type: "object",
             properties: {
@@ -523,7 +532,7 @@ Example bad responses:
         type: "function",
         function: {
           name: "start_paid_task_posting",
-          description: "Signal that user wants to post a paid task/bounty. Use when user says 'post a task', 'list a bounty'. Returns acknowledgment to begin data collection.",
+          description: "Signal that user wants to post a paid task/bounty/gig. Recognize intent from natural language - any phrasing that means 'I want to create/post/list a task/bounty/gig'. Returns acknowledgment to begin data collection.",
           parameters: {
             type: "object",
             properties: {
@@ -537,7 +546,7 @@ Example bad responses:
         type: "function",
         function: {
           name: "start_community_contribution",
-          description: "Signal that talent wants to submit job/task as community contribution (earns points). Use when talent says 'I found a job to share', 'submit opportunity', 'contribute'.",
+          description: "Signal that talent wants to submit job/task as community contribution (earns points). Recognize intent from natural language - any phrasing that means 'I found/saw an opportunity to share with the community'. Use this when user clearly wants to CONTRIBUTE rather than POST their own opportunity.",
           parameters: {
             type: "object",
             properties: {

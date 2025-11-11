@@ -175,7 +175,11 @@ Option 1 - Manual:
 Option 2 - Link:
   1. Ask for job post URL
   2. Use extract_og_data tool to get title, description
-  3. Ask user to confirm/edit extracted data
+     - If extraction fails with "BLOCKED" error (e.g., LinkedIn/Indeed), tell user:
+       "LinkedIn/Indeed blocks automated data extraction due to anti-scraping protections. Let's enter the details manually instead."
+     - If extraction succeeds but returns empty data, tell user:
+       "I couldn't find job details on that page. Let's enter them manually."
+  3. Ask user to confirm/edit extracted data OR switch to manual entry
   4. Ask for company name (if not in OG data)
   5. Ask for wage and deadline (optional)
 
@@ -727,13 +731,41 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       });
       
       if (response.error) {
-        return { error: 'Failed to extract data from URL' };
+        return { 
+          error: 'Failed to extract data from URL',
+          details: response.error 
+        };
+      }
+      
+      const { og_title, og_description, og_image, errorType } = response.data || {};
+      
+      // If we got an error type, provide specific guidance
+      if (errorType) {
+        let userMessage = '';
+        switch (errorType) {
+          case 'BLOCKED':
+            userMessage = 'This site (likely LinkedIn or Indeed) blocks automated data extraction. Please manually enter the job details instead.';
+            break;
+          case 'TIMEOUT':
+            userMessage = 'The page took too long to load. Please try again or enter details manually.';
+            break;
+          case 'NOT_FOUND':
+            userMessage = "That URL doesn't seem to exist. Please check the link and try again.";
+            break;
+          default:
+            userMessage = 'Could not extract data from that URL. Please enter the details manually.';
+        }
+        return { 
+          error: userMessage,
+          errorType: errorType 
+        };
       }
       
       return {
-        title: response.data?.title || '',
-        description: response.data?.description || '',
-        image: response.data?.image || ''
+        title: og_title || '',
+        description: og_description || '',
+        image: og_image || '',
+        hasData: !!(og_title || og_description)
       };
     }
 

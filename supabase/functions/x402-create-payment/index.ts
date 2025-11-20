@@ -1,11 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { Connection, PublicKey, Transaction, SystemProgram, Keypair } from "https://esm.sh/@solana/web3.js@1.98.4";
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const paymentSchema = z.object({
+  amount: z.number().positive().max(10000),
+  memo: z.string().max(500).optional(),
+  payerPublicKey: z.string().regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -13,11 +20,9 @@ serve(async (req) => {
   }
 
   try {
-    const { amount, memo, payerPublicKey } = await req.json();
-
-    if (!amount || !payerPublicKey) {
-      throw new Error('Missing required fields: amount, payerPublicKey');
-    }
+    const body = await req.json();
+    const validated = paymentSchema.parse(body);
+    const { amount, memo, payerPublicKey } = validated;
 
     // Initialize Solana connection with Helius RPC
     const heliusApiKey = Deno.env.get('HELIUS_API_KEY');
@@ -187,6 +192,18 @@ serve(async (req) => {
     );
   } catch (error: any) {
     console.error('x402-create-payment error:', error);
+    
+    // Handle zod validation errors
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input data',
+          details: error.errors 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message || 'Internal server error' }),
       {

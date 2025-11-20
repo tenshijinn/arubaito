@@ -1461,18 +1461,7 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         return { error: verifyResponse.data?.error || 'Payment verification failed' };
       }
 
-      // Check if reference already used
-      const { data: existingJob } = await supabase
-        .from('jobs')
-        .select('id')
-        .eq('solana_pay_reference', args.reference)
-        .single();
-
-      if (existingJob) {
-        return { error: 'Payment already used for another job posting' };
-      }
-
-      // Insert job
+      // Insert job (unique constraint will prevent duplicates)
       const { data: job, error } = await supabase
         .from('jobs')
         .insert({
@@ -1493,10 +1482,14 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         .single();
 
       if (error) {
+        // Handle unique constraint violation (23505) - payment already used
+        if (error.code === '23505') {
+          return { error: 'Payment already used for another job posting' };
+        }
         return { error: error.message };
       }
 
-      // Award points
+      // Award points (will also handle race condition via unique constraint)
       await supabase.functions.invoke('award-payment-points', {
         body: {
           walletAddress: args.employerWallet,
@@ -1523,18 +1516,7 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         return { error: verifyResponse.data?.error || 'Payment verification failed' };
       }
 
-      // Check if reference already used
-      const { data: existingTask } = await supabase
-        .from('tasks')
-        .select('id')
-        .eq('solana_pay_reference', args.reference)
-        .single();
-
-      if (existingTask) {
-        return { error: 'Payment already used for another task posting' };
-      }
-
-      // Insert task
+      // Insert task (unique constraint will prevent duplicates)
       const { data: task, error } = await supabase
         .from('tasks')
         .insert({
@@ -1554,10 +1536,14 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         .single();
 
       if (error) {
+        // Handle unique constraint violation (23505) - payment already used
+        if (error.code === '23505') {
+          return { error: 'Payment already used for another task posting' };
+        }
         return { error: error.message };
       }
 
-      // Award points
+      // Award points (will also handle race condition via unique constraint)
       await supabase.functions.invoke('award-payment-points', {
         body: {
           walletAddress: args.employerWallet,

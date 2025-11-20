@@ -1,16 +1,17 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface WhitelistSubmission {
-  twitter_handle: string;
-  x_user_id?: string;
-  display_name?: string;
-  profile_image_url?: string;
-}
+const whitelistSchema = z.object({
+  twitter_handle: z.string().min(1).max(100).regex(/^@?[A-Za-z0-9_]{1,15}$/),
+  x_user_id: z.string().max(100).optional(),
+  display_name: z.string().max(200).optional(),
+  profile_image_url: z.string().url().max(500).optional(),
+});
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -22,7 +23,8 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const submission: WhitelistSubmission = await req.json();
+    const body = await req.json();
+    const submission = whitelistSchema.parse(body);
 
     console.log('Received whitelist submission:', submission.twitter_handle);
 
@@ -72,6 +74,19 @@ Deno.serve(async (req) => {
     );
   } catch (error: any) {
     console.error('Error processing submission:', error);
+    
+    // Handle zod validation errors
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Invalid input data',
+          details: error.errors 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { 

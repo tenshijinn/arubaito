@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,12 +10,25 @@ const corsHeaders = {
 const POINTS_PER_JOB = 100;
 const POINTS_PER_TASK = 50;
 
+const submissionSchema = z.object({
+  submission_type: z.enum(['job', 'task']),
+  submitter_wallet: z.string().regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/),
+  submitter_x_user_id: z.string().max(100).optional(),
+  title: z.string().min(5).max(200).trim(),
+  description: z.string().min(20).max(5000).trim(),
+  link: z.string().url().max(500),
+  compensation: z.string().max(200).optional(),
+  role_tags: z.array(z.string().max(50)).max(10).optional(),
+});
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const body = await req.json();
+    const validated = submissionSchema.parse(body);
     const {
       submission_type,
       submitter_wallet,
@@ -24,7 +38,7 @@ serve(async (req) => {
       link,
       compensation,
       role_tags,
-    } = await req.json();
+    } = validated;
 
     console.log('Community submission received:', { submission_type, submitter_wallet, title });
 
@@ -154,6 +168,18 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error submitting opportunity:', error);
+    
+    // Handle zod validation errors
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input data',
+          details: error.errors 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

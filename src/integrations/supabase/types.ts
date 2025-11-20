@@ -813,6 +813,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_user_points: {
+        Args: { p_points: number; p_wallet_address: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

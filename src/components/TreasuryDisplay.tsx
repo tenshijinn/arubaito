@@ -55,11 +55,11 @@ const useCountdown = (targetDate: Date) => {
 export const TreasuryDisplay = () => {
   const isMobile = useIsMobile();
   const [mobileOpen, setMobileOpen] = useState(false);
-  
+
   const { data, isLoading } = useQuery({
-    queryKey: ['treasury-data'],
+    queryKey: ["treasury-data"],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke<TreasuryData>('get-treasury-data');
+      const { data, error } = await supabase.functions.invoke<TreasuryData>("get-treasury-data");
       if (error) throw error;
       return data;
     },
@@ -72,23 +72,26 @@ export const TreasuryDisplay = () => {
 
   return (
     <div>
-      <HoverCard openDelay={0} closeDelay={100} {...(isMobile ? { open: mobileOpen, onOpenChange: setMobileOpen } : {})}>
+      <HoverCard
+        openDelay={0}
+        closeDelay={100}
+        {...(isMobile ? { open: mobileOpen, onOpenChange: setMobileOpen } : {})}
+      >
         <HoverCardTrigger asChild>
-          <div 
-            className="cursor-pointer"
-            onClick={() => isMobile && setMobileOpen(!mobileOpen)}
-          >
-            <div 
+          <div className="cursor-pointer" onClick={() => isMobile && setMobileOpen(!mobileOpen)}>
+            <div
               className="text-[8px] font-bold mb-0.5 tracking-wide"
-              style={{ color: '#ed565a', fontFamily: 'IBM Plex Mono, monospace' }}
+              style={{ color: "#ed565a", fontFamily: "IBM Plex Mono, monospace" }}
             >
               Treasury ^
             </div>
-            <div 
+            <div
               className="text-2xl font-bold tracking-tight flex items-center gap-1"
-              style={{ color: '#ed565a', fontFamily: 'IBM Plex Mono, monospace' }}
+              style={{ color: "#ed565a", fontFamily: "IBM Plex Mono, monospace" }}
             >
-              {isLoading ? '...' : (
+              {isLoading ? (
+                "..."
+              ) : (
                 <>
                   {balance.toFixed(1)}
                   <img src={solanaIcon} alt="SOL" className="w-4 h-4" />
@@ -97,45 +100,46 @@ export const TreasuryDisplay = () => {
             </div>
           </div>
         </HoverCardTrigger>
-        
-        <HoverCardContent 
-          side="top" 
+
+        <HoverCardContent
+          side="top"
           align="start"
-          className="w-[calc(100vw-2rem)] md:w-[420px] p-0 border-[3px] rounded-[32px]"
+          className="w-[calc(100vw-2rem)] md:w-[420px] p-0 border-[1px] rounded-[32px]"
           style={{
-            borderColor: '#a78bfa',
-            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            borderColor: "#a78bfa",
+            backgroundColor: "rgba(0, 0, 0, 0.95)",
           }}
         >
           <div className="p-4 md:p-6">
             {/* Top Section: Distributing and Member Rewards side by side */}
             <div className="flex flex-col md:flex-row md:justify-between items-start mb-4 md:mb-6 gap-3 md:gap-0">
               <div>
-                <div 
+                <div
                   className="text-xs md:text-sm font-bold mb-1 md:mb-2 tracking-wide"
-                  style={{ color: '#ffffff', fontFamily: 'IBM Plex Mono, monospace' }}
+                  style={{ color: "#ffffff", fontFamily: "IBM Plex Mono, monospace" }}
                 >
                   Distributing
                 </div>
-                <div 
+                <div
                   className="text-base md:text-xl font-bold leading-relaxed"
-                  style={{ color: '#ffffff', fontFamily: 'IBM Plex Mono, monospace' }}
+                  style={{ color: "#ffffff", fontFamily: "IBM Plex Mono, monospace" }}
                 >
-                  {countdown.days}d / {countdown.hours}hr<br />
+                  {countdown.days}d / {countdown.hours}hr
+                  <br />
                   {countdown.minutes}m / {countdown.seconds}s
                 </div>
               </div>
-              
+
               <div className="md:text-right">
-                <div 
+                <div
                   className="text-xs md:text-sm font-bold mb-1 md:mb-2 tracking-wide"
-                  style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
+                  style={{ color: "#a78bfa", fontFamily: "IBM Plex Mono, monospace" }}
                 >
                   Member Rewards
                 </div>
-                <div 
+                <div
                   className="text-2xl md:text-4xl font-bold flex items-center md:justify-end gap-1.5 md:gap-2"
-                  style={{ color: '#a78bfa', fontFamily: 'IBM Plex Mono, monospace' }}
+                  style={{ color: "#a78bfa", fontFamily: "IBM Plex Mono, monospace" }}
                 >
                   {totalRewards.toFixed(1)}
                   <img src={solanaIcon} alt="SOL" className="w-6 h-6 md:w-8 md:h-8" />
@@ -144,32 +148,25 @@ export const TreasuryDisplay = () => {
             </div>
 
             {/* Dotted Separator */}
-            <div 
+            <div
               className="w-full h-px mb-4 md:mb-6"
-              style={{ 
-                borderTop: '2px dotted #a78bfa',
+              style={{
+                borderTop: "2px dotted #a78bfa",
               }}
             />
 
             {/* Bar Chart */}
             <div className="h-20 md:h-24">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart 
-                  data={data?.dailyDeposits || []}
-                  barCategoryGap="20%"
-                >
-                  <XAxis 
-                    dataKey="day" 
-                    tick={{ fill: '#a78bfa', fontSize: 12, fontFamily: 'IBM Plex Mono, monospace' }}
+                <BarChart data={data?.dailyDeposits || []} barCategoryGap="20%">
+                  <XAxis
+                    dataKey="day"
+                    tick={{ fill: "#a78bfa", fontSize: 12, fontFamily: "IBM Plex Mono, monospace" }}
                     axisLine={false}
                     tickLine={false}
                     dy={8}
                   />
-                  <Bar 
-                    dataKey="amount" 
-                    fill="#a78bfa" 
-                    radius={[6, 6, 6, 6]}
-                  />
+                  <Bar dataKey="amount" fill="#a78bfa" radius={[6, 6, 6, 6]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

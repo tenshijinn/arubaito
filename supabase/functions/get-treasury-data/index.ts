@@ -17,33 +17,60 @@ serve(async (req) => {
     const { Connection, PublicKey, LAMPORTS_PER_SOL } = await import('https://esm.sh/@solana/web3.js@1.95.0');
     
     const heliusApiKey = Deno.env.get('HELIUS_API_KEY');
-    
-    if (!heliusApiKey) {
-      console.error('HELIUS_API_KEY is not set in environment variables');
-      return new Response(
-        JSON.stringify({ 
-          error: 'RPC configuration error: HELIUS_API_KEY not found',
-          balance: 0,
-          dailyDeposits: [],
-        }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-    
-    console.log('Using Helius API key:', heliusApiKey.substring(0, 8) + '...');
-    const rpcEndpoint = `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`;
-    const connection = new Connection(rpcEndpoint, 'confirmed');
     const walletAddress = new PublicKey('ogcBwDkmQe3NggoUS2yQk7CJmXpQBdcyyn1Qb5PcCa5');
+    
+    // Try Helius first, then fallback to public RPC
+    let connection: InstanceType<typeof Connection>;
+    let usingFallback = false;
+    
+    if (heliusApiKey) {
+      console.log('Using Helius API key:', heliusApiKey.substring(0, 8) + '...');
+      const rpcEndpoint = `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`;
+      connection = new Connection(rpcEndpoint, 'confirmed');
+      
+      // Test the connection
+      try {
+        await connection.getBalance(walletAddress);
+        console.log('Helius connection successful');
+      } catch (heliusError) {
+        console.warn('Helius connection failed, falling back to public RPC:', heliusError);
+        usingFallback = true;
+        connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+      }
+    } else {
+      console.log('No Helius API key found, using public RPC');
+      usingFallback = true;
+      connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+    }
 
     // Fetch wallet balance
     const balanceLamports = await connection.getBalance(walletAddress);
     const balance = balanceLamports / LAMPORTS_PER_SOL;
-    console.log(`Wallet balance: ${balance} SOL`);
+    console.log(`Wallet balance: ${balance} SOL (using ${usingFallback ? 'public RPC' : 'Helius'})`);
 
-    // Fetch transaction signatures from the last 7 days
+    // For simplicity with fallback, return basic balance without detailed tx history
+    // (public RPC has rate limits that make fetching all transactions slow)
+    if (usingFallback) {
+      return new Response(
+        JSON.stringify({
+          balance: parseFloat(balance.toFixed(1)),
+          dailyDeposits: [
+            { day: 'M', amount: 0 },
+            { day: 'T', amount: 0 },
+            { day: 'W', amount: 0 },
+            { day: 'T', amount: 0 },
+            { day: 'F', amount: 0 },
+            { day: 'S', amount: 0 },
+            { day: 'S', amount: 0 },
+          ],
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Fetch transaction signatures from the last 7 days (only with Helius)
     const signatures = await connection.getSignaturesForAddress(walletAddress, { limit: 100 });
     console.log(`Found ${signatures.length} signatures`);
 

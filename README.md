@@ -331,7 +331,7 @@ Contributors and advisors from:
 
 ## Links
 
-- **Website:** (new domain pending) Alpha v2 domain: https://arubaito.lovable.app
+- **Website:** https://arubaito.app
 - **X:** https://twitter.com/Arubaito_IO  
 - **AskRei Agent:** https://twitter.com/AskRei (soon)
 - **Telegram Agent:** Coming soon  

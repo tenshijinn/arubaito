@@ -2,7 +2,7 @@ project_id = "hmdxufttehhpyyqoaosz"
 
 [auth]
 enabled = true
-site_url = "https://lovable.dev"
+site_url = "https://arubaito.app"
 
 [functions.analyze-cv]
 verify_jwt = true

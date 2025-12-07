@@ -117,15 +117,17 @@ const Index = () => {
           <WaitlistCountdown />
         </div>
 
-        {/* Logo, text, and buttons - bottom left corner */}
+        {/* Logo - dead center of left panel */}
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <img 
+            src={arubaitoLogo} 
+            alt="Arubaito" 
+            className="h-24 md:h-32 w-auto"
+          />
+        </div>
+
+        {/* Text and buttons - bottom left corner */}
         <div className="absolute bottom-8 left-8 flex flex-col gap-4 z-10 w-full max-w-md px-0">
-          <div className="text-left">
-            <img 
-              src={arubaitoLogo} 
-              alt="Arubaito" 
-              className="h-24 md:h-32 w-auto mb-4"
-            />
-          </div>
 
           {/* Left aligned text with rotating words */}
           <div className="w-full text-left">

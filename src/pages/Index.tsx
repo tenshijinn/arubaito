@@ -117,18 +117,18 @@ const Index = () => {
           <WaitlistCountdown />
         </div>
 
-        {/* Logo, text, and buttons - bottom left corner */}
-        <div className="absolute bottom-8 left-8 flex flex-col gap-4 z-10 w-full max-w-md px-0">
-          <div className="text-left">
+        {/* Logo, text, and buttons - centered */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 px-8">
+          <div className="flex flex-col items-center">
             <img 
               src={arubaitoLogo} 
               alt="Arubaito" 
-              className="h-24 md:h-32 w-auto mb-4"
+              className="h-32 md:h-40 w-auto mb-4"
             />
           </div>
 
           {/* Left aligned text with rotating words */}
-          <div className="w-full text-left">
+          <div className="w-full max-w-xs text-center">
             {hoveredButton === "rei" ? (
               <p
                 className="text-sm md:text-base font-mono leading-relaxed"
@@ -192,7 +192,7 @@ const Index = () => {
           </div>
 
           {/* Buttons side by side */}
-          <div className="flex gap-3 w-full max-w-xs">
+          <div className="flex gap-3 w-full max-w-xs justify-center">
             <Button
               onClick={() => navigate("/arubaito")}
               variant="outline"

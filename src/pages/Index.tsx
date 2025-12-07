@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { TextRotator } from "@/components/TextRotator";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
+import arubaitoLogo from "@/assets/arubaito-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -119,12 +120,11 @@ const Index = () => {
         {/* Logo, text, and buttons - bottom left corner */}
         <div className="absolute bottom-8 left-8 flex flex-col gap-4 z-10 w-full max-w-md px-0">
           <div className="text-left">
-            <h1
-              className="text-4xl md:text-5xl font-bold mb-4"
-              style={{ fontFamily: "Consolas, monospace", color: "#ed565a" }}
-            >
-              ARUBAITO.
-            </h1>
+            <img 
+              src={arubaitoLogo} 
+              alt="Arubaito" 
+              className="h-24 md:h-32 w-auto mb-4"
+            />
           </div>
 
           {/* Left aligned text with rotating words */}

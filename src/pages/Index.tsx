@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TextRotator } from "@/components/TextRotator";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
+import { LatestUpdatesCarousel } from "@/components/LatestUpdatesCarousel";
 import arubaitoLogo from "@/assets/arubaito-logo.png";
 
 const Index = () => {
@@ -253,32 +254,17 @@ const Index = () => {
         className="w-full lg:w-1/2 h-screen overflow-y-scroll snap-y snap-mandatory"
         style={{ backgroundColor: "#181818", scrollSnapType: "y mandatory", scrollSnapStop: "always" }}
       >
-        {/* Section 1 - Above the Fold */}
+        {/* Section 1 - Latest Updates Carousel */}
         <div className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
-          {/* x402 ASCII Art Block */}
-          <iframe
-            src="/ascii/x402.html"
-            className="w-full max-w-md aspect-square mb-8 border-0"
-            style={{ backgroundColor: "transparent" }}
-            title="x402 Payment ASCII Art"
-          />
-
-          {/* Payment Info */}
-          <div className="text-center space-y-3">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-6 h-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full" />
-              <p className="font-mono text-sm" style={{ color: "#faf6f4" }}>
-                Promote Jobs or Tasks | Pay with x402 or SolanaPay
-              </p>
-            </div>
-            <button
-              className="mt-4 text-xs font-mono flex items-center gap-1 mx-auto hover:opacity-80 transition-opacity"
-              style={{ color: "#ed565a" }}
-              onClick={() => document.getElementById("how-club-works")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              How Arubaito Works ↓
-            </button>
-          </div>
+          <LatestUpdatesCarousel />
+          
+          <button
+            className="mt-8 text-xs font-mono flex items-center gap-1 mx-auto hover:opacity-80 transition-opacity"
+            style={{ color: "#ed565a" }}
+            onClick={() => document.getElementById("how-club-works")?.scrollIntoView({ behavior: "smooth" })}
+          >
+            How Arubaito Works ↓
+          </button>
         </div>
 
         {/* Section 2 - How the Club Works */}

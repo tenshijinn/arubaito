@@ -12,6 +12,15 @@ serve(async (req) => {
   }
 
   try {
+    // Get authorization header
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { walletAddress } = await req.json();
     
     console.log('Reset wallet account called for:', walletAddress);
@@ -20,9 +29,45 @@ serve(async (req) => {
       throw new Error('Wallet address is required');
     }
 
-    // Create admin client with service role key
+    // Create user client to verify the requesting user's identity
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Get the current authenticated user
+    const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
+    
+    if (userError || !user) {
+      console.error('Authentication failed:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Authentication failed' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // CRITICAL: Verify the authenticated user owns this wallet
+    // The user's email is ${walletAddress}@wallet.local for wallet auth
+    const expectedEmail = `${walletAddress}@wallet.local`;
+    const userWalletAddress = user.user_metadata?.wallet_address;
+    
+    if (user.email !== expectedEmail && userWalletAddress !== walletAddress) {
+      console.error('Wallet ownership verification failed:', {
+        userEmail: user.email,
+        expectedEmail,
+        userWalletAddress,
+        requestedWallet: walletAddress
+      });
+      return new Response(
+        JSON.stringify({ error: 'You can only reset your own wallet account' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create admin client with service role key for account deletion
     const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
+      supabaseUrl,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
@@ -50,14 +95,23 @@ serve(async (req) => {
       page++;
     }
 
-    const user = allUsers.find(u => u.email === email);
-    console.log('User found:', user ? user.id : 'none', 'out of', allUsers.length, 'users');
+    const targetUser = allUsers.find(u => u.email === email);
+    console.log('User found:', targetUser ? targetUser.id : 'none', 'out of', allUsers.length, 'users');
 
-    if (user) {
-      console.log('Deleting user:', user.id);
+    // Additional check: ensure the found user matches the authenticated user
+    if (targetUser && targetUser.id !== user.id) {
+      console.error('User ID mismatch - potential attack detected');
+      return new Response(
+        JSON.stringify({ error: 'Security verification failed' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (targetUser) {
+      console.log('Deleting user:', targetUser.id);
       
       // Delete the user
-      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(targetUser.id);
       
       if (deleteError) {
         console.error('Error deleting user:', deleteError);

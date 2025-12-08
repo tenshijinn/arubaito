@@ -29,7 +29,7 @@ verify_jwt = false
 verify_jwt = true
 
 [functions.send-twitter-dm]
-verify_jwt = false
+verify_jwt = true
 
 [functions.verify-sol-payment]
 verify_jwt = false
@@ -59,10 +59,13 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.award-payment-points]
-verify_jwt = false
+verify_jwt = true
 
 [functions.x402-create-payment]
 verify_jwt = false
 
 [functions.x402-verify-payment]
 verify_jwt = false
+
+[functions.reset-wallet-account]
+verify_jwt = true

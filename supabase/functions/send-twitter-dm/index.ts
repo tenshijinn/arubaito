@@ -1,4 +1,5 @@
 import { createHmac } from "node:crypto";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -89,6 +90,51 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Get authorization header
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Verify the user is authenticated and is an admin
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error('Authentication failed:', userError);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication failed' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if user has admin role using the has_role function
+    const supabaseAdmin = createClient(
+      supabaseUrl,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: hasAdminRole, error: roleError } = await supabaseAdmin.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin'
+    });
+
+    if (roleError || !hasAdminRole) {
+      console.error('Admin check failed:', roleError || 'User is not an admin');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Admin access required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     validateEnvironmentVariables();
     const { x_user_id, twitter_handle } = await req.json();
 
@@ -96,13 +142,13 @@ Deno.serve(async (req) => {
       throw new Error("Missing x_user_id parameter");
     }
 
-    console.log(`Sending DM to user: ${twitter_handle} (${x_user_id})`);
+    console.log(`Admin ${user.id} sending DM to user: ${twitter_handle} (${x_user_id})`);
 
     const message = `🎉 Great news! Your whitelist request has been approved!\n\nYou're now part of our exclusive bluechip community. Welcome aboard!\n\nVisit ${Deno.env.get('VITE_SUPABASE_URL')?.replace('/supabase/', '')} to explore premium features.`;
 
     const result = await sendDirectMessage(x_user_id, message);
     
-    console.log("DM sent successfully");
+    console.log("DM sent successfully by admin:", user.id);
 
     return new Response(
       JSON.stringify({ success: true, message: "DM sent successfully", data: result }),

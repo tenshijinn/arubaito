@@ -196,6 +196,41 @@ export type Database = {
         }
         Relationships: []
       }
+      cv_portfolio_images: {
+        Row: {
+          analysis_id: string
+          created_at: string
+          display_order: number
+          id: string
+          image_path: string
+          user_id: string
+        }
+        Insert: {
+          analysis_id: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_path: string
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_path?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cv_portfolio_images_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "cv_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_drafts: {
         Row: {
           company_name: string | null

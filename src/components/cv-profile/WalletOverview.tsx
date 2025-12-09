@@ -47,9 +47,9 @@ export const WalletOverview = ({
         <h3 className="text-lg font-bold">Wallet Overview</h3>
       </div>
 
+      {/* Wallet Address - Always show if available */}
       {walletAddress ? (
         <div className="space-y-4">
-          {/* Wallet Address */}
           <div className="p-3 bg-muted/30 rounded border border-border/50">
             <div className="flex items-center gap-2 text-sm">
               <Link className="h-4 w-4 text-muted-foreground" />
@@ -58,7 +58,7 @@ export const WalletOverview = ({
           </div>
 
           {/* Bluechip Status */}
-          {bluechipVerified && (
+          {bluechipVerified ? (
             <div className="p-3 bg-primary/10 rounded border border-primary/30">
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="h-4 w-4 text-primary" />
@@ -69,6 +69,15 @@ export const WalletOverview = ({
               <p className="text-xs text-muted-foreground">
                 Score: {bluechipScore} points
               </p>
+            </div>
+          ) : (
+            <div className="p-3 bg-muted/30 rounded border border-border/50">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  Not bluechip verified
+                </span>
+              </div>
             </div>
           )}
 
@@ -125,10 +134,10 @@ export const WalletOverview = ({
         <div className="text-center py-6">
           <Wallet className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
           <p className="text-sm text-muted-foreground">
-            No wallet connected
+            No wallet declared
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Connect a wallet to verify on-chain activity
+            This CV was analyzed without a wallet address
           </p>
         </div>
       )}

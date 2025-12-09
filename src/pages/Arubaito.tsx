@@ -7,6 +7,7 @@ import { Navigation } from "@/components/Navigation";
 import { CVProfileMethodSelector } from "@/components/CVProfileMethodSelector";
 import { ManualCVForm } from "@/components/ManualCVForm";
 import { LinkedInImport } from "@/components/LinkedInImport";
+import { WalletConnectStep } from "@/components/cv-profile/WalletConnectStep";
 import { supabase } from "@/integrations/supabase/client";
 import { FileCheck, LogOut, Plus, Info, ArrowLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -15,13 +16,16 @@ import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { CVProfilesEmpty } from "@/components/CVProfilesEmpty";
 import { CVProfileCard } from "@/components/CVProfileCard";
 
+// Flow states: null (profiles list) -> 'wallet' -> 'selecting' -> 'form'|'upload'|'linkedin'
+type FlowState = 'wallet' | 'selecting' | 'form' | 'upload' | 'linkedin' | null;
+
 const Index = () => {
   const [user, setUser] = useState<any>(null);
   const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null);
   const [recentAnalyses, setRecentAnalyses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMethod, setSelectedMethod] = useState<'form' | 'upload' | 'linkedin' | 'selecting' | null>(null);
-
+  const [flowState, setFlowState] = useState<FlowState>(null);
+  const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
   useEffect(() => {
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -75,19 +79,40 @@ const Index = () => {
 
   const handleNewAnalysis = () => {
     setCurrentAnalysisId(null);
-    setSelectedMethod(null);
+    setFlowState(null);
+    setConnectedWallet(null);
+  };
+
+  const handleStartNewCV = () => {
+    setFlowState('wallet');
+  };
+
+  const handleWalletContinue = (walletAddress: string | null) => {
+    setConnectedWallet(walletAddress);
+    setFlowState('selecting');
+  };
+
+  const handleWalletSkip = () => {
+    setConnectedWallet(null);
+    setFlowState('selecting');
   };
 
   const handleMethodSelect = (method: 'form' | 'upload' | 'linkedin') => {
-    setSelectedMethod(method);
+    setFlowState(method);
   };
 
   const handleBackToMethodSelector = () => {
-    setSelectedMethod(null);
+    setFlowState('selecting');
   };
 
-  // Get wallet address from user metadata if available
-  const walletAddress = user?.user_metadata?.wallet_address;
+  const handleBackToWallet = () => {
+    setFlowState('wallet');
+  };
+
+  const handleBackToProfiles = () => {
+    setFlowState(null);
+    setConnectedWallet(null);
+  };
 
   if (loading) {
     return (
@@ -160,8 +185,8 @@ const Index = () => {
             <CVProfileDisplay analysisId={currentAnalysisId} />
           ) : (
             <div className="space-y-8">
-              {/* Upload New CV Button or Method Selector */}
-              {!selectedMethod ? (
+              {/* Profiles List */}
+              {flowState === null && (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -172,7 +197,7 @@ const Index = () => {
                     </div>
                     <Button 
                       size="lg"
-                      onClick={() => setSelectedMethod('selecting')}
+                      onClick={handleStartNewCV}
                     >
                       <Plus className="h-5 w-5 mr-2" />
                       Upload New CV
@@ -195,47 +220,70 @@ const Index = () => {
                       ))}
                     </div>
                   ) : (
-                    <CVProfilesEmpty onUploadClick={() => setSelectedMethod('selecting')} />
+                    <CVProfilesEmpty onUploadClick={handleStartNewCV} />
                   )}
                 </div>
-              ) : (
+              )}
+
+              {/* Wallet Connection Step */}
+              {flowState === 'wallet' && (
                 <div className="space-y-6">
-                  {/* Back to profiles button */}
                   <Button 
                     variant="ghost" 
-                    onClick={handleBackToMethodSelector}
+                    onClick={handleBackToProfiles}
                     className="mb-4"
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Profiles
                   </Button>
-
-                  {/* Method Selector or Upload Forms */}
-                  {selectedMethod === 'selecting' ? (
-                    <CVProfileMethodSelector 
-                      onMethodSelect={handleMethodSelect}
-                      walletAddress={walletAddress}
-                    />
-                  ) : selectedMethod === 'form' ? (
-                    <ManualCVForm 
-                      onBack={handleBackToMethodSelector}
-                      onComplete={handleAnalysisComplete}
-                      walletAddress={walletAddress}
-                    />
-                  ) : selectedMethod === 'linkedin' ? (
-                    <LinkedInImport 
-                      onBack={handleBackToMethodSelector}
-                      onComplete={handleAnalysisComplete}
-                      walletAddress={walletAddress}
-                    />
-                  ) : selectedMethod === 'upload' ? (
-                    <CVUploader 
-                      onAnalysisComplete={handleAnalysisComplete}
-                      walletAddress={walletAddress}
-                      onBack={handleBackToMethodSelector}
-                    />
-                  ) : null}
+                  <WalletConnectStep 
+                    onContinue={handleWalletContinue}
+                    onSkip={handleWalletSkip}
+                  />
                 </div>
+              )}
+
+              {/* Method Selector */}
+              {flowState === 'selecting' && (
+                <div className="space-y-6">
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleBackToWallet}
+                    className="mb-4"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Wallet
+                  </Button>
+                  <CVProfileMethodSelector 
+                    onMethodSelect={handleMethodSelect}
+                    walletAddress={connectedWallet || undefined}
+                  />
+                </div>
+              )}
+
+              {/* Upload Forms */}
+              {flowState === 'form' && (
+                <ManualCVForm 
+                  onBack={handleBackToMethodSelector}
+                  onComplete={handleAnalysisComplete}
+                  walletAddress={connectedWallet || undefined}
+                />
+              )}
+
+              {flowState === 'linkedin' && (
+                <LinkedInImport 
+                  onBack={handleBackToMethodSelector}
+                  onComplete={handleAnalysisComplete}
+                  walletAddress={connectedWallet || undefined}
+                />
+              )}
+
+              {flowState === 'upload' && (
+                <CVUploader 
+                  onAnalysisComplete={handleAnalysisComplete}
+                  walletAddress={connectedWallet || undefined}
+                  onBack={handleBackToMethodSelector}
+                />
               )}
             </div>
           )}

@@ -235,17 +235,28 @@ export const CVUploader = ({ onAnalysisComplete, walletAddress, onBack }: CVUplo
               </div>
             </div>
             
-            {walletAddress && (
-              <div className="w-full max-w-md p-4 rounded-lg bg-accent/30 border">
-                <div className="flex items-center gap-2 text-sm">
-                  <Wallet className="h-4 w-4" style={{ color: 'hsl(var(--primary))' }} />
-                  <span className="font-medium text-foreground">Connected Wallet:</span>
+            {/* Wallet Status Banner */}
+            {walletAddress ? (
+              <div className="w-full max-w-md p-4 rounded-lg bg-green-500/10 border border-green-500/30">
+                <div className="flex items-center gap-2">
+                  <Wallet className="h-4 w-4 text-green-500" />
+                  <span className="font-medium text-green-500">Wallet Connected</span>
                 </div>
                 <p className="mt-2 text-xs font-mono text-muted-foreground break-all">
                   {walletAddress}
                 </p>
-                <p className="mt-2 text-xs" style={{ color: 'hsl(var(--primary))' }}>
-                  ✓ This wallet will be used for on-chain verification
+                <p className="mt-2 text-xs text-muted-foreground">
+                  ✓ Your CV claims will be verified against this wallet's on-chain activity
+                </p>
+              </div>
+            ) : (
+              <div className="w-full max-w-md p-4 rounded-lg bg-accent/30 border border-dashed">
+                <div className="flex items-center gap-2">
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium text-muted-foreground">No Wallet Connected</span>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Your CV will be analyzed without on-chain verification
                 </p>
               </div>
             )}

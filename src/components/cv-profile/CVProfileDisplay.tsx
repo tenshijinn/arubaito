@@ -161,6 +161,7 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
       {/* Profile Header */}
       <ProfileHeader
         fileName={analysis.file_name}
+        filePath={analysis.file_name}
         createdAt={analysis.created_at}
         walletAddress={analysis.wallet_address}
         profileImageUrl={profileImageUrl}

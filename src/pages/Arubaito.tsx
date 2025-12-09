@@ -20,7 +20,7 @@ const Index = () => {
   const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null);
   const [recentAnalyses, setRecentAnalyses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMethod, setSelectedMethod] = useState<'form' | 'upload' | 'linkedin' | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<'form' | 'upload' | 'linkedin' | 'selecting' | null>(null);
 
   useEffect(() => {
     // Check current session
@@ -172,7 +172,7 @@ const Index = () => {
                     </div>
                     <Button 
                       size="lg"
-                      onClick={() => setSelectedMethod('upload')}
+                      onClick={() => setSelectedMethod('selecting')}
                     >
                       <Plus className="h-5 w-5 mr-2" />
                       Upload New CV
@@ -195,7 +195,7 @@ const Index = () => {
                       ))}
                     </div>
                   ) : (
-                    <CVProfilesEmpty onUploadClick={() => setSelectedMethod('upload')} />
+                    <CVProfilesEmpty onUploadClick={() => setSelectedMethod('selecting')} />
                   )}
                 </div>
               ) : (
@@ -211,7 +211,7 @@ const Index = () => {
                   </Button>
 
                   {/* Method Selector or Upload Forms */}
-                  {selectedMethod === 'upload' && !selectedMethod.startsWith('form') && !selectedMethod.startsWith('linkedin') ? (
+                  {selectedMethod === 'selecting' ? (
                     <CVProfileMethodSelector 
                       onMethodSelect={handleMethodSelect}
                       walletAddress={walletAddress}
@@ -228,13 +228,13 @@ const Index = () => {
                       onComplete={handleAnalysisComplete}
                       walletAddress={walletAddress}
                     />
-                  ) : (
+                  ) : selectedMethod === 'upload' ? (
                     <CVUploader 
                       onAnalysisComplete={handleAnalysisComplete}
                       walletAddress={walletAddress}
                       onBack={handleBackToMethodSelector}
                     />
-                  )}
+                  ) : null}
                 </div>
               )}
             </div>

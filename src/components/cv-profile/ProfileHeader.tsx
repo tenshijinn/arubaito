@@ -1,11 +1,16 @@
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Wallet, FileText, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, Wallet, FileText, Download, Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ProfileHeaderProps {
   fileName: string;
+  filePath?: string;
   createdAt: string;
   walletAddress: string | null;
   profileImageUrl: string | null;
@@ -15,16 +20,55 @@ interface ProfileHeaderProps {
 
 export const ProfileHeader = ({
   fileName,
+  filePath,
   createdAt,
   walletAddress,
   profileImageUrl,
   userName,
   twitterHandle,
 }: ProfileHeaderProps) => {
+  const [downloading, setDownloading] = useState(false);
   const displayName = userName || fileName.replace(/\.[^/.]+$/, "");
   const truncatedWallet = walletAddress 
     ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
     : null;
+
+  const handleDownload = async () => {
+    if (!filePath) {
+      toast.error("No file available for download");
+      return;
+    }
+
+    setDownloading(true);
+    try {
+      const { data, error } = await supabase.storage
+        .from('cv-uploads')
+        .download(filePath);
+
+      if (error) {
+        console.error('Download error:', error);
+        toast.error("Failed to download CV");
+        return;
+      }
+
+      // Create download link
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast.success("CV downloaded successfully");
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error("Failed to download CV");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <Card className="p-6 bg-card/50 backdrop-blur-sm">
@@ -54,6 +98,21 @@ export const ProfileHeader = ({
             <div className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               <span>{fileName}</span>
+              {filePath && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 ml-1"
+                  onClick={handleDownload}
+                  disabled={downloading}
+                >
+                  {downloading ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Download className="h-3 w-3" />
+                  )}
+                </Button>
+              )}
             </div>
             
             <div className="flex items-center gap-2">

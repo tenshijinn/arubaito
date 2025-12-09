@@ -4,3 +4,5 @@ export { ScoreOverview } from './ScoreOverview';
 export { ScoreBreakdown } from './ScoreBreakdown';
 export { WalletOverview } from './WalletOverview';
 export { FeedbackCollapsible } from './FeedbackCollapsible';
+export { PortfolioGallery } from './PortfolioGallery';
+export { NFTGallery } from './NFTGallery';

@@ -7,6 +7,8 @@ import { ScoreOverview } from "./ScoreOverview";
 import { ScoreBreakdown } from "./ScoreBreakdown";
 import { WalletOverview } from "./WalletOverview";
 import { FeedbackCollapsible } from "./FeedbackCollapsible";
+import { PortfolioGallery } from "./PortfolioGallery";
+import { NFTGallery } from "./NFTGallery";
 
 interface Category {
   id: string;
@@ -192,6 +194,12 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
           />
         </div>
       </div>
+
+      {/* Portfolio Gallery */}
+      <PortfolioGallery analysisId={analysisId} isOwner={isOwner} />
+
+      {/* NFT Gallery */}
+      <NFTGallery walletAddress={analysis.wallet_address} />
 
       {/* Private Feedback Section - Only visible to owner */}
       {isOwner && analysis.scoring_details && (

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Trash2, ArrowLeft } from "lucide-react";
+import { Loader2, Plus, Trash2, ArrowLeft, Wallet } from "lucide-react";
 
 interface WorkExperience {
   id: string;
@@ -173,17 +173,33 @@ ${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
         <h2 className="text-2xl font-bold">Manual CV Profile Form</h2>
       </div>
 
-      {walletAddress && (
-        <Card className="p-4 bg-accent/30">
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium text-foreground">Connected Wallet:</span>
+      {/* Wallet Status Banner */}
+      {walletAddress ? (
+        <Card className="p-4 bg-green-500/10 border-green-500/30">
+          <div className="flex items-center gap-3">
+            <Wallet className="h-5 w-5 text-green-500 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-green-500">Wallet Connected for Verification</p>
+              <p className="text-xs font-mono text-muted-foreground truncate mt-1">
+                {walletAddress}
+              </p>
+            </div>
           </div>
-          <p className="mt-2 text-xs font-mono text-muted-foreground break-all">
-            {walletAddress}
+          <p className="mt-2 text-xs text-muted-foreground">
+            Projects and protocols you mention below will be verified against this wallet's on-chain activity
           </p>
-          <p className="mt-2 text-xs" style={{ color: 'hsl(var(--primary))' }}>
-            ✓ Your CV claims will be verified against this wallet's on-chain activity
-          </p>
+        </Card>
+      ) : (
+        <Card className="p-4 bg-accent/30 border-dashed">
+          <div className="flex items-center gap-3">
+            <Wallet className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="font-medium text-muted-foreground">No Wallet Connected</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Your profile will be created without on-chain verification
+              </p>
+            </div>
+          </div>
         </Card>
       )}
 

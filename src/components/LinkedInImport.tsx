@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { Linkedin, ArrowLeft, Info, AlertTriangle } from "lucide-react";
+import { Linkedin, ArrowLeft, Info, AlertTriangle, Wallet, CheckCircle2 } from "lucide-react";
 
 interface LinkedInImportProps {
   onBack: () => void;
@@ -24,15 +24,6 @@ export const LinkedInImport = ({ onBack, onComplete, walletAddress }: LinkedInIm
       variant: "default",
     });
 
-    // TODO: Implement LinkedIn OAuth flow
-    // 1. Redirect to LinkedIn OAuth
-    // 2. Get authorization code
-    // 3. Exchange for access token
-    // 4. Fetch LinkedIn profile data
-    // 5. Parse and structure data
-    // 6. Submit to analyze-cv function
-    // 7. Save results and call onComplete
-
     setIsConnecting(false);
   };
 
@@ -45,6 +36,36 @@ export const LinkedInImport = ({ onBack, onComplete, walletAddress }: LinkedInIm
         </Button>
         <h2 className="text-2xl font-bold">Import from LinkedIn</h2>
       </div>
+
+      {/* Wallet Status Banner */}
+      {walletAddress ? (
+        <Card className="p-4 bg-green-500/10 border-green-500/30">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-green-500">Wallet Connected for Verification</p>
+              <p className="text-xs font-mono text-muted-foreground truncate mt-1">
+                {walletAddress}
+              </p>
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Your LinkedIn profile claims will be verified against this wallet's on-chain activity
+          </p>
+        </Card>
+      ) : (
+        <Card className="p-4 bg-accent/30 border-dashed">
+          <div className="flex items-center gap-3">
+            <Wallet className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="font-medium text-muted-foreground">No Wallet Connected</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Your profile will be created without on-chain verification
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
 
       <Card className="p-8 text-center space-y-6">
         <div className="mx-auto w-20 h-20 rounded-full flex items-center justify-center" 
@@ -88,7 +109,7 @@ export const LinkedInImport = ({ onBack, onComplete, walletAddress }: LinkedInIm
             className="w-full" 
             size="lg"
             onClick={handleLinkedInConnect}
-            disabled={isConnecting || true} // Disabled until implemented
+            disabled={isConnecting || true}
           >
             <Linkedin className="mr-2 h-5 w-5" />
             {isConnecting ? 'Connecting...' : 'Connect LinkedIn (Coming Soon)'}

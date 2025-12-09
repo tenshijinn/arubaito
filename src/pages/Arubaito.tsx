@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CVUploader } from "@/components/CVUploader";
-import { CVAnalysis } from "@/components/CVAnalysis";
+import { CVProfileDisplay } from "@/components/cv-profile";
 import { Auth } from "@/components/Auth";
 import { Navigation } from "@/components/Navigation";
 import { CVProfileMethodSelector } from "@/components/CVProfileMethodSelector";
@@ -157,7 +157,7 @@ const Index = () => {
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
           {currentAnalysisId ? (
-            <CVAnalysis analysisId={currentAnalysisId} />
+            <CVProfileDisplay analysisId={currentAnalysisId} />
           ) : (
             <div className="space-y-8">
               {/* Upload New CV Button or Method Selector */}

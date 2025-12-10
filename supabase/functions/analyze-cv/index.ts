@@ -342,6 +342,122 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
     let bluechipDetails: any = null;
     const verifiedProjects: Array<any> = [];
     const unverifiedProjects: Array<any> = [];
+    
+    // Significant activities collector
+    interface SignificantActivity {
+      type: string;
+      description: string;
+      experience: string;
+      chain: string;
+      date: string;
+      priority: number; // For sorting
+    }
+    const allActivities: SignificantActivity[] = [];
+    
+    // Known protocol addresses for activity classification
+    const knownProtocols: Record<string, { name: string; type: string; experience: string }> = {
+      // DEX Routers
+      '0x7a250d5630b4cf539739df2c5dacb4c659f2488d': { name: 'Uniswap', type: 'swap', experience: 'DEX trading experience' },
+      '0xe592427a0aece92de3edee1f18e0157c05861564': { name: 'Uniswap V3', type: 'swap', experience: 'DEX trading experience' },
+      '0xd9e1ce17f2641f24ae83637ab66a2cca9c378b9f': { name: 'SushiSwap', type: 'swap', experience: 'DEX trading experience' },
+      '0xdef1c0ded9bec7f1a1670819833240f027b25eff': { name: '0x Protocol', type: 'swap', experience: 'DEX aggregator experience' },
+      '0x1111111254fb6c44bac0bed2854e76f90643097d': { name: '1inch', type: 'swap', experience: 'DEX aggregator experience' },
+      // Lending
+      '0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9': { name: 'Aave V2', type: 'protocol', experience: 'DeFi lending experience' },
+      '0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2': { name: 'Aave V3', type: 'protocol', experience: 'DeFi lending experience' },
+      '0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b': { name: 'Compound', type: 'protocol', experience: 'DeFi lending experience' },
+      // Staking
+      '0xae7ab96520de3a18e5e111b5eaab095312d7fe84': { name: 'Lido', type: 'stake', experience: 'Liquid staking experience' },
+      '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': { name: 'WETH', type: 'transfer', experience: 'ETH wrapping experience' },
+      // NFT Marketplaces
+      '0x00000000006c3852cbef3e08e8df289169ede581': { name: 'OpenSea', type: 'nft', experience: 'NFT trading experience' },
+      '0x00000000000001ad428e4906ae43d8f9852d0dd6': { name: 'OpenSea Seaport', type: 'nft', experience: 'NFT trading experience' },
+      '0x29469395eaf6f95920e59f858042f0e28d98a20b': { name: 'Blur', type: 'nft', experience: 'NFT trading experience' },
+      '0x59728544b08ab483533076417fbbb2fd0b17ce3a': { name: 'LooksRare', type: 'nft', experience: 'NFT trading experience' },
+      // DAOs/Governance
+      '0x408ed6354d4973f66138c91495f2f2fcbd8724c3': { name: 'Uniswap Governor', type: 'governance', experience: 'DAO governance participation' },
+      '0xec568fffba86c094cf06b22134b23074dfe2252c': { name: 'Compound Governor', type: 'governance', experience: 'DAO governance participation' },
+      // POAPs
+      '0x22c1f6050e56d2876009903609a2cc3fef83b415': { name: 'POAP', type: 'poap', experience: 'Event attendance verification' },
+    };
+    
+    // Function to classify a transaction
+    const classifyTransaction = (tx: any, chain: string): SignificantActivity | null => {
+      const toAddress = tx.to_address?.toLowerCase();
+      const methodName = tx.method_name?.toLowerCase() || '';
+      const txDate = tx.block_signed_at;
+      
+      // Check known protocols first
+      if (toAddress && knownProtocols[toAddress]) {
+        const protocol = knownProtocols[toAddress];
+        return {
+          type: protocol.type,
+          description: `Interacted with ${protocol.name}`,
+          experience: protocol.experience,
+          chain,
+          date: txDate,
+          priority: protocol.type === 'governance' ? 5 : protocol.type === 'stake' ? 4 : 3
+        };
+      }
+      
+      // Classify by method name
+      if (methodName.includes('swap') || methodName.includes('exchange')) {
+        return {
+          type: 'swap',
+          description: `Executed token swap on ${chain}`,
+          experience: 'DEX trading experience',
+          chain,
+          date: txDate,
+          priority: 3
+        };
+      }
+      
+      if (methodName.includes('stake') || methodName.includes('deposit') || methodName.includes('delegate')) {
+        return {
+          type: 'stake',
+          description: `Staked or deposited assets on ${chain}`,
+          experience: 'Staking and yield farming experience',
+          chain,
+          date: txDate,
+          priority: 4
+        };
+      }
+      
+      if (methodName.includes('vote') || methodName.includes('propose') || methodName.includes('cast')) {
+        return {
+          type: 'governance',
+          description: `Participated in governance on ${chain}`,
+          experience: 'DAO governance participation',
+          chain,
+          date: txDate,
+          priority: 5
+        };
+      }
+      
+      if (methodName.includes('mint') || methodName.includes('safetransferfrom') || methodName.includes('claim')) {
+        return {
+          type: 'nft',
+          description: `NFT activity on ${chain}`,
+          experience: 'NFT minting and collecting experience',
+          chain,
+          date: txDate,
+          priority: 2
+        };
+      }
+      
+      if (methodName.includes('addliquidity') || methodName.includes('removeliquidity')) {
+        return {
+          type: 'liquidity',
+          description: `Provided liquidity on ${chain}`,
+          experience: 'Liquidity provision experience',
+          chain,
+          date: txDate,
+          priority: 4
+        };
+      }
+      
+      return null;
+    };
 
     if (walletAddress && COVALENT_API_KEY) {
       console.log('Starting Proof-of-Work verification for wallet:', walletAddress);
@@ -364,6 +480,14 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
           if (ethResponse.ok) {
             const ethData = await ethResponse.json();
             const transactions = ethData.data?.items || [];
+            
+            // Classify transactions for significant activities
+            for (const tx of transactions.slice(0, 100)) { // Check first 100 transactions
+              const activity = classifyTransaction(tx, 'Ethereum');
+              if (activity) {
+                allActivities.push(activity);
+              }
+            }
             
             // Check early activity (OG status)
             const earlyTxs = transactions.filter((tx: any) => {
@@ -436,6 +560,14 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
             const solData = await solResponse.json();
             const transactions = solData.data?.items || [];
             
+            // Classify transactions for significant activities
+            for (const tx of transactions.slice(0, 100)) {
+              const activity = classifyTransaction(tx, 'Solana');
+              if (activity) {
+                allActivities.push(activity);
+              }
+            }
+            
             const earlyTxs = transactions.filter((tx: any) => {
               const txDate = new Date(tx.block_signed_at);
               return txDate >= new Date('2020-01-01') && txDate <= new Date('2021-06-30');
@@ -483,6 +615,14 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
             const bscData = await bscResponse.json();
             const transactions = bscData.data?.items || [];
             
+            // Classify transactions for significant activities
+            for (const tx of transactions.slice(0, 100)) {
+              const activity = classifyTransaction(tx, 'BSC');
+              if (activity) {
+                allActivities.push(activity);
+              }
+            }
+            
             const earlyTxs = transactions.filter((tx: any) => {
               const txDate = new Date(tx.block_signed_at);
               return txDate >= new Date('2020-09-01') && txDate <= new Date('2021-06-30');
@@ -516,9 +656,43 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
           console.error('BSC verification error:', error);
         }
       }
+      
+      // Select top 5 most significant and diverse activities
+      const selectTopActivities = (activities: SignificantActivity[]): SignificantActivity[] => {
+        // Sort by priority (higher = more significant) and recency
+        const sorted = [...activities].sort((a, b) => {
+          if (b.priority !== a.priority) return b.priority - a.priority;
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
+        
+        // Ensure diversity - try to include different types
+        const selected: SignificantActivity[] = [];
+        const usedTypes = new Set<string>();
+        
+        // First pass: pick one of each type
+        for (const activity of sorted) {
+          if (!usedTypes.has(activity.type) && selected.length < 5) {
+            selected.push(activity);
+            usedTypes.add(activity.type);
+          }
+        }
+        
+        // Second pass: fill remaining slots with highest priority
+        for (const activity of sorted) {
+          if (selected.length >= 5) break;
+          if (!selected.includes(activity)) {
+            selected.push(activity);
+          }
+        }
+        
+        return selected.slice(0, 5);
+      };
+      
+      const topActivities = selectTopActivities(allActivities);
+      console.log('Significant activities found:', topActivities.length);
 
-      if (verificationResults.length > 0) {
-        bluechipVerified = true;
+      if (verificationResults.length > 0 || topActivities.length > 0) {
+        bluechipVerified = verificationResults.length > 0;
         bluechipDetails = {
           verifications: verificationResults,
           claimedProjects: claimedProjects.map(p => p.name),
@@ -532,7 +706,21 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
             verificationRate: claimedProjects.length > 0 
               ? Math.round((verifiedProjects.length / claimedProjects.length) * 100) 
               : 0
-          }
+          },
+          significantActivities: topActivities.map(a => ({
+            type: a.type,
+            description: a.description,
+            experience: a.experience,
+            chain: a.chain,
+            date: a.date
+          }))
+        };
+      } else if (walletAddress) {
+        // Even if no bluechip verification, still create bluechipDetails with wallet for display
+        bluechipDetails = {
+          verifications: [],
+          walletAddress: walletAddress,
+          significantActivities: []
         };
       }
 
@@ -541,8 +729,17 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         bluechipScore, 
         verifiedProjects: verifiedProjects.length,
         unverifiedProjects: unverifiedProjects.length,
+        significantActivities: topActivities.length,
         bluechipDetails 
       });
+    } else if (walletAddress && !COVALENT_API_KEY) {
+      // Wallet provided but no API key - still store wallet address
+      console.log('Wallet provided but COVALENT_API_KEY not configured');
+      bluechipDetails = {
+        verifications: [],
+        walletAddress: walletAddress,
+        significantActivities: []
+      };
     } else if (claimedProjects.length > 0 && !walletAddress) {
       // If projects are claimed but no wallet provided, note this
       console.log('WARNING: Projects claimed but no wallet provided for verification');

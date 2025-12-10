@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Wallet, Link, Shield, Clock, Activity } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Wallet, Link, Shield, Clock, Activity, HelpCircle } from "lucide-react";
 
 interface BluechipVerification {
   chain: string;
@@ -15,19 +16,19 @@ interface BluechipDetails {
   ogStatus?: boolean;
 }
 
-interface WalletOverviewProps {
+interface OnChainResumeProps {
   walletAddress: string | null;
   bluechipVerified: boolean;
   bluechipScore: number;
   bluechipDetails: BluechipDetails | null;
 }
 
-export const WalletOverview = ({
+export const OnChainResume = ({
   walletAddress,
   bluechipVerified,
   bluechipScore,
   bluechipDetails,
-}: WalletOverviewProps) => {
+}: OnChainResumeProps) => {
   const truncatedWallet = walletAddress 
     ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
     : null;
@@ -44,7 +45,21 @@ export const WalletOverview = ({
     <Card className="p-6 bg-card/50 backdrop-blur-sm">
       <div className="flex items-center gap-2 mb-6">
         <Wallet className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-bold">Wallet Overview</h3>
+        <h3 className="text-lg font-bold">On-Chain Resume</h3>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-xs">
+              <p className="text-xs">
+                Provides proof of your on-chain activity in Web3. Shows verified interactions 
+                with protocols, staking, swapping on DEXs, transferring funds, and other 
+                blockchain transactions that demonstrate your experience.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Wallet Address - Always show if available */}
@@ -86,7 +101,7 @@ export const WalletOverview = ({
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <Activity className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">Chains</span>
+                <span className="text-muted-foreground">Active Chains</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {uniqueChains.map((chain) => (

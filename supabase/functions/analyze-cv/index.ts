@@ -175,9 +175,35 @@ Analyze the CV against these Web3 Proof-of-Talent benchmarks and return your res
       "examples_found": ["<specific metric or achievement found>"]
     }
   ],
+  "cv_content": {
+    "personal_info": {
+      "name": "<extracted name or 'Anonymous' if not found>",
+      "location": "<extracted location or null if not found>",
+      "professional_title": "<primary role/title from CV>"
+    },
+    "describe_yourself": "<synthesize a 2-3 sentence professional summary in format: 'I am a [Title] who helps [type of organizations] with [specific expertise]. [Brief backstory or unique value proposition]'>",
+    "web3_communities": ["<community 1>", "<community 2>"],
+    "hard_skills": ["<skill 1>", "<skill 2>", "<skill 3>"],
+    "soft_skills": ["<skill 1>", "<skill 2>"],
+    "languages": ["<language 1 (proficiency)>"],
+    "education": [
+      {"institution": "<name>", "degree": "<degree/certification>", "year": "<year or period>"}
+    ],
+    "work_experience": [
+      {"company": "<name>", "role": "<title>", "duration": "<period>", "highlights": ["<achievement 1>"]}
+    ],
+    "hobbies": ["<hobby 1>", "<hobby 2>"]
+  },
   "top_strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
   "recommended_improvements": ["<improvement 1>", "<improvement 2>", "<improvement 3>"]
 }
+
+IMPORTANT for cv_content extraction:
+- Extract real data from the CV, do not make up information
+- For describe_yourself, synthesize a compelling professional summary based on their experience
+- For web3_communities, look for DAOs, protocols, or communities they mention being part of
+- For hobbies, include any personal interests, side projects, or non-work activities mentioned
+- If a field has no relevant data in the CV, use an empty array [] or null
 
 Calculate final_score for each category as: (qualitative_score * 0.7 + quantitative_score * 0.3) * weight
 
@@ -531,12 +557,13 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
     analysis.bluechip_score = bluechipScore;
     analysis.bluechip_details = bluechipDetails;
     
-    // Store detailed scoring breakdown
+    // Store detailed scoring breakdown with cv_content
     analysis.scoring_details = {
       total_score: analysis.total_score,
       categories: analysis.categories,
       top_strengths: analysis.top_strengths,
-      recommended_improvements: analysis.recommended_improvements
+      recommended_improvements: analysis.recommended_improvements,
+      cv_content: analysis.cv_content || null
     };
 
     console.log('CV Analysis completed:', analysis);

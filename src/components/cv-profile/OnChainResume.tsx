@@ -1,7 +1,24 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Wallet, Link, Shield, Clock, Activity, HelpCircle } from "lucide-react";
+import { 
+  Wallet, Link, Shield, Clock, Activity, HelpCircle, Trophy,
+  ArrowLeftRight, TrendingUp, Image, Award, Send, Blocks, Vote, Droplets, Zap
+} from "lucide-react";
+import { LucideIcon } from "lucide-react";
+
+// Activity icon mapping for significant on-chain activities
+const activityIcons: Record<string, LucideIcon> = {
+  swap: ArrowLeftRight,
+  stake: TrendingUp,
+  nft: Image,
+  poap: Award,
+  transfer: Send,
+  protocol: Blocks,
+  governance: Vote,
+  liquidity: Droplets,
+  default: Zap
+};
 
 interface BluechipVerification {
   chain: string;
@@ -10,10 +27,19 @@ interface BluechipVerification {
   earliestDate: string;
 }
 
+interface SignificantActivity {
+  type: string;
+  description: string;
+  experience: string;
+  chain?: string;
+  date?: string;
+}
+
 interface BluechipDetails {
   verifications?: BluechipVerification[];
   chains?: string[];
   ogStatus?: boolean;
+  significantActivities?: SignificantActivity[];
 }
 
 interface OnChainResumeProps {
@@ -140,9 +166,44 @@ export const OnChainResume = ({
 
           {/* OG Status */}
           {bluechipDetails?.ogStatus && (
-            <Badge className="bg-primary/20 text-primary border-primary/30">
-              🏆 OG Status
+            <Badge className="bg-primary/20 text-primary border-primary/30 flex items-center gap-1.5">
+              <Trophy className="h-3 w-3" />
+              OG Status
             </Badge>
+          )}
+
+          {/* Significant Activities */}
+          {bluechipDetails?.significantActivities && bluechipDetails.significantActivities.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm">
+                <Zap className="h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Significant Activities</span>
+              </div>
+              <div className="space-y-2">
+                {bluechipDetails.significantActivities.slice(0, 5).map((activity, i) => {
+                  const IconComponent = activityIcons[activity.type] || activityIcons.default;
+                  return (
+                    <div key={i} className="flex items-start gap-3 p-2 bg-muted/20 rounded border border-border/30">
+                      <IconComponent className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium">{activity.description}</p>
+                        <p className="text-[10px] text-muted-foreground">{activity.experience}</p>
+                        {(activity.chain || activity.date) && (
+                          <div className="flex items-center gap-2 mt-1">
+                            {activity.chain && (
+                              <Badge variant="outline" className="text-[9px] px-1 py-0">{activity.chain}</Badge>
+                            )}
+                            {activity.date && (
+                              <span className="text-[9px] text-muted-foreground">{new Date(activity.date).toLocaleDateString()}</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </div>
       ) : (

@@ -198,14 +198,14 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
         twitterHandle={currentUser?.user_metadata?.user_name || currentUser?.user_metadata?.preferred_username}
       />
 
-      {/* Main Content Grid - 3 Columns */}
+      {/* Main Content Grid - 2 Columns */}
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left Column - CV Content */}
-        <div className="space-y-6">
+        {/* Left Column - CV Content (2 columns wide) */}
+        <div className="lg:col-span-2 space-y-6">
           <CVContentCard cvContent={cvContent} />
         </div>
 
-        {/* Middle Column - Score Overview & Breakdown */}
+        {/* Right Column - Score Overview, On-Chain Resume, Score Breakdown */}
         <div className="space-y-6">
           <ScoreOverview
             overallScore={analysis.scoring_details?.total_score || analysis.overall_score}
@@ -213,28 +213,25 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
             bluechipScore={analysis.bluechip_score}
           />
 
-          {/* Score Breakdown */}
-          {analysis.scoring_details && (
-            <ScoreBreakdown categories={analysis.scoring_details.categories} />
-          )}
-        </div>
-
-        {/* Right Column - On-Chain Resume */}
-        <div className="space-y-6">
           <OnChainResume
             walletAddress={analysis.wallet_address}
             bluechipVerified={analysis.bluechip_verified}
             bluechipScore={analysis.bluechip_score}
             bluechipDetails={analysis.bluechip_details}
           />
+
+          {/* Score Breakdown */}
+          {analysis.scoring_details && (
+            <ScoreBreakdown categories={analysis.scoring_details.categories} />
+          )}
         </div>
       </div>
 
-      {/* Portfolio Gallery */}
-      <PortfolioGallery analysisId={analysisId} isOwner={isOwner} />
-
-      {/* NFT Gallery */}
-      <NFTGallery walletAddress={analysis.wallet_address} />
+      {/* Portfolio & NFT Galleries - Side by Side */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <PortfolioGallery analysisId={analysisId} isOwner={isOwner} />
+        <NFTGallery walletAddress={analysis.wallet_address} />
+      </div>
 
       {/* Private Feedback Section - Only visible to owner */}
       {isOwner && analysis.scoring_details && (

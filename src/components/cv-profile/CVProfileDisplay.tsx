@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { ProfileHeader } from "./ProfileHeader";
 import { ScoreOverview } from "./ScoreOverview";
 import { ScoreBreakdown } from "./ScoreBreakdown";
-import { WalletOverview } from "./WalletOverview";
+import { OnChainResume } from "./OnChainResume";
+import { CVContentCard } from "./CVContentCard";
 import { FeedbackCollapsible } from "./FeedbackCollapsible";
 import { PortfolioGallery } from "./PortfolioGallery";
 import { NFTGallery } from "./NFTGallery";
@@ -21,11 +22,37 @@ interface Category {
   examples_found?: string[];
 }
 
+interface CVContent {
+  personal_info?: {
+    name: string | null;
+    location: string | null;
+    professional_title: string | null;
+  };
+  describe_yourself?: string;
+  web3_communities?: string[];
+  hard_skills?: string[];
+  soft_skills?: string[];
+  languages?: string[];
+  education?: Array<{
+    institution: string;
+    degree: string;
+    year: string;
+  }>;
+  work_experience?: Array<{
+    company: string;
+    role: string;
+    duration: string;
+    highlights?: string[];
+  }>;
+  hobbies?: string[];
+}
+
 interface ScoringDetails {
   total_score: number;
   categories: Category[];
   top_strengths: string[];
   recommended_improvements: string[];
+  cv_content?: CVContent;
 }
 
 interface Analysis {
@@ -156,6 +183,8 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
                           currentUser?.user_metadata?.picture || 
                           null;
 
+  const cvContent = analysis.scoring_details?.cv_content || null;
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Profile Header */}
@@ -169,10 +198,15 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
         twitterHandle={currentUser?.user_metadata?.user_name || currentUser?.user_metadata?.preferred_username}
       />
 
-      {/* Main Content Grid */}
+      {/* Main Content Grid - 3 Columns */}
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left Column - Score Overview */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Left Column - CV Content */}
+        <div className="space-y-6">
+          <CVContentCard cvContent={cvContent} />
+        </div>
+
+        {/* Middle Column - Score Overview & Breakdown */}
+        <div className="space-y-6">
           <ScoreOverview
             overallScore={analysis.scoring_details?.total_score || analysis.overall_score}
             bluechipVerified={analysis.bluechip_verified}
@@ -185,9 +219,9 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
           )}
         </div>
 
-        {/* Right Column - Wallet Overview */}
+        {/* Right Column - On-Chain Resume */}
         <div className="space-y-6">
-          <WalletOverview
+          <OnChainResume
             walletAddress={analysis.wallet_address}
             bluechipVerified={analysis.bluechip_verified}
             bluechipScore={analysis.bluechip_score}

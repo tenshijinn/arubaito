@@ -2,13 +2,15 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileUp, FormInput, Linkedin, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { WalletAddresses } from "@/components/cv-profile/WalletConnectStep";
 
 interface CVProfileMethodSelectorProps {
   onMethodSelect: (method: 'form' | 'upload' | 'linkedin') => void;
   walletAddress?: string;
+  walletAddresses?: WalletAddresses;
 }
 
-export const CVProfileMethodSelector = ({ onMethodSelect, walletAddress }: CVProfileMethodSelectorProps) => {
+export const CVProfileMethodSelector = ({ onMethodSelect, walletAddress, walletAddresses }: CVProfileMethodSelectorProps) => {
   return (
     <TooltipProvider>
       <div className="space-y-6">

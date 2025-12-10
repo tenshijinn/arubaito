@@ -7,7 +7,7 @@ import { Navigation } from "@/components/Navigation";
 import { CVProfileMethodSelector } from "@/components/CVProfileMethodSelector";
 import { ManualCVForm } from "@/components/ManualCVForm";
 import { LinkedInImport } from "@/components/LinkedInImport";
-import { WalletConnectStep } from "@/components/cv-profile/WalletConnectStep";
+import { WalletConnectStep, WalletAddresses } from "@/components/cv-profile/WalletConnectStep";
 import { supabase } from "@/integrations/supabase/client";
 import { FileCheck, LogOut, Plus, Info, ArrowLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -25,7 +25,8 @@ const Index = () => {
   const [recentAnalyses, setRecentAnalyses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [flowState, setFlowState] = useState<FlowState>(null);
-  const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
+  const [connectedWallets, setConnectedWallets] = useState<WalletAddresses>({ solana: null, evm: null });
+
   useEffect(() => {
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -80,20 +81,20 @@ const Index = () => {
   const handleNewAnalysis = () => {
     setCurrentAnalysisId(null);
     setFlowState(null);
-    setConnectedWallet(null);
+    setConnectedWallets({ solana: null, evm: null });
   };
 
   const handleStartNewCV = () => {
     setFlowState('wallet');
   };
 
-  const handleWalletContinue = (walletAddress: string | null) => {
-    setConnectedWallet(walletAddress);
+  const handleWalletContinue = (wallets: WalletAddresses) => {
+    setConnectedWallets(wallets);
     setFlowState('selecting');
   };
 
   const handleWalletSkip = () => {
-    setConnectedWallet(null);
+    setConnectedWallets({ solana: null, evm: null });
     setFlowState('selecting');
   };
 
@@ -111,7 +112,7 @@ const Index = () => {
 
   const handleBackToProfiles = () => {
     setFlowState(null);
-    setConnectedWallet(null);
+    setConnectedWallets({ solana: null, evm: null });
   };
 
   if (loading) {
@@ -132,6 +133,9 @@ const Index = () => {
     || user?.user_metadata?.display_name?.split(' ')[0]
     || user?.user_metadata?.handle 
     || user?.email?.split('@')[0];
+
+  // For backward compatibility, pass primary wallet (prefer Solana, fallback to EVM)
+  const primaryWallet = connectedWallets.solana || connectedWallets.evm || undefined;
 
   return (
     <div className="min-h-screen pt-20">
@@ -256,7 +260,8 @@ const Index = () => {
                   </Button>
                   <CVProfileMethodSelector 
                     onMethodSelect={handleMethodSelect}
-                    walletAddress={connectedWallet || undefined}
+                    walletAddress={primaryWallet}
+                    walletAddresses={connectedWallets}
                   />
                 </div>
               )}
@@ -266,7 +271,8 @@ const Index = () => {
                 <ManualCVForm 
                   onBack={handleBackToMethodSelector}
                   onComplete={handleAnalysisComplete}
-                  walletAddress={connectedWallet || undefined}
+                  walletAddress={primaryWallet}
+                  walletAddresses={connectedWallets}
                 />
               )}
 
@@ -274,14 +280,16 @@ const Index = () => {
                 <LinkedInImport 
                   onBack={handleBackToMethodSelector}
                   onComplete={handleAnalysisComplete}
-                  walletAddress={connectedWallet || undefined}
+                  walletAddress={primaryWallet}
+                  walletAddresses={connectedWallets}
                 />
               )}
 
               {flowState === 'upload' && (
                 <CVUploader 
                   onAnalysisComplete={handleAnalysisComplete}
-                  walletAddress={connectedWallet || undefined}
+                  walletAddress={primaryWallet}
+                  walletAddresses={connectedWallets}
                   onBack={handleBackToMethodSelector}
                 />
               )}

@@ -1,10 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Wallet, Shield, CheckCircle2, ArrowRight, Link2, Sparkles, BadgeCheck } from "lucide-react";
+import { Wallet, Shield, CheckCircle2, ArrowRight, Link2, Sparkles, BadgeCheck, X } from "lucide-react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useAccount } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export interface WalletAddresses {
@@ -18,8 +18,9 @@ interface WalletConnectStepProps {
 }
 
 export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps) => {
-  const { publicKey, connected: solanaConnected } = useWallet();
+  const { publicKey, connected: solanaConnected, disconnect: disconnectSolana } = useWallet();
   const { address: evmAddress, isConnected: evmConnected } = useAccount();
+  const { disconnect: disconnectEvm } = useDisconnect();
   
   const solanaAddress = publicKey?.toBase58() || null;
   const hasAnyWallet = solanaConnected || evmConnected;
@@ -95,14 +96,25 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
             </div>
             
             {solanaConnected && solanaAddress ? (
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/30">
-                <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-green-500">Connected</p>
-                  <p className="text-xs font-mono text-muted-foreground truncate">
-                    {solanaAddress}
-                  </p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-green-500">Connected</p>
+                    <p className="text-xs font-mono text-muted-foreground truncate">
+                      {solanaAddress}
+                    </p>
+                  </div>
                 </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => disconnectSolana()}
+                  className="w-full text-muted-foreground"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Disconnect
+                </Button>
               </div>
             ) : (
               <div className="flex justify-center">
@@ -126,14 +138,25 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
             </div>
             
             {evmConnected && evmAddress ? (
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/30">
-                <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-green-500">Connected</p>
-                  <p className="text-xs font-mono text-muted-foreground truncate">
-                    {evmAddress}
-                  </p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-green-500">Connected</p>
+                    <p className="text-xs font-mono text-muted-foreground truncate">
+                      {evmAddress}
+                    </p>
+                  </div>
                 </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => disconnectEvm()}
+                  className="w-full text-muted-foreground"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Disconnect
+                </Button>
               </div>
             ) : (
               <div className="flex justify-center">

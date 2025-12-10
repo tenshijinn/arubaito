@@ -7,7 +7,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 const config = getDefaultConfig({
   appName: 'Arubaito',
-  projectId: 'arubaito-cv-analyzer', // WalletConnect project ID (public)
+  projectId: 'arubaito-cv-analyzer',
   chains: [mainnet, polygon, arbitrum, base, optimism],
   transports: {
     [mainnet.id]: http(),
@@ -16,11 +16,12 @@ const config = getDefaultConfig({
     [base.id]: http(),
     [optimism.id]: http(),
   },
+  ssr: false,
 });
 
 export const EVMWalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={config} reconnectOnMount={false}>
       <RainbowKitProvider
         theme={darkTheme({
           accentColor: 'hsl(var(--primary))',

@@ -4,14 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { Linkedin, ArrowLeft, Info, AlertTriangle, Wallet, CheckCircle2 } from "lucide-react";
+import { WalletAddresses } from "@/components/cv-profile/WalletConnectStep";
 
 interface LinkedInImportProps {
   onBack: () => void;
   onComplete: (analysisId: string) => void;
   walletAddress?: string;
+  walletAddresses?: WalletAddresses;
 }
 
-export const LinkedInImport = ({ onBack, onComplete, walletAddress }: LinkedInImportProps) => {
+export const LinkedInImport = ({ onBack, onComplete, walletAddress, walletAddresses }: LinkedInImportProps) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const { toast } = useToast();
 

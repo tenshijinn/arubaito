@@ -8,14 +8,16 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import * as pdfjsLib from 'pdfjs-dist';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { WalletAddresses } from "@/components/cv-profile/WalletConnectStep";
 
 interface CVUploaderProps {
   onAnalysisComplete: (analysisId: string) => void;
   walletAddress?: string;
+  walletAddresses?: WalletAddresses;
   onBack?: () => void;
 }
 
-export const CVUploader = ({ onAnalysisComplete, walletAddress, onBack }: CVUploaderProps) => {
+export const CVUploader = ({ onAnalysisComplete, walletAddress, walletAddresses, onBack }: CVUploaderProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -111,7 +113,9 @@ export const CVUploader = ({ onAnalysisComplete, walletAddress, onBack }: CVUplo
           body: { 
             fileName: file.name, 
             fileContent,
-            walletAddress: walletAddress || null
+            walletAddress: walletAddress || null,
+            solanaWalletAddress: walletAddresses?.solana || null,
+            evmWalletAddress: walletAddresses?.evm || null
           }
         }
       );

@@ -13,11 +13,20 @@ serve(async (req) => {
   }
 
   try {
-    const { fileName, fileContent, walletAddress } = await req.json();
-    console.log('Analyzing CV:', fileName, 'Wallet:', walletAddress);
+    const { fileName, fileContent, walletAddress, solanaWalletAddress, evmWalletAddress } = await req.json();
+    
+    // Use new wallet params if available, fallback to legacy walletAddress
+    const solanaWallet = solanaWalletAddress || (walletAddress && !walletAddress.startsWith('0x') ? walletAddress : null);
+    const evmWallet = evmWalletAddress || (walletAddress && walletAddress.startsWith('0x') ? walletAddress : null);
+    
+    console.log('Analyzing CV:', fileName);
+    console.log('Solana Wallet:', solanaWallet);
+    console.log('EVM Wallet:', evmWallet);
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const COVALENT_API_KEY = Deno.env.get('COVALENT_API_KEY');
+    const HELIUS_API_KEY = Deno.env.get('HELIUS_API_KEY');
+    
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
@@ -459,8 +468,94 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
       return null;
     };
 
-    if (walletAddress && COVALENT_API_KEY) {
-      console.log('Starting Proof-of-Work verification for wallet:', walletAddress);
+    // Helper function to fetch Solana transactions via Helius
+    const fetchSolanaTransactionsHelius = async (wallet: string): Promise<any[]> => {
+      if (!HELIUS_API_KEY) {
+        console.log('HELIUS_API_KEY not configured, skipping Helius');
+        return [];
+      }
+      
+      try {
+        console.log('Fetching Solana transactions via Helius for:', wallet);
+        
+        // Get signatures first
+        const signaturesResponse = await fetch(
+          `https://api.helius.xyz/v0/addresses/${wallet}/transactions?api-key=${HELIUS_API_KEY}&limit=100`,
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+        
+        if (!signaturesResponse.ok) {
+          console.error('Helius signatures error:', signaturesResponse.status);
+          return [];
+        }
+        
+        const transactions = await signaturesResponse.json();
+        console.log('Helius returned', transactions.length, 'transactions');
+        return transactions;
+      } catch (error) {
+        console.error('Helius fetch error:', error);
+        return [];
+      }
+    };
+
+    // Helper function to classify Helius transaction
+    const classifyHeliusTransaction = (tx: any): SignificantActivity | null => {
+      const txDate = tx.timestamp ? new Date(tx.timestamp * 1000).toISOString() : new Date().toISOString();
+      const type = tx.type?.toLowerCase() || '';
+      const source = tx.source?.toLowerCase() || '';
+      
+      // Helius provides pre-classified types
+      if (type.includes('swap') || source.includes('jupiter') || source.includes('raydium') || source.includes('orca')) {
+        return {
+          type: 'swap',
+          description: `Swapped tokens on ${tx.source || 'Solana DEX'}`,
+          experience: 'DEX trading experience on Solana',
+          chain: 'Solana',
+          date: txDate,
+          priority: 3
+        };
+      }
+      
+      if (type.includes('stake') || type.includes('deposit') || source.includes('marinade') || source.includes('lido')) {
+        return {
+          type: 'stake',
+          description: `Staked assets on ${tx.source || 'Solana'}`,
+          experience: 'Staking experience on Solana',
+          chain: 'Solana',
+          date: txDate,
+          priority: 4
+        };
+      }
+      
+      if (type.includes('nft') || type.includes('compressed_nft') || source.includes('magic_eden') || source.includes('tensor')) {
+        return {
+          type: 'nft',
+          description: `NFT activity on ${tx.source || 'Solana'}`,
+          experience: 'NFT trading on Solana',
+          chain: 'Solana',
+          date: txDate,
+          priority: 2
+        };
+      }
+      
+      if (type.includes('transfer') && tx.tokenTransfers?.length > 0) {
+        return {
+          type: 'transfer',
+          description: `Token transfer on Solana`,
+          experience: 'Token management on Solana',
+          chain: 'Solana',
+          date: txDate,
+          priority: 1
+        };
+      }
+      
+      return null;
+    };
+
+    const hasAnyWallet = solanaWallet || evmWallet;
+    
+    if (hasAnyWallet && (HELIUS_API_KEY || COVALENT_API_KEY)) {
+      console.log('Starting Proof-of-Work verification');
       
       const verificationResults: Array<any> = [];
       const earlyActivityThresholds = {
@@ -469,11 +564,93 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         bsc: { startDate: '2020-09-01', endDate: '2021-06-30' }
       };
 
-      // Check Ethereum - Both early activity AND project interactions
-      if (detectedChains.has('ethereum') || claimedProjects.some(p => p.chain === 'ethereum')) {
+      // Check Solana using Helius (primary) with Covalent fallback
+      if (solanaWallet) {
+        console.log('Processing Solana wallet:', solanaWallet);
+        let solanaTransactions: any[] = [];
+        let usedHelius = false;
+        
+        // Try Helius first
+        if (HELIUS_API_KEY) {
+          solanaTransactions = await fetchSolanaTransactionsHelius(solanaWallet);
+          usedHelius = solanaTransactions.length > 0;
+        }
+        
+        // Fallback to Covalent if Helius failed
+        if (!usedHelius && COVALENT_API_KEY) {
+          console.log('Falling back to Covalent for Solana');
+          try {
+            const solResponse = await fetch(
+              `https://api.covalenthq.com/v1/solana-mainnet/address/${solanaWallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
+              { headers: { 'Content-Type': 'application/json' } }
+            );
+            
+            if (solResponse.ok) {
+              const solData = await solResponse.json();
+              solanaTransactions = solData.data?.items || [];
+            }
+          } catch (error) {
+            console.error('Covalent Solana error:', error);
+          }
+        }
+        
+        // Process Solana transactions
+        if (solanaTransactions.length > 0) {
+          console.log('Processing', solanaTransactions.length, 'Solana transactions');
+          
+          for (const tx of solanaTransactions.slice(0, 100)) {
+            const activity = usedHelius 
+              ? classifyHeliusTransaction(tx) 
+              : classifyTransaction(tx, 'Solana');
+            if (activity) {
+              allActivities.push(activity);
+            }
+          }
+          
+          // Check early activity for OG status
+          const earlyTxs = solanaTransactions.filter((tx: any) => {
+            const txDate = usedHelius 
+              ? new Date(tx.timestamp * 1000) 
+              : new Date(tx.block_signed_at);
+            return txDate >= new Date('2020-01-01') && txDate <= new Date('2021-06-30');
+          });
+          
+          if (earlyTxs.length > 0) {
+            bluechipScore += 25;
+            verificationResults.push({
+              chain: 'Solana',
+              verificationType: 'Early Activity (OG Status)',
+              period: '2020-early 2021',
+              transactions: earlyTxs.length,
+              earliestDate: usedHelius 
+                ? new Date(earlyTxs[earlyTxs.length - 1]?.timestamp * 1000).toISOString()
+                : earlyTxs[earlyTxs.length - 1]?.block_signed_at
+            });
+          }
+          
+          // Verify claimed Solana projects
+          const solProjects = claimedProjects.filter(p => p.chain === 'solana');
+          if (solProjects.length > 0 && solanaTransactions.length > 0) {
+            solProjects.forEach(project => {
+              verifiedProjects.push({
+                name: project.name,
+                chain: 'Solana',
+                interactions: 'verified_by_activity',
+                note: 'Verified by Solana blockchain activity'
+              });
+            });
+          }
+        }
+      }
+
+      // Check EVM chains using Covalent
+      if (evmWallet && COVALENT_API_KEY) {
+        console.log('Processing EVM wallet:', evmWallet);
+        
+        // Check Ethereum
         try {
           const ethResponse = await fetch(
-            `https://api.covalenthq.com/v1/eth-mainnet/address/${walletAddress}/transactions_v3/?key=${COVALENT_API_KEY}`,
+            `https://api.covalenthq.com/v1/eth-mainnet/address/${evmWallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
             { headers: { 'Content-Type': 'application/json' } }
           );
           
@@ -481,8 +658,10 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
             const ethData = await ethResponse.json();
             const transactions = ethData.data?.items || [];
             
+            console.log('Ethereum transactions found:', transactions.length);
+            
             // Classify transactions for significant activities
-            for (const tx of transactions.slice(0, 100)) { // Check first 100 transactions
+            for (const tx of transactions.slice(0, 100)) {
               const activity = classifyTransaction(tx, 'Ethereum');
               if (activity) {
                 allActivities.push(activity);
@@ -546,74 +725,19 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         } catch (error) {
           console.error('Ethereum verification error:', error);
         }
-      }
 
-      // Check Solana
-      if (detectedChains.has('solana') || claimedProjects.some(p => p.chain === 'solana')) {
-        try {
-          const solResponse = await fetch(
-            `https://api.covalenthq.com/v1/solana-mainnet/address/${walletAddress}/transactions_v3/?key=${COVALENT_API_KEY}`,
-            { headers: { 'Content-Type': 'application/json' } }
-          );
-          
-          if (solResponse.ok) {
-            const solData = await solResponse.json();
-            const transactions = solData.data?.items || [];
-            
-            // Classify transactions for significant activities
-            for (const tx of transactions.slice(0, 100)) {
-              const activity = classifyTransaction(tx, 'Solana');
-              if (activity) {
-                allActivities.push(activity);
-              }
-            }
-            
-            const earlyTxs = transactions.filter((tx: any) => {
-              const txDate = new Date(tx.block_signed_at);
-              return txDate >= new Date('2020-01-01') && txDate <= new Date('2021-06-30');
-            });
-            
-            if (earlyTxs.length > 0) {
-              bluechipScore += 25;
-              verificationResults.push({
-                chain: 'Solana',
-                verificationType: 'Early Activity (OG Status)',
-                period: '2020-early 2021',
-                transactions: earlyTxs.length,
-                earliestDate: earlyTxs[earlyTxs.length - 1]?.block_signed_at
-              });
-            }
-            
-            // Note: Solana project verification limited by Covalent API
-            const solProjects = claimedProjects.filter(p => p.chain === 'solana');
-            if (solProjects.length > 0 && earlyTxs.length > 0) {
-              // If they have early Solana activity and claim Solana projects, give partial credit
-              solProjects.forEach(project => {
-                verifiedProjects.push({
-                  name: project.name,
-                  chain: 'Solana',
-                  interactions: 'verified_by_early_activity',
-                  note: 'Verified by early Solana blockchain activity'
-                });
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Solana verification error:', error);
-        }
-      }
-
-      // Check BSC
-      if (detectedChains.has('bsc') || claimedProjects.some(p => p.chain === 'bsc')) {
+        // Check BSC
         try {
           const bscResponse = await fetch(
-            `https://api.covalenthq.com/v1/bsc-mainnet/address/${walletAddress}/transactions_v3/?key=${COVALENT_API_KEY}`,
+            `https://api.covalenthq.com/v1/bsc-mainnet/address/${evmWallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
             { headers: { 'Content-Type': 'application/json' } }
           );
           
           if (bscResponse.ok) {
             const bscData = await bscResponse.json();
             const transactions = bscData.data?.items || [];
+            
+            console.log('BSC transactions found:', transactions.length);
             
             // Classify transactions for significant activities
             for (const tx of transactions.slice(0, 100)) {
@@ -639,7 +763,7 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
               });
             }
             
-            // BSC project verification similar to Solana
+            // BSC project verification
             const bscProjects = claimedProjects.filter(p => p.chain === 'bsc');
             if (bscProjects.length > 0 && earlyTxs.length > 0) {
               bscProjects.forEach(project => {
@@ -654,6 +778,54 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
           }
         } catch (error) {
           console.error('BSC verification error:', error);
+        }
+
+        // Check Polygon
+        try {
+          const polyResponse = await fetch(
+            `https://api.covalenthq.com/v1/matic-mainnet/address/${evmWallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+          
+          if (polyResponse.ok) {
+            const polyData = await polyResponse.json();
+            const transactions = polyData.data?.items || [];
+            
+            console.log('Polygon transactions found:', transactions.length);
+            
+            for (const tx of transactions.slice(0, 50)) {
+              const activity = classifyTransaction(tx, 'Polygon');
+              if (activity) {
+                allActivities.push(activity);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Polygon verification error:', error);
+        }
+
+        // Check Arbitrum
+        try {
+          const arbResponse = await fetch(
+            `https://api.covalenthq.com/v1/arbitrum-mainnet/address/${evmWallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+          
+          if (arbResponse.ok) {
+            const arbData = await arbResponse.json();
+            const transactions = arbData.data?.items || [];
+            
+            console.log('Arbitrum transactions found:', transactions.length);
+            
+            for (const tx of transactions.slice(0, 50)) {
+              const activity = classifyTransaction(tx, 'Arbitrum');
+              if (activity) {
+                allActivities.push(activity);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Arbitrum verification error:', error);
         }
       }
       
@@ -699,7 +871,9 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
           verifiedProjects: verifiedProjects,
           unverifiedProjects: unverifiedProjects,
           detectedChains: Array.from(detectedChains),
-          walletAddress: walletAddress,
+          solanaWalletAddress: solanaWallet,
+          evmWalletAddress: evmWallet,
+          walletAddress: solanaWallet || evmWallet, // Legacy compatibility
           proofOfWork: {
             totalClaimed: claimedProjects.length,
             totalVerified: verifiedProjects.length,
@@ -715,11 +889,13 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
             date: a.date
           }))
         };
-      } else if (walletAddress) {
-        // Even if no bluechip verification, still create bluechipDetails with wallet for display
+      } else if (solanaWallet || evmWallet) {
+        // Even if no bluechip verification, still create bluechipDetails with wallets for display
         bluechipDetails = {
           verifications: [],
-          walletAddress: walletAddress,
+          solanaWalletAddress: solanaWallet,
+          evmWalletAddress: evmWallet,
+          walletAddress: solanaWallet || evmWallet,
           significantActivities: []
         };
       }
@@ -732,15 +908,17 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         significantActivities: topActivities.length,
         bluechipDetails 
       });
-    } else if (walletAddress && !COVALENT_API_KEY) {
-      // Wallet provided but no API key - still store wallet address
-      console.log('Wallet provided but COVALENT_API_KEY not configured');
+    } else if ((solanaWallet || evmWallet) && !HELIUS_API_KEY && !COVALENT_API_KEY) {
+      // Wallets provided but no API keys - still store wallet addresses
+      console.log('Wallets provided but no API keys configured');
       bluechipDetails = {
         verifications: [],
-        walletAddress: walletAddress,
+        solanaWalletAddress: solanaWallet,
+        evmWalletAddress: evmWallet,
+        walletAddress: solanaWallet || evmWallet,
         significantActivities: []
       };
-    } else if (claimedProjects.length > 0 && !walletAddress) {
+    } else if (claimedProjects.length > 0 && !solanaWallet && !evmWallet) {
       // If projects are claimed but no wallet provided, note this
       console.log('WARNING: Projects claimed but no wallet provided for verification');
       unverifiedProjects.push(...claimedProjects.map(p => ({

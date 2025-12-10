@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Plus, Trash2, ArrowLeft, Wallet } from "lucide-react";
+import { WalletAddresses } from "@/components/cv-profile/WalletConnectStep";
 
 interface WorkExperience {
   id: string;
@@ -21,9 +22,10 @@ interface ManualCVFormProps {
   onBack: () => void;
   onComplete: (analysisId: string) => void;
   walletAddress?: string;
+  walletAddresses?: WalletAddresses;
 }
 
-export const ManualCVForm = ({ onBack, onComplete, walletAddress }: ManualCVFormProps) => {
+export const ManualCVForm = ({ onBack, onComplete, walletAddress, walletAddresses }: ManualCVFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   
@@ -111,7 +113,9 @@ ${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
           body: { 
             fileName: `${fullName.replace(/\s+/g, '_')}_manual_cv.txt`,
             fileContent: cvContent,
-            walletAddress: walletAddress || null
+            walletAddress: walletAddress || null,
+            solanaWalletAddress: walletAddresses?.solana || null,
+            evmWalletAddress: walletAddresses?.evm || null
           }
         }
       );

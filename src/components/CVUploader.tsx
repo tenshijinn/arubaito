@@ -240,17 +240,30 @@ export const CVUploader = ({ onAnalysisComplete, walletAddress, walletAddresses,
             </div>
             
             {/* Wallet Status Banner */}
-            {walletAddress ? (
+            {(walletAddresses?.solana || walletAddresses?.evm) ? (
               <div className="w-full max-w-md p-4 rounded-lg bg-green-500/10 border border-green-500/30">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mb-2">
                   <Wallet className="h-4 w-4 text-green-500" />
-                  <span className="font-medium text-green-500">Wallet Connected</span>
+                  <span className="font-medium text-green-500">Wallets Connected</span>
                 </div>
-                <p className="mt-2 text-xs font-mono text-muted-foreground break-all">
-                  {walletAddress}
-                </p>
+                {walletAddresses?.solana && (
+                  <div className="mb-2">
+                    <span className="text-xs text-green-500 font-medium">Solana:</span>
+                    <p className="text-xs font-mono text-muted-foreground break-all">
+                      {walletAddresses.solana}
+                    </p>
+                  </div>
+                )}
+                {walletAddresses?.evm && (
+                  <div className="mb-2">
+                    <span className="text-xs text-green-500 font-medium">EVM:</span>
+                    <p className="text-xs font-mono text-muted-foreground break-all">
+                      {walletAddresses.evm}
+                    </p>
+                  </div>
+                )}
                 <p className="mt-2 text-xs text-muted-foreground">
-                  ✓ Your CV claims will be verified against this wallet's on-chain activity
+                  ✓ Your CV claims will be verified against on-chain activity
                 </p>
               </div>
             ) : (

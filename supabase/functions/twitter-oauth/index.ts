@@ -107,6 +107,12 @@ Deno.serve(async (req) => {
       const userData: TwitterUserResponse = await userResponse.json();
       console.log('User data received:', userData.data.username);
 
+      // Get high-resolution profile image (replace _normal with _400x400)
+      let profileImageUrl = userData.data.profile_image_url;
+      if (profileImageUrl) {
+        profileImageUrl = profileImageUrl.replace('_normal', '_400x400');
+      }
+
       // Check if user is on the whitelist (case-insensitive)
       const { data: whitelistEntry, error: whitelistError } = await supabase
         .from('twitter_whitelist')
@@ -127,7 +133,7 @@ Deno.serve(async (req) => {
             x_user_id: userData.data.id,
             handle: userData.data.username,
             display_name: userData.data.name,
-            profile_image_url: userData.data.profile_image_url,
+            profile_image_url: profileImageUrl,
             verified: userData.data.verified || false,
           },
           bluechip_verified: isVerified,

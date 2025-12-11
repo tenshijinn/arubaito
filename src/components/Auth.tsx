@@ -97,11 +97,19 @@ export const Auth = () => {
                   twitter_username: data.user.handle,
                   twitter_id: data.user.x_user_id,
                   full_name: data.user.display_name,
+                  avatar_url: data.user.profile_image_url,
                 },
               },
             });
 
             if (signUpError) throw signUpError;
+          } else {
+            // User exists, update their metadata with latest profile image
+            await supabase.auth.updateUser({
+              data: {
+                avatar_url: data.user.profile_image_url,
+              },
+            });
           }
 
           toast({

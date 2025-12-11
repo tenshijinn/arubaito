@@ -465,6 +465,42 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         };
       }
       
+      // FALLBACK: Check for value transfers (ETH/native token transfers)
+      if (tx.value && parseFloat(tx.value) > 0) {
+        return {
+          type: 'transfer',
+          description: `Native token transfer on ${chain}`,
+          experience: `Blockchain transaction experience on ${chain}`,
+          chain,
+          date: txDate,
+          priority: 1
+        };
+      }
+      
+      // FALLBACK: Check for token transfers
+      if (tx.log_events?.length > 0 || tx.token_transfers?.length > 0) {
+        return {
+          type: 'transfer',
+          description: `Token transfer on ${chain}`,
+          experience: `Token management experience on ${chain}`,
+          chain,
+          date: txDate,
+          priority: 1
+        };
+      }
+      
+      // FALLBACK: Any contract interaction (has to_address and is a contract call)
+      if (toAddress && tx.gas_spent && parseInt(tx.gas_spent) > 21000) {
+        return {
+          type: 'protocol',
+          description: `Smart contract interaction on ${chain}`,
+          experience: `DeFi/dApp experience on ${chain}`,
+          chain,
+          date: txDate,
+          priority: 1
+        };
+      }
+      
       return null;
     };
 

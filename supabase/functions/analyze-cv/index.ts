@@ -490,7 +490,8 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
       }
       
       // FALLBACK: Any contract interaction (has to_address and is a contract call)
-      if (toAddress && tx.gas_spent && parseInt(tx.gas_spent) > 21000) {
+      const gasSpent = typeof tx.gas_spent === 'string' ? parseInt(tx.gas_spent) : (tx.gas_spent || 0);
+      if (toAddress && gasSpent > 21000) {
         return {
           type: 'protocol',
           description: `Smart contract interaction on ${chain}`,
@@ -498,6 +499,18 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
           chain,
           date: txDate,
           priority: 1
+        };
+      }
+      
+      // FINAL FALLBACK: Any transaction with a hash is at least blockchain activity
+      if (tx.tx_hash || tx.hash || tx.signature) {
+        return {
+          type: 'transfer',
+          description: `Blockchain transaction on ${chain}`,
+          experience: `On-chain activity on ${chain}`,
+          chain,
+          date: txDate,
+          priority: 0
         };
       }
       

@@ -40,6 +40,9 @@ interface BluechipDetails {
   chains?: string[];
   ogStatus?: boolean;
   significantActivities?: SignificantActivity[];
+  solanaWalletAddress?: string;
+  evmWalletAddress?: string;
+  walletAddress?: string; // Legacy
 }
 
 interface OnChainResumeProps {
@@ -55,9 +58,16 @@ export const OnChainResume = ({
   bluechipScore,
   bluechipDetails,
 }: OnChainResumeProps) => {
-  const truncatedWallet = walletAddress 
-    ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
-    : null;
+  // Extract wallet addresses from bluechipDetails or fallback to walletAddress
+  const solanaWallet = bluechipDetails?.solanaWalletAddress || 
+    (walletAddress && !walletAddress.startsWith('0x') ? walletAddress : null);
+  const evmWallet = bluechipDetails?.evmWalletAddress || 
+    (walletAddress && walletAddress.startsWith('0x') ? walletAddress : null);
+  
+  const hasAnyWallet = solanaWallet || evmWallet;
+  
+  const truncateWallet = (addr: string) => 
+    `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
   const chains = bluechipDetails?.verifications?.map(v => v.chain) || 
                  bluechipDetails?.chains || [];
@@ -88,15 +98,34 @@ export const OnChainResume = ({
         </TooltipProvider>
       </div>
 
-      {/* Wallet Address - Always show if available */}
-      {walletAddress ? (
+      {/* Wallet Addresses - Show all connected wallets */}
+      {hasAnyWallet ? (
         <div className="space-y-4">
-          <div className="p-3 bg-muted/30 rounded border border-border/50">
-            <div className="flex items-center gap-2 text-sm">
-              <Link className="h-4 w-4 text-muted-foreground" />
-              <span className="font-mono text-xs">{truncatedWallet}</span>
+          {/* Solana Wallet */}
+          {solanaWallet && (
+            <div className="p-3 bg-muted/30 rounded border border-border/50">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <Link className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-mono text-xs">{truncateWallet(solanaWallet)}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0">Solana</Badge>
+              </div>
             </div>
-          </div>
+          )}
+          
+          {/* EVM Wallet */}
+          {evmWallet && (
+            <div className="p-3 bg-muted/30 rounded border border-border/50">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <Link className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-mono text-xs">{truncateWallet(evmWallet)}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0">EVM</Badge>
+              </div>
+            </div>
+          )}
 
           {/* Bluechip Status */}
           {bluechipVerified ? (

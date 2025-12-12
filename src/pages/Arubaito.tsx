@@ -18,7 +18,7 @@ import { CVProfileCard } from "@/components/CVProfileCard";
 import { toast } from "@/hooks/use-toast";
 
 // Flow states: null (profiles list) -> 'wallet' -> 'selecting' -> 'form'|'upload'|'linkedin'
-type FlowState = 'wallet' | 'selecting' | 'form' | 'upload' | 'linkedin' | null;
+type FlowState = "wallet" | "selecting" | "form" | "upload" | "linkedin" | null;
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -32,55 +32,54 @@ const Index = () => {
   useEffect(() => {
     const handleLinkedInCallback = async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      const stateParam = urlParams.get('state');
-      
+      const code = urlParams.get("code");
+      const stateParam = urlParams.get("state");
+
       if (!code) return;
 
-      const savedState = localStorage.getItem('linkedinOAuthState');
+      const savedState = localStorage.getItem("linkedinOAuthState");
       if (!savedState) {
-        console.error('No saved LinkedIn OAuth state');
+        console.error("No saved LinkedIn OAuth state");
         return;
       }
 
       try {
         const { codeVerifier, state, wallets, redirectUri, timestamp } = JSON.parse(savedState);
-        
+
         // Verify state and check timeout (10 minutes)
         if (state !== stateParam || Date.now() - timestamp > 600000) {
-          throw new Error('Invalid or expired OAuth state');
+          throw new Error("Invalid or expired OAuth state");
         }
 
         // Exchange code for user data
-        const { data, error } = await supabase.functions.invoke('linkedin-oauth', {
+        const { data, error } = await supabase.functions.invoke("linkedin-oauth", {
           body: {
-            action: 'exchangeToken',
+            action: "exchangeToken",
             code,
             codeVerifier,
-            redirectUri
-          }
+            redirectUri,
+          },
         });
 
         if (error) throw error;
-        if (!data?.user) throw new Error('No user data received');
+        if (!data?.user) throw new Error("No user data received");
 
         // Store user data and restore wallet state
-        localStorage.setItem('linkedinUserData', JSON.stringify(data.user));
+        localStorage.setItem("linkedinUserData", JSON.stringify(data.user));
         setConnectedWallets(wallets || { solana: null, evm: null });
-        setFlowState('linkedin');
-        
+        setFlowState("linkedin");
+
         // Clean up URL
-        window.history.replaceState({}, '', '/arubaito');
-        
+        window.history.replaceState({}, "", "/arubaito");
       } catch (e) {
-        console.error('LinkedIn OAuth callback error:', e);
+        console.error("LinkedIn OAuth callback error:", e);
         toast({
           title: "LinkedIn Import Failed",
           description: e instanceof Error ? e.message : "Could not complete LinkedIn authentication.",
           variant: "destructive",
         });
       } finally {
-        localStorage.removeItem('linkedinOAuthState');
+        localStorage.removeItem("linkedinOAuthState");
       }
     };
 
@@ -114,10 +113,10 @@ const Index = () => {
 
   const fetchRecentAnalyses = async (userId: string) => {
     const { data, error } = await supabase
-      .from('cv_analyses')
-      .select('id, file_name, overall_score, created_at, bluechip_verified')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+      .from("cv_analyses")
+      .select("id, file_name, overall_score, created_at, bluechip_verified")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
       .limit(20);
 
     if (!error && data) {
@@ -145,29 +144,29 @@ const Index = () => {
   };
 
   const handleStartNewCV = () => {
-    setFlowState('wallet');
+    setFlowState("wallet");
   };
 
   const handleWalletContinue = (wallets: WalletAddresses) => {
     setConnectedWallets(wallets);
-    setFlowState('selecting');
+    setFlowState("selecting");
   };
 
   const handleWalletSkip = () => {
     setConnectedWallets({ solana: null, evm: null });
-    setFlowState('selecting');
+    setFlowState("selecting");
   };
 
-  const handleMethodSelect = (method: 'form' | 'upload' | 'linkedin') => {
+  const handleMethodSelect = (method: "form" | "upload" | "linkedin") => {
     setFlowState(method);
   };
 
   const handleBackToMethodSelector = () => {
-    setFlowState('selecting');
+    setFlowState("selecting");
   };
 
   const handleBackToWallet = () => {
-    setFlowState('wallet');
+    setFlowState("wallet");
   };
 
   const handleBackToProfiles = () => {
@@ -178,30 +177,18 @@ const Index = () => {
   const handleDeleteProfile = async (analysisId: string) => {
     try {
       // Get the analysis to find the file path
-      const { data: analysis } = await supabase
-        .from('cv_analyses')
-        .select('file_path')
-        .eq('id', analysisId)
-        .single();
+      const { data: analysis } = await supabase.from("cv_analyses").select("file_path").eq("id", analysisId).single();
 
       // Delete portfolio images first
-      await supabase
-        .from('cv_portfolio_images')
-        .delete()
-        .eq('analysis_id', analysisId);
+      await supabase.from("cv_portfolio_images").delete().eq("analysis_id", analysisId);
 
       // Delete the CV file from storage
       if (analysis?.file_path) {
-        await supabase.storage
-          .from('cv-uploads')
-          .remove([analysis.file_path]);
+        await supabase.storage.from("cv-uploads").remove([analysis.file_path]);
       }
 
       // Delete the analysis record
-      const { error } = await supabase
-        .from('cv_analyses')
-        .delete()
-        .eq('id', analysisId);
+      const { error } = await supabase.from("cv_analyses").delete().eq("id", analysisId);
 
       if (error) throw error;
 
@@ -215,7 +202,7 @@ const Index = () => {
         description: "Your CV profile has been successfully removed.",
       });
     } catch (error) {
-      console.error('Error deleting profile:', error);
+      console.error("Error deleting profile:", error);
       toast({
         title: "Delete failed",
         description: "Could not delete the CV profile. Please try again.",
@@ -237,11 +224,12 @@ const Index = () => {
   }
 
   // Prioritize Twitter data from user metadata
-  const userName = user?.user_metadata?.full_name?.split(' ')[0] 
-    || user?.user_metadata?.twitter_username
-    || user?.user_metadata?.display_name?.split(' ')[0]
-    || user?.user_metadata?.handle 
-    || user?.email?.split('@')[0];
+  const userName =
+    user?.user_metadata?.full_name?.split(" ")[0] ||
+    user?.user_metadata?.twitter_username ||
+    user?.user_metadata?.display_name?.split(" ")[0] ||
+    user?.user_metadata?.handle ||
+    user?.email?.split("@")[0];
 
   // For backward compatibility, pass primary wallet (prefer Solana, fallback to EVM)
   const primaryWallet = connectedWallets.solana || connectedWallets.evm || undefined;
@@ -249,13 +237,13 @@ const Index = () => {
   return (
     <div className="min-h-screen pt-20">
       <Navigation userName={userName} />
-      
+
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg" style={{ background: 'var(--gradient-primary)' }}>
+              <div className="p-2 rounded-lg" style={{ background: "var(--gradient-primary)" }}>
                 <FileCheck className="h-6 w-6 text-white" />
               </div>
               <div className="flex items-center gap-2">
@@ -270,7 +258,10 @@ const Index = () => {
                       <Info className="h-5 w-5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-sm">
-                      <p>Manage your CV profiles and get AI-powered analysis. Upload multiple CVs to track improvements over time. Optional: Add wallet address for Bluechip Talent verification.</p>
+                      <p>
+                        Manage your CV profiles and get AI-powered analysis. Upload multiple CVs to track improvements
+                        over time. Optional: Add wallet address for Bluechip Talent verification.
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -305,13 +296,10 @@ const Index = () => {
                     <div>
                       <h2 className="text-2xl font-bold text-foreground">Your CV Profiles</h2>
                       <p className="text-muted-foreground mt-1">
-                        Manage and analyze your curriculum vitae profiles
+                        Manage your Web3 CV Profiles | Create New | Edit Previous |
                       </p>
                     </div>
-                    <Button 
-                      size="lg"
-                      onClick={handleStartNewCV}
-                    >
+                    <Button size="lg" onClick={handleStartNewCV}>
                       <Plus className="h-5 w-5 mr-2" />
                       Upload New CV
                     </Button>
@@ -340,35 +328,24 @@ const Index = () => {
               )}
 
               {/* Wallet Connection Step */}
-              {flowState === 'wallet' && (
+              {flowState === "wallet" && (
                 <div className="space-y-6">
-                  <Button 
-                    variant="ghost" 
-                    onClick={handleBackToProfiles}
-                    className="mb-4"
-                  >
+                  <Button variant="ghost" onClick={handleBackToProfiles} className="mb-4">
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Profiles
                   </Button>
-                  <WalletConnectStep 
-                    onContinue={handleWalletContinue}
-                    onSkip={handleWalletSkip}
-                  />
+                  <WalletConnectStep onContinue={handleWalletContinue} onSkip={handleWalletSkip} />
                 </div>
               )}
 
               {/* Method Selector */}
-              {flowState === 'selecting' && (
+              {flowState === "selecting" && (
                 <div className="space-y-6">
-                  <Button 
-                    variant="ghost" 
-                    onClick={handleBackToWallet}
-                    className="mb-4"
-                  >
+                  <Button variant="ghost" onClick={handleBackToWallet} className="mb-4">
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Wallet
                   </Button>
-                  <CVProfileMethodSelector 
+                  <CVProfileMethodSelector
                     onMethodSelect={handleMethodSelect}
                     walletAddress={primaryWallet}
                     walletAddresses={connectedWallets}
@@ -377,8 +354,8 @@ const Index = () => {
               )}
 
               {/* Upload Forms */}
-              {flowState === 'form' && (
-                <ManualCVForm 
+              {flowState === "form" && (
+                <ManualCVForm
                   onBack={handleBackToMethodSelector}
                   onComplete={handleAnalysisComplete}
                   walletAddress={primaryWallet}
@@ -386,8 +363,8 @@ const Index = () => {
                 />
               )}
 
-              {flowState === 'linkedin' && (
-                <LinkedInImport 
+              {flowState === "linkedin" && (
+                <LinkedInImport
                   onBack={handleBackToMethodSelector}
                   onComplete={handleAnalysisComplete}
                   walletAddress={primaryWallet}
@@ -395,8 +372,8 @@ const Index = () => {
                 />
               )}
 
-              {flowState === 'upload' && (
-                <CVUploader 
+              {flowState === "upload" && (
+                <CVUploader
                   onAnalysisComplete={handleAnalysisComplete}
                   walletAddress={primaryWallet}
                   walletAddresses={connectedWallets}

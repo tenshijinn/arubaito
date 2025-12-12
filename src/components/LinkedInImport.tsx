@@ -56,9 +56,8 @@ export const LinkedInImport = ({ onBack, onComplete, walletAddress, walletAddres
       if (error) throw error;
       if (!data?.authUrl) throw new Error('Failed to get authorization URL');
 
-      // Store state before redirect
+      // Store state before redirect (no codeVerifier - using standard OAuth)
       localStorage.setItem('linkedinOAuthState', JSON.stringify({
-        codeVerifier: data.codeVerifier,
         state: data.state,
         wallets: walletAddresses,
         redirectUri,

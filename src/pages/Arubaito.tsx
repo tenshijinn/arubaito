@@ -35,6 +35,22 @@ const Index = () => {
       setLoading(false);
       if (session?.user) {
         fetchRecentAnalyses(session.user.id);
+        
+        // Check for LinkedIn OAuth return - restore flow state
+        const savedState = localStorage.getItem('linkedinImportState');
+        if (savedState && session.user.app_metadata?.provider === 'linkedin_oidc') {
+          try {
+            const { wallets, timestamp } = JSON.parse(savedState);
+            // Only restore if saved within last 10 minutes
+            if (Date.now() - timestamp < 600000) {
+              setConnectedWallets(wallets || { solana: null, evm: null });
+              setFlowState('linkedin');
+            }
+          } catch (e) {
+            console.error('Error restoring LinkedIn state:', e);
+          }
+          localStorage.removeItem('linkedinImportState');
+        }
       }
     });
 

@@ -15,6 +15,7 @@ import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { CVProfilesEmpty } from "@/components/CVProfilesEmpty";
 import { CVProfileCard } from "@/components/CVProfileCard";
+import { toast } from "@/hooks/use-toast";
 
 // Flow states: null (profiles list) -> 'wallet' -> 'selecting' -> 'form'|'upload'|'linkedin'
 type FlowState = 'wallet' | 'selecting' | 'form' | 'upload' | 'linkedin' | null;
@@ -113,6 +114,55 @@ const Index = () => {
   const handleBackToProfiles = () => {
     setFlowState(null);
     setConnectedWallets({ solana: null, evm: null });
+  };
+
+  const handleDeleteProfile = async (analysisId: string) => {
+    try {
+      // Get the analysis to find the file path
+      const { data: analysis } = await supabase
+        .from('cv_analyses')
+        .select('file_path')
+        .eq('id', analysisId)
+        .single();
+
+      // Delete portfolio images first
+      await supabase
+        .from('cv_portfolio_images')
+        .delete()
+        .eq('analysis_id', analysisId);
+
+      // Delete the CV file from storage
+      if (analysis?.file_path) {
+        await supabase.storage
+          .from('cv-uploads')
+          .remove([analysis.file_path]);
+      }
+
+      // Delete the analysis record
+      const { error } = await supabase
+        .from('cv_analyses')
+        .delete()
+        .eq('id', analysisId);
+
+      if (error) throw error;
+
+      // Refresh the list
+      if (user) {
+        fetchRecentAnalyses(user.id);
+      }
+
+      toast({
+        title: "CV Profile deleted",
+        description: "Your CV profile has been successfully removed.",
+      });
+    } catch (error) {
+      console.error('Error deleting profile:', error);
+      toast({
+        title: "Delete failed",
+        description: "Could not delete the CV profile. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading) {
@@ -220,6 +270,7 @@ const Index = () => {
                           createdAt={analysis.created_at}
                           bluechipVerified={analysis.bluechip_verified}
                           onClick={setCurrentAnalysisId}
+                          onDelete={handleDeleteProfile}
                         />
                       ))}
                     </div>

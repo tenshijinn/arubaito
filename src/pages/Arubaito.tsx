@@ -28,6 +28,65 @@ const Index = () => {
   const [flowState, setFlowState] = useState<FlowState>(null);
   const [connectedWallets, setConnectedWallets] = useState<WalletAddresses>({ solana: null, evm: null });
 
+  // Handle LinkedIn OAuth callback
+  useEffect(() => {
+    const handleLinkedInCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const stateParam = urlParams.get('state');
+      
+      if (!code) return;
+
+      const savedState = localStorage.getItem('linkedinOAuthState');
+      if (!savedState) {
+        console.error('No saved LinkedIn OAuth state');
+        return;
+      }
+
+      try {
+        const { codeVerifier, state, wallets, redirectUri, timestamp } = JSON.parse(savedState);
+        
+        // Verify state and check timeout (10 minutes)
+        if (state !== stateParam || Date.now() - timestamp > 600000) {
+          throw new Error('Invalid or expired OAuth state');
+        }
+
+        // Exchange code for user data
+        const { data, error } = await supabase.functions.invoke('linkedin-oauth', {
+          body: {
+            action: 'exchangeToken',
+            code,
+            codeVerifier,
+            redirectUri
+          }
+        });
+
+        if (error) throw error;
+        if (!data?.user) throw new Error('No user data received');
+
+        // Store user data and restore wallet state
+        localStorage.setItem('linkedinUserData', JSON.stringify(data.user));
+        setConnectedWallets(wallets || { solana: null, evm: null });
+        setFlowState('linkedin');
+        
+        // Clean up URL
+        window.history.replaceState({}, '', '/arubaito');
+        
+      } catch (e) {
+        console.error('LinkedIn OAuth callback error:', e);
+        toast({
+          title: "LinkedIn Import Failed",
+          description: e instanceof Error ? e.message : "Could not complete LinkedIn authentication.",
+          variant: "destructive",
+        });
+      } finally {
+        localStorage.removeItem('linkedinOAuthState');
+      }
+    };
+
+    handleLinkedInCallback();
+  }, []);
+
   useEffect(() => {
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -35,22 +94,6 @@ const Index = () => {
       setLoading(false);
       if (session?.user) {
         fetchRecentAnalyses(session.user.id);
-        
-        // Check for LinkedIn OAuth return - restore flow state
-        const savedState = localStorage.getItem('linkedinImportState');
-        if (savedState && session.user.app_metadata?.provider === 'linkedin_oidc') {
-          try {
-            const { wallets, timestamp } = JSON.parse(savedState);
-            // Only restore if saved within last 10 minutes
-            if (Date.now() - timestamp < 600000) {
-              setConnectedWallets(wallets || { solana: null, evm: null });
-              setFlowState('linkedin');
-            }
-          } catch (e) {
-            console.error('Error restoring LinkedIn state:', e);
-          }
-          localStorage.removeItem('linkedinImportState');
-        }
       }
     });
 

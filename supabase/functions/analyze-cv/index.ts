@@ -730,27 +730,98 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         { id: 'sei', name: 'Sei', covalentId: 'sei-mainnet' },
       ];
 
-      // Helper function to fetch transactions from Covalent
-      const fetchCovalentTransactions = async (wallet: string, chain: ChainConfig): Promise<{ chain: ChainConfig; transactions: any[] }> => {
-        if (!chain.covalentId) return { chain, transactions: [] };
+      // Moralis chain ID mapping
+      const MORALIS_CHAIN_IDS: Record<string, string> = {
+        'ethereum': '0x1',
+        'bsc': '0x38',
+        'polygon': '0x89',
+        'arbitrum': '0xa4b1',
+        'optimism': '0xa',
+        'base': '0x2105',
+        'gnosis': '0x64',
+        'avalanche': '0xa86a',
+        'fantom': '0xfa',
+        'linea': '0xe708',
+      };
+      
+      const MORALIS_API_KEY = Deno.env.get('MORALIS_API_KEY');
+
+      // Helper function to fetch transactions from Moralis (fallback)
+      const fetchMoralisTransactions = async (wallet: string, chain: ChainConfig): Promise<any[]> => {
+        const moralisChainId = MORALIS_CHAIN_IDS[chain.id];
+        if (!moralisChainId || !MORALIS_API_KEY) return [];
         
         try {
+          console.log(`Trying Moralis fallback for ${chain.name}...`);
+          const response = await fetch(
+            `https://deep-index.moralis.io/api/v2.2/${wallet}?chain=${moralisChainId}`,
+            { 
+              headers: { 
+                'accept': 'application/json',
+                'X-API-Key': MORALIS_API_KEY 
+              } 
+            }
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            const transactions = data.result || [];
+            if (transactions.length > 0) {
+              console.log(`${chain.name} (Moralis fallback): ${transactions.length} transactions`);
+            }
+            // Normalize Moralis format to match Covalent structure
+            return transactions.map((tx: any) => ({
+              block_signed_at: tx.block_timestamp,
+              tx_hash: tx.hash,
+              from_address: tx.from_address,
+              to_address: tx.to_address,
+              value: tx.value,
+              gas_spent: parseInt(tx.gas_used || '0'),
+              log_events: tx.logs || [],
+              // Mark as moralis for classification
+              _source: 'moralis'
+            }));
+          } else {
+            console.log(`${chain.name} Moralis response: ${response.status}`);
+          }
+        } catch (error) {
+          console.error(`${chain.name} Moralis fetch error:`, error);
+        }
+        return [];
+      };
+
+      // Helper function to fetch transactions from Covalent with Moralis fallback
+      const fetchEVMTransactions = async (wallet: string, chain: ChainConfig): Promise<{ chain: ChainConfig; transactions: any[] }> => {
+        if (!chain.covalentId) return { chain, transactions: [] };
+        
+        // Try Covalent first
+        try {
+          console.log(`Fetching ${chain.name} from Covalent...`);
           const response = await fetch(
             `https://api.covalenthq.com/v1/${chain.covalentId}/address/${wallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
             { headers: { 'Content-Type': 'application/json' } }
           );
           
+          console.log(`${chain.name} Covalent response: ${response.status}`);
+          
           if (response.ok) {
             const data = await response.json();
             const transactions = data.data?.items || [];
             if (transactions.length > 0) {
-              console.log(`${chain.name} transactions found:`, transactions.length);
+              console.log(`${chain.name} (Covalent): ${transactions.length} transactions`);
+              return { chain, transactions };
             }
-            return { chain, transactions };
           }
         } catch (error) {
-          console.error(`${chain.name} fetch error:`, error);
+          console.error(`${chain.name} Covalent fetch error:`, error);
         }
+        
+        // Fallback to Moralis if Covalent failed or returned no results
+        const moralisTransactions = await fetchMoralisTransactions(wallet, chain);
+        if (moralisTransactions.length > 0) {
+          return { chain, transactions: moralisTransactions };
+        }
+        
         return { chain, transactions: [] };
       };
 
@@ -799,13 +870,14 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
       if (evmWallet) {
         console.log('Processing EVM wallet:', evmWallet, 'across', EVM_CHAINS.length + 1, 'chains (including LayerOneX)');
         
-        // Process Covalent chains in parallel batches to avoid rate limiting
-        if (COVALENT_API_KEY) {
+        // Process EVM chains in parallel batches (Covalent with Moralis fallback)
+        if (COVALENT_API_KEY || MORALIS_API_KEY) {
+          console.log('API keys present - Covalent:', !!COVALENT_API_KEY, 'Moralis:', !!MORALIS_API_KEY);
           const batchSize = 5;
           for (let i = 0; i < EVM_CHAINS.length; i += batchSize) {
             const batch = EVM_CHAINS.slice(i, i + batchSize);
             const results = await Promise.allSettled(
-              batch.map(chain => fetchCovalentTransactions(evmWallet, chain))
+              batch.map(chain => fetchEVMTransactions(evmWallet, chain))
             );
             
             for (const result of results) {

@@ -932,19 +932,47 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         }
       }
       
-      // Select top 5 most significant and diverse activities
-      const selectTopActivities = (activities: SignificantActivity[]): SignificantActivity[] => {
-        // Sort by priority (higher = more significant) and recency
+      // Group activities by chain (max 5 per chain for carousel display)
+      const groupActivitiesByChain = (activities: SignificantActivity[]): Record<string, SignificantActivity[]> => {
+        const byChain: Record<string, SignificantActivity[]> = {};
+        
+        // Sort by priority and recency first
         const sorted = [...activities].sort((a, b) => {
           if (b.priority !== a.priority) return b.priority - a.priority;
           return new Date(b.date).getTime() - new Date(a.date).getTime();
         });
         
-        // Ensure diversity - try to include different types
+        for (const activity of sorted) {
+          const chain = activity.chain || 'Unknown';
+          if (!byChain[chain]) {
+            byChain[chain] = [];
+          }
+          // Max 5 activities per chain
+          if (byChain[chain].length < 5) {
+            byChain[chain].push({
+              type: activity.type,
+              description: activity.description,
+              experience: activity.experience,
+              chain: activity.chain,
+              date: activity.date,
+              priority: activity.priority
+            });
+          }
+        }
+        
+        return byChain;
+      };
+      
+      // Also keep flat list for backward compatibility
+      const selectTopActivities = (activities: SignificantActivity[]): SignificantActivity[] => {
+        const sorted = [...activities].sort((a, b) => {
+          if (b.priority !== a.priority) return b.priority - a.priority;
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
+        
         const selected: SignificantActivity[] = [];
         const usedTypes = new Set<string>();
         
-        // First pass: pick one of each type
         for (const activity of sorted) {
           if (!usedTypes.has(activity.type) && selected.length < 5) {
             selected.push(activity);
@@ -952,7 +980,6 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
           }
         }
         
-        // Second pass: fill remaining slots with highest priority
         for (const activity of sorted) {
           if (selected.length >= 5) break;
           if (!selected.includes(activity)) {
@@ -963,8 +990,10 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         return selected.slice(0, 5);
       };
       
+      const activitiesByChain = groupActivitiesByChain(allActivities);
       const topActivities = selectTopActivities(allActivities);
-      console.log('Significant activities found:', topActivities.length);
+      console.log('Activities by chain:', Object.keys(activitiesByChain).map(c => `${c}: ${activitiesByChain[c].length}`));
+      console.log('Total significant activities found:', topActivities.length);
 
       if (verificationResults.length > 0 || topActivities.length > 0) {
         bluechipVerified = verificationResults.length > 0;
@@ -984,6 +1013,9 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
               ? Math.round((verifiedProjects.length / claimedProjects.length) * 100) 
               : 0
           },
+          // New: Activities grouped by chain for carousel display
+          activitiesByChain: activitiesByChain,
+          // Legacy: Flat list for backward compatibility
           significantActivities: topActivities.map(a => ({
             type: a.type,
             description: a.description,

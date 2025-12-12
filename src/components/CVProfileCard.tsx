@@ -1,6 +1,19 @@
-import { FileCheck, Award } from "lucide-react";
+import { useState } from "react";
+import { FileCheck, Award, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface CVProfileCardProps {
   id: string;
@@ -9,6 +22,7 @@ interface CVProfileCardProps {
   createdAt: string;
   bluechipVerified?: boolean;
   onClick: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export const CVProfileCard = ({
@@ -18,7 +32,10 @@ export const CVProfileCard = ({
   createdAt,
   bluechipVerified = false,
   onClick,
+  onDelete,
 }: CVProfileCardProps) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const getScoreColor = (score: number) => {
     if (score >= 85) return "hsl(var(--success))";
     if (score >= 70) return "hsl(var(--primary))";
@@ -33,9 +50,18 @@ export const CVProfileCard = ({
     return "Needs Work";
   };
 
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDelete) {
+      setIsDeleting(true);
+      await onDelete(id);
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <Card 
-      className="cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] hover:border-primary/50 group"
+      className="cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] hover:border-primary/50 group relative"
       onClick={() => onClick(id)}
     >
       <CardContent className="pt-6">
@@ -59,12 +85,46 @@ export const CVProfileCard = ({
                 </p>
               </div>
             </div>
-            {bluechipVerified && (
-              <Badge variant="secondary" className="shrink-0 ml-2">
-                <Award className="h-3 w-3 mr-1" />
-                Bluechip
-              </Badge>
-            )}
+            <div className="flex items-center gap-2 shrink-0 ml-2">
+              {bluechipVerified && (
+                <Badge variant="secondary">
+                  <Award className="h-3 w-3 mr-1" />
+                  Bluechip
+                </Badge>
+              )}
+              {onDelete && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete CV Profile</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete "{fileName}"? This action cannot be undone and will remove all associated data including portfolio images.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleDelete}
+                        className="bg-destructive hover:bg-destructive/90"
+                        disabled={isDeleting}
+                      >
+                        {isDeleting ? "Deleting..." : "Delete"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </div>
           </div>
 
           {/* Score display */}

@@ -310,10 +310,22 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
       raydium: { regex: /raydium/gi, chain: 'solana' },
       marinade: { regex: /marinade/gi, chain: 'solana' },
       
-      // Layer 2s
+      // Layer 2s & L2 Networks
       arbitrum: { regex: /arbitrum/gi, chain: 'arbitrum' },
-      optimism: { regex: /optimism/gi, chain: 'optimism' },
+      optimism: { regex: /optimism|op\s*(mainnet|network)?/gi, chain: 'optimism' },
       polygon: { regex: /polygon|matic/gi, chain: 'polygon' },
+      base: { regex: /base\s*(chain|network)?/gi, chain: 'base' },
+      zksync: { regex: /zksync|zk\s*sync/gi, chain: 'zksync' },
+      scroll: { regex: /scroll/gi, chain: 'scroll' },
+      linea: { regex: /linea/gi, chain: 'linea' },
+      blast: { regex: /blast\s*(network|chain)?/gi, chain: 'blast' },
+      
+      // Alt L1s
+      avalanche: { regex: /avalanche|avax/gi, chain: 'avalanche' },
+      fantom: { regex: /fantom|ftm/gi, chain: 'fantom' },
+      gnosis: { regex: /gnosis|xdai/gi, chain: 'gnosis' },
+      sei: { regex: /sei\s*(network)?/gi, chain: 'sei' },
+      layeronex: { regex: /layer\s*one\s*x|l1x/gi, chain: 'layeronex' },
       
       // NFT/Gaming
       opensea: { regex: /opensea/gi, contracts: ['0x00000000006c3852cbef3e08e8df289169ede581'] },
@@ -322,8 +334,7 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
       // General blockchain mentions
       ethereum: { regex: /ethereum|eth\b/gi, chain: 'ethereum' },
       solana: { regex: /solana|sol\b/gi, chain: 'solana' },
-      bsc: { regex: /binance smart chain|bsc\b/gi, chain: 'bsc' },
-      base: { regex: /base\s*(chain|network)?/gi, chain: 'base' },
+      bsc: { regex: /binance smart chain|bsc|bnb\s*chain/gi, chain: 'bsc' },
     };
     
     const claimedProjects: Array<{ name: string; contracts: string[]; chain: string }> = [];
@@ -692,189 +703,232 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         }
       }
 
-      // Check EVM chains using Covalent
-      if (evmWallet && COVALENT_API_KEY) {
-        console.log('Processing EVM wallet:', evmWallet);
+      // EVM Chain Configuration - 14 chains total (13 Covalent + LayerOneX)
+      interface ChainConfig {
+        id: string;
+        name: string;
+        covalentId?: string;
+        earlyActivity?: { startDate: string; endDate: string; bonus: number };
+      }
+      
+      const EVM_CHAINS: ChainConfig[] = [
+        // Foundational chains
+        { id: 'ethereum', name: 'Ethereum', covalentId: 'eth-mainnet', earlyActivity: { startDate: '2015-01-01', endDate: '2018-12-31', bonus: 30 } },
+        { id: 'bsc', name: 'BSC', covalentId: 'bsc-mainnet', earlyActivity: { startDate: '2020-09-01', endDate: '2021-06-30', bonus: 20 } },
+        { id: 'polygon', name: 'Polygon', covalentId: 'matic-mainnet', earlyActivity: { startDate: '2020-06-01', endDate: '2021-12-31', bonus: 15 } },
+        { id: 'arbitrum', name: 'Arbitrum', covalentId: 'arbitrum-mainnet', earlyActivity: { startDate: '2021-08-31', endDate: '2022-06-30', bonus: 15 } },
+        { id: 'optimism', name: 'Optimism', covalentId: 'optimism-mainnet', earlyActivity: { startDate: '2021-07-01', endDate: '2022-06-30', bonus: 15 } },
+        { id: 'base', name: 'Base', covalentId: 'base-mainnet', earlyActivity: { startDate: '2023-08-09', endDate: '2024-03-31', bonus: 10 } },
+        { id: 'gnosis', name: 'Gnosis', covalentId: 'gnosis-mainnet', earlyActivity: { startDate: '2018-01-01', endDate: '2021-12-31', bonus: 15 } },
+        // Frontier L2s and newer chains
+        { id: 'avalanche', name: 'Avalanche', covalentId: 'avalanche-mainnet', earlyActivity: { startDate: '2020-09-21', endDate: '2021-12-31', bonus: 15 } },
+        { id: 'fantom', name: 'Fantom', covalentId: 'fantom-mainnet', earlyActivity: { startDate: '2019-12-01', endDate: '2021-12-31', bonus: 12 } },
+        { id: 'zksync', name: 'zkSync Era', covalentId: 'zksync-mainnet', earlyActivity: { startDate: '2023-03-24', endDate: '2024-03-31', bonus: 10 } },
+        { id: 'scroll', name: 'Scroll', covalentId: 'scroll-mainnet', earlyActivity: { startDate: '2023-10-17', endDate: '2024-06-30', bonus: 10 } },
+        { id: 'linea', name: 'Linea', covalentId: 'linea-mainnet', earlyActivity: { startDate: '2023-07-11', endDate: '2024-06-30', bonus: 10 } },
+        { id: 'blast', name: 'Blast', covalentId: 'blast-mainnet', earlyActivity: { startDate: '2024-02-29', endDate: '2024-06-30', bonus: 8 } },
+        { id: 'sei', name: 'Sei', covalentId: 'sei-mainnet' },
+      ];
+
+      // Helper function to fetch transactions from Covalent
+      const fetchCovalentTransactions = async (wallet: string, chain: ChainConfig): Promise<{ chain: ChainConfig; transactions: any[] }> => {
+        if (!chain.covalentId) return { chain, transactions: [] };
         
-        // Check Ethereum
         try {
-          const ethResponse = await fetch(
-            `https://api.covalenthq.com/v1/eth-mainnet/address/${evmWallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
+          const response = await fetch(
+            `https://api.covalenthq.com/v1/${chain.covalentId}/address/${wallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
             { headers: { 'Content-Type': 'application/json' } }
           );
           
-          if (ethResponse.ok) {
-            const ethData = await ethResponse.json();
-            const transactions = ethData.data?.items || [];
-            
-            console.log('Ethereum transactions found:', transactions.length);
-            
-            // Classify transactions for significant activities
-            for (const tx of transactions.slice(0, 100)) {
-              const activity = classifyTransaction(tx, 'Ethereum');
-              if (activity) {
-                allActivities.push(activity);
-              }
+          if (response.ok) {
+            const data = await response.json();
+            const transactions = data.data?.items || [];
+            if (transactions.length > 0) {
+              console.log(`${chain.name} transactions found:`, transactions.length);
             }
-            
-            // Check early activity (OG status)
-            const earlyTxs = transactions.filter((tx: any) => {
-              const txDate = new Date(tx.block_signed_at);
-              return txDate >= new Date('2015-01-01') && txDate <= new Date('2018-12-31');
-            });
-            
-            if (earlyTxs.length > 0) {
-              bluechipScore += 30;
-              verificationResults.push({
-                chain: 'Ethereum',
-                verificationType: 'Early Activity (OG Status)',
-                period: '2015-2018',
-                transactions: earlyTxs.length,
-                earliestDate: earlyTxs[earlyTxs.length - 1]?.block_signed_at
-              });
-            }
-            
-            // Verify claimed project interactions
-            const ethProjects = claimedProjects.filter(p => 
-              p.chain === 'ethereum' && p.contracts && p.contracts.length > 0
+            return { chain, transactions };
+          }
+        } catch (error) {
+          console.error(`${chain.name} fetch error:`, error);
+        }
+        return { chain, transactions: [] };
+      };
+
+      // Helper function to fetch LayerOneX transactions (native API)
+      const fetchLayerOneXTransactions = async (wallet: string): Promise<any[]> => {
+        try {
+          console.log('Fetching LayerOneX transactions for:', wallet);
+          const response = await fetch(
+            `https://explorer.l1xapp.com/api/v2/addresses/${wallet}/transactions`,
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            const transactions = data.items || [];
+            console.log('LayerOneX transactions found:', transactions.length);
+            return transactions;
+          }
+        } catch (error) {
+          console.error('LayerOneX fetch error:', error);
+        }
+        return [];
+      };
+
+      // Normalize LayerOneX transaction to our format
+      const classifyLayerOneXTransaction = (tx: any): SignificantActivity | null => {
+        const txDate = tx.timestamp || new Date().toISOString();
+        const methodName = tx.method?.toLowerCase() || '';
+        
+        if (methodName.includes('swap') || methodName.includes('exchange')) {
+          return { type: 'swap', description: 'Token swap on LayerOneX', experience: 'DEX trading on LayerOneX', chain: 'LayerOneX', date: txDate, priority: 3 };
+        }
+        if (methodName.includes('stake') || methodName.includes('delegate')) {
+          return { type: 'stake', description: 'Staked assets on LayerOneX', experience: 'Staking on LayerOneX', chain: 'LayerOneX', date: txDate, priority: 4 };
+        }
+        if (tx.to?.hash && tx.gas_used > 21000) {
+          return { type: 'protocol', description: 'Smart contract interaction on LayerOneX', experience: 'dApp experience on LayerOneX', chain: 'LayerOneX', date: txDate, priority: 1 };
+        }
+        if (tx.value && parseFloat(tx.value) > 0) {
+          return { type: 'transfer', description: 'Token transfer on LayerOneX', experience: 'Blockchain activity on LayerOneX', chain: 'LayerOneX', date: txDate, priority: 0 };
+        }
+        return null;
+      };
+
+      // Check EVM chains using Covalent + LayerOneX native API
+      if (evmWallet) {
+        console.log('Processing EVM wallet:', evmWallet, 'across', EVM_CHAINS.length + 1, 'chains (including LayerOneX)');
+        
+        // Process Covalent chains in parallel batches to avoid rate limiting
+        if (COVALENT_API_KEY) {
+          const batchSize = 5;
+          for (let i = 0; i < EVM_CHAINS.length; i += batchSize) {
+            const batch = EVM_CHAINS.slice(i, i + batchSize);
+            const results = await Promise.allSettled(
+              batch.map(chain => fetchCovalentTransactions(evmWallet, chain))
             );
             
-            for (const project of ethProjects) {
-              const projectTxs = transactions.filter((tx: any) => {
-                const toAddress = tx.to_address?.toLowerCase();
-                const fromAddress = tx.from_address?.toLowerCase();
-                return project.contracts.some(contract => 
-                  contract.toLowerCase() === toAddress || contract.toLowerCase() === fromAddress
-                );
-              });
-              
-              if (projectTxs.length > 0) {
-                bluechipScore += 10;
-                verifiedProjects.push({
-                  name: project.name,
-                  chain: 'Ethereum',
-                  interactions: projectTxs.length,
-                  firstInteraction: projectTxs[projectTxs.length - 1]?.block_signed_at
-                });
-                verificationResults.push({
-                  chain: 'Ethereum',
-                  verificationType: `Project Interaction: ${project.name}`,
-                  transactions: projectTxs.length,
-                  earliestDate: projectTxs[projectTxs.length - 1]?.block_signed_at
-                });
-              } else {
-                unverifiedProjects.push({
-                  name: project.name,
-                  chain: 'Ethereum',
-                  reason: 'No on-chain interactions found with project contracts'
-                });
+            for (const result of results) {
+              if (result.status === 'fulfilled') {
+                const { chain, transactions } = result.value;
+                
+                if (transactions.length > 0) {
+                  detectedChains.add(chain.name);
+                  
+                  // Classify transactions for significant activities
+                  for (const tx of transactions.slice(0, 50)) {
+                    const activity = classifyTransaction(tx, chain.name);
+                    if (activity) {
+                      allActivities.push(activity);
+                    }
+                  }
+                  
+                  // Check early activity for OG status
+                  if (chain.earlyActivity) {
+                    const earlyTxs = transactions.filter((tx: any) => {
+                      const txDate = new Date(tx.block_signed_at);
+                      return txDate >= new Date(chain.earlyActivity!.startDate) && txDate <= new Date(chain.earlyActivity!.endDate);
+                    });
+                    
+                    if (earlyTxs.length > 0) {
+                      bluechipScore += chain.earlyActivity.bonus;
+                      verificationResults.push({
+                        chain: chain.name,
+                        verificationType: 'Early Activity (OG Status)',
+                        period: `${chain.earlyActivity.startDate} - ${chain.earlyActivity.endDate}`,
+                        transactions: earlyTxs.length,
+                        earliestDate: earlyTxs[earlyTxs.length - 1]?.block_signed_at
+                      });
+                    }
+                  }
+                  
+                  // Verify claimed project interactions (Ethereum-specific)
+                  if (chain.id === 'ethereum') {
+                    const ethProjects = claimedProjects.filter(p => 
+                      p.chain === 'ethereum' && p.contracts && p.contracts.length > 0
+                    );
+                    
+                    for (const project of ethProjects) {
+                      const projectTxs = transactions.filter((tx: any) => {
+                        const toAddress = tx.to_address?.toLowerCase();
+                        const fromAddress = tx.from_address?.toLowerCase();
+                        return project.contracts.some(contract => 
+                          contract.toLowerCase() === toAddress || contract.toLowerCase() === fromAddress
+                        );
+                      });
+                      
+                      if (projectTxs.length > 0) {
+                        bluechipScore += 10;
+                        verifiedProjects.push({
+                          name: project.name,
+                          chain: chain.name,
+                          interactions: projectTxs.length,
+                          firstInteraction: projectTxs[projectTxs.length - 1]?.block_signed_at
+                        });
+                        verificationResults.push({
+                          chain: chain.name,
+                          verificationType: `Project Interaction: ${project.name}`,
+                          transactions: projectTxs.length,
+                          earliestDate: projectTxs[projectTxs.length - 1]?.block_signed_at
+                        });
+                      } else {
+                        unverifiedProjects.push({
+                          name: project.name,
+                          chain: chain.name,
+                          reason: 'No on-chain interactions found with project contracts'
+                        });
+                      }
+                    }
+                  }
+                  
+                  // Verify chain-specific project claims
+                  const chainProjects = claimedProjects.filter(p => p.chain === chain.id);
+                  if (chainProjects.length > 0 && transactions.length > 0) {
+                    chainProjects.forEach(project => {
+                      if (!verifiedProjects.some(vp => vp.name === project.name)) {
+                        verifiedProjects.push({
+                          name: project.name,
+                          chain: chain.name,
+                          interactions: 'verified_by_activity',
+                          note: `Verified by ${chain.name} blockchain activity`
+                        });
+                      }
+                    });
+                  }
+                }
               }
             }
           }
-        } catch (error) {
-          console.error('Ethereum verification error:', error);
         }
-
-        // Check BSC
-        try {
-          const bscResponse = await fetch(
-            `https://api.covalenthq.com/v1/bsc-mainnet/address/${evmWallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
-            { headers: { 'Content-Type': 'application/json' } }
-          );
+        
+        // Process LayerOneX (native API, no Covalent dependency)
+        const l1xTransactions = await fetchLayerOneXTransactions(evmWallet);
+        if (l1xTransactions.length > 0) {
+          detectedChains.add('LayerOneX');
           
-          if (bscResponse.ok) {
-            const bscData = await bscResponse.json();
-            const transactions = bscData.data?.items || [];
-            
-            console.log('BSC transactions found:', transactions.length);
-            
-            // Classify transactions for significant activities
-            for (const tx of transactions.slice(0, 100)) {
-              const activity = classifyTransaction(tx, 'BSC');
-              if (activity) {
-                allActivities.push(activity);
-              }
+          for (const tx of l1xTransactions.slice(0, 50)) {
+            const activity = classifyLayerOneXTransaction(tx);
+            if (activity) {
+              allActivities.push(activity);
             }
-            
-            const earlyTxs = transactions.filter((tx: any) => {
-              const txDate = new Date(tx.block_signed_at);
-              return txDate >= new Date('2020-09-01') && txDate <= new Date('2021-06-30');
+          }
+          
+          // Check for early LayerOneX activity
+          const earlyL1xTxs = l1xTransactions.filter((tx: any) => {
+            const txDate = new Date(tx.timestamp);
+            return txDate >= new Date('2023-01-01') && txDate <= new Date('2024-06-30');
+          });
+          
+          if (earlyL1xTxs.length > 0) {
+            bluechipScore += 10;
+            verificationResults.push({
+              chain: 'LayerOneX',
+              verificationType: 'Early Activity (OG Status)',
+              period: '2023-2024',
+              transactions: earlyL1xTxs.length,
+              earliestDate: earlyL1xTxs[earlyL1xTxs.length - 1]?.timestamp
             });
-            
-            if (earlyTxs.length > 0) {
-              bluechipScore += 20;
-              verificationResults.push({
-                chain: 'BSC',
-                verificationType: 'Early Activity (OG Status)',
-                period: 'Sept 2020-early 2021',
-                transactions: earlyTxs.length,
-                earliestDate: earlyTxs[earlyTxs.length - 1]?.block_signed_at
-              });
-            }
-            
-            // BSC project verification
-            const bscProjects = claimedProjects.filter(p => p.chain === 'bsc');
-            if (bscProjects.length > 0 && earlyTxs.length > 0) {
-              bscProjects.forEach(project => {
-                verifiedProjects.push({
-                  name: project.name,
-                  chain: 'BSC',
-                  interactions: 'verified_by_early_activity',
-                  note: 'Verified by early BSC blockchain activity'
-                });
-              });
-            }
           }
-        } catch (error) {
-          console.error('BSC verification error:', error);
-        }
-
-        // Check Polygon
-        try {
-          const polyResponse = await fetch(
-            `https://api.covalenthq.com/v1/matic-mainnet/address/${evmWallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
-            { headers: { 'Content-Type': 'application/json' } }
-          );
-          
-          if (polyResponse.ok) {
-            const polyData = await polyResponse.json();
-            const transactions = polyData.data?.items || [];
-            
-            console.log('Polygon transactions found:', transactions.length);
-            
-            for (const tx of transactions.slice(0, 50)) {
-              const activity = classifyTransaction(tx, 'Polygon');
-              if (activity) {
-                allActivities.push(activity);
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Polygon verification error:', error);
-        }
-
-        // Check Arbitrum
-        try {
-          const arbResponse = await fetch(
-            `https://api.covalenthq.com/v1/arbitrum-mainnet/address/${evmWallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
-            { headers: { 'Content-Type': 'application/json' } }
-          );
-          
-          if (arbResponse.ok) {
-            const arbData = await arbResponse.json();
-            const transactions = arbData.data?.items || [];
-            
-            console.log('Arbitrum transactions found:', transactions.length);
-            
-            for (const tx of transactions.slice(0, 50)) {
-              const activity = classifyTransaction(tx, 'Arbitrum');
-              if (activity) {
-                allActivities.push(activity);
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Arbitrum verification error:', error);
         }
       }
       

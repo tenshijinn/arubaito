@@ -20,70 +20,63 @@ export const LinkedInImport = ({ onBack, onComplete, walletAddress, walletAddres
   const [linkedInData, setLinkedInData] = useState<PrefillData | null>(null);
   const { toast } = useToast();
 
-  // Check if we already have LinkedIn data from auth - ONLY for LinkedIn provider
+  // Check if we have LinkedIn data from OAuth callback
   useEffect(() => {
-    const checkLinkedInAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      // ONLY check if authenticated specifically via LinkedIn
-      if (user?.app_metadata?.provider === 'linkedin_oidc') {
-        const metadata = user.user_metadata;
+    const savedData = localStorage.getItem('linkedinUserData');
+    if (savedData) {
+      try {
+        const userData = JSON.parse(savedData);
         setLinkedInData({
-          fullName: metadata?.full_name || metadata?.name || '',
-          email: user.email || '',
-          professionalTitle: metadata?.headline || '',
-          profileImageUrl: metadata?.avatar_url || metadata?.picture || '',
+          fullName: userData.fullName || '',
+          email: userData.email || '',
+          professionalTitle: '',
+          profileImageUrl: userData.profileImageUrl || '',
         });
+        localStorage.removeItem('linkedinUserData');
+      } catch (e) {
+        console.error('Error parsing LinkedIn data:', e);
       }
-    };
-    checkLinkedInAuth();
+    }
   }, []);
 
   const handleLinkedInConnect = async () => {
     setIsConnecting(true);
     
     try {
-      // Store state before redirect so we can restore after OAuth return
-      localStorage.setItem('linkedinImportState', JSON.stringify({
-        wallets: walletAddresses,
-        timestamp: Date.now()
-      }));
+      const redirectUri = `${window.location.origin}/arubaito`;
       
-      const redirectUrl = `${window.location.origin}/arubaito`;
-      
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'linkedin_oidc',
-        options: {
-          redirectTo: redirectUrl,
-          scopes: 'openid profile email',
+      // Get auth URL from our custom edge function
+      const { data, error } = await supabase.functions.invoke('linkedin-oauth', {
+        body: { 
+          action: 'getAuthUrl',
+          redirectUri
         }
       });
 
       if (error) throw error;
+      if (!data?.authUrl) throw new Error('Failed to get authorization URL');
 
-      // The user will be redirected to LinkedIn
-      // On return, Arubaito.tsx will restore state and the useEffect will pick up the data
+      // Store state before redirect
+      localStorage.setItem('linkedinOAuthState', JSON.stringify({
+        codeVerifier: data.codeVerifier,
+        state: data.state,
+        wallets: walletAddresses,
+        redirectUri,
+        timestamp: Date.now()
+      }));
+
+      // Redirect to LinkedIn
+      window.location.href = data.authUrl;
       
     } catch (error) {
       console.error('LinkedIn OAuth error:', error);
-      // Clean up localStorage on error
-      localStorage.removeItem('linkedinImportState');
+      localStorage.removeItem('linkedinOAuthState');
       
-      const errorMessage = error instanceof Error ? error.message : '';
-      
-      // Handle missing credentials gracefully
-      if (errorMessage.includes('provider') || errorMessage.includes('not enabled')) {
-        toast({
-          title: "LinkedIn Not Configured",
-          description: "LinkedIn login is not yet available. Please use Manual Form or Upload CV instead.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Connection Failed",
-          description: errorMessage || "Could not connect to LinkedIn. Please try again.",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Connection Failed",
+        description: error instanceof Error ? error.message : "Could not connect to LinkedIn. Please try again.",
+        variant: "destructive",
+      });
       setIsConnecting(false);
     }
   };
@@ -179,7 +172,7 @@ export const LinkedInImport = ({ onBack, onComplete, walletAddress, walletAddres
           <AlertDescription>
             <p className="font-semibold mb-2">Hybrid Import Process:</p>
             <ul className="text-sm space-y-1 list-disc list-inside text-left">
-              <li><strong>From LinkedIn:</strong> Name, email, headline, profile photo</li>
+              <li><strong>From LinkedIn:</strong> Name, email, profile photo</li>
               <li><strong>You'll add:</strong> Skills, work experience details, Web3 communities, education</li>
             </ul>
             <p className="text-xs mt-2 text-muted-foreground">

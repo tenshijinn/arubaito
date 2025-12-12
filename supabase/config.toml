@@ -69,3 +69,6 @@ verify_jwt = false
 
 [functions.reset-wallet-account]
 verify_jwt = true
+
+[functions.linkedin-oauth]
+verify_jwt = false

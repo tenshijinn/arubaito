@@ -89,7 +89,7 @@ export const CVProfileCard = ({
               {bluechipVerified && (
                 <Badge variant="secondary">
                   <Award className="h-3 w-3 mr-1" />
-                  Bluechip
+                  OG
                 </Badge>
               )}
               {onDelete && (

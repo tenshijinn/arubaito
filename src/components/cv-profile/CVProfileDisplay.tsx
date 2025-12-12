@@ -196,6 +196,8 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
         profileImageUrl={profileImageUrl}
         userName={currentUser?.user_metadata?.full_name || currentUser?.user_metadata?.name}
         twitterHandle={currentUser?.user_metadata?.user_name || currentUser?.user_metadata?.preferred_username}
+        overallScore={analysis.scoring_details?.total_score || analysis.overall_score}
+        cvContent={cvContent}
       />
 
       {/* Main Content Grid - 2 Columns */}

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Trash2, ArrowLeft, Wallet } from "lucide-react";
+import { Loader2, Plus, Trash2, ArrowLeft, Wallet, CheckCircle2 } from "lucide-react";
 import { WalletAddresses } from "@/components/cv-profile/WalletConnectStep";
 
 interface WorkExperience {
@@ -14,8 +14,14 @@ interface WorkExperience {
   company: string;
   role: string;
   period: string;
-  description: string;
-  projects: string;
+  highlights: string;
+}
+
+interface Education {
+  id: string;
+  institution: string;
+  degree: string;
+  year: string;
 }
 
 interface ManualCVFormProps {
@@ -23,25 +29,79 @@ interface ManualCVFormProps {
   onComplete: (analysisId: string) => void;
   walletAddress?: string;
   walletAddresses?: WalletAddresses;
+  prefillData?: PrefillData;
 }
 
-export const ManualCVForm = ({ onBack, onComplete, walletAddress, walletAddresses }: ManualCVFormProps) => {
+export interface PrefillData {
+  fullName?: string;
+  email?: string;
+  professionalTitle?: string;
+  location?: string;
+  summary?: string;
+  profileImageUrl?: string;
+}
+
+export const ManualCVForm = ({ onBack, onComplete, walletAddress, walletAddresses, prefillData }: ManualCVFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   
-  // Form state
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [summary, setSummary] = useState("");
-  const [skills, setSkills] = useState("");
+  // Form state - Personal Info
+  const [fullName, setFullName] = useState(prefillData?.fullName || "");
+  const [email, setEmail] = useState(prefillData?.email || "");
+  const [location, setLocation] = useState(prefillData?.location || "");
+  const [professionalTitle, setProfessionalTitle] = useState(prefillData?.professionalTitle || "");
+  
+  // About / Summary
+  const [summary, setSummary] = useState(prefillData?.summary || "");
+  
+  // Skills (separated)
+  const [hardSkills, setHardSkills] = useState("");
+  const [softSkills, setSoftSkills] = useState("");
+  
+  // Web3 Communities
+  const [web3Communities, setWeb3Communities] = useState("");
+  
+  // Languages
+  const [languages, setLanguages] = useState("");
+  
+  // Hobbies
+  const [hobbies, setHobbies] = useState("");
+  
+  // Education
+  const [education, setEducation] = useState<Education[]>([
+    { id: '1', institution: '', degree: '', year: '' }
+  ]);
+  
+  // Work Experience
   const [experiences, setExperiences] = useState<WorkExperience[]>([
-    { id: '1', company: '', role: '', period: '', description: '', projects: '' }
+    { id: '1', company: '', role: '', period: '', highlights: '' }
   ]);
 
+  // Education handlers
+  const addEducation = () => {
+    setEducation([
+      ...education,
+      { id: Date.now().toString(), institution: '', degree: '', year: '' }
+    ]);
+  };
+
+  const removeEducation = (id: string) => {
+    if (education.length > 1) {
+      setEducation(education.filter(edu => edu.id !== id));
+    }
+  };
+
+  const updateEducation = (id: string, field: keyof Education, value: string) => {
+    setEducation(education.map(edu => 
+      edu.id === id ? { ...edu, [field]: value } : edu
+    ));
+  };
+
+  // Experience handlers
   const addExperience = () => {
     setExperiences([
       ...experiences,
-      { id: Date.now().toString(), company: '', role: '', period: '', description: '', projects: '' }
+      { id: Date.now().toString(), company: '', role: '', period: '', highlights: '' }
     ]);
   };
 
@@ -61,10 +121,10 @@ export const ManualCVForm = ({ onBack, onComplete, walletAddress, walletAddresse
     e.preventDefault();
     
     // Validation
-    if (!fullName || !email || !summary || !skills) {
+    if (!fullName || !email || !summary) {
       toast({
         title: "Missing Information",
-        description: "Please fill out all required fields",
+        description: "Please fill out name, email, and summary",
         variant: "destructive",
       });
       return;
@@ -85,24 +145,45 @@ export const ManualCVForm = ({ onBack, onComplete, walletAddress, walletAddresse
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Build CV content from form data
+      // Build structured CV content from form data
       const cvContent = `
 FULL NAME: ${fullName}
 EMAIL: ${email}
+LOCATION: ${location}
+PROFESSIONAL TITLE: ${professionalTitle}
 
-PROFESSIONAL SUMMARY:
+PROFESSIONAL SUMMARY / ABOUT ME:
 ${summary}
 
-SKILLS:
-${skills}
+HARD SKILLS / TECHNICAL SKILLS:
+${hardSkills}
+
+SOFT SKILLS:
+${softSkills}
+
+WEB3 COMMUNITIES & DAOS:
+${web3Communities}
+
+LANGUAGES:
+${languages}
+
+HOBBIES & INTERESTS:
+${hobbies}
+
+EDUCATION:
+${education.filter(edu => edu.institution).map(edu => `
+Institution: ${edu.institution}
+Degree/Certification: ${edu.degree}
+Year: ${edu.year}
+`).join('\n')}
 
 WORK EXPERIENCE:
 ${experiences.map(exp => `
-Company: ${exp.company}
+Company/Project: ${exp.company}
 Role: ${exp.role}
 Period: ${exp.period}
-Description: ${exp.description}
-${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
+Key Achievements/Highlights:
+${exp.highlights}
 `).join('\n')}
 `;
 
@@ -150,7 +231,7 @@ ${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
       toast({
         title: "Profile Created!",
         description: analysisData.bluechip_verified 
-          ? "Your CV profile has been created and Bluechip verified!" 
+          ? "Your CV profile has been created and OG verified!" 
           : "Your CV profile has been created successfully.",
       });
 
@@ -174,23 +255,36 @@ ${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <h2 className="text-2xl font-bold">Manual CV Profile Form</h2>
+        <h2 className="text-2xl font-bold">
+          {prefillData ? 'Complete Your Profile' : 'Manual CV Profile Form'}
+        </h2>
       </div>
 
-      {/* Wallet Status Banner */}
-      {walletAddress ? (
+      {/* Dual Wallet Status Banner */}
+      {(walletAddresses?.solana || walletAddresses?.evm) ? (
         <Card className="p-4 bg-green-500/10 border-green-500/30">
-          <div className="flex items-center gap-3">
-            <Wallet className="h-5 w-5 text-green-500 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-green-500">Wallet Connected for Verification</p>
-              <p className="text-xs font-mono text-muted-foreground truncate mt-1">
-                {walletAddress}
+          <div className="flex items-center gap-2 mb-2">
+            <CheckCircle2 className="h-5 w-5 text-green-500" />
+            <span className="font-medium text-green-500">Wallets Connected for Verification</span>
+          </div>
+          {walletAddresses?.solana && (
+            <div className="mb-2">
+              <span className="text-xs text-green-500 font-medium">Solana:</span>
+              <p className="text-xs font-mono text-muted-foreground break-all">
+                {walletAddresses.solana}
               </p>
             </div>
-          </div>
+          )}
+          {walletAddresses?.evm && (
+            <div className="mb-2">
+              <span className="text-xs text-green-500 font-medium">EVM:</span>
+              <p className="text-xs font-mono text-muted-foreground break-all">
+                {walletAddresses.evm}
+              </p>
+            </div>
+          )}
           <p className="mt-2 text-xs text-muted-foreground">
-            Projects and protocols you mention below will be verified against this wallet's on-chain activity
+            ✓ Projects and protocols you mention will be verified against on-chain activity
           </p>
         </Card>
       ) : (
@@ -208,10 +302,12 @@ ${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
       )}
 
       <Card className="p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Info */}
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Personal Info */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">Basic Information</h3>
+            <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+              Personal Information
+            </h3>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="fullName">Full Name *</Label>
@@ -234,38 +330,174 @@ ${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="San Francisco, CA"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="professionalTitle">Professional Title</Label>
+                <Input
+                  id="professionalTitle"
+                  value={professionalTitle}
+                  onChange={(e) => setProfessionalTitle(e.target.value)}
+                  placeholder="Senior Web3 Developer"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Professional Summary */}
-          <div className="space-y-2">
-            <Label htmlFor="summary">Professional Summary *</Label>
-            <Textarea
-              id="summary"
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              placeholder="Brief overview of your Web3 experience, expertise, and career goals..."
-              className="min-h-[100px]"
-              required
-            />
+          {/* About / Summary */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+              About You
+            </h3>
+            <div className="space-y-2">
+              <Label htmlFor="summary">Professional Summary *</Label>
+              <Textarea
+                id="summary"
+                value={summary}
+                onChange={(e) => setSummary(e.target.value)}
+                placeholder="Describe yourself, your Web3 experience, expertise, and career goals..."
+                className="min-h-[120px]"
+                required
+              />
+            </div>
           </div>
 
           {/* Skills */}
-          <div className="space-y-2">
-            <Label htmlFor="skills">Skills & Technologies *</Label>
-            <Textarea
-              id="skills"
-              value={skills}
-              onChange={(e) => setSkills(e.target.value)}
-              placeholder="Solidity, Smart Contracts, DeFi, DAO Governance, Web3.js, React, etc."
-              className="min-h-[80px]"
-              required
-            />
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+              Skills
+            </h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="hardSkills">Hard Skills / Technical Skills</Label>
+                <Textarea
+                  id="hardSkills"
+                  value={hardSkills}
+                  onChange={(e) => setHardSkills(e.target.value)}
+                  placeholder="Solidity, Smart Contracts, Web3.js, React, Rust, TypeScript, DeFi protocols..."
+                  className="min-h-[80px]"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Separate skills with commas
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="softSkills">Soft Skills</Label>
+                <Textarea
+                  id="softSkills"
+                  value={softSkills}
+                  onChange={(e) => setSoftSkills(e.target.value)}
+                  placeholder="Leadership, Communication, Problem-solving, Team collaboration..."
+                  className="min-h-[60px]"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Web3 Communities */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+              Web3 Communities & DAOs
+            </h3>
+            <div className="space-y-2">
+              <Label htmlFor="web3Communities">Communities You're Part Of</Label>
+              <Textarea
+                id="web3Communities"
+                value={web3Communities}
+                onChange={(e) => setWeb3Communities(e.target.value)}
+                placeholder="BanklessDAO, Gitcoin, ENS DAO, MakerDAO, Uniswap Governance..."
+                className="min-h-[60px]"
+              />
+              <p className="text-xs text-muted-foreground">
+                List DAOs, communities, and organizations you participate in
+              </p>
+            </div>
+          </div>
+
+          {/* Languages */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+              Languages
+            </h3>
+            <div className="space-y-2">
+              <Label htmlFor="languages">Languages You Speak</Label>
+              <Input
+                id="languages"
+                value={languages}
+                onChange={(e) => setLanguages(e.target.value)}
+                placeholder="English (Native), Spanish (Conversational), Japanese (Basic)"
+              />
+            </div>
+          </div>
+
+          {/* Education */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-2">
+              <h3 className="text-lg font-semibold text-foreground">Education & Certifications</h3>
+              <Button type="button" onClick={addEducation} variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add
+              </Button>
+            </div>
+
+            {education.map((edu, index) => (
+              <Card key={edu.id} className="p-4 bg-accent/30">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium text-sm text-muted-foreground">Education {index + 1}</h4>
+                    {education.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeEducation(edu.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Institution</Label>
+                      <Input
+                        value={edu.institution}
+                        onChange={(e) => updateEducation(edu.id, 'institution', e.target.value)}
+                        placeholder="MIT, Coursera, etc."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Degree / Certification</Label>
+                      <Input
+                        value={edu.degree}
+                        onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
+                        placeholder="BS Computer Science"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Year</Label>
+                      <Input
+                        value={edu.year}
+                        onChange={(e) => updateEducation(edu.id, 'year', e.target.value)}
+                        placeholder="2020"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
 
           {/* Work Experience */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-border pb-2">
               <h3 className="text-lg font-semibold text-foreground">Work Experience</h3>
               <Button type="button" onClick={addExperience} variant="outline" size="sm">
                 <Plus className="h-4 w-4 mr-2" />
@@ -277,7 +509,7 @@ ${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
               <Card key={exp.id} className="p-4 bg-accent/30">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Experience {index + 1}</h4>
+                    <h4 className="font-medium text-sm text-muted-foreground">Experience {index + 1}</h4>
                     {experiences.length > 1 && (
                       <Button
                         type="button"
@@ -292,7 +524,7 @@ ${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Company/Project *</Label>
+                      <Label>Company / Project *</Label>
                       <Input
                         value={exp.company}
                         onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
@@ -301,7 +533,7 @@ ${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Role/Position *</Label>
+                      <Label>Role / Position *</Label>
                       <Input
                         value={exp.role}
                         onChange={(e) => updateExperience(exp.id, 'role', e.target.value)}
@@ -321,29 +553,36 @@ ${exp.projects ? `Projects/Protocols Worked On: ${exp.projects}` : ''}
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Description & Achievements</Label>
+                    <Label>Key Achievements & Highlights</Label>
                     <Textarea
-                      value={exp.description}
-                      onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
-                      placeholder="Describe your role, responsibilities, and key achievements..."
-                      className="min-h-[80px]"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Projects/Protocols (for on-chain verification)</Label>
-                    <Input
-                      value={exp.projects}
-                      onChange={(e) => updateExperience(exp.id, 'projects', e.target.value)}
-                      placeholder="e.g., Uniswap V3, Compound, MakerDAO"
+                      value={exp.highlights}
+                      onChange={(e) => updateExperience(exp.id, 'highlights', e.target.value)}
+                      placeholder="• Led development of V3 smart contracts&#10;• Increased protocol TVL by 50%&#10;• Conducted security audits"
+                      className="min-h-[100px]"
                     />
                     <p className="text-xs text-muted-foreground">
-                      List any protocols or projects you interacted with - we'll verify against your wallet
+                      Use bullet points (•) to list key achievements - these will be verified against your wallet
                     </p>
                   </div>
                 </div>
               </Card>
             ))}
+          </div>
+
+          {/* Hobbies */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+              Hobbies & Interests (Optional)
+            </h3>
+            <div className="space-y-2">
+              <Label htmlFor="hobbies">What do you enjoy outside of work?</Label>
+              <Input
+                id="hobbies"
+                value={hobbies}
+                onChange={(e) => setHobbies(e.target.value)}
+                placeholder="Gaming, Photography, Open source, Hackathons..."
+              />
+            </div>
           </div>
 
           <Button 

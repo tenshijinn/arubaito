@@ -20,21 +20,19 @@ export const LinkedInImport = ({ onBack, onComplete, walletAddress, walletAddres
   const [linkedInData, setLinkedInData] = useState<PrefillData | null>(null);
   const { toast } = useToast();
 
-  // Check if we already have LinkedIn data from auth
+  // Check if we already have LinkedIn data from auth - ONLY for LinkedIn provider
   useEffect(() => {
     const checkLinkedInAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user?.app_metadata?.provider === 'linkedin_oidc' || user?.user_metadata?.full_name) {
-        // User is already authenticated via LinkedIn or has metadata
+      // ONLY check if authenticated specifically via LinkedIn
+      if (user?.app_metadata?.provider === 'linkedin_oidc') {
         const metadata = user.user_metadata;
-        if (metadata?.full_name || metadata?.name) {
-          setLinkedInData({
-            fullName: metadata.full_name || metadata.name || '',
-            email: user.email || '',
-            professionalTitle: metadata.headline || '',
-            profileImageUrl: metadata.avatar_url || metadata.picture || '',
-          });
-        }
+        setLinkedInData({
+          fullName: metadata?.full_name || metadata?.name || '',
+          email: user.email || '',
+          professionalTitle: metadata?.headline || '',
+          profileImageUrl: metadata?.avatar_url || metadata?.picture || '',
+        });
       }
     };
     checkLinkedInAuth();
@@ -44,6 +42,12 @@ export const LinkedInImport = ({ onBack, onComplete, walletAddress, walletAddres
     setIsConnecting(true);
     
     try {
+      // Store state before redirect so we can restore after OAuth return
+      localStorage.setItem('linkedinImportState', JSON.stringify({
+        wallets: walletAddresses,
+        timestamp: Date.now()
+      }));
+      
       const redirectUrl = `${window.location.origin}/arubaito`;
       
       const { data, error } = await supabase.auth.signInWithOAuth({
@@ -57,15 +61,29 @@ export const LinkedInImport = ({ onBack, onComplete, walletAddress, walletAddres
       if (error) throw error;
 
       // The user will be redirected to LinkedIn
-      // On return, the useEffect will pick up the data
+      // On return, Arubaito.tsx will restore state and the useEffect will pick up the data
       
     } catch (error) {
       console.error('LinkedIn OAuth error:', error);
-      toast({
-        title: "Connection Failed",
-        description: error instanceof Error ? error.message : "Could not connect to LinkedIn. Please try again.",
-        variant: "destructive",
-      });
+      // Clean up localStorage on error
+      localStorage.removeItem('linkedinImportState');
+      
+      const errorMessage = error instanceof Error ? error.message : '';
+      
+      // Handle missing credentials gracefully
+      if (errorMessage.includes('provider') || errorMessage.includes('not enabled')) {
+        toast({
+          title: "LinkedIn Not Configured",
+          description: "LinkedIn login is not yet available. Please use Manual Form or Upload CV instead.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Connection Failed",
+          description: errorMessage || "Could not connect to LinkedIn. Please try again.",
+          variant: "destructive",
+        });
+      }
       setIsConnecting(false);
     }
   };

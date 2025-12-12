@@ -3,10 +3,36 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Wallet, FileText, Download, Loader2 } from "lucide-react";
+import { Calendar, Wallet, FileText, Download, Loader2, FileDown } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { generateCVProfilePDF } from "@/utils/cvPdfGenerator";
+
+interface CVContent {
+  personal_info?: {
+    name: string | null;
+    location: string | null;
+    professional_title: string | null;
+  };
+  describe_yourself?: string;
+  web3_communities?: string[];
+  hard_skills?: string[];
+  soft_skills?: string[];
+  languages?: string[];
+  education?: Array<{
+    institution: string;
+    degree: string;
+    year: string;
+  }>;
+  work_experience?: Array<{
+    company: string;
+    role: string;
+    duration: string;
+    highlights?: string[];
+  }>;
+  hobbies?: string[];
+}
 
 interface ProfileHeaderProps {
   fileName: string;
@@ -16,6 +42,8 @@ interface ProfileHeaderProps {
   profileImageUrl: string | null;
   userName?: string;
   twitterHandle?: string;
+  overallScore?: number;
+  cvContent?: CVContent | null;
 }
 
 export const ProfileHeader = ({
@@ -26,8 +54,11 @@ export const ProfileHeader = ({
   profileImageUrl,
   userName,
   twitterHandle,
+  overallScore,
+  cvContent,
 }: ProfileHeaderProps) => {
   const [downloading, setDownloading] = useState(false);
+  const [generatingPDF, setGeneratingPDF] = useState(false);
   const displayName = userName || fileName.replace(/\.[^/.]+$/, "");
   const truncatedWallet = walletAddress 
     ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
@@ -70,6 +101,31 @@ export const ProfileHeader = ({
     }
   };
 
+  const handleDownloadPDF = async () => {
+    if (!overallScore) {
+      toast.error("Score data not available");
+      return;
+    }
+
+    setGeneratingPDF(true);
+    try {
+      await generateCVProfilePDF({
+        userName: displayName,
+        profileImageUrl,
+        overallScore,
+        cvContent,
+        createdAt,
+        twitterHandle,
+      });
+      toast.success("CV Profile PDF downloaded");
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast.error("Failed to generate PDF");
+    } finally {
+      setGeneratingPDF(false);
+    }
+  };
+
   return (
     <Card className="p-6 bg-card/50 backdrop-blur-sm">
       <div className="flex items-start gap-6">
@@ -83,15 +139,33 @@ export const ProfileHeader = ({
 
         {/* Info */}
         <div className="flex-1 space-y-3">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              {displayName}
-            </h2>
-            {twitterHandle && (
-              <p className="text-muted-foreground text-sm">
-                @{twitterHandle}
-              </p>
-            )}
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">
+                {displayName}
+              </h2>
+              {twitterHandle && (
+                <p className="text-muted-foreground text-sm">
+                  @{twitterHandle}
+                </p>
+              )}
+            </div>
+            
+            {/* Download CV Profile Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadPDF}
+              disabled={generatingPDF}
+              className="shrink-0"
+            >
+              {generatingPDF ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <FileDown className="h-4 w-4 mr-2" />
+              )}
+              Download Profile
+            </Button>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">

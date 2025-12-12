@@ -187,17 +187,17 @@ export const OnChainResume = ({
             </div>
           )}
 
-          {/* Bluechip Status */}
+          {/* OG Status */}
           {bluechipVerified ? (
             <div className="p-3 bg-primary/10 rounded border border-primary/30">
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="h-4 w-4 text-primary" />
                 <span className="text-sm font-semibold text-primary">
-                  Bluechip Verified
+                  OG Verified
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
-                Score: {bluechipScore} points
+                OG Score: {bluechipScore} points
               </p>
             </div>
           ) : (
@@ -205,7 +205,7 @@ export const OnChainResume = ({
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  Not bluechip verified
+                  Not OG verified
                 </span>
               </div>
             </div>

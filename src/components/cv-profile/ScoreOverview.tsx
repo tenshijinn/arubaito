@@ -47,10 +47,10 @@ export const ScoreOverview = ({
             <div className="flex items-center gap-2">
               <Award className="h-5 w-5 text-primary" />
               <Badge className="bg-primary/20 text-primary border-primary/30">
-                Bluechip Verified
+                OG Verified
               </Badge>
               <span className="text-sm text-muted-foreground">
-                Score: {bluechipScore}
+                OG Score: {bluechipScore}
               </span>
             </div>
           )}

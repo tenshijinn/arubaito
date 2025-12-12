@@ -34,6 +34,12 @@ interface CVContent {
   hobbies?: string[];
 }
 
+interface VerifiedProject {
+  name: string;
+  chain: string;
+  interactions?: number | string;
+}
+
 interface ProfileHeaderProps {
   fileName: string;
   filePath?: string;
@@ -44,6 +50,8 @@ interface ProfileHeaderProps {
   twitterHandle?: string;
   overallScore?: number;
   cvContent?: CVContent | null;
+  verifiedProjects?: VerifiedProject[];
+  detectedChains?: string[];
 }
 
 export const ProfileHeader = ({
@@ -56,6 +64,8 @@ export const ProfileHeader = ({
   twitterHandle,
   overallScore,
   cvContent,
+  verifiedProjects,
+  detectedChains,
 }: ProfileHeaderProps) => {
   const [downloading, setDownloading] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
@@ -116,6 +126,8 @@ export const ProfileHeader = ({
         cvContent,
         createdAt,
         twitterHandle,
+        verifiedProjects,
+        detectedChains,
       });
       toast.success("CV Profile PDF downloaded");
     } catch (error) {

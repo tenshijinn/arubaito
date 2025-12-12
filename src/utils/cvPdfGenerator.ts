@@ -25,6 +25,12 @@ interface CVContent {
   hobbies?: string[];
 }
 
+interface VerifiedProject {
+  name: string;
+  chain: string;
+  interactions?: number | string;
+}
+
 interface CVPDFData {
   userName: string;
   profileImageUrl?: string | null;
@@ -32,7 +38,51 @@ interface CVPDFData {
   cvContent?: CVContent | null;
   createdAt: string;
   twitterHandle?: string;
+  verifiedProjects?: VerifiedProject[];
+  detectedChains?: string[];
 }
+
+// Check if work experience matches verified on-chain activity
+const isWorkExperienceVerified = (
+  exp: { company: string; role: string; highlights?: string[] },
+  verifiedProjects: VerifiedProject[],
+  detectedChains: string[]
+): { verified: boolean; chain?: string } => {
+  const textToSearch = `${exp.company} ${exp.role} ${exp.highlights?.join(' ') || ''}`.toLowerCase();
+  
+  // Check against verified project names
+  for (const project of verifiedProjects) {
+    if (textToSearch.includes(project.name.toLowerCase())) {
+      return { verified: true, chain: project.chain };
+    }
+  }
+  
+  // Check for chain names in work experience
+  const chainKeywords = ['ethereum', 'solana', 'arbitrum', 'polygon', 'base', 'optimism', 'avalanche', 'fantom', 'bsc', 'binance'];
+  for (const chain of chainKeywords) {
+    if (textToSearch.includes(chain)) {
+      // Check if user has activity on that chain
+      const hasChainActivity = detectedChains.some(dc => dc.toLowerCase().includes(chain));
+      if (hasChainActivity) {
+        return { verified: true, chain };
+      }
+    }
+  }
+  
+  // Check for common dApp/protocol mentions
+  const dappKeywords = ['uniswap', 'aave', 'compound', 'opensea', 'blur', 'jupiter', 'raydium', 'marinade', 'lido', 'curve', 'sushiswap', 'pancakeswap', 'gmx', 'dydx'];
+  for (const dapp of dappKeywords) {
+    if (textToSearch.includes(dapp)) {
+      for (const project of verifiedProjects) {
+        if (project.name.toLowerCase().includes(dapp)) {
+          return { verified: true, chain: project.chain };
+        }
+      }
+    }
+  }
+  
+  return { verified: false };
+};
 
 export const generateCVProfilePDF = async (data: CVPDFData): Promise<void> => {
   const pdf = new jsPDF({
@@ -179,6 +229,9 @@ export const generateCVProfilePDF = async (data: CVPDFData): Promise<void> => {
     pdf.text("WORK EXPERIENCE", margin, yPos);
     yPos += 8;
 
+    const verifiedProjects = data.verifiedProjects || [];
+    const detectedChains = data.detectedChains || [];
+
     for (const exp of data.cvContent.work_experience) {
       if (yPos > pageHeight - 30) {
         pdf.addPage();
@@ -190,15 +243,30 @@ export const generateCVProfilePDF = async (data: CVPDFData): Promise<void> => {
       pdf.setFontSize(10);
       pdf.setTextColor(...textColor);
       pdf.setFont("helvetica", "bold");
-      pdf.text(`${exp.role} at ${exp.company}`, margin, yPos);
+      
+      const roleText = `${exp.role} at ${exp.company}`;
+      pdf.text(roleText, margin, yPos);
 
       pdf.setTextColor(...mutedColor);
       pdf.setFont("helvetica", "normal");
       pdf.text(exp.duration, pageWidth - margin, yPos, { align: "right" });
       yPos += 5;
 
+      // Check if this work experience is verified on-chain
+      const verification = isWorkExperienceVerified(exp, verifiedProjects, detectedChains);
+      if (verification.verified) {
+        const verifiedColor: [number, number, number] = [34, 197, 94]; // Green #22c55e
+        pdf.setTextColor(...verifiedColor);
+        pdf.setFontSize(8);
+        pdf.setFont("helvetica", "bold");
+        pdf.text("✓ Verified On-Chain", margin, yPos);
+        yPos += 4;
+      }
+
       if (exp.highlights && exp.highlights.length > 0) {
+        pdf.setFontSize(10);
         pdf.setTextColor(...textColor);
+        pdf.setFont("helvetica", "normal");
         for (const highlight of exp.highlights.slice(0, 2)) {
           const lines = pdf.splitTextToSize(`• ${highlight}`, pageWidth - 2 * margin - 5);
           pdf.text(lines, margin + 3, yPos);

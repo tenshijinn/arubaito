@@ -22,26 +22,13 @@ interface LinkedInUserInfo {
   email_verified: boolean;
 }
 
-// Generate a cryptographically secure random string for PKCE
-function generateCodeVerifier(): string {
+// Generate a random string for CSRF protection
+function generateState(): string {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
-  return base64URLEncode(array);
-}
-
-// Generate code challenge from verifier using SHA-256
-async function generateCodeChallenge(verifier: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(verifier);
-  const digest = await crypto.subtle.digest('SHA-256', data);
-  return base64URLEncode(new Uint8Array(digest));
-}
-
-// Base64 URL encode
-function base64URLEncode(buffer: Uint8Array): string {
   let binary = '';
-  for (let i = 0; i < buffer.length; i++) {
-    binary += String.fromCharCode(buffer[i]);
+  for (let i = 0; i < array.length; i++) {
+    binary += String.fromCharCode(array[i]);
   }
   return btoa(binary)
     .replace(/\+/g, '-')
@@ -56,7 +43,7 @@ serve(async (req) => {
   }
 
   try {
-    const { action, code, codeVerifier, redirectUri } = await req.json();
+    const { action, code, redirectUri } = await req.json();
     
     const clientId = Deno.env.get('LINKEDIN_CLIENT_ID');
     const clientSecret = Deno.env.get('LINKEDIN_CLIENT_SECRET');
@@ -70,28 +57,23 @@ serve(async (req) => {
     }
 
     if (action === 'getAuthUrl') {
-      console.log('Generating LinkedIn auth URL...');
+      console.log('Generating LinkedIn auth URL (standard OAuth, no PKCE)...');
       
-      const codeVerifier = generateCodeVerifier();
-      const codeChallenge = await generateCodeChallenge(codeVerifier);
-      const state = generateCodeVerifier(); // Random state for CSRF protection
+      const state = generateState();
       
-      // LinkedIn OpenID Connect authorization URL
+      // LinkedIn OAuth 2.0 authorization URL (standard flow, no PKCE)
       const authUrl = new URL('https://www.linkedin.com/oauth/v2/authorization');
       authUrl.searchParams.set('response_type', 'code');
       authUrl.searchParams.set('client_id', clientId);
       authUrl.searchParams.set('redirect_uri', redirectUri);
       authUrl.searchParams.set('state', state);
       authUrl.searchParams.set('scope', 'openid profile email');
-      authUrl.searchParams.set('code_challenge', codeChallenge);
-      authUrl.searchParams.set('code_challenge_method', 'S256');
 
       console.log('Auth URL generated successfully');
       
       return new Response(
         JSON.stringify({ 
           authUrl: authUrl.toString(), 
-          codeVerifier,
           state 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -99,16 +81,16 @@ serve(async (req) => {
     }
 
     if (action === 'exchangeToken') {
-      console.log('Exchanging code for token...');
+      console.log('Exchanging code for token (standard OAuth)...');
       
-      if (!code || !codeVerifier || !redirectUri) {
+      if (!code || !redirectUri) {
         return new Response(
-          JSON.stringify({ error: 'Missing required parameters' }),
+          JSON.stringify({ error: 'Missing required parameters: code and redirectUri' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      // Exchange authorization code for access token
+      // Exchange authorization code for access token (no code_verifier)
       const tokenResponse = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
         method: 'POST',
         headers: {
@@ -120,7 +102,6 @@ serve(async (req) => {
           redirect_uri: redirectUri,
           client_id: clientId,
           client_secret: clientSecret,
-          code_verifier: codeVerifier,
         }).toString(),
       });
 

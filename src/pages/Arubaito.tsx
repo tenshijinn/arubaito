@@ -44,19 +44,18 @@ const Index = () => {
       }
 
       try {
-        const { codeVerifier, state, wallets, redirectUri, timestamp } = JSON.parse(savedState);
+        const { state, wallets, redirectUri, timestamp } = JSON.parse(savedState);
 
         // Verify state and check timeout (10 minutes)
         if (state !== stateParam || Date.now() - timestamp > 600000) {
           throw new Error("Invalid or expired OAuth state");
         }
 
-        // Exchange code for user data
+        // Exchange code for user data (no codeVerifier - using standard OAuth)
         const { data, error } = await supabase.functions.invoke("linkedin-oauth", {
           body: {
             action: "exchangeToken",
             code,
-            codeVerifier,
             redirectUri,
           },
         });

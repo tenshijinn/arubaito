@@ -147,61 +147,71 @@ export default function Rei() {
     }
   }, [connected, twitterUser]);
 
+  // Track if we've already checked registration for current twitter user
+  const [checkedUserId, setCheckedUserId] = useState<string | null>(null);
+
   // Check for existing registration after Twitter login
   useEffect(() => {
     const checkExistingRegistration = async () => {
-      if (twitterUser && !isLoadingRegistration) {
-        setIsLoadingRegistration(true);
-        const storedMode = sessionStorage.getItem('rei_auth_mode') as 'signin' | 'signup' | null;
-        
-        try {
-          const { data, error } = await supabase
-            .from('rei_registry')
-            .select('*')
-            .eq('x_user_id', twitterUser.x_user_id)
-            .maybeSingle();
+      // Only check if we have a twitter user and haven't checked this user yet
+      if (!twitterUser || checkedUserId === twitterUser.x_user_id || isLoadingRegistration) {
+        return;
+      }
+      
+      setIsLoadingRegistration(true);
+      const storedMode = sessionStorage.getItem('rei_auth_mode') as 'signin' | 'signup' | null;
+      
+      console.log('🔍 Checking existing registration for:', twitterUser.x_user_id);
+      console.log('🔑 Auth mode from sessionStorage:', storedMode);
+      
+      try {
+        const { data, error } = await supabase
+          .from('rei_registry')
+          .select('*')
+          .eq('x_user_id', twitterUser.x_user_id)
+          .maybeSingle();
 
-          console.log('🔍 Checking existing registration for:', twitterUser.x_user_id);
-          console.log('📊 Registration data found:', data);
-          console.log('🔑 Auth mode:', storedMode);
+        console.log('📊 Registration data found:', data);
 
-          if (error) {
-            console.error('Error fetching registration:', error);
-          } else if (data) {
-            console.log('✅ Loading existing profile');
-            setRegistrationData(data);
-            setIsSuccess(true);
-            setPortfolioUrl(data.portfolio_url || '');
-            setSelectedRoles(data.role_tags || []);
-            setConsent(true);
-            setNoAccountFound(false);
-          } else {
-            console.log('ℹ️ No existing registration found');
-            // If user was trying to sign in but has no account, show error
-            if (storedMode === 'signin') {
-              setNoAccountFound(true);
-              // Clear twitter user so they can try again
-              setTwitterUser(null);
-              localStorage.removeItem('rei_twitter_user');
-              localStorage.removeItem('rei_verification_status');
-              toast({
-                title: 'No Account Found',
-                description: 'No existing account found with this X account. Please sign up to create one.',
-                variant: 'destructive',
-              });
-            }
+        if (error) {
+          console.error('Error fetching registration:', error);
+        } else if (data) {
+          console.log('✅ Loading existing profile');
+          setRegistrationData(data);
+          setIsSuccess(true);
+          setPortfolioUrl(data.portfolio_url || '');
+          setSelectedRoles(data.role_tags || []);
+          setConsent(true);
+          setNoAccountFound(false);
+        } else {
+          console.log('ℹ️ No existing registration found');
+          // If user was trying to sign in but has no account, show error
+          if (storedMode === 'signin') {
+            setNoAccountFound(true);
+            // Clear twitter user so they can try again
+            setTwitterUser(null);
+            localStorage.removeItem('rei_twitter_user');
+            localStorage.removeItem('rei_verification_status');
+            toast({
+              title: 'No Account Found',
+              description: 'No existing account found with this X account. Please sign up to create one.',
+              variant: 'destructive',
+            });
           }
-        } catch (error) {
-          console.error('Error checking registration:', error);
-        } finally {
-          setIsLoadingRegistration(false);
-          sessionStorage.removeItem('rei_auth_mode');
         }
+        
+        // Mark this user as checked
+        setCheckedUserId(twitterUser.x_user_id);
+      } catch (error) {
+        console.error('Error checking registration:', error);
+      } finally {
+        setIsLoadingRegistration(false);
+        sessionStorage.removeItem('rei_auth_mode');
       }
     };
 
     checkExistingRegistration();
-  }, [twitterUser]);
+  }, [twitterUser, checkedUserId, isLoadingRegistration]);
 
 
   const handleTwitterLogin = async (mode: 'signin' | 'signup') => {

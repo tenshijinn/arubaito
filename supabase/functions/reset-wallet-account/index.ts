@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { verify } from 'https://esm.sh/@noble/ed25519@2.0.0';
+import { decode } from 'https://esm.sh/bs58@5.0.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,16 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    // Get authorization header
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const { walletAddress } = await req.json();
+    const { walletAddress, message, signature } = await req.json();
     
     console.log('Reset wallet account called for:', walletAddress);
 
@@ -29,43 +22,48 @@ serve(async (req) => {
       throw new Error('Wallet address is required');
     }
 
-    // Create user client to verify the requesting user's identity
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
+    if (!message || !signature) {
+      throw new Error('Message and signature are required for verification');
+    }
 
-    // Get the current authenticated user
-    const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
+    // Verify the signature proves wallet ownership
+    console.log('Verifying wallet signature...');
     
-    if (userError || !user) {
-      console.error('Authentication failed:', userError);
+    try {
+      const publicKeyBytes = decode(walletAddress);
+      const messageBytes = new TextEncoder().encode(message);
+      const signatureBytes = decode(signature);
+
+      const isValid = await verify(signatureBytes, messageBytes, publicKeyBytes);
+      
+      if (!isValid) {
+        console.error('Signature verification failed');
+        return new Response(
+          JSON.stringify({ error: 'Invalid wallet signature - you can only reset your own wallet account' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      console.log('Signature verified successfully');
+    } catch (verifyError) {
+      console.error('Signature verification error:', verifyError);
       return new Response(
-        JSON.stringify({ error: 'Authentication failed' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Signature verification failed' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // CRITICAL: Verify the authenticated user owns this wallet
-    // The user's email is ${walletAddress}@wallet.local for wallet auth
-    const expectedEmail = `${walletAddress}@wallet.local`;
-    const userWalletAddress = user.user_metadata?.wallet_address;
-    
-    if (user.email !== expectedEmail && userWalletAddress !== walletAddress) {
-      console.error('Wallet ownership verification failed:', {
-        userEmail: user.email,
-        expectedEmail,
-        userWalletAddress,
-        requestedWallet: walletAddress
-      });
+    // Verify the message contains the correct wallet address
+    if (!message.includes(walletAddress)) {
+      console.error('Message does not contain wallet address');
       return new Response(
-        JSON.stringify({ error: 'You can only reset your own wallet account' }),
+        JSON.stringify({ error: 'Invalid message - wallet address mismatch' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     // Create admin client with service role key for account deletion
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const supabaseAdmin = createClient(
       supabaseUrl,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -74,7 +72,7 @@ serve(async (req) => {
     const email = `${walletAddress}@wallet.local`;
     console.log('Looking for user with email:', email);
 
-    // List all users and find by email (more reliable than pagination)
+    // List all users and find by email
     let allUsers: any[] = [];
     let page = 1;
     let hasMore = true;
@@ -97,15 +95,6 @@ serve(async (req) => {
 
     const targetUser = allUsers.find(u => u.email === email);
     console.log('User found:', targetUser ? targetUser.id : 'none', 'out of', allUsers.length, 'users');
-
-    // Additional check: ensure the found user matches the authenticated user
-    if (targetUser && targetUser.id !== user.id) {
-      console.error('User ID mismatch - potential attack detected');
-      return new Response(
-        JSON.stringify({ error: 'Security verification failed' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     if (targetUser) {
       console.log('Deleting user:', targetUser.id);

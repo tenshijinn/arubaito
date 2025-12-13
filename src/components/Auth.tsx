@@ -243,10 +243,11 @@ export const Auth = () => {
           // Use wallet address as identifier
           const walletAddress = publicKey.toBase58();
 
-          // Verify wallet ownership with signature (but don't use it in password)
+          // Verify wallet ownership with signature
           const message = `Sign this message to authenticate with CV Checker.\n\nWallet: ${walletAddress}`;
           const encodedMessage = new TextEncoder().encode(message);
-          await signMessage(encodedMessage);
+          const signature = await signMessage(encodedMessage);
+          const signatureBase58 = bs58.encode(signature);
 
           // Create deterministic password based ONLY on wallet address
           const walletString = walletAddress + "_wallet_auth_v1";
@@ -285,9 +286,13 @@ export const Auth = () => {
               if (signUpError?.message.includes("User already registered")) {
                 console.log("Migrating old wallet account to new password scheme...");
 
-                // Reset the old account
+                // Reset the old account using signature as proof of ownership
                 const { error: resetError } = await supabase.functions.invoke("reset-wallet-account", {
-                  body: { walletAddress },
+                  body: { 
+                    walletAddress,
+                    message,
+                    signature: signatureBase58
+                  },
                 });
 
                 if (resetError) {

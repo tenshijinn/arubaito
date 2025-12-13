@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 import { User } from 'lucide-react';
+import logoNoWordmark from '@/assets/logo-no-wordmark.png';
 
 interface NavigationProps {
   userName?: string | null;
   hideMenuItems?: boolean;
-  brandingText?: string;
 }
 
-export const Navigation = ({ userName, hideMenuItems = false, brandingText = 'ARUBAITO' }: NavigationProps) => {
+export const Navigation = ({ userName, hideMenuItems = false }: NavigationProps) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border border-border bg-transparent m-2.5 rounded-2xl">
       <div className="container mx-auto px-6 py-4">
@@ -57,30 +57,13 @@ export const Navigation = ({ userName, hideMenuItems = false, brandingText = 'AR
                   CV <User size={14} />
                 </span>
               </Link>
-              <Link
-                to="/rei"
-                className="text-sm font-mono transition-colors"
-                style={{
-                  color: '#ed565a'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ed565a';
-                  e.currentTarget.style.color = '#181818';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#ed565a';
-                }}
-              >
-              @ASKREI
-              </Link>
             </nav>
           )}
 
           {/* Right side: Logo */}
-          <div className="text-sm font-mono font-bold text-foreground hidden md:block">
-            {brandingText}
-          </div>
+          <Link to="/club" className="block">
+            <img src={logoNoWordmark} alt="Arubaito" className="h-6" />
+          </Link>
         </div>
       </div>
     </header>

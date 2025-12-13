@@ -373,7 +373,7 @@ export default function Rei() {
 
     return (
       <div className="flex flex-col h-screen overflow-hidden pt-20">
-        <Navigation userName={userName} hideMenuItems={true} brandingText="REI" />
+        <Navigation userName={userName} hideMenuItems={true} />
         <div className="container mx-auto px-4 py-4 flex-shrink-0">
           <Tabs defaultValue="profile" className="w-full max-w-4xl mx-auto">
             <TabsList className="w-full mb-4 h-12 bg-muted/30 p-1 rounded-lg grid grid-cols-3">
@@ -642,7 +642,7 @@ export default function Rei() {
 
   return (
     <div className="min-h-screen pt-20">
-      <Navigation userName={userName} hideMenuItems={true} brandingText="REI" />
+      <Navigation userName={userName} hideMenuItems={true} />
       <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
         <Card className="w-full max-w-2xl bg-transparent">
         <CardHeader>

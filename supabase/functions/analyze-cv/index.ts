@@ -528,84 +528,103 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
       return null;
     };
 
-    // Helper function to fetch Solana transactions via Helius
-    const fetchSolanaTransactionsHelius = async (wallet: string): Promise<any[]> => {
+    // Helper function to fetch Solana transactions via Helius (supports mainnet, devnet, testnet)
+    const fetchSolanaTransactionsHelius = async (wallet: string, network: 'mainnet' | 'devnet' | 'testnet' = 'mainnet'): Promise<{ transactions: any[]; network: string }> => {
       if (!HELIUS_API_KEY) {
         console.log('HELIUS_API_KEY not configured, skipping Helius');
-        return [];
+        return { transactions: [], network };
       }
       
       try {
-        console.log('Fetching Solana transactions via Helius for:', wallet);
+        const baseUrl = network === 'mainnet' 
+          ? 'https://api.helius.xyz' 
+          : network === 'devnet'
+          ? 'https://api-devnet.helius.xyz'
+          : 'https://api-testnet.helius.xyz';
         
-        // Get signatures first
+        console.log(`Fetching Solana ${network} transactions via Helius for:`, wallet);
+        
         const signaturesResponse = await fetch(
-          `https://api.helius.xyz/v0/addresses/${wallet}/transactions?api-key=${HELIUS_API_KEY}&limit=100`,
+          `${baseUrl}/v0/addresses/${wallet}/transactions?api-key=${HELIUS_API_KEY}&limit=100`,
           { headers: { 'Content-Type': 'application/json' } }
         );
         
         if (!signaturesResponse.ok) {
-          console.error('Helius signatures error:', signaturesResponse.status);
-          return [];
+          console.error(`Helius ${network} signatures error:`, signaturesResponse.status);
+          return { transactions: [], network };
         }
         
         const transactions = await signaturesResponse.json();
-        console.log('Helius returned', transactions.length, 'transactions');
-        return transactions;
+        console.log(`Helius ${network} returned`, transactions.length, 'transactions');
+        return { transactions, network };
       } catch (error) {
-        console.error('Helius fetch error:', error);
-        return [];
+        console.error(`Helius ${network} fetch error:`, error);
+        return { transactions: [], network };
       }
     };
 
     // Helper function to classify Helius transaction
-    const classifyHeliusTransaction = (tx: any): SignificantActivity | null => {
+    const classifyHeliusTransaction = (tx: any, network: string = 'mainnet'): SignificantActivity | null => {
       const txDate = tx.timestamp ? new Date(tx.timestamp * 1000).toISOString() : new Date().toISOString();
       const type = tx.type?.toLowerCase() || '';
       const source = tx.source?.toLowerCase() || '';
+      const chainLabel = network === 'mainnet' ? 'Solana' : `Solana ${network.charAt(0).toUpperCase() + network.slice(1)}`;
+      const experienceSuffix = network !== 'mainnet' ? ' (Developer/Tester)' : '';
       
       // Helius provides pre-classified types
       if (type.includes('swap') || source.includes('jupiter') || source.includes('raydium') || source.includes('orca')) {
         return {
           type: 'swap',
-          description: `Swapped tokens on ${tx.source || 'Solana DEX'}`,
-          experience: 'DEX trading experience on Solana',
-          chain: 'Solana',
+          description: `Swapped tokens on ${tx.source || 'Solana DEX'}${network !== 'mainnet' ? ` (${network})` : ''}`,
+          experience: `DEX trading experience on Solana${experienceSuffix}`,
+          chain: chainLabel,
           date: txDate,
-          priority: 3
+          priority: network === 'mainnet' ? 3 : 2
         };
       }
       
       if (type.includes('stake') || type.includes('deposit') || source.includes('marinade') || source.includes('lido')) {
         return {
           type: 'stake',
-          description: `Staked assets on ${tx.source || 'Solana'}`,
-          experience: 'Staking experience on Solana',
-          chain: 'Solana',
+          description: `Staked assets on ${tx.source || 'Solana'}${network !== 'mainnet' ? ` (${network})` : ''}`,
+          experience: `Staking experience on Solana${experienceSuffix}`,
+          chain: chainLabel,
           date: txDate,
-          priority: 4
+          priority: network === 'mainnet' ? 4 : 3
         };
       }
       
       if (type.includes('nft') || type.includes('compressed_nft') || source.includes('magic_eden') || source.includes('tensor')) {
         return {
           type: 'nft',
-          description: `NFT activity on ${tx.source || 'Solana'}`,
-          experience: 'NFT trading on Solana',
-          chain: 'Solana',
+          description: `NFT activity on ${tx.source || 'Solana'}${network !== 'mainnet' ? ` (${network})` : ''}`,
+          experience: `NFT trading on Solana${experienceSuffix}`,
+          chain: chainLabel,
           date: txDate,
-          priority: 2
+          priority: network === 'mainnet' ? 2 : 1
         };
       }
       
       if (type.includes('transfer') && tx.tokenTransfers?.length > 0) {
         return {
           type: 'transfer',
-          description: `Token transfer on Solana`,
-          experience: 'Token management on Solana',
-          chain: 'Solana',
+          description: `Token transfer on Solana${network !== 'mainnet' ? ` (${network})` : ''}`,
+          experience: `Token management on Solana${experienceSuffix}`,
+          chain: chainLabel,
           date: txDate,
-          priority: 1
+          priority: network === 'mainnet' ? 1 : 0
+        };
+      }
+      
+      // For devnet/testnet, classify any transaction as developer activity
+      if (network !== 'mainnet' && tx.signature) {
+        return {
+          type: 'protocol',
+          description: `Developer/testing activity on Solana ${network}`,
+          experience: `Solana development experience (${network})`,
+          chain: chainLabel,
+          date: txDate,
+          priority: 2
         };
       }
       
@@ -624,21 +643,26 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         bsc: { startDate: '2020-09-01', endDate: '2021-06-30' }
       };
 
-      // Check Solana using Helius (primary) with Covalent fallback
+      // Check Solana using Helius (primary) with Covalent fallback - now includes devnet and testnet
       if (solanaWallet) {
-        console.log('Processing Solana wallet:', solanaWallet);
-        let solanaTransactions: any[] = [];
-        let usedHelius = false;
+        console.log('Processing Solana wallet:', solanaWallet, '(mainnet, devnet, testnet)');
         
-        // Try Helius first
-        if (HELIUS_API_KEY) {
-          solanaTransactions = await fetchSolanaTransactionsHelius(solanaWallet);
-          usedHelius = solanaTransactions.length > 0;
-        }
+        // Fetch from all Solana networks in parallel
+        const [mainnetResult, devnetResult, testnetResult] = await Promise.all([
+          HELIUS_API_KEY ? fetchSolanaTransactionsHelius(solanaWallet, 'mainnet') : Promise.resolve({ transactions: [], network: 'mainnet' }),
+          HELIUS_API_KEY ? fetchSolanaTransactionsHelius(solanaWallet, 'devnet') : Promise.resolve({ transactions: [], network: 'devnet' }),
+          HELIUS_API_KEY ? fetchSolanaTransactionsHelius(solanaWallet, 'testnet') : Promise.resolve({ transactions: [], network: 'testnet' }),
+        ]);
         
-        // Fallback to Covalent if Helius failed
-        if (!usedHelius && COVALENT_API_KEY) {
-          console.log('Falling back to Covalent for Solana');
+        let mainnetTransactions = mainnetResult.transactions;
+        const devnetTransactions = devnetResult.transactions;
+        const testnetTransactions = testnetResult.transactions;
+        
+        console.log(`Solana networks - Mainnet: ${mainnetTransactions.length}, Devnet: ${devnetTransactions.length}, Testnet: ${testnetTransactions.length}`);
+        
+        // Fallback to Covalent for mainnet if Helius failed
+        if (mainnetTransactions.length === 0 && COVALENT_API_KEY) {
+          console.log('Falling back to Covalent for Solana mainnet');
           try {
             const solResponse = await fetch(
               `https://api.covalenthq.com/v1/solana-mainnet/address/${solanaWallet}/transactions_v3/?key=${COVALENT_API_KEY}`,
@@ -647,20 +671,22 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
             
             if (solResponse.ok) {
               const solData = await solResponse.json();
-              solanaTransactions = solData.data?.items || [];
+              mainnetTransactions = solData.data?.items || [];
             }
           } catch (error) {
             console.error('Covalent Solana error:', error);
           }
         }
         
-        // Process Solana transactions
-        if (solanaTransactions.length > 0) {
-          console.log('Processing', solanaTransactions.length, 'Solana transactions');
+        const usedHelius = mainnetResult.transactions.length > 0;
+        
+        // Process mainnet transactions
+        if (mainnetTransactions.length > 0) {
+          console.log('Processing', mainnetTransactions.length, 'Solana mainnet transactions');
           
-          for (const tx of solanaTransactions.slice(0, 100)) {
+          for (const tx of mainnetTransactions.slice(0, 100)) {
             const activity = usedHelius 
-              ? classifyHeliusTransaction(tx) 
+              ? classifyHeliusTransaction(tx, 'mainnet') 
               : classifyTransaction(tx, 'Solana');
             if (activity) {
               allActivities.push(activity);
@@ -668,7 +694,7 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
           }
           
           // Check early activity for OG status
-          const earlyTxs = solanaTransactions.filter((tx: any) => {
+          const earlyTxs = mainnetTransactions.filter((tx: any) => {
             const txDate = usedHelius 
               ? new Date(tx.timestamp * 1000) 
               : new Date(tx.block_signed_at);
@@ -690,7 +716,7 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
           
           // Verify claimed Solana projects
           const solProjects = claimedProjects.filter(p => p.chain === 'solana');
-          if (solProjects.length > 0 && solanaTransactions.length > 0) {
+          if (solProjects.length > 0 && mainnetTransactions.length > 0) {
             solProjects.forEach(project => {
               verifiedProjects.push({
                 name: project.name,
@@ -701,18 +727,65 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
             });
           }
         }
+        
+        // Process devnet transactions (proves developer/builder activity)
+        if (devnetTransactions.length > 0) {
+          console.log('Processing', devnetTransactions.length, 'Solana devnet transactions');
+          detectedChains.add('Solana Devnet');
+          
+          for (const tx of devnetTransactions.slice(0, 50)) {
+            const activity = classifyHeliusTransaction(tx, 'devnet');
+            if (activity) {
+              allActivities.push(activity);
+            }
+          }
+          
+          // Devnet activity proves developer/builder experience
+          bluechipScore += 10;
+          verificationResults.push({
+            chain: 'Solana Devnet',
+            verificationType: 'Developer/Builder Activity',
+            period: 'Testing/Development',
+            transactions: devnetTransactions.length,
+            note: 'Proves active development and testing on Solana'
+          });
+        }
+        
+        // Process testnet transactions (proves developer/builder activity)
+        if (testnetTransactions.length > 0) {
+          console.log('Processing', testnetTransactions.length, 'Solana testnet transactions');
+          detectedChains.add('Solana Testnet');
+          
+          for (const tx of testnetTransactions.slice(0, 50)) {
+            const activity = classifyHeliusTransaction(tx, 'testnet');
+            if (activity) {
+              allActivities.push(activity);
+            }
+          }
+          
+          // Testnet activity proves developer/builder experience
+          bluechipScore += 5;
+          verificationResults.push({
+            chain: 'Solana Testnet',
+            verificationType: 'Developer/Builder Activity',
+            period: 'Testing/Development',
+            transactions: testnetTransactions.length,
+            note: 'Proves active development and testing on Solana'
+          });
+        }
       }
 
-      // EVM Chain Configuration - 14 chains total (13 Covalent + LayerOneX)
+      // EVM Chain Configuration - mainnets + testnets for developer verification
       interface ChainConfig {
         id: string;
         name: string;
         covalentId?: string;
         earlyActivity?: { startDate: string; endDate: string; bonus: number };
+        isTestnet?: boolean;
       }
       
       const EVM_CHAINS: ChainConfig[] = [
-        // Foundational chains
+        // Foundational chains (mainnets)
         { id: 'ethereum', name: 'Ethereum', covalentId: 'eth-mainnet', earlyActivity: { startDate: '2015-01-01', endDate: '2018-12-31', bonus: 30 } },
         { id: 'bsc', name: 'BSC', covalentId: 'bsc-mainnet', earlyActivity: { startDate: '2020-09-01', endDate: '2021-06-30', bonus: 20 } },
         { id: 'polygon', name: 'Polygon', covalentId: 'matic-mainnet', earlyActivity: { startDate: '2020-06-01', endDate: '2021-12-31', bonus: 15 } },
@@ -728,6 +801,15 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         { id: 'linea', name: 'Linea', covalentId: 'linea-mainnet', earlyActivity: { startDate: '2023-07-11', endDate: '2024-06-30', bonus: 10 } },
         { id: 'blast', name: 'Blast', covalentId: 'blast-mainnet', earlyActivity: { startDate: '2024-02-29', endDate: '2024-06-30', bonus: 8 } },
         { id: 'sei', name: 'Sei', covalentId: 'sei-mainnet' },
+        // Testnets - prove developer/builder activity
+        { id: 'ethereum-sepolia', name: 'Ethereum Sepolia', covalentId: 'eth-sepolia', isTestnet: true },
+        { id: 'ethereum-holesky', name: 'Ethereum Holesky', covalentId: 'eth-holesky', isTestnet: true },
+        { id: 'polygon-amoy', name: 'Polygon Amoy', covalentId: 'matic-amoy', isTestnet: true },
+        { id: 'arbitrum-sepolia', name: 'Arbitrum Sepolia', covalentId: 'arbitrum-sepolia', isTestnet: true },
+        { id: 'optimism-sepolia', name: 'Optimism Sepolia', covalentId: 'optimism-sepolia', isTestnet: true },
+        { id: 'base-sepolia', name: 'Base Sepolia', covalentId: 'base-sepolia', isTestnet: true },
+        { id: 'avalanche-fuji', name: 'Avalanche Fuji', covalentId: 'avalanche-fuji', isTestnet: true },
+        { id: 'bsc-testnet', name: 'BSC Testnet', covalentId: 'bsc-testnet', isTestnet: true },
       ];
 
       // Moralis chain ID mapping
@@ -891,12 +973,28 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
                   for (const tx of transactions.slice(0, 50)) {
                     const activity = classifyTransaction(tx, chain.name);
                     if (activity) {
+                      // Reduce priority for testnet activities
+                      if (chain.isTestnet && activity.priority > 0) {
+                        activity.priority = Math.max(0, activity.priority - 1);
+                        activity.experience = `${activity.experience} (Developer/Tester)`;
+                      }
                       allActivities.push(activity);
                     }
                   }
                   
-                  // Check early activity for OG status
-                  if (chain.earlyActivity) {
+                  // Handle testnet-specific scoring (proves developer/builder activity)
+                  if (chain.isTestnet) {
+                    bluechipScore += 5; // Smaller bonus for testnet activity
+                    verificationResults.push({
+                      chain: chain.name,
+                      verificationType: 'Developer/Builder Activity',
+                      period: 'Testing/Development',
+                      transactions: transactions.length,
+                      note: `Proves active development and testing on ${chain.name.replace(' Sepolia', '').replace(' Testnet', '').replace(' Fuji', '').replace(' Amoy', '').replace(' Holesky', '')}`
+                    });
+                  }
+                  // Check early activity for OG status (mainnets only)
+                  else if (chain.earlyActivity) {
                     const earlyTxs = transactions.filter((tx: any) => {
                       const txDate = new Date(tx.block_signed_at);
                       return txDate >= new Date(chain.earlyActivity!.startDate) && txDate <= new Date(chain.earlyActivity!.endDate);

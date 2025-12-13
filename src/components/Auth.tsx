@@ -357,7 +357,7 @@ export const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 font-mono">
       <div className="w-full max-w-5xl">
-        <h1 className="text-4xl font-bold text-center mb-8 uppercase tracking-wider" style={{ color: "#ED565A" }}>
+        <h1 className="text-4xl font-bold text-center mb-8 uppercase tracking-wider text-primary">
           <TextRotator words={["enter the club"]} isActive={isAnimating} className="inline-block" />
         </h1>
 
@@ -434,18 +434,13 @@ export const Auth = () => {
                     }
                   `}</style>
 
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t" style={{ borderColor: "hsl(var(--border))" }}></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span
-                        className="px-4 font-medium bg-transparent"
-                        style={{ color: "hsl(var(--muted-foreground))" }}
-                      >
-                        Apply for Membership
-                      </span>
-                    </div>
+                  <div className="flex justify-center text-sm py-2">
+                    <span
+                      className="font-medium"
+                      style={{ color: "hsl(var(--muted-foreground))" }}
+                    >
+                      Apply for Membership
+                    </span>
                   </div>
 
                   <Button

@@ -3,7 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session, User } from '@supabase/supabase-js';
-import { Navigation } from '@/components/Navigation';
+import reiLogo from '@/assets/rei-logo.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -372,9 +372,14 @@ export default function Rei() {
     const analysis = registrationData.profile_analysis as any;
 
     return (
-      <div className="flex flex-col h-screen overflow-hidden pt-20">
-        <Navigation userName={userName} hideMenuItems={true} />
-        <div className="container mx-auto px-4 py-4 flex-shrink-0">
+      <div className="flex flex-col h-screen overflow-hidden">
+        {/* Rei Logo Header */}
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/50">
+          <div className="container mx-auto px-4 py-3 flex justify-center">
+            <img src={reiLogo} alt="REI" className="h-12 w-auto" />
+          </div>
+        </div>
+        <div className="container mx-auto px-4 py-4 flex-shrink-0 pt-20">
           <Tabs defaultValue="profile" className="w-full max-w-4xl mx-auto">
             <TabsList className="w-full mb-4 h-12 bg-muted/30 p-1 rounded-lg grid grid-cols-3">
               <TabsTrigger
@@ -641,9 +646,14 @@ export default function Rei() {
   }
 
   return (
-    <div className="min-h-screen pt-20">
-      <Navigation userName={userName} hideMenuItems={true} />
-      <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
+    <div className="min-h-screen">
+      {/* Rei Logo Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/50">
+        <div className="container mx-auto px-4 py-3 flex justify-center">
+          <img src={reiLogo} alt="REI" className="h-12 w-auto" />
+        </div>
+      </div>
+      <div className="flex items-center justify-center p-4 min-h-screen pt-20">
         <Card className="w-full max-w-2xl bg-transparent">
         <CardHeader>
           <div className="flex items-center gap-2">

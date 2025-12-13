@@ -357,7 +357,7 @@ export const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 font-mono">
       <div className="w-full max-w-5xl">
-        <h1 className="text-4xl font-bold text-center mb-8 uppercase tracking-wider text-primary">
+        <h1 className="text-4xl font-bold text-center mb-8 uppercase tracking-wider" style={{ color: '#ed565a' }}>
           <TextRotator words={["enter the club"]} isActive={isAnimating} className="inline-block" />
         </h1>
 

@@ -183,12 +183,10 @@ export default function Club() {
 
     setIsSubmittingSupperclub(true);
     try {
-      const { error } = await supabase.functions.invoke("send-club-notification", {
-        body: {
-          type: "supperclub_interest",
-          email: supperclubEmail,
-        },
-      });
+      // Store in database instead of sending email (email disabled temporarily)
+      const { error } = await supabase
+        .from("supperclub_interests")
+        .insert({ email: supperclubEmail });
 
       if (error) throw error;
 

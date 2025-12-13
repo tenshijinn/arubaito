@@ -6,13 +6,13 @@ import type { Session, User } from "@supabase/supabase-js";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Shield, Loader2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
-
 export default function Club() {
   const navigate = useNavigate();
   const { publicKey } = useWallet();
@@ -21,6 +21,8 @@ export default function Club() {
   const [memberData, setMemberData] = useState<any>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [supperclubEmail, setSupperclubEmail] = useState("");
+  const [isSubmittingSupperclub, setIsSubmittingSupperclub] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener first
@@ -153,10 +155,50 @@ export default function Club() {
 
       if (error) throw error;
 
+      // Send email notification
+      await supabase.functions.invoke("send-club-notification", {
+        body: {
+          type: "whitelist_request",
+          twitter_handle: twitterHandle,
+          x_user_id: user.user_metadata?.twitter_id,
+          display_name: user.user_metadata?.full_name,
+          profile_image_url: user.user_metadata?.avatar_url,
+        },
+      });
+
       toast.success("Whitelist request submitted for review!");
     } catch (error: any) {
       console.error("Whitelist submission error:", error);
       toast.error(error.message || "Failed to submit whitelist request");
+    }
+  };
+
+  const handleSupperclubSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!supperclubEmail || !supperclubEmail.includes("@")) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    setIsSubmittingSupperclub(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-club-notification", {
+        body: {
+          type: "supperclub_interest",
+          email: supperclubEmail,
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Interest registered! We'll be in touch soon.");
+      setSupperclubEmail("");
+    } catch (error: any) {
+      console.error("Supperclub submission error:", error);
+      toast.error("Failed to register interest. Please try again.");
+    } finally {
+      setIsSubmittingSupperclub(false);
     }
   };
 
@@ -253,26 +295,65 @@ export default function Club() {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        <Card className="max-w-3xl mx-auto p-8 bg-transparent border border-border">
-          <div className="space-y-8 text-center">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-foreground font-mono">CLUB OPENS SOON</h2>
-              <p className="text-sm text-muted-foreground font-mono">EXCLUSIVE MEMBER FEATURES COMING DECEMBER 8TH</p>
-            </div>
+        <div className="grid gap-6 max-w-4xl mx-auto md:grid-cols-2">
+          {/* Club Opens Soon Card */}
+          <Card className="p-8 bg-transparent border border-border">
+            <div className="space-y-8 text-center">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-foreground font-mono">CLUB OPENS SOON</h2>
+                <p className="text-sm text-muted-foreground font-mono">EXCLUSIVE MEMBER FEATURES COMING DECEMBER 8TH</p>
+              </div>
 
-            <CountdownTimer targetDate={new Date("2025-12-08T00:00:00")} />
+              <CountdownTimer targetDate={new Date("2025-12-08T00:00:00")} />
 
-            <div className="pt-4 space-y-3">
-              <p className="text-xs text-muted-foreground font-mono leading-relaxed">UPCOMING FEATURES:</p>
-              <ul className="text-xs font-mono text-foreground space-y-1">
-                <li>• MEMBER TIMELINE & ACTIVITY FEED</li>
-                <li>• PROFILE BUILDER & CV MANAGEMENT</li>
-                <li>• JOB PITCH CREATION</li>
-                <li>• MEMBER SPOTLIGHT & SHOWCASE</li>
-              </ul>
+              <div className="pt-4 space-y-3">
+                <p className="text-xs text-muted-foreground font-mono leading-relaxed">UPCOMING FEATURES:</p>
+                <ul className="text-xs font-mono text-foreground space-y-1">
+                  <li>• MEMBER TIMELINE & ACTIVITY FEED</li>
+                  <li>• PROFILE BUILDER & CV MANAGEMENT</li>
+                  <li>• JOB PITCH CREATION</li>
+                  <li>• MEMBER SPOTLIGHT & SHOWCASE</li>
+                </ul>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+
+          {/* Cypherpunk Supperclub Card */}
+          <Card className="p-6 bg-transparent border border-border">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <h3 className="text-lg font-bold text-foreground font-mono">Cypherpunk Supperclub</h3>
+                <p className="text-sm text-muted-foreground font-mono">dine+network w/ bluechips & changemakers</p>
+              </div>
+
+              <form onSubmit={handleSupperclubSubmit} className="space-y-3">
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={supperclubEmail}
+                  onChange={(e) => setSupperclubEmail(e.target.value)}
+                  className="font-mono text-sm"
+                  disabled={isSubmittingSupperclub}
+                />
+                <Button 
+                  type="submit" 
+                  className="w-full font-mono" 
+                  variant="outline"
+                  disabled={isSubmittingSupperclub}
+                >
+                  {isSubmittingSupperclub ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Register Interest"
+                  )}
+                </Button>
+              </form>
+            </div>
+          </Card>
+        </div>
       </main>
 
       <div className="fixed bottom-4 right-4 z-50">

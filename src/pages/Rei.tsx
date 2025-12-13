@@ -4,6 +4,7 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session, User } from '@supabase/supabase-js';
 import reiLogo from '@/assets/rei-logo.png';
+import reiBg from '@/assets/bg-rei1.webp';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -372,9 +373,9 @@ export default function Rei() {
     const analysis = registrationData.profile_analysis as any;
 
     return (
-      <div className="flex flex-col h-screen overflow-hidden">
+      <div className="flex flex-col h-screen overflow-hidden" style={{ backgroundImage: `url(${reiBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {/* Rei Logo Header */}
-        <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/50">
+        <div className="fixed top-0 left-0 right-0 z-50">
           <div className="container mx-auto px-4 py-3 flex justify-center">
             <img src={reiLogo} alt="REI" className="h-12 w-auto" />
           </div>
@@ -646,9 +647,9 @@ export default function Rei() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ backgroundImage: `url(${reiBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Rei Logo Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/50">
+      <div className="fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4 py-3 flex justify-center">
           <img src={reiLogo} alt="REI" className="h-12 w-auto" />
         </div>

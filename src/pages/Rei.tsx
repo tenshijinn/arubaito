@@ -165,12 +165,12 @@ export default function Rei() {
       console.log('🔑 Auth mode from sessionStorage:', storedMode);
       
       try {
-        const { data, error } = await supabase
-          .from('rei_registry')
-          .select('*')
-          .eq('x_user_id', twitterUser.x_user_id)
-          .maybeSingle();
+        // Use edge function with service_role to bypass RLS
+        const { data: response, error } = await supabase.functions.invoke('check-rei-registration', {
+          body: { x_user_id: twitterUser.x_user_id }
+        });
 
+        const data = response?.data;
         console.log('📊 Registration data found:', data);
 
         if (error) {

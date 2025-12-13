@@ -569,6 +569,24 @@ export type Database = {
         }
         Relationships: []
       }
+      supperclub_interests: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       talent_views: {
         Row: {
           employer_wallet: string

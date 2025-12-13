@@ -17,17 +17,11 @@ if (typeof window !== "undefined") {
   const twitterState = urlParams.get("state");
 
   // Process if on root or arubaito path and we have a stored code verifier
-  if (
-    twitterCode &&
-    twitterState &&
-    (window.location.pathname === "/" || window.location.pathname === "/arubaito") &&
-    sessionStorage.getItem("twitter_code_verifier")
-  ) {
+  if (twitterCode && twitterState && (window.location.pathname === "/" || window.location.pathname === "/arubaito") && sessionStorage.getItem("twitter_code_verifier")) {
     sessionStorage.setItem("twitter_code", twitterCode);
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 }
-
 export const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"main" | "signin" | "register">("main");
@@ -35,8 +29,14 @@ export const Auth = () => {
   const [password, setPassword] = useState("");
   const [twitterLoading, setTwitterLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(true);
-  const { toast } = useToast();
-  const { publicKey, signMessage, connected } = useWallet();
+  const {
+    toast
+  } = useToast();
+  const {
+    publicKey,
+    signMessage,
+    connected
+  } = useWallet();
   const navigate = useNavigate();
   const twitterProcessingRef = useRef(false);
 
@@ -45,7 +45,6 @@ export const Auth = () => {
     const handleTwitterCallback = async () => {
       const twitterCode = sessionStorage.getItem("twitter_code");
       const codeVerifier = sessionStorage.getItem("twitter_code_verifier");
-
       if (twitterCode && codeVerifier && !twitterProcessingRef.current) {
         twitterProcessingRef.current = true;
         setTwitterLoading(true);
@@ -53,24 +52,24 @@ export const Auth = () => {
         // Clear immediately to prevent reuse
         sessionStorage.removeItem("twitter_code");
         sessionStorage.removeItem("twitter_code_verifier");
-
         try {
-          const { data, error } = await supabase.functions.invoke("twitter-oauth", {
+          const {
+            data,
+            error
+          } = await supabase.functions.invoke("twitter-oauth", {
             body: {
               action: "exchangeToken",
               code: twitterCode,
               codeVerifier,
-              redirectUri: window.location.origin + window.location.pathname,
-            },
+              redirectUri: window.location.origin + window.location.pathname
+            }
           });
-
           if (error) throw error;
-
           if (!data.bluechip_verified) {
             toast({
               title: "Access Denied",
               description: "Your Twitter account is not on the bluechip whitelist.",
-              variant: "destructive",
+              variant: "destructive"
             });
             sessionStorage.removeItem("twitter_code_verifier");
             setTwitterLoading(false);
@@ -82,14 +81,17 @@ export const Auth = () => {
           const twitterPassword = data.user.x_user_id + "_twitter_auth";
 
           // Try to sign in first
-          const { error: signInError } = await supabase.auth.signInWithPassword({
+          const {
+            error: signInError
+          } = await supabase.auth.signInWithPassword({
             email: twitterEmail,
-            password: twitterPassword,
+            password: twitterPassword
           });
-
           if (signInError) {
             // If sign in fails, create account
-            const { error: signUpError } = await supabase.auth.signUp({
+            const {
+              error: signUpError
+            } = await supabase.auth.signUp({
               email: twitterEmail,
               password: twitterPassword,
               options: {
@@ -97,33 +99,30 @@ export const Auth = () => {
                   twitter_username: data.user.handle,
                   twitter_id: data.user.x_user_id,
                   full_name: data.user.display_name,
-                  avatar_url: data.user.profile_image_url,
-                },
-              },
+                  avatar_url: data.user.profile_image_url
+                }
+              }
             });
-
             if (signUpError) throw signUpError;
           } else {
             // User exists, update their metadata with latest profile image
             await supabase.auth.updateUser({
               data: {
-                avatar_url: data.user.profile_image_url,
-              },
+                avatar_url: data.user.profile_image_url
+              }
             });
           }
-
           toast({
             title: "Welcome!",
-            description: `Signed in with Twitter as @${data.user.handle}`,
+            description: `Signed in with Twitter as @${data.user.handle}`
           });
-
           navigate("/club");
         } catch (error) {
           console.error("Twitter OAuth error:", error);
           toast({
             title: "Authentication Failed",
             description: error instanceof Error ? error.message : "Failed to authenticate with Twitter",
-            variant: "destructive",
+            variant: "destructive"
           });
         } finally {
           setTwitterLoading(false);
@@ -131,23 +130,21 @@ export const Auth = () => {
         }
       }
     };
-
     handleTwitterCallback();
   }, [navigate, toast]);
-
   const handleTwitterAuth = async () => {
     try {
       setTwitterLoading(true);
-
-      const { data, error } = await supabase.functions.invoke("twitter-oauth", {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke("twitter-oauth", {
         body: {
           action: "getAuthUrl",
-          redirectUri: window.location.origin + window.location.pathname,
-        },
+          redirectUri: window.location.origin + window.location.pathname
+        }
       });
-
       if (error) throw error;
-
       sessionStorage.setItem("twitter_code_verifier", data.codeVerifier);
       window.location.href = data.authUrl;
     } catch (error) {
@@ -155,79 +152,73 @@ export const Auth = () => {
       toast({
         title: "Error",
         description: "Failed to initiate Twitter authentication",
-        variant: "destructive",
+        variant: "destructive"
       });
       setTwitterLoading(false);
     }
   };
-
   const handleGoogleAuth = async (isSignUp: boolean) => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const {
+        error
+      } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin,
-        },
+          redirectTo: window.location.origin
+        }
       });
-
       if (error) throw error;
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : `An error occurred with Google ${isSignUp ? "registration" : "sign in"}`,
-        variant: "destructive",
+        description: error instanceof Error ? error.message : `An error occurred with Google ${isSignUp ? "registration" : "sign in"}`,
+        variant: "destructive"
       });
     }
   };
-
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast({
         title: "Error",
         description: "Please enter your email and password",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setLoading(true);
-
     try {
       if (mode === "register") {
-        const { error } = await supabase.auth.signUp({
+        const {
+          error
+        } = await supabase.auth.signUp({
           email,
-          password,
+          password
         });
-
         if (error) throw error;
-
         toast({
           title: "Account created!",
-          description: "You are now signed in and can upload your CV.",
+          description: "You are now signed in and can upload your CV."
         });
         // User is now automatically logged in, no need to change mode or navigate
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const {
+          error
+        } = await supabase.auth.signInWithPassword({
           email,
-          password,
+          password
         });
-
         if (error) throw error;
-
         toast({
           title: "Welcome back!",
-          description: "You have successfully signed in.",
+          description: "You have successfully signed in."
         });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -252,34 +243,31 @@ export const Auth = () => {
           // Create deterministic password based ONLY on wallet address
           const walletString = walletAddress + "_wallet_auth_v1";
           const encoded = new TextEncoder().encode(walletString);
-          const buffer = encoded.buffer.slice(
-            encoded.byteOffset,
-            encoded.byteOffset + encoded.byteLength,
-          ) as ArrayBuffer;
+          const buffer = encoded.buffer.slice(encoded.byteOffset, encoded.byteOffset + encoded.byteLength) as ArrayBuffer;
           const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
           const hashArray = Array.from(new Uint8Array(hashBuffer));
-          const password = hashArray
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join("")
-            .slice(0, 32);
+          const password = hashArray.map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
 
           // Try to sign in first
-          const { error: signInError } = await supabase.auth.signInWithPassword({
+          const {
+            error: signInError
+          } = await supabase.auth.signInWithPassword({
             email: `${walletAddress}@wallet.local`,
-            password: password,
+            password: password
           });
-
           if (signInError) {
             // If "Invalid login credentials" = new user or old password scheme → sign up
             if (signInError.message.includes("Invalid login credentials")) {
-              const { error: signUpError } = await supabase.auth.signUp({
+              const {
+                error: signUpError
+              } = await supabase.auth.signUp({
                 email: `${walletAddress}@wallet.local`,
                 password: password,
                 options: {
                   data: {
-                    wallet_address: walletAddress,
-                  },
-                },
+                    wallet_address: walletAddress
+                  }
+                }
               });
 
               // If "user already exists", reset the old account and retry
@@ -287,44 +275,43 @@ export const Auth = () => {
                 console.log("Migrating old wallet account to new password scheme...");
 
                 // Reset the old account using signature as proof of ownership
-                const { error: resetError } = await supabase.functions.invoke("reset-wallet-account", {
-                  body: { 
+                const {
+                  error: resetError
+                } = await supabase.functions.invoke("reset-wallet-account", {
+                  body: {
                     walletAddress,
                     message,
                     signature: signatureBase58
-                  },
+                  }
                 });
-
                 if (resetError) {
                   console.error("Failed to reset wallet account:", resetError);
                   throw new Error("Failed to migrate wallet account. Please try again.");
                 }
 
                 // Retry signup with new password scheme
-                const { error: retrySignUpError } = await supabase.auth.signUp({
+                const {
+                  error: retrySignUpError
+                } = await supabase.auth.signUp({
                   email: `${walletAddress}@wallet.local`,
                   password: password,
                   options: {
                     data: {
-                      wallet_address: walletAddress,
-                    },
-                  },
+                      wallet_address: walletAddress
+                    }
+                  }
                 });
-
                 if (retrySignUpError) throw retrySignUpError;
-
                 toast({
                   title: "Account Migrated!",
-                  description: `Wallet authenticated successfully`,
+                  description: `Wallet authenticated successfully`
                 });
                 return;
               }
-
               if (signUpError) throw signUpError;
-
               toast({
                 title: "Account Created!",
-                description: `Authenticated with Phantom`,
+                description: `Authenticated with Phantom`
               });
               return;
             }
@@ -336,56 +323,47 @@ export const Auth = () => {
           // Sign-in successful = returning user
           toast({
             title: "Welcome Back!",
-            description: `Authenticated with Phantom`,
+            description: `Authenticated with Phantom`
           });
         } catch (error) {
           console.error("Wallet authentication error:", error);
           toast({
             title: "Authentication failed",
             description: error instanceof Error ? error.message : "Failed to authenticate wallet",
-            variant: "destructive",
+            variant: "destructive"
           });
         } finally {
           setLoading(false);
         }
       }
     };
-
     authenticateWallet();
   }, [connected, publicKey, signMessage, toast]);
-
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4 font-mono">
+  return <div className="min-h-screen flex items-center justify-center p-4 font-mono">
       <div className="w-full max-w-5xl">
-        <h1 className="text-4xl font-bold text-center mb-8 uppercase tracking-wider" style={{ color: '#ed565a' }}>
-          <TextRotator words={["enter the club"]} isActive={isAnimating} className="inline-block" />
+        <h1 className="text-4xl font-bold text-center mb-8 uppercase tracking-wider" style={{
+        color: '#ed565a'
+      }}>
+          <TextRotator words={["enter the club"]} isActive={isAnimating} className="inline-block text-primary" />
         </h1>
 
         <div className="flex justify-center">
-          <Card className="p-6 w-full max-w-md bg-transparent" style={{ borderColor: "hsl(var(--border))" }}>
-            {mode === "main" ? (
-              <div className="space-y-4">
+          <Card className="p-6 w-full max-w-md bg-transparent" style={{
+          borderColor: "hsl(var(--border))"
+        }}>
+            {mode === "main" ? <div className="space-y-4">
                 <div className="space-y-3">
-                  <p
-                    className="text-sm font-medium text-center font-mono"
-                    style={{ color: "hsl(var(--muted-foreground))" }}
-                  >
+                  <p className="text-sm font-medium text-center font-mono" style={{
+                color: "hsl(var(--muted-foreground))"
+              }}>
                     Sign in with
                   </p>
-                  <Button
-                    onClick={handleTwitterAuth}
-                    className="w-full h-14 text-lg font-medium rounded-xl"
-                    variant="default"
-                    disabled={loading || twitterLoading}
-                  >
+                  <Button onClick={handleTwitterAuth} className="w-full h-14 text-lg font-medium rounded-xl" variant="default" disabled={loading || twitterLoading}>
                     {twitterLoading ? "Authenticating..." : "Blue Chip Twitter"}
                   </Button>
 
                   <div className="wallet-button-wrapper w-full">
-                    <button 
-                      disabled 
-                      className="member-nft-button !h-14 !rounded-xl !font-medium !text-lg !w-full"
-                    >
+                    <button disabled className="member-nft-button !h-14 !rounded-xl !font-medium !text-lg !w-full">
                       <span className="default-text">Member NFT</span>
                       <span className="hover-text">Free Mint Soon</span>
                     </button>
@@ -435,19 +413,14 @@ export const Auth = () => {
                   `}</style>
 
                   <div className="flex justify-center text-sm py-2">
-                    <span
-                      className="font-medium"
-                      style={{ color: "hsl(var(--muted-foreground))" }}
-                    >
+                    <span className="font-medium" style={{
+                  color: "hsl(var(--muted-foreground))"
+                }}>
                       Apply for Membership
                     </span>
                   </div>
 
-                  <Button
-                    onClick={() => setMode("register")}
-                    className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
-                    variant="secondary"
-                  >
+                  <Button onClick={() => setMode("register")} className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button" variant="secondary">
                     Continue with CV Profile
                   </Button>
                   <style>{`
@@ -462,10 +435,10 @@ export const Auth = () => {
                     }
                   `}</style>
                 </div>
-              </div>
-            ) : mode === "register" ? (
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold mb-4" style={{ color: "hsl(var(--foreground))" }}>
+              </div> : mode === "register" ? <div className="space-y-4">
+                <h2 className="text-xl font-semibold mb-4" style={{
+              color: "hsl(var(--foreground))"
+            }}>
                   Connect Wallet to Continue
                 </h2>
 
@@ -478,7 +451,9 @@ export const Auth = () => {
                     <li>• dApp usage, protocols, token/NFT holdings</li>
                     <li>• Duration in the crypto space</li>
                   </ul>
-                  <p className="text-sm font-medium" style={{ color: "hsl(var(--primary))" }}>
+                  <p className="text-sm font-medium" style={{
+                color: "hsl(var(--primary))"
+              }}>
                     Everything you claim on your CV will be verified against your wallet's on-chain activity.
                   </p>
                 </div>
@@ -487,63 +462,35 @@ export const Auth = () => {
                   <WalletMultiButton className="!h-14 !rounded-xl !font-medium !text-lg !w-full" />
                 </div>
 
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setMode("main")}
-                  className="w-full"
-                  disabled={loading}
-                >
+                <Button type="button" variant="ghost" onClick={() => setMode("main")} className="w-full" disabled={loading}>
                   Back
                 </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleEmailSubmit} className="space-y-4">
-                <h2 className="text-xl font-semibold mb-4" style={{ color: "hsl(var(--foreground))" }}>
+              </div> : <form onSubmit={handleEmailSubmit} className="space-y-4">
+                <h2 className="text-xl font-semibold mb-4" style={{
+              color: "hsl(var(--foreground))"
+            }}>
                   Sign in with Email
                 </h2>
 
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 rounded-xl"
-                  required
-                />
+                <Input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="h-12 rounded-xl" required />
 
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 rounded-xl"
-                  required
-                  minLength={6}
-                />
+                <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="h-12 rounded-xl" required minLength={6} />
 
                 <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      setMode("main");
-                      setEmail("");
-                      setPassword("");
-                    }}
-                    variant="outline"
-                    className="flex-1 h-12 rounded-xl"
-                  >
+                  <Button type="button" onClick={() => {
+                setMode("main");
+                setEmail("");
+                setPassword("");
+              }} variant="outline" className="flex-1 h-12 rounded-xl">
                     Back
                   </Button>
                   <Button type="submit" className="flex-1 h-12 rounded-xl" disabled={loading}>
                     {loading ? "Loading..." : "Sign in"}
                   </Button>
                 </div>
-              </form>
-            )}
+              </form>}
           </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };

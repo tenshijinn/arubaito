@@ -382,7 +382,13 @@ export const Auth = () => {
                   </Button>
 
                   <div className="wallet-button-wrapper w-full">
-                    <WalletMultiButton className="!h-14 !rounded-xl !font-medium !text-lg !w-full" />
+                    <button 
+                      disabled 
+                      className="member-nft-button !h-14 !rounded-xl !font-medium !text-lg !w-full"
+                    >
+                      <span className="default-text">Member NFT</span>
+                      <span className="hover-text">Free Mint Soon</span>
+                    </button>
                   </div>
                   <style>{`
                     .wallet-button-wrapper {
@@ -392,7 +398,7 @@ export const Auth = () => {
                     .wallet-button-wrapper > * {
                       width: 100% !important;
                     }
-                    .wallet-button-wrapper button {
+                    .member-nft-button {
                       height: 3.5rem !important;
                       border-radius: 0.75rem !important;
                       font-size: 1.125rem !important;
@@ -401,8 +407,8 @@ export const Auth = () => {
                       min-width: 100% !important;
                       max-width: 100% !important;
                       background-color: transparent !important;
-                      color: hsl(var(--primary)) !important;
-                      border: 4px solid hsl(var(--primary)) !important;
+                      color: hsl(var(--muted-foreground)) !important;
+                      border: 4px solid hsl(var(--muted-foreground)) !important;
                       display: flex !important;
                       align-items: center !important;
                       justify-content: center !important;
@@ -410,19 +416,21 @@ export const Auth = () => {
                       padding-left: 2rem !important;
                       padding-right: 2rem !important;
                       transition: all 0.2s ease !important;
+                      cursor: not-allowed !important;
+                      opacity: 0.7 !important;
                     }
-                    .wallet-button-wrapper button:hover {
-                      background-color: hsl(var(--primary)) !important;
-                      color: hsl(var(--primary-foreground)) !important;
-                    }
-                    .wallet-button-wrapper button i {
-                      margin: 0 !important;
-                    }
-                    .wallet-button-wrapper button::before {
-                      content: 'Member NFT' !important;
-                    }
-                    .wallet-button-wrapper button span {
+                    .member-nft-button .hover-text {
                       display: none !important;
+                    }
+                    .member-nft-button:hover .default-text {
+                      display: none !important;
+                    }
+                    .member-nft-button:hover .hover-text {
+                      display: inline !important;
+                    }
+                    .member-nft-button:hover {
+                      border-color: hsl(var(--primary)) !important;
+                      color: hsl(var(--primary)) !important;
                     }
                   `}</style>
 

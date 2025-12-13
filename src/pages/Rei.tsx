@@ -15,7 +15,7 @@ import { AudioRecorder } from '@/components/AudioRecorder';
 import ReiChatbot from '@/components/ReiChatbot';
 import { PostToRei } from '@/components/PostToRei';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info, Sparkles, Briefcase, CheckCircle2, Mic, Globe, Edit2 } from 'lucide-react';
+import { Check, Twitter, Wallet, FileText, Shield, AlertCircle, Info, Sparkles, Briefcase, CheckCircle2, Mic, Globe, Edit2, LogOut } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
@@ -399,10 +399,33 @@ export default function Rei() {
 
     return (
       <div className="flex flex-col h-screen overflow-hidden" style={{ backgroundImage: `url(${reiBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        {/* Rei Logo Header */}
+        {/* Rei Logo Header with Logout */}
         <div className="fixed top-0 left-0 right-0 z-50">
-          <div className="container mx-auto px-4 py-3 flex justify-center">
+          <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div className="w-20" />
             <img src={reiLogo} alt="REI" className="h-12 w-auto" />
+            <div className="w-20 flex justify-end">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setTwitterUser(null);
+                  setRegistrationData(null);
+                  setIsSuccess(false);
+                  setStep(1);
+                  setAuthMode(null);
+                  setNoAccountFound(false);
+                  localStorage.removeItem('rei_twitter_user');
+                  localStorage.removeItem('rei_verification_status');
+                  sessionStorage.removeItem('twitter_code_verifier_rei');
+                  sessionStorage.removeItem('rei_auth_mode');
+                }}
+                className="text-white/70 hover:text-white hover:bg-white/10"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
         <div className="container mx-auto px-4 py-4 flex-shrink-0 pt-20">

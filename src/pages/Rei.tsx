@@ -60,6 +60,10 @@ export default function Rei() {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   
+  // Auth mode: 'signin' for returning users, 'signup' for new users
+  const [authMode, setAuthMode] = useState<'signin' | 'signup' | null>(null);
+  const [noAccountFound, setNoAccountFound] = useState(false);
+  
   // Form state
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [portfolioUrl, setPortfolioUrl] = useState('');
@@ -148,6 +152,8 @@ export default function Rei() {
     const checkExistingRegistration = async () => {
       if (twitterUser && !isLoadingRegistration) {
         setIsLoadingRegistration(true);
+        const storedMode = sessionStorage.getItem('rei_auth_mode') as 'signin' | 'signup' | null;
+        
         try {
           const { data, error } = await supabase
             .from('rei_registry')
@@ -157,7 +163,7 @@ export default function Rei() {
 
           console.log('🔍 Checking existing registration for:', twitterUser.x_user_id);
           console.log('📊 Registration data found:', data);
-          console.log('❌ Error (if any):', error);
+          console.log('🔑 Auth mode:', storedMode);
 
           if (error) {
             console.error('Error fetching registration:', error);
@@ -168,13 +174,28 @@ export default function Rei() {
             setPortfolioUrl(data.portfolio_url || '');
             setSelectedRoles(data.role_tags || []);
             setConsent(true);
+            setNoAccountFound(false);
           } else {
             console.log('ℹ️ No existing registration found');
+            // If user was trying to sign in but has no account, show error
+            if (storedMode === 'signin') {
+              setNoAccountFound(true);
+              // Clear twitter user so they can try again
+              setTwitterUser(null);
+              localStorage.removeItem('rei_twitter_user');
+              localStorage.removeItem('rei_verification_status');
+              toast({
+                title: 'No Account Found',
+                description: 'No existing account found with this X account. Please sign up to create one.',
+                variant: 'destructive',
+              });
+            }
           }
         } catch (error) {
           console.error('Error checking registration:', error);
         } finally {
           setIsLoadingRegistration(false);
+          sessionStorage.removeItem('rei_auth_mode');
         }
       }
     };
@@ -183,8 +204,12 @@ export default function Rei() {
   }, [twitterUser]);
 
 
-  const handleTwitterLogin = async () => {
+  const handleTwitterLogin = async (mode: 'signin' | 'signup') => {
     try {
+      setAuthMode(mode);
+      setNoAccountFound(false);
+      sessionStorage.setItem('rei_auth_mode', mode);
+      
       const redirectUri = `${window.location.origin}/rei`;
       const { data, error } = await supabase.functions.invoke('twitter-oauth', {
         body: { action: 'getAuthUrl', redirectUri },
@@ -692,11 +717,59 @@ export default function Rei() {
             </div>
 
             {!twitterUser ? (
-              <div className="space-y-4">
-                <Button onClick={handleTwitterLogin} size="lg" className="w-full">
-                  <Twitter className="mr-2 h-5 w-5" />
-                  Verify with X (Twitter)
-                </Button>
+              <div className="space-y-6">
+                {/* Sign In Section */}
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="text-sm font-semibold">Sign In</h4>
+                    <p className="text-xs text-muted-foreground">Access your existing talent profile</p>
+                  </div>
+                  <Button 
+                    onClick={() => handleTwitterLogin('signin')} 
+                    size="lg" 
+                    variant="outline" 
+                    className="w-full"
+                  >
+                    <Twitter className="mr-2 h-5 w-5" />
+                    Sign in with X (Twitter)
+                  </Button>
+                </div>
+
+                {/* Separator */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-muted-foreground/30" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">or</span>
+                  </div>
+                </div>
+
+                {/* Sign Up Section */}
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="text-sm font-semibold">Sign Up</h4>
+                    <p className="text-xs text-muted-foreground">Create a new talent profile</p>
+                  </div>
+                  <Button 
+                    onClick={() => handleTwitterLogin('signup')} 
+                    size="lg" 
+                    className="w-full"
+                  >
+                    <Twitter className="mr-2 h-5 w-5" />
+                    Verify with X (Twitter)
+                  </Button>
+                </div>
+
+                {/* No account found error */}
+                {noAccountFound && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      No existing account found with this X account. Please sign up to create one.
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
             ) : (
               <div className="space-y-3">

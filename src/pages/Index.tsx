@@ -321,30 +321,38 @@ const Index = () => {
               How Rei Works
             </h2>
 
-            <div className="space-y-4 font-mono text-left">
-              {/* Line 1 */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-5 h-5 text-white" />
+            <div
+              className="grid grid-cols-2 gap-x-10 gap-y-3 font-mono text-left text-xs leading-none"
+              style={{ color: "#ed565a" }}
+            >
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-4 h-4 text-white" />
                 </div>
-                <span style={{ color: "#ed565a" }}>Share Your Skills</span>
-                <div className="w-8 h-8 rounded-lg bg-[#1a1a1a] border border-[#444] flex items-center justify-center flex-shrink-0 ml-4">
-                  <ClipboardCheck className="w-5 h-5" style={{ color: "#ed565a" }} />
-                </div>
-                <span style={{ color: "#ed565a" }}>Rei matches Jobs/Tasks to your skills</span>
+                <span>Share Your Skills</span>
               </div>
-              
-              {/* Line 2 */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <div className="w-8 h-8 rounded-lg bg-black flex items-center justify-center flex-shrink-0">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
+
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <div className="w-6 h-6 rounded-md bg-[#1a1a1a] border border-[#444] flex items-center justify-center flex-shrink-0">
+                  <ClipboardCheck className="w-4 h-4" />
+                </div>
+                <span>Rei matches Jobs/Tasks to your skills</span>
+              </div>
+
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <div className="w-6 h-6 rounded-md bg-black flex items-center justify-center flex-shrink-0">
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white" aria-hidden="true">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                   </svg>
                 </div>
-                <span style={{ color: "#ed565a" }}>Type @AskRei on X to Chat</span>
-                <img src={solanaIcon} alt="Solana" className="w-8 h-8 flex-shrink-0 ml-4" />
-                <span style={{ color: "#ed565a" }}>Use/Pay with x402 as a Human/AI Agent</span>
+                <span>Type @AskRei on X to Chat</span>
               </div>
+
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <img src={solanaIcon} alt="Solana icon" className="w-6 h-6 flex-shrink-0" />
+                <span>Use/Pay with x402 as a Human/AI Agent</span>
+              </div>
+            </div>
 
               <button
                 onClick={() => navigate("/rei")}
@@ -356,7 +364,6 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </div>
 
       {/* Mobile: Show Treasury and Waitlist at top on mobile */}
       <div className="lg:hidden">

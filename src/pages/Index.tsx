@@ -321,42 +321,42 @@ const Index = () => {
               How Rei Works
             </h2>
 
-            <div className="space-y-4 font-mono leading-relaxed text-left max-w-lg mx-auto">
+            <div className="space-y-6 font-mono leading-relaxed text-left max-w-2xl mx-auto">
               {/* Row 1 */}
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-white" />
+              <div className="flex flex-wrap items-center gap-x-8 gap-y-4 justify-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-6 h-6 text-white" />
                   </div>
-                  <span style={{ color: "#ed565a" }}>Share Your Skills</span>
+                  <span className="text-sm" style={{ color: "#ed565a" }}>Share Your Skills</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#1a1a1a] border border-[#333] flex items-center justify-center">
-                    <ClipboardCheck className="w-5 h-5" style={{ color: "#ed565a" }} />
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#1a1a1a] border border-[#444] flex items-center justify-center flex-shrink-0">
+                    <ClipboardCheck className="w-6 h-6" style={{ color: "#ed565a" }} />
                   </div>
-                  <span style={{ color: "#ed565a" }}>Rei matches Jobs/Tasks to your skills</span>
+                  <span className="text-sm" style={{ color: "#ed565a" }}>Rei matches Jobs/Tasks to your skills</span>
                 </div>
               </div>
               
               {/* Row 2 */}
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-black flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
+              <div className="flex flex-wrap items-center gap-x-8 gap-y-4 justify-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-black flex items-center justify-center flex-shrink-0">
+                    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                     </svg>
                   </div>
-                  <span style={{ color: "#ed565a" }}>Type @AskRei on X to Chat</span>
+                  <span className="text-sm" style={{ color: "#ed565a" }}>Type @AskRei on X to Chat</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <img src={solanaIcon} alt="Solana" className="w-8 h-8" />
-                  <span style={{ color: "#ed565a" }}>Use/Pay with x402 as a Human/AI Agent</span>
+                <div className="flex items-center gap-3">
+                  <img src={solanaIcon} alt="Solana" className="w-10 h-10 flex-shrink-0" />
+                  <span className="text-sm" style={{ color: "#ed565a" }}>Use/Pay with x402 as a Human/AI Agent</span>
                 </div>
               </div>
 
               <button
                 onClick={() => navigate("/rei")}
-                className="text-sm font-mono mt-6 hover:opacity-80 transition-opacity"
+                className="text-sm font-mono mt-8 hover:opacity-80 transition-opacity block mx-auto"
                 style={{ color: "#ed565a" }}
               >
                 Chat with Rei →

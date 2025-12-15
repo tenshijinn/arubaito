@@ -19,7 +19,7 @@ const updates: UpdateSlide[] = [
     id: "zkprof",
     asciiSrc: "/ascii/zkprof.html",
     title: "Dox Yourself Privately with zkProf",
-    subtitle: "Zero-Knowledge-Snarks inspired by ZCash built on Solana",
+    subtitle: "Using ZK-Snarks inspired by ZCash built on Solana",
     link: "https://zkprof.xyz",
   },
 ];

@@ -10,6 +10,8 @@ import reiUspAi from "@/assets/rei-usp-ai.png";
 import reiUspMatch from "@/assets/rei-usp-match.png";
 import reiUspX from "@/assets/rei-usp-x.png";
 import reiUspSolana from "@/assets/rei-usp-solana.png";
+import clubUspNft from "@/assets/club-usp-nft.png";
+import clubUspCv from "@/assets/club-usp-cv.png";
 const Index = () => {
   const navigate = useNavigate();
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
@@ -174,35 +176,44 @@ const Index = () => {
 
         {/* Section 2 - How the Club Works */}
         <div id="how-club-works" className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
-          <div className="max-w-xl text-center">
+          <div className="max-w-xl">
             {/* Arubaito ASCII Art Block - Moved above title */}
             <iframe src="/ascii/arubaito.html" className="w-full max-w-md aspect-square mx-auto mb-8 border-0" style={{
             backgroundColor: "transparent"
           }} title="Arubaito ASCII Art" />
 
-            <h2 className="text-3xl font-bold mb-6 font-mono" style={{
+            <h2 className="text-3xl font-bold mb-6 font-mono text-left" style={{
             color: "#ed565a"
           }}>
               How the Club Works
             </h2>
 
-            <div className="space-y-6 font-mono leading-relaxed" style={{
-            color: "#faf6f4"
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3 font-mono text-left text-xs leading-none mb-5" style={{
+            color: "#ed565a"
           }}>
-              <p className="text-lg font-semibold"></p>
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0" />
+                <span>Join Arubaito by Bluechip X Verification</span>
+              </div>
 
-              <p className="text-sm" style={{
-              color: "#d0d0d0"
-            }}>
-                Arubaito is a members-only network for verified builders. Your access pass is a Member NFT — proof of
-                entry to a curated space where top talent meets trusted projects.
-              </p>
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <img src={clubUspNft} alt="" className="w-5 h-5 flex-shrink-0" />
+                <span>Buy a Member NFT</span>
+              </div>
 
-              <button onClick={() => navigate("/arubaito")} className="text-sm font-mono mt-4 hover:opacity-80 transition-opacity" style={{
-              color: "#ed565a"
-            }}>
-                Apply for membership →
-              </button>
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <img src={clubUspCv} alt="" className="w-5 h-5 flex-shrink-0" />
+                <span>Score 80+ on your CV Profile</span>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={() => navigate("/arubaito")} size="sm" style={{
+              backgroundColor: "#ed565a",
+              color: "#fff"
+            }} className="font-mono text-xs bg-transparent">
+                Join the Club
+              </Button>
             </div>
           </div>
         </div>

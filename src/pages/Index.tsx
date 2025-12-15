@@ -249,7 +249,7 @@ const Index = () => {
               <Button onClick={() => navigate("/rei")} size="sm" style={{
               backgroundColor: "#ed565a",
               color: "#fff"
-            }} className="font-mono text-xs">
+            }} className="font-mono text-xs bg-transparent">
                 Chat with Rei 
               </Button>
             </div>

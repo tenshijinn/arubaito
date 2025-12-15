@@ -5,7 +5,9 @@ import { TextRotator } from "@/components/TextRotator";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { LatestUpdatesCarousel } from "@/components/LatestUpdatesCarousel";
+import { Sparkles, ClipboardCheck } from "lucide-react";
 import arubaitoLogo from "@/assets/arubaito-logo.png";
+import solanaIcon from "@/assets/solana-icon.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -319,15 +321,42 @@ const Index = () => {
               How Rei Works
             </h2>
 
-            <div className="space-y-6 font-mono leading-relaxed" style={{ color: "#faf6f4" }}>
-              <p className="text-sm" style={{ color: "#d0d0d0" }}>
-                Rei is your open AI Agent that's open to anyone. Instead of browsing for crypto tasks, bounties and
-                tasks, you just ask her tasks are suitable for you.
-              </p>
+            <div className="space-y-4 font-mono leading-relaxed text-left max-w-lg mx-auto">
+              {/* Row 1 */}
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </div>
+                  <span style={{ color: "#ed565a" }}>Share Your Skills</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-[#1a1a1a] border border-[#333] flex items-center justify-center">
+                    <ClipboardCheck className="w-5 h-5" style={{ color: "#ed565a" }} />
+                  </div>
+                  <span style={{ color: "#ed565a" }}>Rei matches Jobs/Tasks to your skills</span>
+                </div>
+              </div>
+              
+              {/* Row 2 */}
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-black flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                  </div>
+                  <span style={{ color: "#ed565a" }}>Type @AskRei on X to Chat</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <img src={solanaIcon} alt="Solana" className="w-8 h-8" />
+                  <span style={{ color: "#ed565a" }}>Use/Pay with x402 as a Human/AI Agent</span>
+                </div>
+              </div>
 
               <button
                 onClick={() => navigate("/rei")}
-                className="text-sm font-mono mt-4 hover:opacity-80 transition-opacity"
+                className="text-sm font-mono mt-6 hover:opacity-80 transition-opacity"
                 style={{ color: "#ed565a" }}
               >
                 Chat with Rei →

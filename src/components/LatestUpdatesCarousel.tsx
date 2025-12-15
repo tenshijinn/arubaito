@@ -16,7 +16,7 @@ const updates: UpdateSlide[] = [{
 }, {
   id: "zkprof",
   asciiSrc: "/ascii/zkprof.html",
-  title: "Dox Yourself Privately with Zero Knowledge Profile Picture.",
+  title: "Dox Yourself Privately with zkProf",
   subtitle: "made with ZK-Snarks inspired by ZCash built with x402 on Solana",
   link: "https://zkprof.xyz"
 }];

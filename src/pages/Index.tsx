@@ -310,7 +310,7 @@ const Index = () => {
 
         {/* Section 3 - How Rei Works */}
         <div className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
-          <div className="max-w-xl text-center">
+          <div className="max-w-xl">
             {/* Rei ASCII Art Block - Moved above title */}
             <iframe
               src="/ascii/rei.html"
@@ -319,7 +319,7 @@ const Index = () => {
               title="Rei ASCII Art"
             />
 
-            <h2 className="text-3xl font-bold mb-6 font-mono" style={{ color: "#ed565a" }}>
+            <h2 className="text-3xl font-bold mb-6 font-mono text-left" style={{ color: "#ed565a" }}>
               How Rei Works
             </h2>
 

@@ -5,9 +5,11 @@ import { TextRotator } from "@/components/TextRotator";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { LatestUpdatesCarousel } from "@/components/LatestUpdatesCarousel";
-import { Sparkles, ClipboardCheck } from "lucide-react";
 import arubaitoLogo from "@/assets/arubaito-logo.png";
-import solanaIcon from "@/assets/solana-icon.png";
+import reiUspAi from "@/assets/rei-usp-ai.png";
+import reiUspMatch from "@/assets/rei-usp-match.png";
+import reiUspX from "@/assets/rei-usp-x.png";
+import reiUspSolana from "@/assets/rei-usp-solana.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -322,46 +324,39 @@ const Index = () => {
             </h2>
 
             <div
-              className="grid grid-cols-2 gap-x-10 gap-y-3 font-mono text-left text-xs leading-none"
+              className="grid grid-cols-2 gap-x-4 gap-y-3 font-mono text-left text-xs leading-none mb-5"
               style={{ color: "#ed565a" }}
             >
               <div className="flex items-center gap-2 whitespace-nowrap">
-                <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-4 h-4 text-white" />
-                </div>
+                <img src={reiUspAi} alt="" className="w-5 h-5 flex-shrink-0" />
                 <span>Share Your Skills</span>
               </div>
 
               <div className="flex items-center gap-2 whitespace-nowrap">
-                <div className="w-6 h-6 rounded-md bg-[#1a1a1a] border border-[#444] flex items-center justify-center flex-shrink-0">
-                  <ClipboardCheck className="w-4 h-4" />
-                </div>
+                <img src={reiUspMatch} alt="" className="w-5 h-5 flex-shrink-0" />
                 <span>Rei matches Jobs/Tasks to your skills</span>
               </div>
 
               <div className="flex items-center gap-2 whitespace-nowrap">
-                <div className="w-6 h-6 rounded-md bg-black flex items-center justify-center flex-shrink-0">
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white" aria-hidden="true">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                </div>
+                <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0" />
                 <span>Type @AskRei on X to Chat</span>
               </div>
 
               <div className="flex items-center gap-2 whitespace-nowrap">
-                <img src={solanaIcon} alt="Solana icon" className="w-6 h-6 flex-shrink-0" />
+                <img src={reiUspSolana} alt="" className="w-5 h-5 flex-shrink-0" />
                 <span>Use/Pay with x402 as a Human/AI Agent</span>
               </div>
             </div>
 
-              <button
-                onClick={() => navigate("/rei")}
-                className="text-sm font-mono mt-6 hover:opacity-80 transition-opacity"
-                style={{ color: "#ed565a" }}
-              >
-                Chat with Rei →
-              </button>
-            </div>
+            <Button
+              onClick={() => navigate("/rei")}
+              size="sm"
+              className="font-mono text-xs"
+              style={{ backgroundColor: "#ed565a", color: "#fff" }}
+            >
+              Chat with Rei →
+            </Button>
+          </div>
           </div>
         </div>
 

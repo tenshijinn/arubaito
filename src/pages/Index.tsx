@@ -184,16 +184,14 @@ const Index = () => {
 
             <h2 className="text-3xl font-bold mb-6 font-mono text-left" style={{
             color: "#ed565a"
-          }}>
-              How the Club Works
-            </h2>
+          }}>JOIN ARUBAITO CLUB BY</h2>
 
             <div className="grid grid-cols-2 gap-x-8 gap-y-3 font-mono text-left text-xs leading-tight mb-5" style={{
             color: "#ed565a"
           }}>
               <div className="flex items-start gap-2">
                 <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Join Arubaito by Bluechip X Verification</span>
+                <span>Bluechip X Verification</span>
               </div>
 
               <div className="flex items-start gap-2">

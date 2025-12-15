@@ -245,12 +245,14 @@ const Index = () => {
               </div>
             </div>
 
-            <Button onClick={() => navigate("/rei")} size="sm" style={{
-            backgroundColor: "#ed565a",
-            color: "#fff"
-          }} className="font-mono text-xs bg-transparent text-right">
-              Chat with Rei 
-            </Button>
+            <div className="flex justify-end">
+              <Button onClick={() => navigate("/rei")} size="sm" style={{
+              backgroundColor: "#ed565a",
+              color: "#fff"
+            }} className="font-mono text-xs">
+                Chat with Rei 
+              </Button>
+            </div>
           </div>
           </div>
         </div>

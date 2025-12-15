@@ -188,21 +188,21 @@ const Index = () => {
               How the Club Works
             </h2>
 
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3 font-mono text-left text-xs leading-none mb-5" style={{
+            <div className="grid grid-cols-2 gap-x-8 gap-y-3 font-mono text-left text-xs leading-tight mb-5" style={{
             color: "#ed565a"
           }}>
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0" />
+              <div className="flex items-start gap-2">
+                <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <span>Join Arubaito by Bluechip X Verification</span>
               </div>
 
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <img src={clubUspNft} alt="" className="w-5 h-5 flex-shrink-0" />
+              <div className="flex items-start gap-2">
+                <img src={clubUspNft} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <span>Buy a Member NFT</span>
               </div>
 
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <img src={clubUspCv} alt="" className="w-5 h-5 flex-shrink-0" />
+              <div className="flex items-start gap-2">
+                <img src={clubUspCv} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <span>Score 80+ on your CV Profile</span>
               </div>
             </div>

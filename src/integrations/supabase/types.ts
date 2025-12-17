@@ -320,12 +320,14 @@ export type Database = {
       }
       jobs: {
         Row: {
+          apply_url: string | null
           company_name: string | null
           compensation: string | null
           created_at: string | null
           deadline: string | null
           description: string
           employer_wallet: string
+          expires_at: string | null
           external_id: string | null
           id: string
           link: string | null
@@ -340,12 +342,14 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          apply_url?: string | null
           company_name?: string | null
           compensation?: string | null
           created_at?: string | null
           deadline?: string | null
           description: string
           employer_wallet: string
+          expires_at?: string | null
           external_id?: string | null
           id?: string
           link?: string | null
@@ -360,12 +364,14 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          apply_url?: string | null
           company_name?: string | null
           compensation?: string | null
           created_at?: string | null
           deadline?: string | null
           description?: string
           employer_wallet?: string
+          expires_at?: string | null
           external_id?: string | null
           id?: string
           link?: string | null

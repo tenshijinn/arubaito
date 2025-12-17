@@ -78,3 +78,6 @@ verify_jwt = false
 
 [functions.check-rei-registration]
 verify_jwt = false
+
+[functions.ingest-job-signals]
+verify_jwt = false

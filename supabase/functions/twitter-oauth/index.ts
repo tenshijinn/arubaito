@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body = await req.json();
-    const { code, action, redirectUri, codeVerifier } = body;
+    const { code, action, redirectUri, codeVerifier, skipWhitelistCheck } = body;
 
     if (action === 'getAuthUrl') {
       const clientId = Deno.env.get('TWITTER_CLIENT_ID')!;
@@ -113,19 +113,28 @@ Deno.serve(async (req) => {
         profileImageUrl = profileImageUrl.replace('_normal', '_400x400');
       }
 
-      // Check if user is on the whitelist (case-insensitive)
-      const { data: whitelistEntry, error: whitelistError } = await supabase
-        .from('twitter_whitelist')
-        .select('*')
-        .ilike('twitter_handle', userData.data.username)
-        .maybeSingle();
+      // Check if user is on the whitelist (case-insensitive) - skip for admin login
+      let isVerified = false;
+      let whitelistEntry = null;
+      
+      if (!skipWhitelistCheck) {
+        const { data: whitelistData, error: whitelistError } = await supabase
+          .from('twitter_whitelist')
+          .select('*')
+          .ilike('twitter_handle', userData.data.username)
+          .maybeSingle();
 
-      if (whitelistError) {
-        console.error('Whitelist check error:', whitelistError);
+        if (whitelistError) {
+          console.error('Whitelist check error:', whitelistError);
+        }
+
+        whitelistEntry = whitelistData;
+        isVerified = !!whitelistEntry;
+        console.log('Whitelist verification:', isVerified ? 'VERIFIED' : 'NOT VERIFIED');
+      } else {
+        console.log('Skipping whitelist check (admin login)');
+        isVerified = true; // Admin bypasses whitelist
       }
-
-      const isVerified = !!whitelistEntry;
-      console.log('Whitelist verification:', isVerified ? 'VERIFIED' : 'NOT VERIFIED');
 
       return new Response(
         JSON.stringify({

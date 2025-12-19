@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,18 @@ import { CheckCircle, XCircle, Clock, Loader2, Plus, UserPlus } from 'lucide-rea
 import { Navigation } from '@/components/Navigation';
 import { WaitlistCountdown } from '@/components/WaitlistCountdown';
 import { TreasuryDisplay } from '@/components/TreasuryDisplay';
+
+// Twitter OAuth callback handler for admin path
+if (typeof window !== "undefined") {
+  const urlParams = new URLSearchParams(window.location.search);
+  const twitterCode = urlParams.get("code");
+  const twitterState = urlParams.get("state");
+
+  if (twitterCode && twitterState && window.location.pathname === "/admin" && sessionStorage.getItem("admin_twitter_code_verifier")) {
+    sessionStorage.setItem("admin_twitter_code", twitterCode);
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
 
 interface Submission {
   id: string;
@@ -36,9 +48,104 @@ export default function Admin() {
   const [newHandle, setNewHandle] = useState('');
   const [newHandleNotes, setNewHandleNotes] = useState('');
   const [isAddingHandle, setIsAddingHandle] = useState(false);
+  const twitterProcessingRef = useRef(false);
+
+  // Handle Twitter OAuth callback
+  useEffect(() => {
+    const handleTwitterCallback = async () => {
+      const twitterCode = sessionStorage.getItem("admin_twitter_code");
+      const codeVerifier = sessionStorage.getItem("admin_twitter_code_verifier");
+      
+      if (twitterCode && codeVerifier && !twitterProcessingRef.current) {
+        twitterProcessingRef.current = true;
+        setIsAuthenticating(true);
+
+        // Clear immediately to prevent reuse
+        sessionStorage.removeItem("admin_twitter_code");
+        sessionStorage.removeItem("admin_twitter_code_verifier");
+        
+        try {
+          const { data, error } = await supabase.functions.invoke("twitter-oauth", {
+            body: {
+              action: "exchangeToken",
+              code: twitterCode,
+              codeVerifier,
+              redirectUri: `${window.location.origin}/admin`,
+              skipWhitelistCheck: true // Admin doesn't need whitelist check
+            }
+          });
+          
+          if (error) throw error;
+
+          // Check if user is wayneanthonyd
+          if (data.user.handle !== 'wayneanthonyd') {
+            toast({
+              title: "Access Denied",
+              description: "Only @wayneanthonyd can access the admin panel",
+              variant: "destructive",
+            });
+            setIsAuthenticating(false);
+            setLoading(false);
+            twitterProcessingRef.current = false;
+            return;
+          }
+
+          // Create/sign in user with Twitter data
+          const twitterEmail = `${data.user.handle}@twitter.oauth`;
+          const twitterPassword = data.user.x_user_id + "_twitter_auth";
+
+          // Try to sign in first
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: twitterEmail,
+            password: twitterPassword
+          });
+          
+          if (signInError) {
+            // If sign in fails, create account
+            const { error: signUpError } = await supabase.auth.signUp({
+              email: twitterEmail,
+              password: twitterPassword,
+              options: {
+                data: {
+                  twitter_username: data.user.handle,
+                  twitter_id: data.user.x_user_id,
+                  full_name: data.user.display_name,
+                  avatar_url: data.user.profile_image_url
+                }
+              }
+            });
+            if (signUpError) throw signUpError;
+          }
+
+          toast({
+            title: "Welcome!",
+            description: `Signed in as @${data.user.handle}`
+          });
+          
+          // Check admin status after successful auth
+          await checkAdminStatus();
+        } catch (error) {
+          console.error("Twitter OAuth error:", error);
+          toast({
+            title: "Authentication Failed",
+            description: error instanceof Error ? error.message : "Failed to authenticate with Twitter",
+            variant: "destructive",
+          });
+          setLoading(false);
+        } finally {
+          setIsAuthenticating(false);
+          twitterProcessingRef.current = false;
+        }
+      }
+    };
+    handleTwitterCallback();
+  }, [toast]);
 
   useEffect(() => {
-    checkTwitterAuth();
+    // Only check existing session if we're not processing a callback
+    if (!sessionStorage.getItem("admin_twitter_code")) {
+      checkTwitterAuth();
+    }
   }, []);
 
   useEffect(() => {
@@ -52,7 +159,6 @@ export default function Admin() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        // Not logged in, stay on loading screen
         setLoading(false);
         return;
       }
@@ -82,14 +188,17 @@ export default function Admin() {
   const handleTwitterLogin = async () => {
     setIsAuthenticating(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'twitter',
-        options: {
-          redirectTo: `${window.location.origin}/admin`,
-        },
+      const { data, error } = await supabase.functions.invoke("twitter-oauth", {
+        body: {
+          action: "getAuthUrl",
+          redirectUri: `${window.location.origin}/admin`
+        }
       });
-
+      
       if (error) throw error;
+      
+      sessionStorage.setItem("admin_twitter_code_verifier", data.codeVerifier);
+      window.location.href = data.authUrl;
     } catch (error: any) {
       console.error('Twitter login error:', error);
       toast({

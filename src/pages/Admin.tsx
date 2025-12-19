@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Loader2, Plus, UserPlus } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import { WaitlistCountdown } from '@/components/WaitlistCountdown';
 import { TreasuryDisplay } from '@/components/TreasuryDisplay';
@@ -32,6 +33,9 @@ export default function Admin() {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [newHandle, setNewHandle] = useState('');
+  const [newHandleNotes, setNewHandleNotes] = useState('');
+  const [isAddingHandle, setIsAddingHandle] = useState(false);
 
   useEffect(() => {
     checkTwitterAuth();
@@ -188,6 +192,58 @@ export default function Admin() {
     }
   };
 
+  const handleAddToWhitelist = async () => {
+    if (!newHandle.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a Twitter handle",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAddingHandle(true);
+    try {
+      const cleanHandle = newHandle.trim().replace(/^@/, '');
+      
+      const { error } = await supabase
+        .from('twitter_whitelist')
+        .insert({
+          twitter_handle: cleanHandle,
+          verification_type: 'manual',
+          notes: newHandleNotes.trim() || null,
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Already exists",
+            description: `@${cleanHandle} is already on the whitelist`,
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Added!",
+          description: `@${cleanHandle} has been added to the whitelist`,
+        });
+        setNewHandle('');
+        setNewHandleNotes('');
+      }
+    } catch (error: any) {
+      console.error('Error adding to whitelist:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add to whitelist",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingHandle(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -237,6 +293,48 @@ export default function Admin() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground">Manage Twitter whitelist submissions</p>
+        </div>
+
+        {/* Add to Whitelist Form */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+            <UserPlus className="w-6 h-6" />
+            Add to Whitelist
+          </h2>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Twitter handle (e.g. elonmusk)"
+                    value={newHandle}
+                    onChange={(e) => setNewHandle(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <div className="flex-1">
+                  <Input
+                    placeholder="Notes (optional)"
+                    value={newHandleNotes}
+                    onChange={(e) => setNewHandleNotes(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <Button
+                  onClick={handleAddToWhitelist}
+                  disabled={isAddingHandle || !newHandle.trim()}
+                  className="sm:w-auto w-full"
+                >
+                  {isAddingHandle ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Plus className="w-4 h-4 mr-2" />
+                  )}
+                  Add to Whitelist
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Pending Submissions */}

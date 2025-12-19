@@ -75,7 +75,7 @@ export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
       if (!analysis) return;
 
       const qualifiesForClub = 
-        analysis.overall_score > 89 || 
+        analysis.overall_score >= 80 || 
         analysis.bluechip_verified;
 
       if (qualifiesForClub && analysis.wallet_address) {

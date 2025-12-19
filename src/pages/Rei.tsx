@@ -411,8 +411,12 @@ export default function Rei() {
     return (
       <div className="flex flex-col h-screen overflow-hidden" style={{ backgroundImage: `url(${reiBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {/* Points Display */}
-        {registrationData?.wallet_address && (
-          <ReiPointsCard walletAddress={registrationData.wallet_address} />
+        {(registrationData?.wallet_address || publicKey) && (
+          <ReiPointsCard 
+            registrationWallet={registrationData?.wallet_address}
+            connectedWallet={publicKey?.toString()}
+            xUserId={twitterUser?.x_user_id}
+          />
         )}
         {/* Rei Logo Header with Logout */}
         <div className="fixed top-0 left-0 right-0 z-50">

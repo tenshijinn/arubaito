@@ -99,8 +99,30 @@ serve(async (req) => {
 
     const userType = conv?.user_type || 'employer';
 
+    // Get current date/time for context
+    const now = new Date();
+    const currentDateReadable = now.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    const currentTimeReadable = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
+    const currentISODate = now.toISOString().split('T')[0]; // YYYY-MM-DD for comparisons
+
     // Build system prompt - condensed for speed
     const systemPrompt = `You are Rei, a warm, caring AI assistant for the Rei Proof-Of-Talent Portal. You connect Web3 talent with opportunities.
+
+CURRENT DATE & TIME:
+- Today is: ${currentDateReadable}
+- Current time: ${currentTimeReadable}
+- ISO Date: ${currentISODate}
+- Use this to determine "today", "yesterday", "this week" when discussing jobs/tasks
+- When showing jobs/tasks, mention how recent they are (e.g., "posted 2 days ago" or "from last month")
 
 Current user type: ${userType}
 User's wallet address: ${walletAddress}
@@ -112,6 +134,7 @@ CORE RULES:
 3. NEVER restart a flow you're already in - track your state
 4. Call save_draft after EACH field collected
 5. Trust natural language - recognize what users MEAN
+6. When searching jobs/tasks, prioritize recent ones and indicate their age
 
 FLOW STATES: INTENT → COLLECTING → CONFIRMING → PAYMENT → SUCCESS
 

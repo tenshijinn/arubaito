@@ -320,6 +320,15 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
           console.error("Failed to parse metadata:", e);
         }
       }
+      
+      // Clean up any remaining "Metadata: {...}" text that AI might include
+      const metadataLabelMatch = cleanContent.match(/\n*Metadata:\s*\{[\s\S]*?\}\s*$/i);
+      if (metadataLabelMatch) {
+        cleanContent = cleanContent.replace(metadataLabelMatch[0], "").trim();
+      }
+      
+      // Also clean up standalone "Metadata:" labels
+      cleanContent = cleanContent.replace(/\n*Metadata:\s*$/i, "").trim();
 
       const timestamp = new Date().toLocaleTimeString("en-US", {
         hour: "2-digit",

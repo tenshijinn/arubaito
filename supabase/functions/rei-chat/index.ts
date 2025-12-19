@@ -892,17 +892,54 @@ Example bad responses:
       }
     }
 
-    // Check if response contains metadata (e.g., Solana Pay QR)
-    let metadata = null;
+    // Check if response contains metadata (e.g., Solana Pay QR, drafts, actions)
+    let metadata: any = null;
     try {
-      // Try to extract JSON metadata from response - look for nested solanaPay object
-      const metadataRegex = /\{\s*["']solanaPay["']\s*:\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}\s*\}/;
-      const metadataMatch = finalResponse.match(metadataRegex);
-      if (metadataMatch) {
-        metadata = JSON.parse(metadataMatch[0]);
-        // Remove metadata JSON from visible response
-        finalResponse = finalResponse.replace(metadataMatch[0], '').trim();
+      // Try to extract JSON metadata from response - look for various metadata patterns
+      
+      // Pattern 1: solanaPay metadata
+      const solanaPayRegex = /\{\s*["']solanaPay["']\s*:\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}\s*\}/;
+      const solanaPayMatch = finalResponse.match(solanaPayRegex);
+      if (solanaPayMatch) {
+        metadata = { ...metadata, ...JSON.parse(solanaPayMatch[0]) };
+        finalResponse = finalResponse.replace(solanaPayMatch[0], '').trim();
       }
+      
+      // Pattern 2: drafts metadata - {"drafts":[...]}
+      const draftsRegex = /\{\s*["']drafts["']\s*:\s*\[[^\]]*\]\s*\}/g;
+      const draftsMatch = finalResponse.match(draftsRegex);
+      if (draftsMatch) {
+        const draftsData = JSON.parse(draftsMatch[0]);
+        metadata = { ...metadata, ...draftsData };
+        finalResponse = finalResponse.replace(draftsMatch[0], '').trim();
+      }
+      
+      // Pattern 3: "Metadata: {...}" format that AI sometimes uses
+      const metadataLabelRegex = /Metadata:\s*(\{[\s\S]*?\})\s*$/i;
+      const metadataLabelMatch = finalResponse.match(metadataLabelRegex);
+      if (metadataLabelMatch) {
+        try {
+          const extractedData = JSON.parse(metadataLabelMatch[1]);
+          metadata = { ...metadata, ...extractedData };
+          finalResponse = finalResponse.replace(metadataLabelMatch[0], '').trim();
+        } catch (parseError) {
+          // If parsing fails, just remove the metadata label text
+          finalResponse = finalResponse.replace(metadataLabelRegex, '').trim();
+        }
+      }
+      
+      // Pattern 4: Generic action metadata
+      const actionRegex = /\{\s*["']action["']\s*:\s*["'][^"']+["']\s*,\s*["']link["']\s*:\s*["'][^"']+["']\s*\}/;
+      const actionMatch = finalResponse.match(actionRegex);
+      if (actionMatch) {
+        const actionData = JSON.parse(actionMatch[0]);
+        metadata = { ...metadata, ...actionData };
+        finalResponse = finalResponse.replace(actionMatch[0], '').trim();
+      }
+      
+      // Clean up any remaining "Metadata:" labels without valid JSON
+      finalResponse = finalResponse.replace(/\n*Metadata:\s*$/i, '').trim();
+      
     } catch (e) {
       console.error('Failed to extract metadata:', e);
       // No metadata found, that's fine

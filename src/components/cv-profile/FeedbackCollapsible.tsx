@@ -32,7 +32,7 @@ export const FeedbackCollapsible = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Card className="bg-card/50 backdrop-blur-sm border-dashed">
+    <Card className="bg-transparent border-border/30 backdrop-blur-sm border-dashed">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className="w-full p-4 flex items-center justify-between hover:bg-muted/20 transition-colors rounded-t-card">
           <div className="flex items-center gap-3">

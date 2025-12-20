@@ -43,41 +43,31 @@ interface CVPDFData {
 }
 
 // Check if work experience matches verified on-chain activity
+// ONLY verifies when there's a specific project match from verified on-chain interactions
 const isWorkExperienceVerified = (
   exp: { company: string; role: string; highlights?: string[] },
   verifiedProjects: VerifiedProject[],
-  detectedChains: string[]
+  _detectedChains: string[] // kept for interface compatibility but not used
 ): { verified: boolean; chain?: string } => {
-  const textToSearch = `${exp.company} ${exp.role} ${exp.highlights?.join(' ') || ''}`.toLowerCase();
+  // If no verified projects, nothing can be verified
+  if (!verifiedProjects || verifiedProjects.length === 0) {
+    return { verified: false };
+  }
+
+  const companyLower = exp.company.toLowerCase().trim();
   
-  // Check against verified project names
+  // Only verify if the company/project name has a SPECIFIC match with a verified project
   for (const project of verifiedProjects) {
-    if (textToSearch.includes(project.name.toLowerCase())) {
+    const projectNameLower = project.name.toLowerCase().trim();
+    
+    // Require a meaningful match: company contains project name OR project contains company
+    // This ensures we're matching specific projects, not generic chain mentions
+    const isMatch = 
+      companyLower.includes(projectNameLower) || 
+      projectNameLower.includes(companyLower);
+    
+    if (isMatch && projectNameLower.length >= 3) {
       return { verified: true, chain: project.chain };
-    }
-  }
-  
-  // Check for chain names in work experience
-  const chainKeywords = ['ethereum', 'solana', 'arbitrum', 'polygon', 'base', 'optimism', 'avalanche', 'fantom', 'bsc', 'binance'];
-  for (const chain of chainKeywords) {
-    if (textToSearch.includes(chain)) {
-      // Check if user has activity on that chain
-      const hasChainActivity = detectedChains.some(dc => dc.toLowerCase().includes(chain));
-      if (hasChainActivity) {
-        return { verified: true, chain };
-      }
-    }
-  }
-  
-  // Check for common dApp/protocol mentions
-  const dappKeywords = ['uniswap', 'aave', 'compound', 'opensea', 'blur', 'jupiter', 'raydium', 'marinade', 'lido', 'curve', 'sushiswap', 'pancakeswap', 'gmx', 'dydx'];
-  for (const dapp of dappKeywords) {
-    if (textToSearch.includes(dapp)) {
-      for (const project of verifiedProjects) {
-        if (project.name.toLowerCase().includes(dapp)) {
-          return { verified: true, chain: project.chain };
-        }
-      }
     }
   }
   

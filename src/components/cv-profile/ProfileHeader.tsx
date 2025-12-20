@@ -139,7 +139,7 @@ export const ProfileHeader = ({
   };
 
   return (
-    <Card className="p-6 bg-card/50 backdrop-blur-sm">
+    <Card className="p-6 bg-transparent border-border/30 backdrop-blur-sm">
       <div className="flex items-start gap-6">
         {/* Avatar */}
         <Avatar className="h-20 w-20 border-2 border-primary/30">

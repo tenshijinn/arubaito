@@ -52,7 +52,7 @@ interface CVContentCardProps {
 export const CVContentCard = ({ cvContent }: CVContentCardProps) => {
   if (!cvContent) {
     return (
-      <Card className="p-6 bg-card/50 backdrop-blur-sm">
+      <Card className="p-6 bg-transparent border-border/30 backdrop-blur-sm">
         <div className="text-center py-8">
           <User className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
           <p className="text-sm text-muted-foreground">
@@ -79,7 +79,7 @@ export const CVContentCard = ({ cvContent }: CVContentCardProps) => {
   } = cvContent;
 
   return (
-    <Card className="p-6 bg-card/50 backdrop-blur-sm">
+    <Card className="p-6 bg-transparent border-border/30 backdrop-blur-sm">
       <div className="space-y-6">
         {/* Personal Information */}
         <section>

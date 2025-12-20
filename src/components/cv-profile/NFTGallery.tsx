@@ -54,7 +54,7 @@ export const NFTGallery = ({ walletAddress }: NFTGalleryProps) => {
 
   if (!walletAddress) {
     return (
-      <Card className="p-6 bg-card/50 backdrop-blur-sm">
+      <Card className="p-6 bg-transparent border-border/30 backdrop-blur-sm">
         <div className="flex items-center gap-2 mb-4">
           <Gem className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-bold">NFT Collection</h3>
@@ -71,7 +71,7 @@ export const NFTGallery = ({ walletAddress }: NFTGalleryProps) => {
 
   if (loading) {
     return (
-      <Card className="p-6 bg-card/50 backdrop-blur-sm">
+      <Card className="p-6 bg-transparent border-border/30 backdrop-blur-sm">
         <div className="flex items-center gap-2 mb-4">
           <Gem className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-bold">NFT Collection</h3>
@@ -84,7 +84,7 @@ export const NFTGallery = ({ walletAddress }: NFTGalleryProps) => {
   }
 
   return (
-    <Card className="p-6 bg-card/50 backdrop-blur-sm">
+    <Card className="p-6 bg-transparent border-border/30 backdrop-blur-sm">
       <div className="flex items-center gap-2 mb-4">
         <Gem className="h-5 w-5 text-primary" />
         <h3 className="text-lg font-bold">NFT Collection</h3>

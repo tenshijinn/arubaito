@@ -127,7 +127,7 @@ export const PortfolioGallery = ({ analysisId, isOwner }: PortfolioGalleryProps)
 
   if (loading) {
     return (
-      <Card className="p-6 bg-card/50 backdrop-blur-sm">
+      <Card className="p-6 bg-transparent border-border/30 backdrop-blur-sm">
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
@@ -136,7 +136,7 @@ export const PortfolioGallery = ({ analysisId, isOwner }: PortfolioGalleryProps)
   }
 
   return (
-    <Card className="p-6 bg-card/50 backdrop-blur-sm">
+    <Card className="p-6 bg-transparent border-border/30 backdrop-blur-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Images className="h-5 w-5 text-primary" />

@@ -138,7 +138,7 @@ export const OnChainResume = ({
   };
 
   return (
-    <Card className="p-6 bg-card/50 backdrop-blur-sm">
+    <Card className="p-6 bg-transparent border-border/30 backdrop-blur-sm">
       <div className="flex items-center gap-2 mb-6">
         <Wallet className="h-5 w-5 text-primary" />
         <h3 className="text-lg font-bold">On-Chain Resume</h3>

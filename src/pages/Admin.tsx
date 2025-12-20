@@ -95,14 +95,14 @@ export default function Admin() {
           const twitterPassword = data.user.x_user_id + "_twitter_auth";
 
           // Try to sign in first
-          const { error: signInError } = await supabase.auth.signInWithPassword({
+          let authResult = await supabase.auth.signInWithPassword({
             email: twitterEmail,
             password: twitterPassword
           });
           
-          if (signInError) {
+          if (authResult.error) {
             // If sign in fails, create account
-            const { error: signUpError } = await supabase.auth.signUp({
+            authResult = await supabase.auth.signUp({
               email: twitterEmail,
               password: twitterPassword,
               options: {
@@ -114,7 +114,7 @@ export default function Admin() {
                 }
               }
             });
-            if (signUpError) throw signUpError;
+            if (authResult.error) throw authResult.error;
           }
 
           toast({
@@ -122,7 +122,8 @@ export default function Admin() {
             description: `Signed in as @${data.user.handle}`
           });
           
-          // Check admin status after successful auth
+          // Wait a moment for auth state to stabilize, then check admin status
+          await new Promise(resolve => setTimeout(resolve, 500));
           await checkAdminStatus();
         } catch (error) {
           console.error("Twitter OAuth error:", error);

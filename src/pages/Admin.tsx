@@ -77,8 +77,8 @@ export default function Admin() {
           
           if (error) throw error;
 
-          // Check if user is wayneanthonyd
-          if (data.user.handle !== 'wayneanthonyd') {
+          // Check if user is wayneanthonyd (case-insensitive)
+          if (data.user.handle?.toLowerCase() !== 'wayneanthonyd') {
             toast({
               title: "Access Denied",
               description: "Only @wayneanthonyd can access the admin panel",
@@ -166,7 +166,7 @@ export default function Admin() {
       // Check if user is logged in with Twitter and has correct username
       const twitterUsername = session.user.user_metadata?.twitter_username;
       
-      if (twitterUsername !== 'wayneanthonyd') {
+      if (twitterUsername?.toLowerCase() !== 'wayneanthonyd') {
         toast({
           title: "Access Denied",
           description: "Only @wayneanthonyd can access the admin panel",

@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { signedTransaction, reference } = await req.json();
+    const { signedTransaction, reference, referralSessionId, referralCode } = await req.json();
 
     if (!signedTransaction || !reference) {
       throw new Error('Missing required fields: signedTransaction, reference');
@@ -80,6 +80,31 @@ serve(async (req) => {
 
     if (updateError) {
       console.error('Failed to update payment status:', updateError);
+    }
+
+    // Track referral conversion if applicable
+    if (referralSessionId || referralCode) {
+      try {
+        console.log('Tracking referral conversion for payment:', { referralSessionId, referralCode, payer: paymentRef.payer });
+        
+        const { data: conversionResult, error: conversionError } = await supabase.functions.invoke('track-referral-conversion', {
+          body: {
+            conversionType: 'payment',
+            convertedWallet: paymentRef.payer,
+            paymentAmount: paymentRef.amount,
+            sessionId: referralSessionId,
+            referralCode: referralCode,
+          },
+        });
+
+        if (conversionError) {
+          console.error('Failed to track referral conversion:', conversionError);
+        } else {
+          console.log('Referral conversion tracked:', conversionResult);
+        }
+      } catch (convError) {
+        console.error('Error invoking track-referral-conversion:', convError);
+      }
     }
 
     return new Response(

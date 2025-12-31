@@ -81,3 +81,18 @@ verify_jwt = false
 
 [functions.ingest-job-signals]
 verify_jwt = false
+
+[functions.fetch-wallet-nfts]
+verify_jwt = false
+
+[functions.generate-referral-code]
+verify_jwt = false
+
+[functions.track-referral-click]
+verify_jwt = false
+
+[functions.track-referral-conversion]
+verify_jwt = false
+
+[functions.get-referral-stats]
+verify_jwt = false

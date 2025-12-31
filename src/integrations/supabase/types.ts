@@ -512,6 +512,113 @@ export type Database = {
           },
         ]
       }
+      referral_clicks: {
+        Row: {
+          click_date: string
+          clicked_at: string
+          id: string
+          ip_hash: string
+          points_awarded: boolean
+          referral_code: string
+          session_id: string
+          source_url: string | null
+          target_path: string | null
+          user_agent_hash: string | null
+        }
+        Insert: {
+          click_date?: string
+          clicked_at?: string
+          id?: string
+          ip_hash: string
+          points_awarded?: boolean
+          referral_code: string
+          session_id: string
+          source_url?: string | null
+          target_path?: string | null
+          user_agent_hash?: string | null
+        }
+        Update: {
+          click_date?: string
+          clicked_at?: string
+          id?: string
+          ip_hash?: string
+          points_awarded?: boolean
+          referral_code?: string
+          session_id?: string
+          source_url?: string | null
+          target_path?: string | null
+          user_agent_hash?: string | null
+        }
+        Relationships: []
+      }
+      referral_codes: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          referral_code: string
+          wallet_address: string
+          x_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          referral_code: string
+          wallet_address: string
+          x_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          referral_code?: string
+          wallet_address?: string
+          x_user_id?: string | null
+        }
+        Relationships: []
+      }
+      referral_conversions: {
+        Row: {
+          click_id: string | null
+          conversion_type: string
+          converted_wallet: string
+          created_at: string
+          id: string
+          payment_amount: number | null
+          points_awarded: number
+          referral_code: string
+        }
+        Insert: {
+          click_id?: string | null
+          conversion_type: string
+          converted_wallet: string
+          created_at?: string
+          id?: string
+          payment_amount?: number | null
+          points_awarded: number
+          referral_code: string
+        }
+        Update: {
+          click_id?: string | null
+          conversion_type?: string
+          converted_wallet?: string
+          created_at?: string
+          id?: string
+          payment_amount?: number | null
+          points_awarded?: number
+          referral_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_conversions_click_id_fkey"
+            columns: ["click_id"]
+            isOneToOne: false
+            referencedRelation: "referral_clicks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rei_registry: {
         Row: {
           analysis_summary: string | null

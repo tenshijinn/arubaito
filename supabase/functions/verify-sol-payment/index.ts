@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { Connection, PublicKey } from "npm:@solana/web3.js@^1.98.4";
 
 const corsHeaders = {
@@ -10,14 +11,16 @@ const TREASURY_WALLET = '6FmWdgfvBHeNjjg12cGuq3dPKLKh5BmEMiVSddtA1aU7';
 const HELIUS_API_KEY = Deno.env.get('HELIUS_API_KEY') || '';
 const SOLANA_RPC = HELIUS_API_KEY 
   ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
-  : 'https://api.mainnet-beta.solana.com'; // Fallback to public RPC
+  : 'https://api.mainnet-beta.solana.com';
 const REQUIRED_USD_AMOUNT = 5;
-const AMOUNT_VARIANCE = 0.05; // 5% variance allowed
+const AMOUNT_VARIANCE = 0.05;
 
 interface VerifyPaymentRequest {
   txSignature: string;
   expectedAmount: number;
   senderWallet: string;
+  referralSessionId?: string;
+  referralCode?: string;
 }
 
 serve(async (req) => {
@@ -26,12 +29,11 @@ serve(async (req) => {
   }
 
   try {
-    const { txSignature, expectedAmount, senderWallet }: VerifyPaymentRequest = await req.json();
+    const { txSignature, expectedAmount, senderWallet, referralSessionId, referralCode }: VerifyPaymentRequest = await req.json();
 
     console.log('Verifying payment:', { txSignature, expectedAmount, senderWallet });
     console.log('Using RPC:', HELIUS_API_KEY ? 'Helius' : 'Public mainnet');
 
-    // Validate inputs
     if (!txSignature || !senderWallet) {
       return new Response(
         JSON.stringify({ verified: false, error: 'Missing required fields' }),
@@ -39,10 +41,8 @@ serve(async (req) => {
       );
     }
 
-    // Connect to Solana
     const connection = new Connection(SOLANA_RPC, 'confirmed');
 
-    // Get transaction
     const tx = await connection.getTransaction(txSignature, {
       maxSupportedTransactionVersion: 0
     });
@@ -55,7 +55,6 @@ serve(async (req) => {
       );
     }
 
-    // Check transaction age (must be within last 10 minutes)
     const txTime = tx.blockTime ? tx.blockTime * 1000 : 0;
     const now = Date.now();
     const tenMinutes = 10 * 60 * 1000;
@@ -67,7 +66,6 @@ serve(async (req) => {
       );
     }
 
-    // Verify sender - handle versioned transactions
     const accountKeys = 'accountKeys' in tx.transaction.message 
       ? tx.transaction.message.accountKeys 
       : tx.transaction.message.staticAccountKeys;
@@ -81,11 +79,9 @@ serve(async (req) => {
       );
     }
 
-    // Find transfer to treasury wallet
     const treasuryPubkey = new PublicKey(TREASURY_WALLET);
     let transferAmount = 0;
 
-    // Check post balances
     const treasuryIndex = accountKeys.findIndex(
       (key: PublicKey) => key.toString() === TREASURY_WALLET
     );
@@ -93,12 +89,11 @@ serve(async (req) => {
     if (treasuryIndex >= 0) {
       const preBalance = tx.meta?.preBalances[treasuryIndex] || 0;
       const postBalance = tx.meta?.postBalances[treasuryIndex] || 0;
-      transferAmount = (postBalance - preBalance) / 1e9; // Convert lamports to SOL
+      transferAmount = (postBalance - preBalance) / 1e9;
     }
 
     console.log('Transfer amount:', transferAmount, 'SOL');
 
-    // Fetch current SOL price
     const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
     const priceData = await priceResponse.json();
     const solPrice = priceData.solana?.usd || 0;
@@ -114,7 +109,6 @@ serve(async (req) => {
     const transferUSD = transferAmount * solPrice;
     console.log('Transfer value:', transferUSD, 'USD at', solPrice, 'USD/SOL');
 
-    // Verify amount (allow 5% variance)
     const minAmount = REQUIRED_USD_AMOUNT * (1 - AMOUNT_VARIANCE);
     const maxAmount = REQUIRED_USD_AMOUNT * (1 + AMOUNT_VARIANCE);
 
@@ -131,6 +125,36 @@ serve(async (req) => {
     }
 
     console.log('Payment verified successfully');
+
+    // Track referral conversion if applicable
+    if (referralSessionId || referralCode) {
+      try {
+        console.log('Tracking referral conversion for payment:', { referralSessionId, referralCode, senderWallet });
+        
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        const { data: conversionResult, error: conversionError } = await supabase.functions.invoke('track-referral-conversion', {
+          body: {
+            conversionType: 'payment',
+            convertedWallet: senderWallet,
+            paymentAmount: transferUSD,
+            sessionId: referralSessionId,
+            referralCode: referralCode,
+          },
+        });
+
+        if (conversionError) {
+          console.error('Failed to track referral conversion:', conversionError);
+        } else {
+          console.log('Referral conversion tracked:', conversionResult);
+        }
+      } catch (convError) {
+        console.error('Error invoking track-referral-conversion:', convError);
+      }
+    }
+
     return new Response(
       JSON.stringify({ 
         verified: true, 

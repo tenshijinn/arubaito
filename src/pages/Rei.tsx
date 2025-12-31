@@ -23,7 +23,7 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WaitlistCountdown } from '@/components/WaitlistCountdown';
 import { TreasuryDisplay } from '@/components/TreasuryDisplay';
-import { ReiPointsCard } from '@/components/ReiPointsCard';
+import { ReiEarningsHub } from '@/components/ReiEarningsHub';
 
 interface TwitterUser {
   x_user_id: string;
@@ -410,9 +410,9 @@ export default function Rei() {
 
     return (
       <div className="flex flex-col h-screen overflow-hidden" style={{ backgroundImage: `url(${reiBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        {/* Points Display */}
+        {/* Earnings Hub */}
         {(registrationData?.wallet_address || publicKey) && (
-          <ReiPointsCard 
+          <ReiEarningsHub 
             registrationWallet={registrationData?.wallet_address}
             connectedWallet={publicKey?.toString()}
             xUserId={twitterUser?.x_user_id}

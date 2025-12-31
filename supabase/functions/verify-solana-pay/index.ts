@@ -1,3 +1,4 @@
+// Edge function for verifying Solana Pay transactions
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Connection, PublicKey } from "npm:@solana/web3.js@^1.98.4";
 

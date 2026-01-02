@@ -96,3 +96,9 @@ verify_jwt = false
 
 [functions.get-referral-stats]
 verify_jwt = false
+
+[functions.oracle-tweet-tracker]
+verify_jwt = false
+
+[functions.search-jobs]
+verify_jwt = false

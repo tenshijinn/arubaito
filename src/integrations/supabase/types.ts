@@ -423,6 +423,42 @@ export type Database = {
         }
         Relationships: []
       }
+      oracle_processed_tweets: {
+        Row: {
+          author_handle: string | null
+          author_id: string | null
+          id: string
+          intent: string | null
+          processed_at: string
+          replied_at: string | null
+          reply_tweet_id: string | null
+          tweet_id: string
+          tweet_text: string | null
+        }
+        Insert: {
+          author_handle?: string | null
+          author_id?: string | null
+          id?: string
+          intent?: string | null
+          processed_at?: string
+          replied_at?: string | null
+          reply_tweet_id?: string | null
+          tweet_id: string
+          tweet_text?: string | null
+        }
+        Update: {
+          author_handle?: string | null
+          author_id?: string | null
+          id?: string
+          intent?: string | null
+          processed_at?: string
+          replied_at?: string | null
+          reply_tweet_id?: string | null
+          tweet_id?: string
+          tweet_text?: string | null
+        }
+        Relationships: []
+      }
       payment_references: {
         Row: {
           amount: number

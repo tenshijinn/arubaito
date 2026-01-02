@@ -12,14 +12,17 @@ const TTL_DAYS = 7;
 
 interface CheckRequest {
   action: "check";
-  tweetId: string;
+  tweetId?: string;
+  question_id?: string; // Alias for tweetId (n8n compatibility)
 }
 
 interface MarkRequest {
   action: "mark";
-  tweetId: string;
+  tweetId?: string;
+  question_id?: string; // Alias for tweetId (n8n compatibility)
   authorId?: string;
   authorHandle?: string;
+  user_handle?: string; // Alias for authorHandle (n8n compatibility)
   tweetText?: string;
   intent?: "job_query" | "task" | "general" | "irrelevant" | "rss_item";
   replyTweetId?: string;
@@ -51,11 +54,12 @@ Deno.serve(async (req) => {
 
     switch (body.action) {
       case "check": {
-        const { tweetId } = body as CheckRequest;
+        const checkBody = body as CheckRequest;
+        const tweetId = checkBody.tweetId || checkBody.question_id;
         
         if (!tweetId) {
           return new Response(
-            JSON.stringify({ error: "tweetId is required" }),
+            JSON.stringify({ error: "tweetId or question_id is required" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
@@ -95,11 +99,14 @@ Deno.serve(async (req) => {
       }
 
       case "mark": {
-        const { tweetId, authorId, authorHandle, tweetText, intent, replyTweetId } = body as MarkRequest;
+        const markBody = body as MarkRequest;
+        const tweetId = markBody.tweetId || markBody.question_id;
+        const authorHandle = markBody.authorHandle || markBody.user_handle;
+        const { authorId, tweetText, intent, replyTweetId } = markBody;
 
         if (!tweetId) {
           return new Response(
-            JSON.stringify({ error: "tweetId is required" }),
+            JSON.stringify({ error: "tweetId or question_id is required" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }

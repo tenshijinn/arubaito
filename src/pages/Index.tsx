@@ -5,7 +5,6 @@ import { TextRotator } from "@/components/TextRotator";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { LatestUpdatesCarousel } from "@/components/LatestUpdatesCarousel";
-import { AsciiHeroSection } from "@/components/AsciiHeroSection";
 import arubaitoLogo from "@/assets/arubaito-logo.png";
 import reiUspAi from "@/assets/rei-usp-ai.png";
 import reiUspMatch from "@/assets/rei-usp-match.png";
@@ -162,11 +161,8 @@ const Index = () => {
       scrollSnapType: "y mandatory",
       scrollSnapStop: "always"
     }}>
-        {/* Section 0 - ASCII Effect Hero */}
-        <AsciiHeroSection />
-
         {/* Section 1 - Latest Updates Carousel */}
-        <div id="latest-updates" className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
+        <div className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
           <LatestUpdatesCarousel />
           
           <button className="mt-8 text-xs font-mono flex items-center gap-1 mx-auto hover:opacity-80 transition-opacity" style={{

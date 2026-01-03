@@ -11,6 +11,7 @@ import Rei from "./pages/Rei";
 import Club from "./pages/Club";
 import Admin from "./pages/Admin";
 import Community from "./pages/Community";
+import ReferralRedirect from "./pages/ReferralRedirect";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/club" element={<Club />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/community" element={<Community />} />
+              <Route path="/r/:code" element={<ReferralRedirect />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

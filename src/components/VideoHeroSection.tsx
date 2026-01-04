@@ -20,14 +20,15 @@ export const VideoHeroSection = ({ onScrollDown }: VideoHeroSectionProps) => {
         <source src="/bg-arubaito-sact.webm" type="video/webm" />
       </video>
       
-      {/* Down Arrow - bottom center */}
+      {/* Down Arrow with text - bottom center */}
       <button
         onClick={onScrollDown}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 
                    text-white/70 hover:text-white transition-colors
-                   animate-bounce"
+                   animate-bounce flex flex-col items-center gap-1"
         aria-label="Scroll down"
       >
+        <span className="text-xs font-mono tracking-widest">How Arubaito Works</span>
         <ChevronDown className="w-8 h-8" />
       </button>
     </div>

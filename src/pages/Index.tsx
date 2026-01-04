@@ -297,7 +297,70 @@ const Index = () => {
           onScrollDown={() => document.getElementById("latest-updates")?.scrollIntoView({ behavior: "smooth" })}
         />
 
-        {/* Section 1 - Arubaito Apps Grid */}
+        {/* Section 1 - How the Club Works */}
+        <div
+          id="how-club-works"
+          className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
+        >
+          <div className="max-w-xl">
+            {/* Arubaito ASCII Art Block - Moved above title */}
+            <iframe
+              src="/ascii/arubaito.html"
+              className="w-full max-w-md aspect-square mx-auto mb-8 border-0"
+              style={{
+                backgroundColor: "transparent",
+              }}
+              title="Arubaito ASCII Art"
+            />
+
+            <h2
+              className="text-3xl font-bold mb-6 font-mono text-left"
+              style={{
+                color: "#ed565a",
+              }}
+            >
+              JOIN ARUBAITO CLUB BY
+            </h2>
+
+            <div
+              className="grid grid-cols-2 gap-x-8 gap-y-3 font-mono text-left text-xs leading-tight mb-5"
+              style={{
+                color: "#ed565a",
+              }}
+            >
+              <div className="flex items-start gap-2">
+                <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>Bluechip X Verification</span>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <img src={clubUspNft} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>Buy a Member NFT</span>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <img src={clubUspCv} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>Score 80+ on your CV Profile</span>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                onClick={() => navigate("/arubaito")}
+                size="sm"
+                style={{
+                  backgroundColor: "#ed565a",
+                  color: "#fff",
+                }}
+                className="font-mono text-xs bg-transparent"
+              >
+                Join the Club
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 2 - Arubaito Apps Grid */}
         <div
           id="arubaito-apps"
           className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
@@ -362,83 +425,6 @@ const Index = () => {
                 Dox Yourself Privately with zkProf. Uses ZK-Snarks inspired by ZCash built on Solana x402.
               </p>
             )}
-          </div>
-
-          <button
-            className="mt-4 text-xs font-mono flex items-center gap-1 mx-auto hover:opacity-80 transition-opacity"
-            style={{
-              color: "#ed565a",
-            }}
-            onClick={() =>
-              document.getElementById("how-club-works")?.scrollIntoView({
-                behavior: "smooth",
-              })
-            }
-          >
-            How Arubaito Works ↓
-          </button>
-        </div>
-
-        {/* Section 2 - How the Club Works */}
-        <div
-          id="how-club-works"
-          className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
-        >
-          <div className="max-w-xl">
-            {/* Arubaito ASCII Art Block - Moved above title */}
-            <iframe
-              src="/ascii/arubaito.html"
-              className="w-full max-w-md aspect-square mx-auto mb-8 border-0"
-              style={{
-                backgroundColor: "transparent",
-              }}
-              title="Arubaito ASCII Art"
-            />
-
-            <h2
-              className="text-3xl font-bold mb-6 font-mono text-left"
-              style={{
-                color: "#ed565a",
-              }}
-            >
-              JOIN ARUBAITO CLUB BY
-            </h2>
-
-            <div
-              className="grid grid-cols-2 gap-x-8 gap-y-3 font-mono text-left text-xs leading-tight mb-5"
-              style={{
-                color: "#ed565a",
-              }}
-            >
-              <div className="flex items-start gap-2">
-                <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Bluechip X Verification</span>
-              </div>
-
-              <div className="flex items-start gap-2">
-                <img src={clubUspNft} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Buy a Member NFT</span>
-              </div>
-
-              <div className="flex items-start gap-2">
-                <img src={clubUspCv} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Score 80+ on your CV Profile</span>
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <Button
-                onClick={() => navigate("/arubaito")}
-                size="sm"
-                style={{
-                  backgroundColor: "#ed565a",
-                  color: "#fff",
-                }}
-                className="font-mono text-xs bg-transparent"
-              >
-                Join the Club
-              </Button>
-            </div>
           </div>
         </div>
 

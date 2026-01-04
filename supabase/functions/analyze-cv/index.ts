@@ -907,42 +907,100 @@ Be specific, evidence-based, and constructive. Look for quantitative metrics and
         return { chain, transactions: [] };
       };
 
-      // Helper function to fetch LayerOneX transactions (native API)
+      // Helper function to fetch LayerOneX transactions (native API with multiple fallbacks)
       const fetchLayerOneXTransactions = async (wallet: string): Promise<any[]> => {
-        try {
-          console.log('Fetching LayerOneX transactions for:', wallet);
-          const response = await fetch(
-            `https://explorer.l1xapp.com/api/v2/addresses/${wallet}/transactions`,
-            { headers: { 'Content-Type': 'application/json' } }
-          );
-          
-          if (response.ok) {
-            const data = await response.json();
-            const transactions = data.items || [];
-            console.log('LayerOneX transactions found:', transactions.length);
-            return transactions;
+        console.log('Fetching LayerOneX transactions for:', wallet);
+        
+        // Try multiple L1X API endpoints
+        const endpoints = [
+          // L1X Explorer API v2
+          { url: `https://explorer.l1xapp.com/api/v2/addresses/${wallet}/transactions`, name: 'explorer-v2' },
+          // L1X Explorer API v1 fallback
+          { url: `https://explorer.l1xapp.com/api/v1/addresses/${wallet}/transactions`, name: 'explorer-v1' },
+          // L1X BlockScout-style API
+          { url: `https://explorer.l1xapp.com/api?module=account&action=txlist&address=${wallet}`, name: 'blockscout-style' },
+        ];
+        
+        for (const endpoint of endpoints) {
+          try {
+            console.log(`Trying L1X endpoint: ${endpoint.name}`);
+            const response = await fetch(endpoint.url, { 
+              headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              } 
+            });
+            
+            console.log(`L1X ${endpoint.name} response status:`, response.status);
+            
+            if (response.ok) {
+              const data = await response.json();
+              console.log(`L1X ${endpoint.name} response data structure:`, JSON.stringify(Object.keys(data)));
+              
+              // Handle different response formats
+              let transactions: any[] = [];
+              
+              if (data.items && Array.isArray(data.items)) {
+                transactions = data.items;
+              } else if (data.result && Array.isArray(data.result)) {
+                transactions = data.result;
+              } else if (Array.isArray(data)) {
+                transactions = data;
+              } else if (data.transactions && Array.isArray(data.transactions)) {
+                transactions = data.transactions;
+              }
+              
+              console.log(`LayerOneX transactions found via ${endpoint.name}:`, transactions.length);
+              
+              if (transactions.length > 0) {
+                return transactions;
+              }
+            } else {
+              const errorText = await response.text();
+              console.log(`L1X ${endpoint.name} error response:`, errorText.substring(0, 500));
+            }
+          } catch (error) {
+            console.error(`LayerOneX ${endpoint.name} fetch error:`, error);
           }
-        } catch (error) {
-          console.error('LayerOneX fetch error:', error);
         }
+        
+        // Note: L1X explorer has limited indexed data (June 2025 - August 2025)
+        console.log('Note: L1X explorer may have limited indexed data. Activities outside June-August 2025 may not be visible.');
         return [];
       };
 
-      // Normalize LayerOneX transaction to our format
+      // Normalize LayerOneX transaction to our format (handles multiple API response formats)
       const classifyLayerOneXTransaction = (tx: any): SignificantActivity | null => {
-        const txDate = tx.timestamp || new Date().toISOString();
-        const methodName = tx.method?.toLowerCase() || '';
+        // Handle different timestamp formats from various API endpoints
+        const txDate = tx.timestamp || tx.timeStamp || tx.block_signed_at || tx.time || new Date().toISOString();
         
-        if (methodName.includes('swap') || methodName.includes('exchange')) {
+        // Handle different method name fields
+        const methodName = (tx.method || tx.functionName || tx.input?.substring(0, 10) || '').toLowerCase();
+        const txType = (tx.type || tx.tx_types?.[0] || '').toLowerCase();
+        
+        // Get transaction details for classification
+        const toAddress = tx.to?.hash || tx.to || tx.to_address || '';
+        const gasUsed = parseInt(tx.gas_used || tx.gasUsed || tx.gas || '0');
+        const value = tx.value || '0';
+        
+        console.log(`L1X tx classification - method: ${methodName}, type: ${txType}, gasUsed: ${gasUsed}`);
+        
+        if (methodName.includes('swap') || methodName.includes('exchange') || txType.includes('swap')) {
           return { type: 'swap', description: 'Token swap on LayerOneX', experience: 'DEX trading on LayerOneX', chain: 'LayerOneX', date: txDate, priority: 3 };
         }
-        if (methodName.includes('stake') || methodName.includes('delegate')) {
+        if (methodName.includes('stake') || methodName.includes('delegate') || txType.includes('stake')) {
           return { type: 'stake', description: 'Staked assets on LayerOneX', experience: 'Staking on LayerOneX', chain: 'LayerOneX', date: txDate, priority: 4 };
         }
-        if (tx.to?.hash && tx.gas_used > 21000) {
+        if (methodName.includes('bridge') || txType.includes('bridge')) {
+          return { type: 'bridge', description: 'Cross-chain bridge on LayerOneX', experience: 'Bridge operations on LayerOneX', chain: 'LayerOneX', date: txDate, priority: 4 };
+        }
+        if (methodName.includes('mint') || txType.includes('mint') || txType.includes('nft')) {
+          return { type: 'nft', description: 'NFT interaction on LayerOneX', experience: 'NFT activity on LayerOneX', chain: 'LayerOneX', date: txDate, priority: 2 };
+        }
+        if (toAddress && gasUsed > 21000) {
           return { type: 'protocol', description: 'Smart contract interaction on LayerOneX', experience: 'dApp experience on LayerOneX', chain: 'LayerOneX', date: txDate, priority: 1 };
         }
-        if (tx.value && parseFloat(tx.value) > 0) {
+        if (value && parseFloat(value) > 0) {
           return { type: 'transfer', description: 'Token transfer on LayerOneX', experience: 'Blockchain activity on LayerOneX', chain: 'LayerOneX', date: txDate, priority: 0 };
         }
         return null;

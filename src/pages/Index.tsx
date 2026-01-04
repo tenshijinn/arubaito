@@ -354,12 +354,12 @@ const Index = () => {
           <div className="h-16 mt-6 flex items-center justify-center">
             {hoveredButton === "rei-app" && (
               <p className="text-sm font-mono text-center max-w-md px-4" style={{ color: "#ed565a" }}>
-                AI Agent 'Rei' makes it easy to earn crypto by matching tasks, bounties, etc to your skills.
+                Rei is an AI Agent who makes it easy to earn crypto by matching tasks, bounties and more to your skills.
               </p>
             )}
             {hoveredButton === "zkprof-app" && (
               <p className="text-sm font-mono text-center max-w-md px-4" style={{ color: "#ed565a" }}>
-                Dox Yourself Privately with zkProf made with ZK-Snarks inspired by ZCash built with x402 on Solana
+                Dox Yourself Privately with zkProf made with ZK-Snarks inspired by ZCash built on Solana x402
               </p>
             )}
           </div>

@@ -300,30 +300,25 @@ const Index = () => {
         {/* Section 1 - How the Club Works */}
         <div
           id="how-club-works"
-          className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
+          className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
         >
-          <div className="max-w-xl">
-            {/* Arubaito ASCII Art Block - Moved above title */}
+          <h2 className="text-xl font-bold mb-8 font-mono tracking-widest" style={{ color: "#ed565a" }}>
+            JOIN ARUBAITO CLUB BY
+          </h2>
+
+          <div className="max-w-md mx-auto">
+            {/* Arubaito ASCII Art Block */}
             <iframe
               src="/ascii/arubaito.html"
-              className="w-full max-w-md aspect-square mx-auto mb-8 border-0"
+              className="w-full aspect-square mb-6 border-0"
               style={{
                 backgroundColor: "transparent",
               }}
               title="Arubaito ASCII Art"
             />
 
-            <h2
-              className="text-3xl font-bold mb-6 font-mono text-left"
-              style={{
-                color: "#ed565a",
-              }}
-            >
-              JOIN ARUBAITO CLUB BY
-            </h2>
-
             <div
-              className="grid grid-cols-2 gap-x-8 gap-y-3 font-mono text-left text-xs leading-tight mb-5"
+              className="grid grid-cols-2 gap-x-6 gap-y-3 font-mono text-left text-xs leading-tight mb-6"
               style={{
                 color: "#ed565a",
               }}
@@ -344,17 +339,18 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-center">
               <Button
                 onClick={() => navigate("/arubaito")}
                 size="sm"
+                variant="outline"
+                className="font-mono text-xs bg-transparent border"
                 style={{
-                  backgroundColor: "#ed565a",
-                  color: "#fff",
+                  borderColor: "#ed565a",
+                  color: "#ed565a",
                 }}
-                className="font-mono text-xs bg-transparent"
               >
-                Join the Club
+                Join Waitlist
               </Button>
             </div>
           </div>

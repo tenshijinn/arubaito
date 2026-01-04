@@ -4,7 +4,6 @@ import { useState } from "react";
 import { TextRotator } from "@/components/TextRotator";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
-import { LatestUpdatesCarousel } from "@/components/LatestUpdatesCarousel";
 import { VideoHeroSection } from "@/components/VideoHeroSection";
 import arubaitoLogo from "@/assets/arubaito-logo.png";
 import reiUspAi from "@/assets/rei-usp-ai.png";
@@ -13,6 +12,11 @@ import reiUspX from "@/assets/rei-usp-x.png";
 import reiUspSolana from "@/assets/rei-usp-solana.png";
 import clubUspNft from "@/assets/club-usp-nft.png";
 import clubUspCv from "@/assets/club-usp-cv.png";
+import reiButton from "@/assets/rei-button.png";
+import zkprofButton from "@/assets/zkprof-button.png";
+import ubiButton from "@/assets/ubi-button.png";
+import perksButton from "@/assets/perks-button.png";
+
 const Index = () => {
   const navigate = useNavigate();
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
@@ -169,15 +173,83 @@ const Index = () => {
           } 
         />
 
-        {/* Section 1 - Latest Updates Carousel */}
-        <div id="latest-updates" className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
-          <LatestUpdatesCarousel />
+        {/* Section 1 - Arubaito Apps Grid */}
+        <div id="arubaito-apps" className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
+          <h2 className="text-xl font-bold mb-8 font-mono tracking-widest" style={{ color: "#ed565a" }}>
+            ARUBAITO APPS
+          </h2>
           
-          <button className="mt-8 text-xs font-mono flex items-center gap-1 mx-auto hover:opacity-80 transition-opacity" style={{
-          color: "#ed565a"
-        }} onClick={() => document.getElementById("how-club-works")?.scrollIntoView({
-          behavior: "smooth"
-        })}>
+          <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-md mx-auto">
+            {/* REI Button - Active */}
+            <a 
+              href="https://arubaito.app/rei" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group relative cursor-pointer transition-all duration-300"
+              onMouseEnter={() => setHoveredButton("rei-app")}
+              onMouseLeave={() => setHoveredButton(null)}
+            >
+              <img 
+                src={reiButton} 
+                alt="REI" 
+                className={`w-full h-auto rounded-2xl transition-opacity duration-300 ${hoveredButton === "rei-app" ? "opacity-50" : "opacity-100"}`}
+              />
+            </a>
+            
+            {/* zkPROF Button - Active */}
+            <a 
+              href="https://zkprof.xyz" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group relative cursor-pointer transition-all duration-300"
+              onMouseEnter={() => setHoveredButton("zkprof-app")}
+              onMouseLeave={() => setHoveredButton(null)}
+            >
+              <img 
+                src={zkprofButton} 
+                alt="zkPROF" 
+                className={`w-full h-auto rounded-2xl transition-opacity duration-300 ${hoveredButton === "zkprof-app" ? "opacity-50" : "opacity-100"}`}
+              />
+            </a>
+            
+            {/* UBI Button - Inactive */}
+            <div className="relative cursor-not-allowed">
+              <img 
+                src={ubiButton} 
+                alt="UBI" 
+                className="w-full h-auto rounded-2xl opacity-60"
+              />
+            </div>
+            
+            {/* PERKS PRTCL Button - Inactive */}
+            <div className="relative cursor-not-allowed">
+              <img 
+                src={perksButton} 
+                alt="PERKS PRTCL" 
+                className="w-full h-auto rounded-2xl opacity-60"
+              />
+            </div>
+          </div>
+          
+          {/* Hover explainer text */}
+          <div className="h-16 mt-6 flex items-center justify-center">
+            {hoveredButton === "rei-app" && (
+              <p className="text-sm font-mono text-center max-w-md px-4" style={{ color: "#ed565a" }}>
+                Rei is an AI Agent who makes it easy to earn crypto by matching tasks, bounties and more to your skills.
+              </p>
+            )}
+            {hoveredButton === "zkprof-app" && (
+              <p className="text-sm font-mono text-center max-w-md px-4" style={{ color: "#ed565a" }}>
+                Dox Yourself Privately with zkProf made with ZK-Snarks inspired by ZCash built with x402 on Solana
+              </p>
+            )}
+          </div>
+          
+          <button className="mt-4 text-xs font-mono flex items-center gap-1 mx-auto hover:opacity-80 transition-opacity" style={{
+            color: "#ed565a"
+          }} onClick={() => document.getElementById("how-club-works")?.scrollIntoView({
+            behavior: "smooth"
+          })}>
             How Arubaito Works ↓
           </button>
         </div>

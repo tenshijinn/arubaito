@@ -297,66 +297,7 @@ const Index = () => {
           onScrollDown={() => document.getElementById("latest-updates")?.scrollIntoView({ behavior: "smooth" })}
         />
 
-        {/* Section 1 - How the Club Works */}
-        <div
-          id="how-club-works"
-          className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
-        >
-          <h2 className="text-xl font-bold mb-8 font-mono tracking-widest" style={{ color: "#ed565a" }}>
-            JOIN ARUBAITO CLUB BY
-          </h2>
-
-          <div className="max-w-md mx-auto">
-            {/* Arubaito ASCII Art Block */}
-            <iframe
-              src="/ascii/arubaito.html"
-              className="w-full aspect-square mb-6 border-0"
-              style={{
-                backgroundColor: "transparent",
-              }}
-              title="Arubaito ASCII Art"
-            />
-
-            <div
-              className="grid grid-cols-2 gap-x-6 gap-y-3 font-mono text-left text-xs leading-tight mb-6"
-              style={{
-                color: "#ed565a",
-              }}
-            >
-              <div className="flex items-start gap-2">
-                <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Bluechip X Verification</span>
-              </div>
-
-              <div className="flex items-start gap-2">
-                <img src={clubUspNft} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Buy a Member NFT</span>
-              </div>
-
-              <div className="flex items-start gap-2">
-                <img src={clubUspCv} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Score 80+ on your CV Profile</span>
-              </div>
-            </div>
-
-            <div className="flex justify-center">
-              <Button
-                onClick={() => navigate("/arubaito")}
-                size="sm"
-                variant="outline"
-                className="font-mono text-xs bg-transparent border"
-                style={{
-                  borderColor: "#ed565a",
-                  color: "#ed565a",
-                }}
-              >
-                Join Waitlist
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Section 2 - Arubaito Apps Grid */}
+        {/* Section 1 - Arubaito Apps Grid */}
         <div
           id="arubaito-apps"
           className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
@@ -413,17 +354,158 @@ const Index = () => {
           <div className="h-16 mt-6 flex items-center justify-center">
             {hoveredButton === "rei-app" && (
               <p className="text-sm font-mono text-center max-w-md px-4" style={{ color: "#ed565a" }}>
-                AI Agent Rei makes it easy to earn crypto by matching tasks & bounties to your skills.
+                Rei is an AI Agent who makes it easy to earn crypto by matching tasks, bounties and more to your skills.
               </p>
             )}
             {hoveredButton === "zkprof-app" && (
               <p className="text-sm font-mono text-center max-w-md px-4" style={{ color: "#ed565a" }}>
-                Dox Yourself Privately with zkProf. Uses ZK-Snarks inspired by ZCash built on Solana x402.
+                Dox Yourself Privately with zkProf made with ZK-Snarks inspired by ZCash built with x402 on Solana
               </p>
             )}
           </div>
+
+          <button
+            className="mt-4 text-xs font-mono flex items-center gap-1 mx-auto hover:opacity-80 transition-opacity"
+            style={{
+              color: "#ed565a",
+            }}
+            onClick={() =>
+              document.getElementById("how-club-works")?.scrollIntoView({
+                behavior: "smooth",
+              })
+            }
+          >
+            How Arubaito Works ↓
+          </button>
         </div>
 
+        {/* Section 2 - How the Club Works */}
+        <div
+          id="how-club-works"
+          className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
+        >
+          <div className="max-w-xl">
+            {/* Arubaito ASCII Art Block - Moved above title */}
+            <iframe
+              src="/ascii/arubaito.html"
+              className="w-full max-w-md aspect-square mx-auto mb-8 border-0"
+              style={{
+                backgroundColor: "transparent",
+              }}
+              title="Arubaito ASCII Art"
+            />
+
+            <h2
+              className="text-3xl font-bold mb-6 font-mono text-left"
+              style={{
+                color: "#ed565a",
+              }}
+            >
+              JOIN ARUBAITO CLUB BY
+            </h2>
+
+            <div
+              className="grid grid-cols-2 gap-x-8 gap-y-3 font-mono text-left text-xs leading-tight mb-5"
+              style={{
+                color: "#ed565a",
+              }}
+            >
+              <div className="flex items-start gap-2">
+                <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>Bluechip X Verification</span>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <img src={clubUspNft} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>Buy Membership NFT</span>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <img src={clubUspCv} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>Get CV Profile Score 80+</span>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                onClick={() => navigate("/arubaito")}
+                size="sm"
+                style={{
+                  backgroundColor: "#ed565a",
+                  color: "#fff",
+                }}
+                className="font-mono text-xs bg-transparent"
+              >
+                Join the Club
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3 - How Rei Works */}
+        <div className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
+          <div className="max-w-xl">
+            {/* Rei ASCII Art Block - Moved above title */}
+            <iframe
+              src="/ascii/rei.html"
+              className="w-full max-w-md aspect-square mx-auto mb-8 border-0"
+              style={{
+                backgroundColor: "transparent",
+              }}
+              title="Rei ASCII Art"
+            />
+
+            <h2
+              className="text-3xl font-bold mb-6 font-mono text-left"
+              style={{
+                color: "#ed565a",
+              }}
+            >
+              How Rei Works
+            </h2>
+
+            <div
+              className="grid grid-cols-2 gap-x-4 gap-y-3 font-mono text-left text-xs leading-none mb-5"
+              style={{
+                color: "#ed565a",
+              }}
+            >
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <img src={reiUspAi} alt="" className="w-5 h-5 flex-shrink-0" />
+                <span>Share Your Skills</span>
+              </div>
+
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <img src={reiUspMatch} alt="" className="w-5 h-5 flex-shrink-0" />
+                <span>Rei matches Jobs/Tasks to your skills</span>
+              </div>
+
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0" />
+                <span>Type @AskRei on X to Chat</span>
+              </div>
+
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <img src={reiUspSolana} alt="" className="w-5 h-5 flex-shrink-0" />
+                <span>Use/Pay with x402 as a Human/AI Agent</span>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                onClick={() => navigate("/rei")}
+                size="sm"
+                style={{
+                  backgroundColor: "#ed565a",
+                  color: "#fff",
+                }}
+                className="font-mono text-xs bg-transparent"
+              >
+                Chat with Rei
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Mobile: Show Treasury and Waitlist at top on mobile */}

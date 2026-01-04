@@ -294,7 +294,7 @@ const Index = () => {
       >
         {/* Section 0 - Video Hero */}
         <VideoHeroSection
-          onScrollDown={() => document.getElementById("latest-updates")?.scrollIntoView({ behavior: "smooth" })}
+          onScrollDown={() => document.getElementById("how-club-works")?.scrollIntoView({ behavior: "smooth" })}
         />
 
         {/* Section 1 - How the Club Works */}

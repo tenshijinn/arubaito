@@ -303,7 +303,7 @@ const Index = () => {
           className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
         >
           <h2 className="text-xl font-bold mb-8 font-mono tracking-widest" style={{ color: "#ed565a" }}>
-            JOIN ARUBAITO CLUB BY
+            3 Ways to Join The Club
           </h2>
 
           <div className="max-w-md mx-auto">
@@ -335,7 +335,7 @@ const Index = () => {
 
               <div className="flex items-start gap-2">
                 <img src={clubUspCv} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Score 80+ on your CV Profile</span>
+                <span>80+ Score on CV Profile</span>
               </div>
             </div>
 

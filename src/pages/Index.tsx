@@ -359,7 +359,7 @@ const Index = () => {
             )}
             {hoveredButton === "zkprof-app" && (
               <p className="text-sm font-mono text-center max-w-md px-4" style={{ color: "#ed565a" }}>
-                Dox Yourself Privately with zkProf made with ZK-Snarks inspired by ZCash built on Solana x402.
+                Dox Yourself Privately with zkProf. Uses ZK-Snarks inspired by ZCash built on Solana x402.
               </p>
             )}
           </div>

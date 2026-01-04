@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Shield, MessageSquare, Briefcase, Database, Trophy, History } from "lucide-react";
+import { Loader2, Users, Shield, MessageSquare, Briefcase, Database, Trophy, History, Rss, Bot } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -15,6 +15,8 @@ import {
   AdminReiRegistrySection,
   AdminPointsSection,
   AdminAuditLogSection,
+  AdminFeedsSection,
+  AdminOracleSection,
 } from "@/components/admin";
 
 // Twitter OAuth callback handler for admin path
@@ -281,7 +283,7 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="whitelist" className="w-full">
-          <TabsList className="grid w-full grid-cols-7 mb-8">
+          <TabsList className="grid w-full grid-cols-9 mb-8">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">Users</span>
@@ -305,6 +307,14 @@ export default function Admin() {
             <TabsTrigger value="points" className="flex items-center gap-2">
               <Trophy className="w-4 h-4" />
               <span className="hidden sm:inline">Points</span>
+            </TabsTrigger>
+            <TabsTrigger value="feeds" className="flex items-center gap-2">
+              <Rss className="w-4 h-4" />
+              <span className="hidden sm:inline">Feeds</span>
+            </TabsTrigger>
+            <TabsTrigger value="oracle" className="flex items-center gap-2">
+              <Bot className="w-4 h-4" />
+              <span className="hidden sm:inline">X Oracle</span>
             </TabsTrigger>
             <TabsTrigger value="audit" className="flex items-center gap-2">
               <History className="w-4 h-4" />
@@ -334,6 +344,14 @@ export default function Admin() {
 
           <TabsContent value="points">
             <AdminPointsSection adminHandle={adminHandle} />
+          </TabsContent>
+
+          <TabsContent value="feeds">
+            <AdminFeedsSection />
+          </TabsContent>
+
+          <TabsContent value="oracle">
+            <AdminOracleSection />
           </TabsContent>
 
           <TabsContent value="audit">

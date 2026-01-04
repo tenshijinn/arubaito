@@ -102,3 +102,9 @@ verify_jwt = false
 
 [functions.search-jobs]
 verify_jwt = false
+
+[functions.ingest-rss-feeds]
+verify_jwt = false
+
+[functions.cron-trigger]
+verify_jwt = false

@@ -5,3 +5,5 @@ export { AdminReiRegistrySection } from './AdminReiRegistrySection';
 export { AdminPointsSection } from './AdminPointsSection';
 export { AdminAuditLogSection } from './AdminAuditLogSection';
 export { AdminWhitelistSection } from './AdminWhitelistSection';
+export { AdminFeedsSection } from './AdminFeedsSection';
+export { AdminOracleSection } from './AdminOracleSection';

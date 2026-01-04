@@ -427,33 +427,39 @@ export type Database = {
         Row: {
           author_handle: string | null
           author_id: string | null
+          daily_count: number | null
           id: string
           intent: string | null
           processed_at: string
           replied_at: string | null
           reply_tweet_id: string | null
+          request_date: string | null
           tweet_id: string
           tweet_text: string | null
         }
         Insert: {
           author_handle?: string | null
           author_id?: string | null
+          daily_count?: number | null
           id?: string
           intent?: string | null
           processed_at?: string
           replied_at?: string | null
           reply_tweet_id?: string | null
+          request_date?: string | null
           tweet_id: string
           tweet_text?: string | null
         }
         Update: {
           author_handle?: string | null
           author_id?: string | null
+          daily_count?: number | null
           id?: string
           intent?: string | null
           processed_at?: string
           replied_at?: string | null
           reply_tweet_id?: string | null
+          request_date?: string | null
           tweet_id?: string
           tweet_text?: string | null
         }

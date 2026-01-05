@@ -79,13 +79,14 @@ serve(async (req) => {
         content: message
       });
 
-    // Get conversation history (limit to last 15 messages to prevent context bleed)
+    // Get minimal conversation history - rely on database tools for context
+    // Only last 3 messages for immediate conversational flow
     const { data: allMessages } = await supabase
       .from('chat_messages')
       .select('role, content')
       .eq('conversation_id', convId)
       .order('created_at', { ascending: false })
-      .limit(15);
+      .limit(3);
     
     // Reverse to get chronological order
     const messages = (allMessages || []).reverse();
@@ -175,6 +176,13 @@ CORE RULES:
 4. Call save_draft after EACH field collected
 5. Trust natural language - recognize what users MEAN
 6. When searching jobs/tasks, prioritize recent ones and indicate their age
+
+STATELESS DESIGN - CRITICAL:
+- You have MINIMAL conversation history (last 3 messages only)
+- Use tools to fetch ALL context: check_my_drafts, get_my_profile, load_draft
+- If you need draft state, call check_my_drafts or load_draft
+- If you need user info, call get_my_profile
+- Each request should leverage database tools for full context
 
 FLOW STATES: INTENT → COLLECTING → CONFIRMING → PAYMENT → SUCCESS
 

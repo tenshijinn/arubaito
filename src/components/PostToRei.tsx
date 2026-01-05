@@ -26,7 +26,17 @@ const ROLE_OPTIONS = [
   { value: 'other', label: 'Other' },
 ];
 
-type PostType = 'job' | 'task';
+// Opportunity types with their target tables
+const OPPORTUNITY_TYPES = [
+  { value: 'job', label: 'Job', description: 'Full-time or part-time position', table: 'jobs' },
+  { value: 'contract', label: 'Contract', description: 'Fixed-term freelance work', table: 'jobs' },
+  { value: 'task', label: 'Task', description: 'One-time deliverable', table: 'tasks' },
+  { value: 'bounty', label: 'Bounty', description: 'Open/competitive task', table: 'tasks' },
+  { value: 'gig', label: 'Gig', description: 'Short-term work', table: 'tasks' },
+  { value: 'quest', label: 'Quest', description: 'Gamified campaign', table: 'tasks' },
+];
+
+type OpportunityType = 'job' | 'contract' | 'task' | 'bounty' | 'gig' | 'quest';
 type PaymentMethod = 'solana-pay' | 'x402' | null;
 
 interface PaymentData {
@@ -40,7 +50,7 @@ interface PaymentData {
 
 export const PostToRei = () => {
   const { publicKey } = useWallet();
-  const [postType, setPostType] = useState<PostType>('job');
+  const [opportunityType, setOpportunityType] = useState<OpportunityType>('job');
   const [title, setTitle] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [description, setDescription] = useState('');
@@ -83,8 +93,9 @@ export const PostToRei = () => {
       const reference = keypair.publicKey.toString();
       
       const recipient = '5JXJQSFZMxiQNmG4nx3bs2FnoZZsgz6kpVrNDxfBjb1s';
-      const label = postType === 'job' ? 'Job Posting' : 'Task Posting';
-      const message = `Post ${postType} to Rei Portal`;
+      const typeConfig = OPPORTUNITY_TYPES.find(t => t.value === opportunityType);
+      const label = `${typeConfig?.label || 'Opportunity'} Posting`;
+      const message = `Post ${opportunityType} to Rei Portal`;
       
       const paymentUrl = `solana:${recipient}?amount=${solAmount.toFixed(9)}&reference=${reference}&label=${encodeURIComponent(label)}&message=${encodeURIComponent(message)}`;
       
@@ -162,20 +173,22 @@ export const PostToRei = () => {
         verifyData = data;
       }
 
-      // Check if reference already used
-      const table = postType === 'job' ? 'jobs' : 'tasks';
+      // Check if reference already used - determine target table based on opportunity type
+      const typeConfig = OPPORTUNITY_TYPES.find(t => t.value === opportunityType);
+      const targetTable = typeConfig?.table as 'jobs' | 'tasks' || 'jobs';
+      
       const { data: existingPost } = await supabase
-        .from(table)
+        .from(targetTable)
         .select('id')
         .eq('solana_pay_reference', reference)
-        .single();
+        .maybeSingle();
 
       if (existingPost) {
         throw new Error('Payment already used for another posting');
       }
 
-      // Insert job or task
-      if (postType === 'job') {
+      // Insert based on target table (jobs or tasks)
+      if (targetTable === 'jobs') {
         const { error: insertError } = await supabase
           .from('jobs')
           .insert({
@@ -190,14 +203,15 @@ export const PostToRei = () => {
             employer_wallet: publicKey?.toString(),
             payment_tx_signature: verifyData.signature,
             solana_pay_reference: reference,
-            source: 'manual'
+            source: 'manual',
+            opportunity_type: opportunityType
           });
 
         if (insertError) throw insertError;
       } else {
-        // Task - requires link
+        // Tasks table - requires link
         if (!link) {
-          throw new Error('Link is required for tasks');
+          throw new Error('Link is required for tasks, bounties, gigs, and quests');
         }
 
         const { error: insertError } = await supabase
@@ -213,7 +227,8 @@ export const PostToRei = () => {
             employer_wallet: publicKey?.toString(),
             payment_tx_signature: verifyData.signature,
             solana_pay_reference: reference,
-            source: 'manual'
+            source: 'manual',
+            opportunity_type: opportunityType
           });
 
         if (insertError) throw insertError;
@@ -230,7 +245,8 @@ export const PostToRei = () => {
         }
       });
 
-      toast.success(`${postType === 'job' ? 'Job' : 'Task'} posted successfully! 10 points awarded.`);
+      const typeLabel = OPPORTUNITY_TYPES.find(t => t.value === opportunityType)?.label || 'Opportunity';
+      toast.success(`${typeLabel} posted successfully! 10 points awarded.`);
       
       // Reset form
       setTitle('');
@@ -256,7 +272,10 @@ export const PostToRei = () => {
     setShowPaymentMethod(true);
   };
 
-  const canGeneratePayment = title && companyName && description && selectedRoles.length > 0 && (postType === 'job' || link);
+  // Determine if link is required based on opportunity type (tasks table items need links)
+  const typeConfig = OPPORTUNITY_TYPES.find(t => t.value === opportunityType);
+  const isTasksTable = typeConfig?.table === 'tasks';
+  const canGeneratePayment = title && companyName && description && selectedRoles.length > 0 && (!isTasksTable || link);
 
   return (
     <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 180px)' }}>
@@ -268,16 +287,20 @@ export const PostToRei = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Post Type Selection */}
+          {/* Opportunity Type Selection */}
           <div className="space-y-2">
             <Label className="font-mono">&gt; Type *</Label>
-            <Select value={postType} onValueChange={(value) => setPostType(value as PostType)}>
+            <Select value={opportunityType} onValueChange={(value) => setOpportunityType(value as OpportunityType)}>
               <SelectTrigger className="font-mono bg-background/50">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="job" className="font-mono">Job Opening</SelectItem>
-                <SelectItem value="task" className="font-mono">Task/Bounty</SelectItem>
+                {OPPORTUNITY_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value} className="font-mono">
+                    <span>{type.label}</span>
+                    <span className="text-muted-foreground text-xs ml-2">— {type.description}</span>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -288,7 +311,7 @@ export const PostToRei = () => {
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={postType === 'job' ? 'e.g. Senior Solidity Developer' : 'e.g. Smart Contract Audit'}
+              placeholder={!isTasksTable ? 'e.g. Senior Solidity Developer' : 'e.g. Smart Contract Audit'}
               className="font-mono bg-background/50"
               maxLength={100}
             />
@@ -312,15 +335,15 @@ export const PostToRei = () => {
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder={postType === 'job' ? 'Describe the role, responsibilities, and what makes this opportunity great...' : 'Describe the task, deliverables, and success criteria...'}
+              placeholder={!isTasksTable ? 'Describe the role, responsibilities, and what makes this opportunity great...' : 'Describe the task, deliverables, and success criteria...'}
               className="font-mono bg-background/50 min-h-[100px]"
               maxLength={500}
             />
             <p className="text-xs text-muted-foreground font-mono">{description.length}/500</p>
           </div>
 
-          {/* Requirements (Job only) */}
-          {postType === 'job' && (
+          {/* Requirements (Jobs table only) */}
+          {!isTasksTable && (
             <div className="space-y-2">
               <Label className="font-mono">&gt; Requirements</Label>
               <Textarea
@@ -333,13 +356,13 @@ export const PostToRei = () => {
             </div>
           )}
 
-          {/* Link (Required for tasks) */}
+          {/* Link (Required for tasks table items) */}
           <div className="space-y-2">
-            <Label className="font-mono">&gt; Link {postType === 'task' && '*'}</Label>
+            <Label className="font-mono">&gt; Link {isTasksTable && '*'}</Label>
             <Input
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              placeholder={postType === 'job' ? 'Application/Details URL (optional)' : 'Task details URL (required)'}
+              placeholder={!isTasksTable ? 'Application/Details URL (optional)' : 'Details URL (required)'}
               className="font-mono bg-background/50"
               type="url"
             />
@@ -347,11 +370,11 @@ export const PostToRei = () => {
 
           {/* Compensation/Reward */}
           <div className="space-y-2">
-            <Label className="font-mono">&gt; {postType === 'job' ? 'Compensation' : 'Reward'}</Label>
+            <Label className="font-mono">&gt; {!isTasksTable ? 'Compensation' : 'Reward'}</Label>
             <Input
               value={compensation}
               onChange={(e) => setCompensation(e.target.value)}
-              placeholder={postType === 'job' ? 'e.g. $80k-$120k or 0.5-1% equity' : 'e.g. 500 USDC or 2 SOL'}
+              placeholder={!isTasksTable ? 'e.g. $80k-$120k or 0.5-1% equity' : 'e.g. 500 USDC or 2 SOL'}
               className="font-mono bg-background/50"
             />
           </div>
@@ -454,7 +477,7 @@ export const PostToRei = () => {
           {paymentData && selectedPaymentMethod === 'x402' && (
             <X402Payment
               amount={paymentData.amount}
-              memo={`Post ${postType} to Rei`}
+              memo={`Post ${opportunityType} to Rei`}
               onSuccess={handlePaymentComplete}
               onCancel={handleCancelPayment}
             />

@@ -368,6 +368,7 @@ export type Database = {
           id: string
           link: string | null
           og_image: string | null
+          opportunity_type: string | null
           payment_tx_signature: string
           requirements: string | null
           role_tags: string[] | null
@@ -390,6 +391,7 @@ export type Database = {
           id?: string
           link?: string | null
           og_image?: string | null
+          opportunity_type?: string | null
           payment_tx_signature: string
           requirements?: string | null
           role_tags?: string[] | null
@@ -412,6 +414,7 @@ export type Database = {
           id?: string
           link?: string | null
           og_image?: string | null
+          opportunity_type?: string | null
           payment_tx_signature?: string
           requirements?: string | null
           role_tags?: string[] | null
@@ -862,6 +865,7 @@ export type Database = {
           id: string
           link: string
           og_image: string | null
+          opportunity_type: string | null
           payment_tx_signature: string
           role_tags: string[] | null
           solana_pay_reference: string | null
@@ -881,6 +885,7 @@ export type Database = {
           id?: string
           link: string
           og_image?: string | null
+          opportunity_type?: string | null
           payment_tx_signature: string
           role_tags?: string[] | null
           solana_pay_reference?: string | null
@@ -900,6 +905,7 @@ export type Database = {
           id?: string
           link?: string
           og_image?: string | null
+          opportunity_type?: string | null
           payment_tx_signature?: string
           role_tags?: string[] | null
           solana_pay_reference?: string | null

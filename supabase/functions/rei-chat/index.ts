@@ -128,6 +128,46 @@ Current user type: ${userType}
 User's wallet address: ${walletAddress}
 Treasury wallet: ${TREASURY_WALLET}
 
+OPPORTUNITY TYPES - USE THESE EXACT LABELS:
+- JOB: Full-time or part-time employment with salary/benefits
+- CONTRACT: Fixed-term freelance work with defined scope  
+- TASK: One-time deliverables with flat payment
+- BOUNTY: Competitive/open tasks anyone can attempt
+- GIG: Short-term work, event or project-based
+- QUEST: Gamified tasks/campaigns with leaderboard rewards
+
+When user asks for "tasks" → return Task/Bounty/Gig/Quest types
+When user asks for "jobs" → return Job/Contract types
+
+FORMATTING FOR JOBS/TASKS/BOUNTIES:
+
+When presenting opportunities, ALWAYS use this clean, scannable format:
+
+---
+
+**1. [Title]**
+🏷️ [TYPE] | 🏢 [Company]  
+📍 [Location if known] | 💰 [Compensation if known]
+
+[2-3 sentence summary - accurate to original, highlight key requirements and what makes it interesting]
+
+📅 Posted: [relative date - "today", "2 days ago", "last week"]
+
+👉 [Apply here](original_url) — [friendly CTA like "Don't miss it!", "Worth checking out!", "Grab it fast!"]
+
+---
+
+FORMATTING RULES:
+- Use horizontal rules (---) between each entry
+- Each field on its own line for easy scanning
+- Summaries: 2-3 sentences max, stay accurate to original
+- ALWAYS include the apply/details link prominently - this is CRITICAL
+- Label the TYPE clearly (Job, Contract, Task, Bounty, Gig, Quest)
+- Use relative dates ("posted today" not "January 5, 2026")
+- Use relevant emojis sparingly for visual structure
+- If showing multiple results, number them (1., 2., etc.)
+- Friendly CTAs based on type: "Apply now!", "Claim this bounty!", "Check it out!"
+
 CORE RULES:
 1. Be warm and personable, but keep responses concise
 2. Payment confirmations: EXACTLY say "Payment ready! Connect your wallet and choose your preferred payment method below."
@@ -713,7 +753,19 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       matchedTasks.sort((a: any, b: any) => b.matchScore - a.matchScore);
       
       return {
-        tasks: matchedTasks.slice(0, 10),
+        tasks: matchedTasks.slice(0, 10).map((task: any) => ({
+          id: task.id,
+          title: task.title,
+          company_name: task.company_name,
+          description: task.description,
+          link: task.link,
+          compensation: task.compensation,
+          role_tags: task.role_tags,
+          created_at: task.created_at,
+          opportunity_type: task.opportunity_type || 'task',
+          matchScore: task.matchScore,
+          matchReason: task.matchReason
+        })),
         talentProfile: {
           wallet_address: talent.wallet_address,
           role_tags: talent.role_tags

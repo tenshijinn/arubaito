@@ -15,6 +15,7 @@ import { getPresetsForMode, getWelcomePresets } from "./chat/chatPresets";
 import { SolanaPayQR } from "./SolanaPayQR";
 import { PaymentMethodSelector } from "./PaymentMethodSelector";
 import { X402Payment } from "./X402Payment";
+import { MessageContent } from "./chat/MessageContent";
 
 interface Message {
   role: "user" | "assistant";
@@ -436,9 +437,15 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         <div className="flex gap-3 text-sm">
           <span className="text-muted-foreground">[{timestamp}]</span>
           <span style={{ color: isUser ? "#f1eee6" : "#e565a0" }}>{username}</span>
-          <div className="flex-1 whitespace-pre-wrap break-words" style={{ color: isUser ? "#f1eee6" : "#e565a0" }}>
-            {content}
-            {isTyping && <span className="animate-pulse">▋</span>}
+          <div className="flex-1 break-words" style={{ color: isUser ? "#f1eee6" : "#e565a0" }}>
+            {isUser ? (
+              <span className="whitespace-pre-wrap">{content}</span>
+            ) : (
+              <>
+                <MessageContent content={content} />
+                {isTyping && <span className="animate-pulse">▋</span>}
+              </>
+            )}
           </div>
         </div>
 

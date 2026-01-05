@@ -255,6 +255,7 @@ async function processRSSSource(source: JobSource, supabase: any, lovableApiKey:
             source: "rss_feed",
             status: "active",
             expires_at: expiresAt.toISOString(),
+            opportunity_type: structuredData.opportunity_type || "job",
           });
           
           if (error) {
@@ -277,6 +278,7 @@ async function processRSSSource(source: JobSource, supabase: any, lovableApiKey:
             source: "rss_feed",
             status: "active",
             end_date: expiresAt.toISOString(),
+            opportunity_type: structuredData.opportunity_type || "task",
           });
           
           if (error) {
@@ -477,7 +479,16 @@ async function extractWithAI(item: RSSItem, apiKey: string): Promise<any> {
           {
             role: "system",
             content: `You extract structured job/task data from RSS items. Return JSON only.
-Extract: company_name, compensation (if mentioned), role_tags (array of: dev, design, community, ops, product, research).
+Extract: company_name, compensation (if mentioned), role_tags (array of: dev, design, community, ops, product, research), opportunity_type.
+
+OPPORTUNITY TYPE CLASSIFICATION (choose ONE):
+- job: Full-time or part-time employment, mentions salary, benefits, "hiring", "position"
+- contract: Fixed-term freelance, hourly rate, consulting
+- task: One-time deliverable with flat payment
+- bounty: Competitive/open task anyone can attempt, reward for completion
+- gig: Short-term work, event-based, project-based
+- quest: Gamified tasks, campaigns, leaderboard rewards
+
 If not found, omit the field. Keep responses minimal.`,
           },
           {
@@ -497,6 +508,11 @@ If not found, omit the field. Keep responses minimal.`,
                   company_name: { type: "string" },
                   compensation: { type: "string" },
                   role_tags: { type: "array", items: { type: "string" } },
+                  opportunity_type: { 
+                    type: "string", 
+                    enum: ["job", "contract", "task", "bounty", "gig", "quest"],
+                    description: "Type of opportunity based on content analysis"
+                  },
                 },
               },
             },

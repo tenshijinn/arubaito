@@ -109,7 +109,29 @@ function calculateMatchScore(talent: any, opportunity: any) {
   let score = 0;
   const reasons = [];
 
-  // Role tag match (30 points)
+  const descriptionLower = (opportunity.description || '').toLowerCase();
+  const requirementsLower = (opportunity.requirements || '').toLowerCase();
+  const titleLower = (opportunity.title || '').toLowerCase();
+
+  // 1. SKILLS MATCH (40 points max - HIGHEST PRIORITY)
+  const talentSkills = (talent.skills || []).map((s: string) => s.toLowerCase());
+  let skillMatches = 0;
+  const matchedSkillNames: string[] = [];
+  
+  for (const skill of talentSkills) {
+    if (descriptionLower.includes(skill) || requirementsLower.includes(skill) || titleLower.includes(skill)) {
+      skillMatches++;
+      matchedSkillNames.push(skill);
+    }
+  }
+  
+  if (skillMatches > 0) {
+    const skillScore = Math.min(skillMatches * 10, 40);
+    score += skillScore;
+    reasons.push(`Matches your skills: ${matchedSkillNames.join(', ')}`);
+  }
+
+  // 2. Role tag match (30 points)
   const talentTags = talent.role_tags || [];
   const oppTags = opportunity.role_tags || [];
   const matchingTags = talentTags.filter((tag: string) => oppTags.includes(tag));
@@ -119,49 +141,28 @@ function calculateMatchScore(talent: any, opportunity: any) {
     reasons.push(`Matches ${matchingTags.length} role tag(s): ${matchingTags.join(', ')}`);
   }
 
-  // Profile score (20 points)
-  const profileScore = (talent.profile_score || 0) * 2;
-  score += profileScore;
+  // 3. Profile score (15 points)
   if (talent.profile_score >= 8) {
-    reasons.push('High profile score indicates strong candidate');
+    score += 15;
+    reasons.push('High profile score');
+  } else if (talent.profile_score >= 5) {
+    score += 10;
   }
 
-  // Wallet activity relevance (25 points) - simplified
+  // 4. Wallet activity relevance (10 points)
   const analysis = talent.profile_analysis || {};
   if (analysis.notable_interactions) {
-    score += 15;
+    score += 5;
     reasons.push('Has relevant Web3 experience');
   }
   if (analysis.wallet_activity) {
-    score += 10;
-    reasons.push('Active wallet with verified transactions');
+    score += 5;
   }
 
-  // Bluechip score (10 points)
+  // 5. Bluechip verified (5 points)
   if (talent.bluechip_verified) {
-    score += 10;
-    reasons.push('Bluechip verified with notable NFT holdings');
-  }
-
-  // Skills match from description (15 points) - keyword matching
-  const descriptionLower = (opportunity.description || '').toLowerCase();
-  const requirementsLower = (opportunity.requirements || '').toLowerCase();
-  const analysisSummary = (talent.analysis_summary || '').toLowerCase();
-  
-  let keywordMatches = 0;
-  const keywords = ['defi', 'nft', 'dao', 'smart contract', 'web3', 'blockchain', 'solana', 'ethereum'];
-  
-  for (const keyword of keywords) {
-    if ((descriptionLower.includes(keyword) || requirementsLower.includes(keyword)) && 
-        analysisSummary.includes(keyword)) {
-      keywordMatches++;
-    }
-  }
-  
-  const skillScore = Math.min(keywordMatches * 3, 15);
-  score += skillScore;
-  if (keywordMatches > 0) {
-    reasons.push(`Matches ${keywordMatches} key skill(s)`);
+    score += 5;
+    reasons.push('Bluechip verified');
   }
 
   return {

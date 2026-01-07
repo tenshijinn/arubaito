@@ -115,6 +115,26 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Extract skills and work experience from profile_analysis
+    let skills: string[] = [];
+    let workExperience: any[] = [];
+
+    if (profileAnalysis) {
+      // Extract technologies as skills
+      if (profileAnalysis.notable_mentions?.technologies) {
+        skills = profileAnalysis.notable_mentions.technologies;
+        console.log('Extracted skills:', skills);
+      }
+      
+      // Extract experience highlights as work experience
+      if (profileAnalysis.experience_highlights) {
+        workExperience = profileAnalysis.experience_highlights.map((exp: string) => ({
+          description: exp
+        }));
+        console.log('Extracted work experience:', workExperience.length, 'items');
+      }
+    }
+
     // Upsert registration data - use x_user_id for conflict since users can update their wallet
     const { data, error } = await supabase
       .from('rei_registry')
@@ -133,6 +153,8 @@ Deno.serve(async (req) => {
           profile_analysis: profileAnalysis,
           analysis_summary: analysisSummary,
           profile_score: profileScore,
+          skills: skills,
+          work_experience: workExperience,
         },
         { 
           onConflict: 'x_user_id',

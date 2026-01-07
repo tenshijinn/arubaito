@@ -187,11 +187,16 @@ STATELESS DESIGN - CRITICAL:
 FLOW STATES: INTENT → COLLECTING → CONFIRMING → PAYMENT → SUCCESS
 
 KEY ACTIONS:
-- "find jobs/roles" → search_jobs immediately
-- "find tasks/bounties" → search_tasks immediately  
+- "find jobs/roles" / "match my skills" / "jobs for me" → get_my_profile FIRST to get skills, then search_jobs
+- "find tasks/bounties" → get_my_profile FIRST to get skills, then search_tasks
 - "post a job" → check_my_drafts FIRST, then collect: title, company, description (max 500 chars), wage (opt), deadline (opt)
 - "post a task" → check_my_drafts FIRST, then collect: title, company, description, link (REQUIRED), pay (opt), end date (opt)
-- "check my points/profile" → get_my_profile immediately
+- "check my points/profile" / "what are my skills" → get_my_profile immediately
+
+PROFILE-AWARE JOB MATCHING:
+- When presenting matched jobs/tasks, explain WHY they match based on the user's skills from their talent profile
+- If talentProfile.skills is empty, ask user to tell you their skills or update their profile
+- Prioritize opportunities that match declared skills over generic matches
 
 JOB/TASK POSTING:
 - Drafts exist? Show with emojis (1️⃣, 2️⃣) in metadata.drafts format
@@ -735,19 +740,46 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         return { error: 'Failed to fetch tasks' };
       }
       
-      // Simple matching based on role tags
+      // Skills-based matching (highest priority)
+      const talentSkills = (talent.skills || []).map((s: string) => s.toLowerCase());
+      
       const matchedTasks = tasks.map((task: any) => {
         let matchScore = 0;
         let matchReasons = [];
         
-        // Check role tag overlap
+        const descLower = (task.description || '').toLowerCase();
+        const titleLower = (task.title || '').toLowerCase();
+        
+        // 1. Skills match (40 points max - highest priority)
+        let skillMatches = 0;
+        const matchedSkillNames: string[] = [];
+        for (const skill of talentSkills) {
+          if (descLower.includes(skill) || titleLower.includes(skill)) {
+            skillMatches++;
+            matchedSkillNames.push(skill);
+          }
+        }
+        if (skillMatches > 0) {
+          const skillScore = Math.min(skillMatches * 10, 40);
+          matchScore += skillScore;
+          matchReasons.push(`Matches your skills: ${matchedSkillNames.join(', ')}`);
+        }
+        
+        // 2. Role tag overlap (30 points max)
         const talentTags = talent.role_tags || [];
         const taskTags = task.role_tags || [];
         const matchingTags = talentTags.filter((tag: string) => taskTags.includes(tag));
         
         if (matchingTags.length > 0) {
-          matchScore += matchingTags.length * 20;
+          matchScore += matchingTags.length * 10;
           matchReasons.push(`Matches ${matchingTags.length} role tag(s): ${matchingTags.join(', ')}`);
+        }
+        
+        // 3. Profile score bonus (15 points max)
+        if (talent.profile_score >= 8) {
+          matchScore += 15;
+        } else if (talent.profile_score >= 5) {
+          matchScore += 10;
         }
         
         return {
@@ -789,6 +821,13 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         .eq('wallet_address', args.walletAddress)
         .single();
       
+      // Get talent profile from rei_registry
+      const { data: talentProfile } = await supabase
+        .from('rei_registry')
+        .select('*')
+        .eq('wallet_address', args.walletAddress)
+        .single();
+      
       // Get submission history
       const { data: submissions } = await supabase
         .from('community_submissions')
@@ -811,6 +850,16 @@ async function executeTool(toolName: string, args: any, supabase: any) {
           pending: pointsData?.points_pending || 0,
           lifetime_earnings_sol: pointsData?.lifetime_earnings_sol || 0
         },
+        talentProfile: talentProfile ? {
+          handle: talentProfile.handle,
+          displayName: talentProfile.display_name,
+          roleTags: talentProfile.role_tags || [],
+          skills: talentProfile.skills || [],
+          workExperience: talentProfile.work_experience || [],
+          profileScore: talentProfile.profile_score,
+          analysisSummary: talentProfile.analysis_summary,
+          profileAnalysis: talentProfile.profile_analysis
+        } : null,
         submissions: submissions || [],
         recent_transactions: transactions || []
       };

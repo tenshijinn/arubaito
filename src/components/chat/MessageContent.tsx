@@ -22,13 +22,31 @@ export const MessageContent = ({ content }: MessageContentProps) => {
         return;
       }
 
+      // Handle numbered titles (1. Title, 2. Title, etc.) - render with highlight
+      const titleMatch = line.match(/^(\d+)\.\s+(.+)$/);
+      if (titleMatch) {
+        const number = titleMatch[1];
+        const titleContent = titleMatch[2];
+        const parsedTitle = parseLine(titleContent, keyIndex);
+        keyIndex += parsedTitle.keyCount;
+        elements.push(
+          <div key={`title-${keyIndex++}`} className="font-bold text-foreground mt-3 first:mt-0">
+            <span className="bg-primary/15 px-1 rounded-sm">{number}. {parsedTitle.elements}</span>
+          </div>
+        );
+        if (lineIndex < lines.length - 1) {
+          elements.push('\n');
+        }
+        return;
+      }
+
       // Handle > chevron prefix for details lines (company/location/pay)
       if (line.trim().startsWith('> ') && !line.trim().startsWith('>> ')) {
         const innerContent = line.trim().substring(2);
         const parsedInner = parseLine(innerContent, keyIndex);
         keyIndex += parsedInner.keyCount;
         elements.push(
-          <div key={`chevron-${keyIndex++}`} className="flex items-start gap-2 text-muted-foreground pl-3">
+          <div key={`chevron-${keyIndex++}`} className="flex items-start gap-2 text-muted-foreground">
             <span className="text-primary/70 font-mono">▶</span>
             <span>{parsedInner.elements}</span>
           </div>
@@ -45,7 +63,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
         const parsedInner = parseLine(innerContent, keyIndex);
         keyIndex += parsedInner.keyCount;
         elements.push(
-          <div key={`action-${keyIndex++}`} className="flex items-center gap-2 pl-3 mt-1">
+          <div key={`action-${keyIndex++}`} className="flex items-center gap-2 mt-1">
             <span className="text-primary font-mono">»</span>
             <span>{parsedInner.elements}</span>
           </div>

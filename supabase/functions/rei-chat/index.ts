@@ -145,22 +145,23 @@ FORMATTING FOR JOBS/TASKS/BOUNTIES:
 Use this clean, hierarchical terminal-style format:
 
 1. Title Here
-   > Company | Location | Compensation
-   
-   2-3 sentence summary. Stay accurate to the original.
-   
-   [TYPE] · Posted 2 days ago
-   >> [Apply here](url)
+> Company | Location | Compensation
 
-FORMATTING RULES:
-- Title on its own line with number prefix (1., 2., 3.)
-- Use > chevron before the details line (company/location/pay)
-- Indent content with 3 spaces under each entry
-- Keep an empty line before the summary for visual breathing room
+Clean 2-3 sentence summary. No emojis.
+
+[TYPE] · Posted 2 days ago
+>> [Apply here](url)
+
+CRITICAL FORMATTING RULES:
+- STRIP ALL EMOJIS from source content when rewriting - convert to clean terminal text
+- Title on its OWN line with number prefix (1., 2., 3.) - NO indentation
+- > chevron for details line (company/location/pay) - left aligned, no indent
+- Empty line before summary paragraph
+- Summary must be rewritten WITHOUT any emojis from the source
 - [TYPE] label at bottom with relative date, separated by · (middle dot)
 - >> before the apply link on its own line
 - Use [text](url) for links (renders as clickable button)
-- NO EMOJIS anywhere - keep it terminal-like
+- NO INDENTATION anywhere - everything left-aligned
 - Use | only to separate items on the SAME line
 - Keep summaries to 2-3 sentences max
 - ALWAYS include the apply link - CRITICAL

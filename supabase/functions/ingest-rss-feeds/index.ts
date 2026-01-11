@@ -192,6 +192,161 @@ function generateExternalId(item: RSSItem): string {
   return `rss_${Math.abs(hash).toString(16)}`;
 }
 
+// Extract skill categories using AI
+async function extractSkillCategories(
+  title: string, 
+  description: string, 
+  apiKey: string
+): Promise<{name: string, keywords: string[]}[]> {
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "system",
+            content: `You extract skill categories from job/task postings.
+
+RULES:
+1. Extract 1-5 relevant skill categories from this posting
+2. Categories should be specific enough to be meaningful but broad enough to match multiple profiles
+3. Include both technical skills and soft skills where relevant
+4. For each category, provide 3-7 related keywords that would indicate someone has this skill
+
+EXAMPLES of good categories:
+- "Social Media Management" with keywords: ["twitter", "x", "content creation", "engagement", "threads", "scheduling"]
+- "DeFi Protocol Development" with keywords: ["smart contracts", "liquidity", "dex", "yield", "amm", "defi"]
+- "Community Building" with keywords: ["discord", "telegram", "moderation", "events", "engagement"]
+- "NFT & Digital Art" with keywords: ["nft", "collection", "minting", "opensea", "digital art", "metadata"]
+- "Trading & Market Analysis" with keywords: ["trading", "analysis", "charts", "indicators", "dex", "market making"]
+- "Solana Development" with keywords: ["rust", "anchor", "solana", "spl tokens", "web3.js"]
+- "Frontend Development" with keywords: ["react", "typescript", "javascript", "ui", "css", "tailwind"]
+- "Backend Development" with keywords: ["node", "python", "api", "database", "server", "microservices"]
+
+Return JSON ONLY: { "categories": [{ "name": "Category Name", "keywords": ["keyword1", "keyword2", ...] }] }`,
+          },
+          {
+            role: "user",
+            content: `Title: ${title}\nDescription: ${description || "N/A"}`,
+          },
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "extract_categories",
+              description: "Extract skill categories from job/task posting",
+              parameters: {
+                type: "object",
+                properties: {
+                  categories: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        keywords: { type: "array", items: { type: "string" } }
+                      },
+                      required: ["name", "keywords"]
+                    }
+                  }
+                },
+                required: ["categories"]
+              }
+            }
+          }
+        ],
+        tool_choice: { type: "function", function: { name: "extract_categories" } }
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("AI category extraction failed:", response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (toolCall) {
+      const result = JSON.parse(toolCall.function.arguments);
+      return result.categories || [];
+    }
+    return [];
+  } catch (error) {
+    console.error("Category extraction error:", error);
+    return [];
+  }
+}
+
+// Upsert categories and return their IDs
+async function upsertCategories(
+  categories: {name: string, keywords: string[]}[],
+  supabase: any,
+  opportunityType: 'job' | 'task'
+): Promise<string[]> {
+  const categoryIds: string[] = [];
+  
+  for (const cat of categories) {
+    try {
+      // Check if category exists (case-insensitive)
+      const { data: existing } = await supabase
+        .from('skill_categories')
+        .select('id, keywords')
+        .ilike('name', cat.name)
+        .single();
+      
+      if (existing) {
+        // Merge new keywords with existing (deduplicated)
+        const mergedKeywords = [...new Set([...(existing.keywords || []), ...cat.keywords])];
+        const countField = opportunityType === 'job' ? 'job_count' : 'task_count';
+        
+        const { error: updateError } = await supabase
+          .from('skill_categories')
+          .update({ 
+            keywords: mergedKeywords,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existing.id);
+        
+        if (!updateError) {
+          // Increment count separately to avoid issues
+          await supabase.rpc('increment_skill_category_count', {
+            category_id: existing.id,
+            count_type: countField
+          }).catch(() => {
+            // If RPC doesn't exist, skip count update
+          });
+          categoryIds.push(existing.id);
+        }
+      } else {
+        // Create new category
+        const { data: newCat, error: insertError } = await supabase
+          .from('skill_categories')
+          .insert({
+            name: cat.name,
+            keywords: cat.keywords,
+            [opportunityType === 'job' ? 'job_count' : 'task_count']: 1
+          })
+          .select('id')
+          .single();
+        
+        if (!insertError && newCat) {
+          categoryIds.push(newCat.id);
+        }
+      }
+    } catch (error) {
+      console.error(`Error upserting category ${cat.name}:`, error);
+    }
+  }
+  
+  return categoryIds;
+}
+
 async function processRSSSource(source: JobSource, supabase: any, lovableApiKey: string | undefined) {
   const config = source.config;
   const targetTable = config.target_table;
@@ -230,9 +385,26 @@ async function processRSSSource(source: JobSource, supabase: any, lovableApiKey:
           link: item.link,
         };
         
+        let categoryIds: string[] = [];
+        
         if (lovableApiKey) {
           const extracted = await extractWithAI(item, lovableApiKey);
           structuredData = { ...structuredData, ...extracted };
+          
+          // Extract and upsert skill categories
+          const categories = await extractSkillCategories(
+            structuredData.title,
+            structuredData.description,
+            lovableApiKey
+          );
+          
+          if (categories.length > 0) {
+            categoryIds = await upsertCategories(
+              categories,
+              supabase,
+              targetTable === 'jobs' ? 'job' : 'task'
+            );
+          }
         }
         
         // Calculate expiry (14 days from now)
@@ -250,6 +422,7 @@ async function processRSSSource(source: JobSource, supabase: any, lovableApiKey:
             link: item.link,
             apply_url: structuredData.apply_url || item.link,
             role_tags: structuredData.role_tags || [],
+            skill_category_ids: categoryIds,
             employer_wallet: "system_rss_import",
             payment_tx_signature: "rss_import_" + externalId,
             source: "rss_feed",
@@ -273,6 +446,7 @@ async function processRSSSource(source: JobSource, supabase: any, lovableApiKey:
             compensation: structuredData.compensation,
             link: item.link,
             role_tags: structuredData.role_tags || [],
+            skill_category_ids: categoryIds,
             employer_wallet: "system_rss_import",
             payment_tx_signature: "rss_import_" + externalId,
             source: "rss_feed",

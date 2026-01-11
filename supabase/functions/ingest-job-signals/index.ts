@@ -62,6 +62,140 @@ function mapSkillsToRoleTags(skills: string[]): string[] {
   return roleTags.length > 0 ? roleTags : ['dev']; // Default to dev if no match
 }
 
+// Extract skill categories using AI
+async function extractSkillCategories(
+  title: string, 
+  description: string, 
+  skills: string[],
+  apiKey: string
+): Promise<{name: string, keywords: string[]}[]> {
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "system",
+            content: `You extract skill categories from job postings.
+
+RULES:
+1. Extract 1-5 relevant skill categories from this posting
+2. Categories should be specific enough to be meaningful but broad enough to match multiple profiles
+3. For each category, provide 3-7 related keywords
+
+Return JSON ONLY: { "categories": [{ "name": "Category Name", "keywords": ["keyword1", "keyword2", ...] }] }`,
+          },
+          {
+            role: "user",
+            content: `Title: ${title}\nDescription: ${description}\nRequired Skills: ${skills.join(', ')}`,
+          },
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "extract_categories",
+              description: "Extract skill categories from job posting",
+              parameters: {
+                type: "object",
+                properties: {
+                  categories: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        keywords: { type: "array", items: { type: "string" } }
+                      },
+                      required: ["name", "keywords"]
+                    }
+                  }
+                },
+                required: ["categories"]
+              }
+            }
+          }
+        ],
+        tool_choice: { type: "function", function: { name: "extract_categories" } }
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("AI category extraction failed:", response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (toolCall) {
+      const result = JSON.parse(toolCall.function.arguments);
+      return result.categories || [];
+    }
+    return [];
+  } catch (error) {
+    console.error("Category extraction error:", error);
+    return [];
+  }
+}
+
+// Upsert categories and return their IDs
+async function upsertCategories(
+  categories: {name: string, keywords: string[]}[],
+  supabase: any
+): Promise<string[]> {
+  const categoryIds: string[] = [];
+  
+  for (const cat of categories) {
+    try {
+      // Check if category exists (case-insensitive)
+      const { data: existing } = await supabase
+        .from('skill_categories')
+        .select('id, keywords')
+        .ilike('name', cat.name)
+        .single();
+      
+      if (existing) {
+        // Merge new keywords with existing (deduplicated)
+        const mergedKeywords = [...new Set([...(existing.keywords || []), ...cat.keywords])];
+        
+        await supabase
+          .from('skill_categories')
+          .update({ 
+            keywords: mergedKeywords,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existing.id);
+        
+        categoryIds.push(existing.id);
+      } else {
+        // Create new category
+        const { data: newCat, error: insertError } = await supabase
+          .from('skill_categories')
+          .insert({
+            name: cat.name,
+            keywords: cat.keywords,
+            job_count: 1
+          })
+          .select('id')
+          .single();
+        
+        if (!insertError && newCat) {
+          categoryIds.push(newCat.id);
+        }
+      }
+    } catch (error) {
+      console.error(`Error upserting category ${cat.name}:`, error);
+    }
+  }
+  
+  return categoryIds;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -82,6 +216,7 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const payload: IngestPayload = await req.json();
@@ -142,6 +277,21 @@ serve(async (req) => {
           ? descriptionParts.join('\n\n')
           : `${signal.role} position${signal.project ? ` at ${signal.project}` : ''}`;
 
+        // Extract skill categories using AI if available
+        let categoryIds: string[] = [];
+        if (lovableApiKey) {
+          const categories = await extractSkillCategories(
+            signal.role,
+            description,
+            signal.skills || [],
+            lovableApiKey
+          );
+          
+          if (categories.length > 0) {
+            categoryIds = await upsertCategories(categories, supabase);
+          }
+        }
+
         // Insert the job signal
         const { error: insertError } = await supabase
           .from('jobs')
@@ -151,6 +301,7 @@ serve(async (req) => {
             company_name: signal.project || null,
             compensation: signal.compensation || null,
             role_tags: mapSkillsToRoleTags(signal.skills || []),
+            skill_category_ids: categoryIds,
             link: signal.fallback_url || null,
             apply_url: signal.apply_url || null,
             source: 'x_signal',

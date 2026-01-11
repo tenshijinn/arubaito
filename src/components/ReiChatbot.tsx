@@ -465,7 +465,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         {/* Render draft selection buttons if metadata contains drafts */}
         {!isUser && message.metadata?.drafts && Array.isArray(message.metadata.drafts) && (
           <div className="mt-3 ml-[120px] space-y-2">
-            {message.metadata.drafts.map((draft: any) => (
+            {message.metadata.drafts.map((draft: any, idx: number) => (
               <button
                 key={draft.id}
                 onClick={() => {
@@ -475,10 +475,10 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
                 className="w-full text-left px-4 py-3 border border-primary/30 rounded hover:border-primary hover:bg-primary/5 transition-colors font-mono text-sm"
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-2xl">{draft.emoji}</span>
+                  <span className="text-primary font-medium">[{idx + 1}]</span>
                   <div className="flex-1">
                     <div className="text-primary font-medium">
-                      Draft {draft.type === 'job' ? 'Job' : 'Task'}: {draft.title}
+                      [{draft.type.toUpperCase()}] {draft.title}
                     </div>
                     <div className="text-muted-foreground text-xs mt-1">
                       Status: {draft.status}
@@ -494,7 +494,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
               }}
               className="w-full text-left px-4 py-3 border border-primary/30 rounded hover:border-primary hover:bg-primary/5 transition-colors font-mono text-sm text-muted-foreground"
             >
-              ✨ Start a new one instead
+              <span className="text-primary/70 mr-2">+</span> Start a new one instead
             </button>
           </div>
         )}

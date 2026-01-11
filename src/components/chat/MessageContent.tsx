@@ -22,6 +22,40 @@ export const MessageContent = ({ content }: MessageContentProps) => {
         return;
       }
 
+      // Handle > chevron prefix for details lines (company/location/pay)
+      if (line.trim().startsWith('> ') && !line.trim().startsWith('>> ')) {
+        const innerContent = line.trim().substring(2);
+        const parsedInner = parseLine(innerContent, keyIndex);
+        keyIndex += parsedInner.keyCount;
+        elements.push(
+          <div key={`chevron-${keyIndex++}`} className="flex items-start gap-2 text-muted-foreground pl-3">
+            <span className="text-primary/70 font-mono">▶</span>
+            <span>{parsedInner.elements}</span>
+          </div>
+        );
+        if (lineIndex < lines.length - 1) {
+          elements.push('\n');
+        }
+        return;
+      }
+
+      // Handle >> action prefix (apply links)
+      if (line.trim().startsWith('>> ')) {
+        const innerContent = line.trim().substring(3);
+        const parsedInner = parseLine(innerContent, keyIndex);
+        keyIndex += parsedInner.keyCount;
+        elements.push(
+          <div key={`action-${keyIndex++}`} className="flex items-center gap-2 pl-3 mt-1">
+            <span className="text-primary font-mono">»</span>
+            <span>{parsedInner.elements}</span>
+          </div>
+        );
+        if (lineIndex < lines.length - 1) {
+          elements.push('\n');
+        }
+        return;
+      }
+
       // Parse the line for markdown links and bold text
       const parsedLine = parseLine(line, keyIndex);
       keyIndex += parsedLine.keyCount;

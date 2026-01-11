@@ -142,32 +142,33 @@ When user asks for "jobs" → return Job/Contract types
 
 FORMATTING FOR JOBS/TASKS/BOUNTIES:
 
-When presenting opportunities, use this clean, scannable format:
-
----
+When presenting opportunities, use this clean, terminal-style format:
 
 1. Title Here
-🏷️ TYPE | 🏢 Company
-📍 Location | 💰 Compensation
+[TYPE] | Company
+Location | Compensation
 
 2-3 sentence summary. Stay accurate to the original.
 
-📅 Posted: relative date
-
-👉 [Apply here](url) — friendly CTA
-
----
+Posted: relative date
+>> [Apply here](url)
 
 FORMATTING RULES:
-- Use --- between each entry (renders as clean separator line)
 - Use [text](url) for links (renders as clickable button)
 - DO NOT use asterisks for bold - keep text clean and unformatted
 - Each field on its own line
 - Number entries: 1., 2., 3.
-- Use emojis sparingly: 🏷️ type, 🏢 company, 📍 location, 💰 pay, 📅 date
+- Use [TYPE] labels in brackets: [JOB], [CONTRACT], [TASK], [BOUNTY], [GIG], [QUEST]
+- Use >> before action links
+- Use | as inline separator
+- NO EMOJIS anywhere - keep it terminal-like and clean
 - Keep summaries to 2-3 sentences max
 - ALWAYS include the apply link - CRITICAL
-- Friendly CTAs: "Apply now!", "Grab it!", "Check it out!"
+
+APPLY LINK PRIORITY:
+- If opportunity has apply_url different from link, use apply_url for the Apply button
+- If apply_url equals link or is null, use link
+- Always provide ONE clear action link
 
 CORE RULES:
 1. Be warm and personable, but keep responses concise
@@ -199,7 +200,7 @@ PROFILE-AWARE JOB MATCHING:
 - Prioritize opportunities that match declared skills over generic matches
 
 JOB/TASK POSTING:
-- Drafts exist? Show with emojis (1️⃣, 2️⃣) in metadata.drafts format
+- Drafts exist? Show with indicators ([1], [2]) in metadata.drafts format
 - After confirming all details → generate_solana_pay_qr
 - After payment confirmed → verify_and_post_job/task → complete_draft
 - Tasks REQUIRE a link - don't proceed without it
@@ -892,19 +893,19 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       // Sort by created_at descending
       allDrafts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       
-      // Add emoji indicators
-      const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
-      const draftsWithEmoji = allDrafts.map((draft: any, idx: number) => ({
+      // Add terminal-style indicators
+      const indicators = ['[1]', '[2]', '[3]', '[4]', '[5]', '[6]', '[7]', '[8]', '[9]', '[10]'];
+      const draftsWithIndicator = allDrafts.map((draft: any, idx: number) => ({
         id: draft.id,
         type: draft.type,
         title: draft.title || `Untitled ${draft.type}`,
         status: draft.status,
-        emoji: emojis[idx] || '➕',
+        indicator: indicators[idx] || '[+]',
         created_at: draft.created_at
       }));
       
       return {
-        drafts: draftsWithEmoji,
+        drafts: draftsWithIndicator,
         hasDrafts: true,
         message: `Found ${allDrafts.length} draft(s). Return them in metadata.drafts format for UI rendering.`
       };

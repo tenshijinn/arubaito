@@ -248,7 +248,7 @@ async function processRSSSource(source: JobSource, supabase: any, lovableApiKey:
             company_name: structuredData.company_name || "Unknown",
             compensation: structuredData.compensation,
             link: item.link,
-            apply_url: item.link,
+            apply_url: structuredData.apply_url || item.link,
             role_tags: structuredData.role_tags || [],
             employer_wallet: "system_rss_import",
             payment_tx_signature: "rss_import_" + externalId,
@@ -479,7 +479,7 @@ async function extractWithAI(item: RSSItem, apiKey: string): Promise<any> {
           {
             role: "system",
             content: `You extract structured job/task data from RSS items. Return JSON only.
-Extract: company_name, compensation (if mentioned), role_tags (array of: dev, design, community, ops, product, research), opportunity_type.
+Extract: company_name, compensation (if mentioned), role_tags (array of: dev, design, community, ops, product, research), opportunity_type, apply_url.
 
 OPPORTUNITY TYPE CLASSIFICATION (choose ONE):
 - job: Full-time or part-time employment, mentions salary, benefits, "hiring", "position"
@@ -488,6 +488,12 @@ OPPORTUNITY TYPE CLASSIFICATION (choose ONE):
 - bounty: Competitive/open task anyone can attempt, reward for completion
 - gig: Short-term work, event-based, project-based
 - quest: Gamified tasks, campaigns, leaderboard rewards
+
+APPLY URL EXTRACTION:
+- Look for direct application URLs in the content (not the tweet URL itself)
+- Common patterns: links containing "apply", "jobs", "careers", "notion", "typeform", "airtable", application forms
+- If multiple URLs found, prioritize the one that looks like an application link
+- If no clear application URL found, omit this field
 
 If not found, omit the field. Keep responses minimal.`,
           },
@@ -512,6 +518,10 @@ If not found, omit the field. Keep responses minimal.`,
                     type: "string", 
                     enum: ["job", "contract", "task", "bounty", "gig", "quest"],
                     description: "Type of opportunity based on content analysis"
+                  },
+                  apply_url: {
+                    type: "string",
+                    description: "Direct URL to apply/learn more if mentioned in content (not the tweet URL itself). Look for links with 'apply', 'jobs', 'careers', application forms, notion, typeform, etc."
                   },
                 },
               },

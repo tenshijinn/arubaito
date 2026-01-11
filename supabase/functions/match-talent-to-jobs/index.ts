@@ -69,7 +69,16 @@ serve(async (req) => {
       const score = calculateMatchScore(talent, job);
       scoredOpportunities.push({
         type: 'job',
-        ...job,
+        id: job.id,
+        title: job.title,
+        company_name: job.company_name,
+        description: job.description,
+        compensation: job.compensation,
+        link: job.link,
+        apply_url: job.apply_url,
+        role_tags: job.role_tags,
+        created_at: job.created_at,
+        opportunity_type: job.opportunity_type || 'job',
         matchScore: score.total,
         matchReason: score.reason
       });
@@ -80,7 +89,15 @@ serve(async (req) => {
       const score = calculateMatchScore(talent, task);
       scoredOpportunities.push({
         type: 'task',
-        ...task,
+        id: task.id,
+        title: task.title,
+        company_name: task.company_name,
+        description: task.description,
+        compensation: task.compensation,
+        link: task.link,
+        role_tags: task.role_tags,
+        created_at: task.created_at,
+        opportunity_type: task.opportunity_type || 'task',
         matchScore: score.total,
         matchReason: score.reason
       });

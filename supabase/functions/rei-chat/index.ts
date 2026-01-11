@@ -478,6 +478,11 @@ FOR TALENT:
 
 PAYMENT: $5 in SOL/SPL tokens → ${TREASURY_WALLET}, earns 10 points
 
+METADATA OUTPUT FORMAT (CRITICAL):
+When tools return structured data for UI rendering, DO NOT output it in your response text.
+The system will automatically inject the metadata from tool results.
+Just write your conversational response - the payment cards and draft buttons will render automatically.
+
 RESTRICTIONS:
 - NO alerts/notifications feature
 - NO scraping job boards
@@ -846,6 +851,9 @@ Be warm and human. Match user energy. Celebrate successes.`;
         const toolCalls = assistantMessage.tool_calls;
         console.log(`Executing ${toolCalls.length} tool(s) in parallel...`);
         
+        // Track metadata to inject from tool results
+        let injectedMetadata: any = {};
+        
         const toolPromises = toolCalls.map(async (toolCall: any) => {
           const toolName = toolCall.function.name;
           const toolArgs = JSON.parse(toolCall.function.arguments);
@@ -857,6 +865,16 @@ Be warm and human. Match user energy. Celebrate successes.`;
             toolResult = await executeTool(toolName, toolArgs, supabase);
             const duration = Date.now() - startTime;
             console.log(`Tool ${toolName} completed in ${duration}ms`);
+            
+            // Capture metadata from specific tool results for programmatic injection
+            if (toolName === 'generate_solana_pay_qr' && toolResult?.qrData) {
+              injectedMetadata.solanaPay = toolResult.qrData;
+              console.log('[Metadata Injection] Captured solanaPay data from generate_solana_pay_qr');
+            }
+            if (toolName === 'check_my_drafts' && toolResult?.drafts?.length > 0) {
+              injectedMetadata.drafts = toolResult.drafts;
+              console.log('[Metadata Injection] Captured drafts data from check_my_drafts');
+            }
           } catch (error) {
             console.error(`Tool ${toolName} failed:`, error);
             toolResult = { error: error instanceof Error ? error.message : 'Tool execution failed' };
@@ -872,6 +890,11 @@ Be warm and human. Match user energy. Celebrate successes.`;
         
         // Wait for all tools to complete in parallel
         const toolResults = await Promise.all(toolPromises);
+        
+        // Store injected metadata for later use after final response
+        if (Object.keys(injectedMetadata).length > 0) {
+          (aiMessages as any)._injectedMetadata = { ...(aiMessages as any)._injectedMetadata, ...injectedMetadata };
+        }
         
         // Add all tool results to messages
         for (const result of toolResults) {
@@ -894,25 +917,39 @@ Be warm and human. Match user energy. Celebrate successes.`;
       }
     }
 
-    // Check if response contains metadata (e.g., Solana Pay QR, drafts, actions)
+    // PROGRAMMATIC METADATA INJECTION - Use captured tool data first, then fallback to regex
     let metadata: any = null;
+    
+    // First, use programmatically captured metadata from tool results (most reliable)
+    const capturedMetadata = (aiMessages as any)._injectedMetadata;
+    if (capturedMetadata && Object.keys(capturedMetadata).length > 0) {
+      metadata = { ...capturedMetadata };
+      console.log('[Metadata] Injected from tool results:', Object.keys(metadata));
+    }
+    
     try {
-      // Try to extract JSON metadata from response - look for various metadata patterns
+      // Fallback: Try to extract JSON metadata from response text (for backward compatibility)
       
       // Pattern 1: solanaPay metadata
       const solanaPayRegex = /\{\s*["']solanaPay["']\s*:\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}\s*\}/;
       const solanaPayMatch = finalResponse.match(solanaPayRegex);
-      if (solanaPayMatch) {
-        metadata = { ...metadata, ...JSON.parse(solanaPayMatch[0]) };
+      if (solanaPayMatch && !metadata?.solanaPay) {
+        const parsed = JSON.parse(solanaPayMatch[0]);
+        metadata = { ...metadata, ...parsed };
+        finalResponse = finalResponse.replace(solanaPayMatch[0], '').trim();
+      } else if (solanaPayMatch) {
+        // Remove from response even if we already have it from injection
         finalResponse = finalResponse.replace(solanaPayMatch[0], '').trim();
       }
       
       // Pattern 2: drafts metadata - {"drafts":[...]}
       const draftsRegex = /\{\s*["']drafts["']\s*:\s*\[[^\]]*\]\s*\}/g;
       const draftsMatch = finalResponse.match(draftsRegex);
-      if (draftsMatch) {
+      if (draftsMatch && !metadata?.drafts) {
         const draftsData = JSON.parse(draftsMatch[0]);
         metadata = { ...metadata, ...draftsData };
+        finalResponse = finalResponse.replace(draftsMatch[0], '').trim();
+      } else if (draftsMatch) {
         finalResponse = finalResponse.replace(draftsMatch[0], '').trim();
       }
       
@@ -925,7 +962,6 @@ Be warm and human. Match user energy. Celebrate successes.`;
           metadata = { ...metadata, ...extractedData };
           finalResponse = finalResponse.replace(metadataLabelMatch[0], '').trim();
         } catch (parseError) {
-          // If parsing fails, just remove the metadata label text
           finalResponse = finalResponse.replace(metadataLabelRegex, '').trim();
         }
       }
@@ -939,12 +975,15 @@ Be warm and human. Match user energy. Celebrate successes.`;
         finalResponse = finalResponse.replace(actionMatch[0], '').trim();
       }
       
+      // Clean up: Remove raw Solana Pay URLs that AI sometimes outputs
+      const rawSolanaPayUrl = /solana:[A-Za-z0-9]+\?[^\s\n]+/g;
+      finalResponse = finalResponse.replace(rawSolanaPayUrl, '').trim();
+      
       // Clean up any remaining "Metadata:" labels without valid JSON
       finalResponse = finalResponse.replace(/\n*Metadata:\s*$/i, '').trim();
       
     } catch (e) {
       console.error('Failed to extract metadata:', e);
-      // No metadata found, that's fine
     }
 
     // Save assistant response
@@ -1203,7 +1242,7 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       return {
         drafts: draftsWithIndicator,
         hasDrafts: true,
-        message: `Found ${allDrafts.length} draft(s). Return them in metadata.drafts format for UI rendering.`
+        message: `Found ${allDrafts.length} draft(s). The UI will automatically show draft selection buttons.`
       };
     }
     
@@ -1508,7 +1547,7 @@ async function executeTool(toolName: string, args: any, supabase: any) {
       return {
         success: true,
         qrData: qrData,
-        message: `QR code generated. Return this data in your response metadata as: {"solanaPay": ${JSON.stringify(qrData)}}`
+        message: `Payment ready for $${usdAmount} USD (~${solAmount.toFixed(4)} SOL). The payment method selector will appear automatically. Tell the user: "Payment ready! Connect your wallet and choose your preferred payment method below."`
       };
     }
 

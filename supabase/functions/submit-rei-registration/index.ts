@@ -16,6 +16,7 @@ interface RegistrationData {
   portfolio_url?: string;
   role_tags: string[];
   consent: boolean;
+  reanalyze?: boolean; // Flag to force re-analysis with existing transcript
 }
 
 Deno.serve(async (req) => {
@@ -31,12 +32,16 @@ Deno.serve(async (req) => {
     const registrationData: RegistrationData = await req.json();
 
     console.log('Submitting registration for:', registrationData.handle || registrationData.wallet_address);
+    console.log('Reanalyze mode:', registrationData.reanalyze);
 
     // Check if file is audio/video and needs transcription
     let processedFilePath = registrationData.file_path;
     const isAudioVideo = registrationData.file_path.match(/\.(webm|mp4|mov|mp3|wav|m4a)$/i);
     
-    if (isAudioVideo) {
+    // For reanalyze mode, skip transcription if we already have a transcript
+    const isExistingTranscript = registrationData.file_path.endsWith('_transcript.txt') || registrationData.file_path.endsWith('.txt');
+    
+    if (isAudioVideo && !registrationData.reanalyze) {
       console.log('Audio/video detected, attempting transcription...');
       
       try {
@@ -72,15 +77,28 @@ Deno.serve(async (req) => {
         console.warn('Transcription failed, continuing without it:', transcriptionError);
         // Don't throw - allow registration to proceed without transcription
       }
+    } else if (registrationData.reanalyze && isAudioVideo) {
+      // In reanalyze mode with audio file, check if transcript already exists
+      const transcriptFileName = registrationData.file_path.replace(/\.(webm|mp4|mov|mp3|wav|m4a)$/i, '_transcript.txt');
+      const { data: existingTranscript } = await supabase.storage
+        .from('rei-contributor-files')
+        .download(transcriptFileName);
+      
+      if (existingTranscript) {
+        processedFilePath = transcriptFileName;
+        console.log('Using existing transcript:', transcriptFileName);
+      }
     }
 
-    // Run AI analysis if we have a transcript
+    // Run AI analysis if we have a transcript (always run in reanalyze mode, or for new transcripts)
     let profileAnalysis = null;
     let analysisSummary = null;
     let profileScore = null;
 
-    if (processedFilePath.endsWith('_transcript.txt') || processedFilePath.endsWith('.txt')) {
-      console.log('Running AI analysis on transcript...');
+    const shouldAnalyze = processedFilePath.endsWith('_transcript.txt') || processedFilePath.endsWith('.txt');
+    
+    if (shouldAnalyze) {
+      console.log('Running AI analysis on transcript...', registrationData.reanalyze ? '(reanalyze mode)' : '');
       
       try {
         // Get the transcript content

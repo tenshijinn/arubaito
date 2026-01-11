@@ -8,6 +8,278 @@ const corsHeaders = {
 
 const TREASURY_WALLET = '5JXJQSFZMxiQNmG4nx3bs2FnoZZsgz6kpVrNDxfBjb1s';
 
+// ============= INTENT CLASSIFICATION SYSTEM =============
+
+type Intent = 
+  | 'SEARCH_JOBS' 
+  | 'SEARCH_TASKS' 
+  | 'SEARCH_TALENT' 
+  | 'POST_JOB' 
+  | 'POST_TASK' 
+  | 'COMMUNITY_CONTRIBUTE' 
+  | 'VIEW_PROFILE' 
+  | 'MANAGE_DRAFTS' 
+  | 'DRAFT_RESPONSE' 
+  | 'PAYMENT_ACTION' 
+  | 'HELP' 
+  | 'GENERAL';
+
+async function classifyIntent(
+  message: string,
+  userType: string,
+  hasActiveDraft: boolean,
+  lastToolCalled: string | null,
+  recentContext: string,
+  lovableApiKey: string
+): Promise<Intent> {
+  const classificationPrompt = `You are an intent classifier for a Web3 job portal chatbot. Classify the user's message into exactly ONE intent.
+
+CONTEXT:
+- User type: ${userType} (talent = looking for work, employer = looking to hire)
+- Has active draft in progress: ${hasActiveDraft}
+- Last tool called: ${lastToolCalled || 'none'}
+- Recent conversation:
+${recentContext}
+
+USER MESSAGE: "${message}"
+
+CLASSIFY INTO EXACTLY ONE:
+
+SEARCH_JOBS - Talent wants to FIND job/contract/role opportunities for themselves
+  Indicators: find jobs, match my skills, looking for work, any roles, hook me up with jobs, show me positions, what's available, jobs for me, find me web3 jobs, job search, employment opportunities
+
+SEARCH_TASKS - Talent wants to FIND/DO task/bounty/gig/quest opportunities
+  Indicators: any bounties, looking for a gig, I want to do a task, show me tasks, find tasks, available quests, I want to work on something, any gigs, find me bounties, looking for a task, do a task
+
+SEARCH_TALENT - Employer wants to find/hire candidates from the talent pool
+  Indicators: find developers, who can do X, show me candidates, looking for talent, search for designers, find people who know X
+
+POST_JOB - User wants to CREATE a job listing to hire someone
+  Indicators: post a job, I want to hire, list a position, create a job listing, hiring for, need to post a job, submit a job
+
+POST_TASK - User wants to CREATE a task/bounty for others to complete
+  Indicators: post a task, create a bounty, I have a gig to post, list a quest, submit a task, post a bounty, create a task for others
+
+COMMUNITY_CONTRIBUTE - User found an opportunity elsewhere to share with community
+  Indicators: I found a job to share, contribute this opportunity, submit something I saw, share an opportunity, I saw this job posting
+
+VIEW_PROFILE - User wants to see their own profile/points/skills/stats
+  Indicators: my profile, what are my skills, check my points, my stats, show my points, how many points, what's my score
+
+MANAGE_DRAFTS - User wants to see/load/delete their drafts (not mid-flow continuation)
+  Indicators: show my drafts, delete that draft, what drafts do I have, list my drafts, remove draft
+
+DRAFT_RESPONSE - User is responding to a question in an active posting flow (providing data)
+  CRITICAL: Use this when hasActiveDraft=true AND message looks like data being provided (title, description, URL, amount, company name, etc.)
+  Indicators: Short data-like answers, URLs, amounts like "$500", company names, descriptions, yes/looks good/confirm
+
+PAYMENT_ACTION - User indicating payment was made or asking about payment
+  Indicators: I've paid, payment sent, verify my payment, transaction complete, I sent the payment, check payment
+
+HELP - User asking how to use the system or what's possible
+  Indicators: what can you do, help, how does this work, guide me, explain, what is Rei
+
+GENERAL - Greetings, thanks, off-topic, or genuinely unclear intent
+  Indicators: hello, hi, thanks, cool, okay, ambiguous messages, unrelated topics
+
+CRITICAL DISAMBIGUATION RULES:
+1. "find/search/show me/looking for" + opportunities = SEARCH intent (user is the worker seeking work)
+2. "post/create/list/hire for" + opportunities = POST intent (user is creating work for others)
+3. "I want to DO a task" = SEARCH_TASKS (user wants to work on existing tasks)
+4. "I want to POST a task" = POST_TASK (user wants to create a task for others)
+5. If hasActiveDraft=true and message is data-like (title, URL, company, amount, "yes", "looks good") = DRAFT_RESPONSE
+6. "match my skills" / "jobs for me" = SEARCH_JOBS (talent seeking opportunities)
+7. Consider user type but don't assume - talent can post, employer can search
+8. If lastToolCalled includes "generate_solana_pay" and message mentions payment = PAYMENT_ACTION
+
+Return ONLY the intent label (e.g., SEARCH_JOBS), nothing else.`;
+
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${lovableApiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-lite",
+        messages: [{ role: "user", content: classificationPrompt }],
+        max_tokens: 20,
+        temperature: 0
+      })
+    });
+
+    if (!response.ok) {
+      console.error('[classifyIntent] API error:', response.status);
+      return 'GENERAL';
+    }
+
+    const data = await response.json();
+    const intent = data.choices?.[0]?.message?.content?.trim() as Intent;
+    
+    // Validate intent is one of our known intents
+    const validIntents: Intent[] = [
+      'SEARCH_JOBS', 'SEARCH_TASKS', 'SEARCH_TALENT', 'POST_JOB', 'POST_TASK',
+      'COMMUNITY_CONTRIBUTE', 'VIEW_PROFILE', 'MANAGE_DRAFTS', 'DRAFT_RESPONSE',
+      'PAYMENT_ACTION', 'HELP', 'GENERAL'
+    ];
+    
+    if (validIntents.includes(intent)) {
+      return intent;
+    }
+    
+    console.log('[classifyIntent] Unknown intent returned:', intent);
+    return 'GENERAL';
+  } catch (error) {
+    console.error('[classifyIntent] Error:', error);
+    return 'GENERAL';
+  }
+}
+
+function getToolsForIntent(intent: Intent, allTools: any[]): any[] {
+  const toolSets: Record<Intent, string[]> = {
+    'SEARCH_JOBS': ['get_my_profile', 'search_jobs'],
+    'SEARCH_TASKS': ['get_my_profile', 'search_tasks'],
+    'SEARCH_TALENT': ['search_talent', 'generate_solana_pay_qr', 'get_talent_profile'],
+    'POST_JOB': [
+      'start_paid_job_posting', 'check_my_drafts', 'load_draft', 'save_draft',
+      'delete_draft', 'extract_og_data', 'generate_solana_pay_qr',
+      'verify_and_post_job', 'complete_draft'
+    ],
+    'POST_TASK': [
+      'start_paid_task_posting', 'check_my_drafts', 'load_draft', 'save_draft',
+      'delete_draft', 'extract_og_data', 'generate_solana_pay_qr',
+      'verify_and_post_task', 'complete_draft'
+    ],
+    'COMMUNITY_CONTRIBUTE': [
+      'start_community_contribution', 'check_my_drafts', 'load_draft', 'save_draft',
+      'delete_draft', 'extract_og_data', 'generate_solana_pay_qr',
+      'verify_and_post_job', 'verify_and_post_task', 'complete_draft'
+    ],
+    'VIEW_PROFILE': ['get_my_profile'],
+    'MANAGE_DRAFTS': ['check_my_drafts', 'load_draft', 'delete_draft'],
+    'DRAFT_RESPONSE': [
+      'save_draft', 'load_draft', 'check_my_drafts', 'extract_og_data', 
+      'generate_solana_pay_qr', 'verify_and_post_job', 'verify_and_post_task', 'complete_draft'
+    ],
+    'PAYMENT_ACTION': [
+      'verify_and_post_job', 'verify_and_post_task', 'complete_draft', 'generate_solana_pay_qr'
+    ],
+    'HELP': [], // No tools for help - pure conversational
+    'GENERAL': allTools.map(t => t.function.name) // All tools for unclear intent
+  };
+
+  const allowedNames = toolSets[intent] || toolSets['GENERAL'];
+  
+  // If no tools allowed (HELP intent), return empty array
+  if (allowedNames.length === 0) {
+    return [];
+  }
+  
+  return allTools.filter(t => allowedNames.includes(t.function.name));
+}
+
+async function checkForActiveDrafts(walletAddress: string, supabase: any): Promise<{ hasActive: boolean; lastToolHint: string | null }> {
+  const activeStatuses = ['draft', 'collecting', 'confirming', 'payment_pending'];
+  
+  const { data: jobDrafts } = await supabase
+    .from('job_drafts')
+    .select('id, status, updated_at')
+    .eq('wallet_address', walletAddress)
+    .in('status', activeStatuses)
+    .order('updated_at', { ascending: false })
+    .limit(1);
+
+  const { data: taskDrafts } = await supabase
+    .from('task_drafts')
+    .select('id, status, updated_at')
+    .eq('wallet_address', walletAddress)
+    .in('status', activeStatuses)
+    .order('updated_at', { ascending: false })
+    .limit(1);
+
+  const hasJobDraft = jobDrafts && jobDrafts.length > 0;
+  const hasTaskDraft = taskDrafts && taskDrafts.length > 0;
+  
+  let lastToolHint: string | null = null;
+  if (hasJobDraft && hasTaskDraft) {
+    // Compare which is more recent
+    const jobTime = new Date(jobDrafts[0].updated_at).getTime();
+    const taskTime = new Date(taskDrafts[0].updated_at).getTime();
+    lastToolHint = jobTime > taskTime ? 'job_draft_active' : 'task_draft_active';
+  } else if (hasJobDraft) {
+    lastToolHint = 'job_draft_active';
+  } else if (hasTaskDraft) {
+    lastToolHint = 'task_draft_active';
+  }
+
+  return {
+    hasActive: hasJobDraft || hasTaskDraft,
+    lastToolHint
+  };
+}
+
+function getIntentGuidance(intent: Intent): string {
+  const guidance: Record<Intent, string> = {
+    'SEARCH_JOBS': `[INTENT: SEARCH_JOBS]
+User wants to FIND job opportunities for themselves. 
+ACTION: Call get_my_profile first to get their skills, then search_jobs to find matches.
+Present results in clean terminal format with match reasons.`,
+    
+    'SEARCH_TASKS': `[INTENT: SEARCH_TASKS]
+User wants to FIND task/bounty/gig opportunities to work on.
+ACTION: Call get_my_profile first to get their skills, then search_tasks to find matches.
+Present results in clean terminal format with match reasons.`,
+    
+    'SEARCH_TALENT': `[INTENT: SEARCH_TALENT]
+Employer wants to find candidates matching their requirements.
+ACTION: Use search_talent to find matching profiles. Explain payment required for full profiles.`,
+    
+    'POST_JOB': `[INTENT: POST_JOB]
+User wants to CREATE a new job listing to hire someone.
+ACTION: Call check_my_drafts first to see existing drafts, then guide through job posting flow.
+Collect: title, company, description, requirements, compensation, deadline.`,
+    
+    'POST_TASK': `[INTENT: POST_TASK]
+User wants to CREATE a new task/bounty for others to complete.
+ACTION: Call check_my_drafts first to see existing drafts, then guide through task posting flow.
+Collect: title, company, description, link (REQUIRED), compensation, end date.`,
+    
+    'COMMUNITY_CONTRIBUTE': `[INTENT: COMMUNITY_CONTRIBUTE]
+User found an opportunity elsewhere and wants to share with the community.
+ACTION: Use start_community_contribution. Explain they earn 10 points. Same $5 payment flow.`,
+    
+    'VIEW_PROFILE': `[INTENT: VIEW_PROFILE]
+User wants to see their own profile, points, or stats.
+ACTION: Call get_my_profile immediately and present results warmly.`,
+    
+    'MANAGE_DRAFTS': `[INTENT: MANAGE_DRAFTS]
+User wants to manage their existing drafts (view/load/delete).
+ACTION: Call check_my_drafts to show their drafts. Offer to load or delete.`,
+    
+    'DRAFT_RESPONSE': `[INTENT: DRAFT_RESPONSE]
+User is providing data for an active posting flow (responding to a question).
+ACTION: Save the field with save_draft and continue to next field or proceed to payment if complete.
+If user says "looks good"/"yes"/"confirm" → proceed to payment with generate_solana_pay_qr.`,
+    
+    'PAYMENT_ACTION': `[INTENT: PAYMENT_ACTION]
+User is indicating they made a payment or asking about payment status.
+ACTION: Verify payment with verify_and_post_job or verify_and_post_task, then complete_draft.`,
+    
+    'HELP': `[INTENT: HELP]
+User needs guidance on how to use the system.
+ACTION: Explain capabilities warmly. DO NOT call any tools.
+- Talent can: find jobs, find tasks/bounties, check profile/points, contribute opportunities
+- Employers can: post jobs, post tasks, search talent`,
+    
+    'GENERAL': `[INTENT: GENERAL]
+Intent unclear or general conversation.
+ACTION: Respond naturally and try to understand what user needs. Ask clarifying questions if needed.`
+  };
+
+  return guidance[intent] || guidance['GENERAL'];
+}
+
 interface ChatRequest {
   message: string;
   walletAddress: string;
@@ -113,7 +385,28 @@ serve(async (req) => {
       minute: '2-digit',
       timeZoneName: 'short'
     });
-    const currentISODate = now.toISOString().split('T')[0]; // YYYY-MM-DD for comparisons
+    const currentISODate = now.toISOString().split('T')[0];
+
+    // ============= INTENT CLASSIFICATION =============
+    // Check for active drafts to inform intent classification
+    const { hasActive: hasActiveDraft, lastToolHint } = await checkForActiveDrafts(walletAddress, supabase);
+    
+    // Build recent context for classification
+    const recentContext = messages.slice(-2).map((m: any) => 
+      `${m.role}: ${m.content.substring(0, 150)}`
+    ).join('\n');
+    
+    // Classify user intent BEFORE main AI call
+    console.log('[Intent Classification] Starting...');
+    const intent = await classifyIntent(
+      message,
+      userType,
+      hasActiveDraft,
+      lastToolHint,
+      recentContext,
+      lovableApiKey
+    );
+    console.log(`[Intent Classification] Result: ${intent} | hasActiveDraft: ${hasActiveDraft} | userType: ${userType}`);
 
     // Build system prompt - condensed for speed
     const systemPrompt = `You are Rei, a warm, caring AI assistant for the Rei Proof-Of-Talent Portal. You connect Web3 talent with opportunities.
@@ -123,100 +416,56 @@ CURRENT DATE & TIME:
 - Current time: ${currentTimeReadable}
 - ISO Date: ${currentISODate}
 - Use this to determine "today", "yesterday", "this week" when discussing jobs/tasks
-- When showing jobs/tasks, mention how recent they are (e.g., "posted 2 days ago" or "from last month")
 
 Current user type: ${userType}
 User's wallet address: ${walletAddress}
 Treasury wallet: ${TREASURY_WALLET}
 
-OPPORTUNITY TYPES - USE THESE EXACT LABELS:
-- JOB: Full-time or part-time employment with salary/benefits
-- CONTRACT: Fixed-term freelance work with defined scope  
-- TASK: One-time deliverables with flat payment
-- BOUNTY: Competitive/open tasks anyone can attempt
-- GIG: Short-term work, event or project-based
-- QUEST: Gamified tasks/campaigns with leaderboard rewards
+OPPORTUNITY TYPES:
+- JOB: Full-time/part-time employment
+- CONTRACT: Fixed-term freelance work
+- TASK: One-time deliverables
+- BOUNTY: Competitive open tasks
+- GIG: Short-term project work
+- QUEST: Gamified tasks with rewards
 
-When user asks for "tasks" → return Task/Bounty/Gig/Quest types
-When user asks for "jobs" → return Job/Contract types
-
-FORMATTING FOR JOBS/TASKS/BOUNTIES:
-
-Use this clean, hierarchical terminal-style format:
-
+FORMATTING FOR LISTINGS (use clean terminal style):
 1. Title Here
 > Company | Location | Compensation
 
 Clean 2-3 sentence summary. No emojis.
 
-[TYPE] · Posted 2 days ago
+[TYPE] · Posted X days ago
 >> [Apply here](url)
 
-CRITICAL FORMATTING RULES:
-- STRIP ALL EMOJIS from source content when rewriting - convert to clean terminal text
-- Title on its OWN line with number prefix (1., 2., 3.) - NO indentation
-- > chevron for details line (company/location/pay) - left aligned, no indent
-- Empty line before summary paragraph
-- Summary must be rewritten WITHOUT any emojis from the source
-- [TYPE] label at bottom with relative date, separated by · (middle dot)
-- >> before the apply link on its own line
-- Use [text](url) for links (renders as clickable button)
-- NO INDENTATION anywhere - everything left-aligned
-- Use | only to separate items on the SAME line
-- Keep summaries to 2-3 sentences max
-- ALWAYS include the apply link - CRITICAL
-
-APPLY LINK PRIORITY:
-- If opportunity has apply_url different from link, use apply_url for the Apply button
-- If apply_url equals link or is null, use link
-- Always provide ONE clear action link
+FORMATTING RULES:
+- STRIP ALL EMOJIS - convert to clean terminal text
+- Title on its OWN line with number prefix (1., 2., 3.)
+- > chevron for details line
+- Use | to separate items on SAME line
+- [text](url) for clickable links
+- NO indentation anywhere
+- ALWAYS include apply link
 
 CORE RULES:
-1. Be warm and personable, but keep responses concise
+1. Be warm and personable but concise
 2. Payment confirmations: EXACTLY say "Payment ready! Connect your wallet and choose your preferred payment method below."
-3. NEVER restart a flow you're already in - track your state
+3. NEVER restart a flow you're already in
 4. Call save_draft after EACH field collected
-5. Trust natural language - recognize what users MEAN
-6. When searching jobs/tasks, prioritize recent ones and indicate their age
+5. When searching, prioritize recent opportunities
 
-STATELESS DESIGN - CRITICAL:
-- You have MINIMAL conversation history (last 3 messages only)
-- Use tools to fetch ALL context: check_my_drafts, get_my_profile, load_draft
-- If you need draft state, call check_my_drafts or load_draft
-- If you need user info, call get_my_profile
-- Each request should leverage database tools for full context
+STATELESS DESIGN:
+- You have MINIMAL history (last 3 messages)
+- Use tools for context: check_my_drafts, get_my_profile, load_draft
+- Each request should leverage database tools
 
 FLOW STATES: INTENT → COLLECTING → CONFIRMING → PAYMENT → SUCCESS
 
-CRITICAL INTENT DISTINCTION - FOLLOW EXACTLY:
-- SEARCHING (finding EXISTING opportunities):
-  - "find jobs/tasks" / "show me jobs/tasks" / "match my skills" / "what's available" / "jobs for me"
-  - → Use search_jobs or search_tasks
-
-- POSTING (creating NEW opportunities):
-  - "post a job/task" / "create a job/task" / "I have a gig" / "list a bounty" / "I want to hire" / "submit a task"
-  - → Use start_paid_job_posting or start_paid_task_posting
-
-RULE: If user says "I want to post..." or "I have a..." = POSTING (not searching)
-
-KEY ACTIONS:
-- "find jobs/roles" / "match my skills" / "jobs for me" / "show me jobs" → get_my_profile FIRST, then search_jobs
-- "find tasks/bounties" / "show me tasks" / "available bounties" → get_my_profile FIRST, then search_tasks
-- "post a job" / "create a job" / "list a job" / "I want to hire" → start_paid_job_posting, then check_my_drafts, then collect fields
-- "post a task" / "create a task" / "post a bounty" / "list a gig" / "I have a task" → start_paid_task_posting, then check_my_drafts, then collect fields
-- "check my points/profile" / "what are my skills" → get_my_profile immediately
-
-PROFILE-AWARE JOB MATCHING:
-- When presenting matched jobs/tasks, explain WHY they match based on the user's skill categories
-- Opportunities are matched using dynamic AI-generated skill categories
-- If user has no skill_category_ids, fall back to role_tags matching
-- Prioritize opportunities that match declared skill categories over generic matches
-
 JOB/TASK POSTING:
-- Drafts exist? Show with indicators ([1], [2]) in metadata.drafts format
+- Check drafts first with check_my_drafts
 - After confirming all details → generate_solana_pay_qr
-- After payment confirmed → verify_and_post_job/task → complete_draft
-- Tasks REQUIRE a link - don't proceed without it
+- After payment → verify_and_post_job/task → complete_draft
+- Tasks REQUIRE a link
 
 CONFIRMING STATE:
 - Long text (>100 chars) = Updated description
@@ -224,7 +473,7 @@ CONFIRMING STATE:
 - "change X to Y" = Update that field
 
 FOR TALENT:
-- Wallet connected (${walletAddress}) - never ask again
+- Wallet connected (${walletAddress})
 - If search returns "profile not found": Include {"action":"register","link":"/rei"}
 
 PAYMENT: $5 in SOL/SPL tokens → ${TREASURY_WALLET}, earns 10 points
@@ -234,7 +483,7 @@ RESTRICTIONS:
 - NO scraping job boards
 - DON'T suggest unimplemented features
 
-COMMUNICATION: Be warm and human. Match user energy. Celebrate successes. Keep payment messages exact and brief.`;
+Be warm and human. Match user energy. Celebrate successes.`;
 
     // Define tools
     const tools = [
@@ -534,9 +783,16 @@ COMMUNICATION: Be warm and human. Match user energy. Celebrate successes. Keep p
       }
     ];
 
+    // ============= FILTER TOOLS BY INTENT =============
+    const filteredTools = getToolsForIntent(intent, tools);
+    console.log(`[Tool Filtering] Intent: ${intent} | Available tools: ${filteredTools.length}/${tools.length}`);
+    
+    // Get intent-specific guidance
+    const intentGuidance = getIntentGuidance(intent);
+
     // Call Lovable AI with tool calling - using faster model
     let aiMessages = [
-      { role: "system", content: systemPrompt },
+      { role: "system", content: systemPrompt + "\n\n" + intentGuidance },
       ...(messages || [])
     ];
 
@@ -546,7 +802,7 @@ COMMUNICATION: Be warm and human. Match user energy. Celebrate successes. Keep p
 
     while (iteration < maxIterations) {
       iteration++;
-      console.log(`[Iteration ${iteration}/${maxIterations}] Starting AI processing...`);
+      console.log(`[Iteration ${iteration}/${maxIterations}] Starting AI processing with ${filteredTools.length} tools...`);
 
       const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -555,10 +811,10 @@ COMMUNICATION: Be warm and human. Match user energy. Celebrate successes. Keep p
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash', // Faster model for improved response time
+          model: 'google/gemini-2.5-flash',
           messages: aiMessages,
-          tools: tools,
-          tool_choice: 'auto'
+          tools: filteredTools.length > 0 ? filteredTools : undefined,
+          tool_choice: filteredTools.length > 0 ? 'auto' : undefined
         })
       });
 

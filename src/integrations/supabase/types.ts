@@ -372,6 +372,7 @@ export type Database = {
           payment_tx_signature: string
           requirements: string | null
           role_tags: string[] | null
+          skill_category_ids: string[] | null
           solana_pay_reference: string | null
           source: string | null
           status: string | null
@@ -395,6 +396,7 @@ export type Database = {
           payment_tx_signature: string
           requirements?: string | null
           role_tags?: string[] | null
+          skill_category_ids?: string[] | null
           solana_pay_reference?: string | null
           source?: string | null
           status?: string | null
@@ -418,6 +420,7 @@ export type Database = {
           payment_tx_signature?: string
           requirements?: string | null
           role_tags?: string[] | null
+          skill_category_ids?: string[] | null
           solana_pay_reference?: string | null
           source?: string | null
           status?: string | null
@@ -682,6 +685,7 @@ export type Database = {
           profile_image_url: string | null
           profile_score: number | null
           role_tags: Database["public"]["Enums"]["contributor_role"][] | null
+          skill_category_ids: string[] | null
           skills: Json | null
           updated_at: string
           verified: boolean | null
@@ -706,6 +710,7 @@ export type Database = {
           profile_image_url?: string | null
           profile_score?: number | null
           role_tags?: Database["public"]["Enums"]["contributor_role"][] | null
+          skill_category_ids?: string[] | null
           skills?: Json | null
           updated_at?: string
           verified?: boolean | null
@@ -730,6 +735,7 @@ export type Database = {
           profile_image_url?: string | null
           profile_score?: number | null
           role_tags?: Database["public"]["Enums"]["contributor_role"][] | null
+          skill_category_ids?: string[] | null
           skills?: Json | null
           updated_at?: string
           verified?: boolean | null
@@ -762,6 +768,53 @@ export type Database = {
           wallet_address?: string
         }
         Relationships: []
+      }
+      skill_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          job_count: number | null
+          keywords: string[] | null
+          name: string
+          parent_category_id: string | null
+          talent_count: number | null
+          task_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          job_count?: number | null
+          keywords?: string[] | null
+          name: string
+          parent_category_id?: string | null
+          talent_count?: number | null
+          task_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          job_count?: number | null
+          keywords?: string[] | null
+          name?: string
+          parent_category_id?: string | null
+          talent_count?: number | null
+          task_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_categories_parent_category_id_fkey"
+            columns: ["parent_category_id"]
+            isOneToOne: false
+            referencedRelation: "skill_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       supperclub_interests: {
         Row: {
@@ -868,6 +921,7 @@ export type Database = {
           opportunity_type: string | null
           payment_tx_signature: string
           role_tags: string[] | null
+          skill_category_ids: string[] | null
           solana_pay_reference: string | null
           source: string | null
           status: string | null
@@ -888,6 +942,7 @@ export type Database = {
           opportunity_type?: string | null
           payment_tx_signature: string
           role_tags?: string[] | null
+          skill_category_ids?: string[] | null
           solana_pay_reference?: string | null
           source?: string | null
           status?: string | null
@@ -908,6 +963,7 @@ export type Database = {
           opportunity_type?: string | null
           payment_tx_signature?: string
           role_tags?: string[] | null
+          skill_category_ids?: string[] | null
           solana_pay_reference?: string | null
           source?: string | null
           status?: string | null

@@ -188,17 +188,29 @@ STATELESS DESIGN - CRITICAL:
 
 FLOW STATES: INTENT → COLLECTING → CONFIRMING → PAYMENT → SUCCESS
 
+CRITICAL INTENT DISTINCTION - FOLLOW EXACTLY:
+- SEARCHING (finding EXISTING opportunities):
+  - "find jobs/tasks" / "show me jobs/tasks" / "match my skills" / "what's available" / "jobs for me"
+  - → Use search_jobs or search_tasks
+
+- POSTING (creating NEW opportunities):
+  - "post a job/task" / "create a job/task" / "I have a gig" / "list a bounty" / "I want to hire" / "submit a task"
+  - → Use start_paid_job_posting or start_paid_task_posting
+
+RULE: If user says "I want to post..." or "I have a..." = POSTING (not searching)
+
 KEY ACTIONS:
-- "find jobs/roles" / "match my skills" / "jobs for me" → get_my_profile FIRST to get skills, then search_jobs
-- "find tasks/bounties" → get_my_profile FIRST to get skills, then search_tasks
-- "post a job" → check_my_drafts FIRST, then collect: title, company, description (max 500 chars), wage (opt), deadline (opt)
-- "post a task" → check_my_drafts FIRST, then collect: title, company, description, link (REQUIRED), pay (opt), end date (opt)
+- "find jobs/roles" / "match my skills" / "jobs for me" / "show me jobs" → get_my_profile FIRST, then search_jobs
+- "find tasks/bounties" / "show me tasks" / "available bounties" → get_my_profile FIRST, then search_tasks
+- "post a job" / "create a job" / "list a job" / "I want to hire" → start_paid_job_posting, then check_my_drafts, then collect fields
+- "post a task" / "create a task" / "post a bounty" / "list a gig" / "I have a task" → start_paid_task_posting, then check_my_drafts, then collect fields
 - "check my points/profile" / "what are my skills" → get_my_profile immediately
 
 PROFILE-AWARE JOB MATCHING:
-- When presenting matched jobs/tasks, explain WHY they match based on the user's skills from their talent profile
-- If talentProfile.skills is empty, ask user to tell you their skills or update their profile
-- Prioritize opportunities that match declared skills over generic matches
+- When presenting matched jobs/tasks, explain WHY they match based on the user's skill categories
+- Opportunities are matched using dynamic AI-generated skill categories
+- If user has no skill_category_ids, fall back to role_tags matching
+- Prioritize opportunities that match declared skill categories over generic matches
 
 JOB/TASK POSTING:
 - Drafts exist? Show with indicators ([1], [2]) in metadata.drafts format
@@ -245,7 +257,7 @@ COMMUNICATION: Be warm and human. Match user energy. Celebrate successes. Keep p
         type: "function",
         function: {
           name: "search_tasks",
-          description: "Search for task/bounty opportunities matching talent's skills. Use when talent asks to 'find tasks', 'show tasks', 'available bounties'.",
+          description: "Search for EXISTING task/bounty opportunities. Use ONLY when talent asks to 'find tasks', 'show tasks', 'what bounties are available'. DO NOT use when user says 'post a task' or 'create a task' - use start_paid_task_posting instead.",
           parameters: {
             type: "object",
             properties: {
@@ -383,7 +395,7 @@ COMMUNICATION: Be warm and human. Match user energy. Celebrate successes. Keep p
         type: "function",
         function: {
           name: "start_paid_task_posting",
-          description: "Signal that user wants to post a paid task/bounty/gig. Recognize intent from natural language - any phrasing that means 'I want to create/post/list a task/bounty/gig'. Returns acknowledgment to begin data collection.",
+          description: "Start CREATING a new task/bounty/gig. Use when user says 'post a task', 'create a task', 'list a bounty', 'I have a gig to post', 'submit a task', 'I need someone to...'. DO NOT use for searching existing tasks.",
           parameters: {
             type: "object",
             properties: {
@@ -719,7 +731,7 @@ async function executeTool(toolName: string, args: any, supabase: any) {
     }
     
     case 'search_tasks': {
-      // Search tasks matching talent profile
+      // Search tasks matching talent profile using dynamic skill categories
       const { data: talent } = await supabase
         .from('rei_registry')
         .select('*')
@@ -736,53 +748,79 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         .select('*')
         .eq('status', 'active')
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(30);
       
       if (error) {
         return { error: 'Failed to fetch tasks' };
       }
       
-      // Skills-based matching (highest priority)
-      const talentSkills = (talent.skills || []).map((s: string) => s.toLowerCase());
+      // Get category names for matched IDs
+      const talentCategoryIds = talent.skill_category_ids || [];
+      const allCategoryIds = [
+        ...talentCategoryIds,
+        ...tasks.flatMap((t: any) => t.skill_category_ids || [])
+      ];
+      
+      let categoryMap: Record<string, string> = {};
+      if (allCategoryIds.length > 0) {
+        const { data: categories } = await supabase
+          .from('skill_categories')
+          .select('id, name')
+          .in('id', [...new Set(allCategoryIds)]);
+        
+        categoryMap = Object.fromEntries(
+          (categories || []).map((c: any) => [c.id, c.name])
+        );
+      }
       
       const matchedTasks = tasks.map((task: any) => {
         let matchScore = 0;
-        let matchReasons = [];
+        let matchReasons: string[] = [];
         
-        const descLower = (task.description || '').toLowerCase();
-        const titleLower = (task.title || '').toLowerCase();
+        const taskCategoryIds = task.skill_category_ids || [];
         
-        // 1. Skills match (40 points max - highest priority)
-        let skillMatches = 0;
-        const matchedSkillNames: string[] = [];
-        for (const skill of talentSkills) {
-          if (descLower.includes(skill) || titleLower.includes(skill)) {
-            skillMatches++;
-            matchedSkillNames.push(skill);
+        // 1. CATEGORY MATCH (50 points max - HIGHEST PRIORITY)
+        const matchingCategoryIds = talentCategoryIds.filter(
+          (id: string) => taskCategoryIds.includes(id)
+        );
+        
+        if (matchingCategoryIds.length > 0 && taskCategoryIds.length > 0) {
+          const categoryScore = Math.min(
+            (matchingCategoryIds.length / taskCategoryIds.length) * 50,
+            50
+          );
+          matchScore += categoryScore;
+          
+          const matchedNames = matchingCategoryIds
+            .map((id: string) => categoryMap[id])
+            .filter(Boolean)
+            .slice(0, 3);
+          
+          if (matchedNames.length > 0) {
+            matchReasons.push(`Matches your categories: ${matchedNames.join(', ')}`);
           }
         }
-        if (skillMatches > 0) {
-          const skillScore = Math.min(skillMatches * 10, 40);
-          matchScore += skillScore;
-          matchReasons.push(`Matches your skills: ${matchedSkillNames.join(', ')}`);
-        }
         
-        // 2. Role tag overlap (30 points max)
+        // 2. Role tag overlap (20 points max)
         const talentTags = talent.role_tags || [];
         const taskTags = task.role_tags || [];
         const matchingTags = talentTags.filter((tag: string) => taskTags.includes(tag));
         
         if (matchingTags.length > 0) {
-          matchScore += matchingTags.length * 10;
-          matchReasons.push(`Matches ${matchingTags.length} role tag(s): ${matchingTags.join(', ')}`);
+          matchScore += matchingTags.length * 7;
+          matchReasons.push(`Role tags: ${matchingTags.join(', ')}`);
         }
         
-        // 3. Profile score bonus (15 points max)
-        if (talent.profile_score >= 8) {
-          matchScore += 15;
-        } else if (talent.profile_score >= 5) {
+        // 3. Wallet activity bonus (15 points max)
+        const walletVerification = talent.profile_analysis?.wallet_verification;
+        if (walletVerification?.verified) {
           matchScore += 10;
+          matchReasons.push('Verified on-chain activity');
         }
+        
+        // 4. Profile score bonus (10 points max)
+        if (talent.profile_score >= 8) matchScore += 10;
+        else if (talent.profile_score >= 5) matchScore += 5;
         
         return {
           ...task,
@@ -791,7 +829,7 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         };
       });
       
-      // Sort by match score
+      // Sort by match score (category matches first)
       matchedTasks.sort((a: any, b: any) => b.matchScore - a.matchScore);
       
       return {
@@ -810,7 +848,8 @@ async function executeTool(toolName: string, args: any, supabase: any) {
         })),
         talentProfile: {
           wallet_address: talent.wallet_address,
-          role_tags: talent.role_tags
+          role_tags: talent.role_tags,
+          skill_category_ids: talent.skill_category_ids
         }
       };
     }

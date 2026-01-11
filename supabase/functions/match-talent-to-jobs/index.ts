@@ -61,12 +61,31 @@ serve(async (req) => {
       throw new Error('Failed to fetch opportunities');
     }
 
+    // Get category names for display
+    const allCategoryIds = [
+      ...(talent.skill_category_ids || []),
+      ...(jobs || []).flatMap((j: any) => j.skill_category_ids || []),
+      ...(tasks || []).flatMap((t: any) => t.skill_category_ids || [])
+    ];
+    
+    let categoryMap: Record<string, string> = {};
+    if (allCategoryIds.length > 0) {
+      const { data: categories } = await supabase
+        .from('skill_categories')
+        .select('id, name')
+        .in('id', [...new Set(allCategoryIds)]);
+      
+      categoryMap = Object.fromEntries(
+        (categories || []).map((c: any) => [c.id, c.name])
+      );
+    }
+
     // Score and rank opportunities
     const scoredOpportunities = [];
 
     // Score jobs
     for (const job of jobs || []) {
-      const score = calculateMatchScore(talent, job);
+      const score = calculateMatchScore(talent, job, categoryMap);
       scoredOpportunities.push({
         type: 'job',
         id: job.id,
@@ -86,7 +105,7 @@ serve(async (req) => {
 
     // Score tasks
     for (const task of tasks || []) {
-      const score = calculateMatchScore(talent, task);
+      const score = calculateMatchScore(talent, task, categoryMap);
       scoredOpportunities.push({
         type: 'task',
         id: task.id,
@@ -122,39 +141,43 @@ serve(async (req) => {
   }
 });
 
-function calculateMatchScore(talent: any, opportunity: any) {
+function calculateMatchScore(talent: any, opportunity: any, categoryMap: Record<string, string>) {
   let score = 0;
   const reasons = [];
 
-  const descriptionLower = (opportunity.description || '').toLowerCase();
-  const requirementsLower = (opportunity.requirements || '').toLowerCase();
-  const titleLower = (opportunity.title || '').toLowerCase();
-
-  // 1. SKILLS MATCH (40 points max - HIGHEST PRIORITY)
-  const talentSkills = (talent.skills || []).map((s: string) => s.toLowerCase());
-  let skillMatches = 0;
-  const matchedSkillNames: string[] = [];
+  // 1. CATEGORY MATCH (50 points max - HIGHEST PRIORITY)
+  const talentCategoryIds = talent.skill_category_ids || [];
+  const oppCategoryIds = opportunity.skill_category_ids || [];
   
-  for (const skill of talentSkills) {
-    if (descriptionLower.includes(skill) || requirementsLower.includes(skill) || titleLower.includes(skill)) {
-      skillMatches++;
-      matchedSkillNames.push(skill);
+  const matchingCategoryIds = talentCategoryIds.filter(
+    (id: string) => oppCategoryIds.includes(id)
+  );
+  
+  if (matchingCategoryIds.length > 0 && oppCategoryIds.length > 0) {
+    const categoryScore = Math.min(
+      (matchingCategoryIds.length / oppCategoryIds.length) * 50,
+      50
+    );
+    score += categoryScore;
+    
+    const matchedNames = matchingCategoryIds
+      .map((id: string) => categoryMap[id])
+      .filter(Boolean)
+      .slice(0, 3);
+    
+    if (matchedNames.length > 0) {
+      reasons.push(`Matches your categories: ${matchedNames.join(', ')}`);
     }
   }
-  
-  if (skillMatches > 0) {
-    const skillScore = Math.min(skillMatches * 10, 40);
-    score += skillScore;
-    reasons.push(`Matches your skills: ${matchedSkillNames.join(', ')}`);
-  }
 
-  // 2. Role tag match (30 points)
+  // 2. Role tag match (20 points max)
   const talentTags = talent.role_tags || [];
   const oppTags = opportunity.role_tags || [];
   const matchingTags = talentTags.filter((tag: string) => oppTags.includes(tag));
-  const tagScore = (matchingTags.length / Math.max(oppTags.length, 1)) * 30;
-  score += tagScore;
-  if (matchingTags.length > 0) {
+  
+  if (matchingTags.length > 0 && oppTags.length > 0) {
+    const tagScore = (matchingTags.length / oppTags.length) * 20;
+    score += tagScore;
     reasons.push(`Matches ${matchingTags.length} role tag(s): ${matchingTags.join(', ')}`);
   }
 
@@ -168,12 +191,16 @@ function calculateMatchScore(talent: any, opportunity: any) {
 
   // 4. Wallet activity relevance (10 points)
   const analysis = talent.profile_analysis || {};
-  if (analysis.notable_interactions) {
+  const walletVerification = analysis.wallet_verification || {};
+  
+  if (walletVerification.verified) {
     score += 5;
-    reasons.push('Has relevant Web3 experience');
-  }
-  if (analysis.wallet_activity) {
-    score += 5;
+    reasons.push('Verified on-chain activity');
+    
+    const interactions = walletVerification.notable_interactions || [];
+    if (interactions.length > 0) {
+      score += 5;
+    }
   }
 
   // 5. Bluechip verified (5 points)

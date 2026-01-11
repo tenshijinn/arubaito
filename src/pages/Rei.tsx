@@ -77,6 +77,7 @@ export default function Rei() {
   const [registrationData, setRegistrationData] = useState<any>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoadingRegistration, setIsLoadingRegistration] = useState(false);
+  const [useExistingTranscript, setUseExistingTranscript] = useState(false);
 
   // Restore Twitter user state from localStorage on mount
   useEffect(() => {
@@ -304,20 +305,32 @@ export default function Rei() {
   };
 
   const handleSubmit = async () => {
-    if (!audioBlob || !publicKey || !consent || !twitterUser) return;
+    // Allow submission with existing transcript (re-analyze) or new audio
+    const hasValidAudio = audioBlob || (useExistingTranscript && registrationData?.file_path);
+    if (!hasValidAudio || !publicKey || !consent || !twitterUser) return;
 
     setIsSubmitting(true);
 
     try {
-      // Upload audio file
-      const fileName = `${twitterUser.x_user_id}_${Date.now()}_audio.webm`;
-      const filePath = `${fileName}`;
+      let filePath: string;
+      
+      if (useExistingTranscript && registrationData?.file_path) {
+        // Re-analyze: use existing file path
+        filePath = registrationData.file_path;
+        console.log('Re-analyzing with existing file:', filePath);
+      } else if (audioBlob) {
+        // New recording: upload audio file
+        const fileName = `${twitterUser.x_user_id}_${Date.now()}_audio.webm`;
+        filePath = fileName;
 
-      const { error: uploadError } = await supabase.storage
-        .from('rei-contributor-files')
-        .upload(filePath, audioBlob);
+        const { error: uploadError } = await supabase.storage
+          .from('rei-contributor-files')
+          .upload(filePath, audioBlob);
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
+      } else {
+        throw new Error('No audio available');
+      }
 
       // Submit registration
       const { data, error } = await supabase.functions.invoke('submit-rei-registration', {
@@ -332,6 +345,7 @@ export default function Rei() {
           portfolio_url: portfolioUrl || null,
           role_tags: selectedRoles,
           consent: true,
+          reanalyze: useExistingTranscript, // Flag to force re-analysis
         },
       });
 
@@ -342,9 +356,12 @@ export default function Rei() {
         setRegistrationData(data.registration);
         setIsSuccess(true);
         setIsEditMode(false);
+        setUseExistingTranscript(false);
         toast({
           title: 'Success!',
-          description: isEditMode ? 'Your profile has been updated!' : (data.message || 'Registration successful!'),
+          description: useExistingTranscript 
+            ? 'Profile re-analyzed with latest wallet data!' 
+            : (isEditMode ? 'Your profile has been updated!' : (data.message || 'Registration successful!')),
         });
       } else {
         throw new Error('Registration succeeded but no data returned');
@@ -401,7 +418,9 @@ export default function Rei() {
     }
   };
 
-  const canSubmit = audioBlob && publicKey && consent && selectedRoles.length > 0 && twitterUser;
+  // Allow submission with new audio OR existing transcript (re-analyze mode)
+  const hasValidAudio = audioBlob || (useExistingTranscript && registrationData?.file_path);
+  const canSubmit = hasValidAudio && publicKey && consent && selectedRoles.length > 0 && twitterUser;
 
   const userName = twitterUser?.display_name?.split(' ')[0] || twitterUser?.handle;
 
@@ -870,23 +889,51 @@ export default function Rei() {
               </div>
 
               <div className="space-y-4">
-                {/* Audio Introduction */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Label>Record Your Introduction</Label>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-sm">
-                          <p>Introduce yourself and share your Web3 experience. Maximum 5 minutes. Tips: mention your background, highlight projects, discuss skills, and keep it professional.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                {/* Re-analyze Option (only in edit mode with existing transcript) */}
+                {isEditMode && registrationData?.file_path && (
+                  <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      <h4 className="font-semibold">Re-analyze Profile</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Re-run AI analysis on your existing introduction with updated wallet data. No need to record again!
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="useExisting"
+                        checked={useExistingTranscript}
+                        onCheckedChange={(checked) => {
+                          setUseExistingTranscript(checked as boolean);
+                          if (checked) setAudioBlob(null); // Clear any new recording
+                        }}
+                      />
+                      <Label htmlFor="useExisting" className="text-sm cursor-pointer">
+                        Use existing introduction (skip recording)
+                      </Label>
+                    </div>
                   </div>
-                  <AudioRecorder onAudioReady={handleAudioReady} maxDurationMinutes={5} />
-                </div>
+                )}
+
+                {/* Audio Introduction - hide if using existing transcript */}
+                {!useExistingTranscript && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Label>{isEditMode ? 'Record New Introduction (Optional)' : 'Record Your Introduction'}</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm">
+                            <p>Introduce yourself and share your Web3 experience. Maximum 5 minutes. Tips: mention your background, highlight projects, discuss skills, and keep it professional.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <AudioRecorder onAudioReady={handleAudioReady} maxDurationMinutes={5} />
+                  </div>
+                )}
 
                 {/* Portfolio URL */}
                 <div>
@@ -946,6 +993,7 @@ export default function Rei() {
                       onClick={() => {
                         setIsEditMode(false);
                         setAudioBlob(null);
+                        setUseExistingTranscript(false);
                       }}
                       variant="outline"
                       size="lg"
@@ -960,7 +1008,11 @@ export default function Rei() {
                     size="lg"
                     className="flex-1"
                   >
-                    {isSubmitting ? 'Submitting...' : isEditMode ? 'Update Profile' : 'Register & Claim Proof-Of-Talent NFT'}
+                    {isSubmitting 
+                      ? (useExistingTranscript ? 'Re-analyzing...' : 'Submitting...') 
+                      : useExistingTranscript 
+                        ? 'Re-analyze Profile' 
+                        : (isEditMode ? 'Update Profile' : 'Register & Claim Proof-Of-Talent NFT')}
                   </Button>
                 </div>
               </div>

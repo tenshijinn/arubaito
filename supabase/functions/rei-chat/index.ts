@@ -142,26 +142,26 @@ When user asks for "jobs" → return Job/Contract types
 
 FORMATTING FOR JOBS/TASKS/BOUNTIES:
 
-When presenting opportunities, use this clean, terminal-style format:
+Use this clean, hierarchical terminal-style format:
 
 1. Title Here
-[TYPE] | Company
-Location | Compensation
-
-2-3 sentence summary. Stay accurate to the original.
-
-Posted: relative date
->> [Apply here](url)
+   > Company | Location | Compensation
+   
+   2-3 sentence summary. Stay accurate to the original.
+   
+   [TYPE] · Posted 2 days ago
+   >> [Apply here](url)
 
 FORMATTING RULES:
+- Title on its own line with number prefix (1., 2., 3.)
+- Use > chevron before the details line (company/location/pay)
+- Indent content with 3 spaces under each entry
+- Keep an empty line before the summary for visual breathing room
+- [TYPE] label at bottom with relative date, separated by · (middle dot)
+- >> before the apply link on its own line
 - Use [text](url) for links (renders as clickable button)
-- DO NOT use asterisks for bold - keep text clean and unformatted
-- Each field on its own line
-- Number entries: 1., 2., 3.
-- Use [TYPE] labels in brackets: [JOB], [CONTRACT], [TASK], [BOUNTY], [GIG], [QUEST]
-- Use >> before action links
-- Use | as inline separator
-- NO EMOJIS anywhere - keep it terminal-like and clean
+- NO EMOJIS anywhere - keep it terminal-like
+- Use | only to separate items on the SAME line
 - Keep summaries to 2-3 sentences max
 - ALWAYS include the apply link - CRITICAL
 

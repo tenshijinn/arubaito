@@ -1,9 +1,8 @@
 import { ScrollFadeIn } from './ScrollFadeIn';
+import solanaBadges from '@/assets/joinrei/solana-badges.png';
 import hiwImg1 from '@/assets/joinrei/hiw-img1.png';
 import hiwImg2 from '@/assets/joinrei/hiw-img2.png';
 import hiwImg3 from '@/assets/joinrei/hiw-img3.png';
-import hiwImg4 from '@/assets/joinrei/hiw-img4.png';
-import hiwImg5 from '@/assets/joinrei/hiw-img5.png';
 
 const steps = [
   {
@@ -59,11 +58,14 @@ export const JoinReiHowItWorks = () => {
           ))}
         </div>
 
-        {/* Payment badges - matching PDF exactly */}
+        {/* Payment badges */}
         <ScrollFadeIn delay={500}>
-          <div className="mt-12 flex justify-center items-center gap-6">
-            <img src={hiwImg4} alt="Solana Pay" className="h-10 w-auto object-contain" />
-            <img src={hiwImg5} alt="x402" className="h-10 w-auto object-contain" />
+          <div className="mt-12 flex justify-center">
+            <img 
+              src={solanaBadges} 
+              alt="Solana Pay & x402" 
+              className="h-12 w-auto object-contain"
+            />
           </div>
         </ScrollFadeIn>
       </div>

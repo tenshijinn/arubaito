@@ -8,6 +8,7 @@ import { EVMWalletProvider } from "@/components/EVMWalletProvider";
 import Index from "./pages/Index";
 import Arubaito from "./pages/Arubaito";
 import Rei from "./pages/Rei";
+import JoinRei from "./pages/JoinRei";
 import Club from "./pages/Club";
 import Admin from "./pages/Admin";
 import Community from "./pages/Community";
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/arubaito" element={<Arubaito />} />
               <Route path="/rei" element={<Rei />} />
+              <Route path="/joinrei" element={<JoinRei />} />
               <Route path="/club" element={<Club />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/community" element={<Community />} />

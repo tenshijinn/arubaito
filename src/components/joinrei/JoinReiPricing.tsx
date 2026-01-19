@@ -1,12 +1,7 @@
 import { ScrollFadeIn } from './ScrollFadeIn';
 import { Button } from '@/components/ui/button';
 import { Eye, Zap, Rocket } from 'lucide-react';
-import pricingImg1 from '@/assets/joinrei/pricing-img1.png';
-import pricingImg2 from '@/assets/joinrei/pricing-img2.png';
-import pricingImg3 from '@/assets/joinrei/pricing-img3.png';
-import pricingImg4 from '@/assets/joinrei/pricing-img4.png';
-import pricingImg5 from '@/assets/joinrei/pricing-img5.png';
-import pricingImg6 from '@/assets/joinrei/pricing-img6.png';
+import solanaBadges from '@/assets/joinrei/solana-badges.png';
 
 const pricingTiers = [
   {
@@ -14,7 +9,6 @@ const pricingTiers = [
     price: '$5',
     period: 'Per Post',
     icon: Eye,
-    paymentBadges: [pricingImg4, pricingImg5],
     premium: false,
   },
   {
@@ -22,7 +16,6 @@ const pricingTiers = [
     price: '$99',
     period: '30days',
     icon: Zap,
-    paymentBadges: [pricingImg4, pricingImg5],
     premium: false,
   },
   {
@@ -30,7 +23,6 @@ const pricingTiers = [
     price: '$2500',
     period: 'Per Post + Ad Campaign',
     icon: Rocket,
-    paymentBadges: [pricingImg4, pricingImg5],
     premium: true,
   }
 ];
@@ -83,10 +75,12 @@ export const JoinReiPricing = () => {
                 <p className="text-cream/60 font-mono text-sm text-center mb-8">{tier.period}</p>
 
                 {/* Payment badges */}
-                <div className="flex justify-center items-center gap-3 mb-6">
-                  {tier.paymentBadges.map((badge, i) => (
-                    <img key={i} src={badge} alt="" className="h-8 w-auto object-contain" />
-                  ))}
+                <div className="flex justify-center mb-6">
+                  <img 
+                    src={solanaBadges} 
+                    alt="Solana Pay & x402" 
+                    className="h-8 w-auto object-contain"
+                  />
                 </div>
 
                 {/* CTA */}

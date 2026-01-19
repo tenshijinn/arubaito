@@ -3,12 +3,10 @@ import { TypewriterText } from './TypewriterText';
 import { ScrollFadeIn } from './ScrollFadeIn';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Eye } from 'lucide-react';
-import heroOperator from '@/assets/joinrei/hero-operator.png';
-import heroImg2 from '@/assets/joinrei/hero-img2.png';
-import heroImg3 from '@/assets/joinrei/hero-img3.png';
-import heroImg4 from '@/assets/joinrei/hero-img4.png';
-import heroImg5 from '@/assets/joinrei/hero-img5.png';
-import heroImg6 from '@/assets/joinrei/hero-img6.png';
+import reiHero from '@/assets/joinrei/rei-hero.png';
+import solanaBadges from '@/assets/joinrei/solana-badges.png';
+import ignyteAward from '@/assets/joinrei/ignyte-award.png';
+import reiSpeechBubble from '@/assets/joinrei/rei-speech-bubble.gif';
 
 export const JoinReiHero = () => {
   const [headlineComplete, setHeadlineComplete] = useState(false);
@@ -26,7 +24,7 @@ export const JoinReiHero = () => {
         }} />
       </div>
 
-      <div className="container mx-auto px-8 lg:px-16 grid lg:grid-cols-2 gap-16 items-center relative z-10">
+      <div className="container mx-auto px-8 lg:px-16 grid lg:grid-cols-2 gap-12 items-center relative z-10">
         {/* Left: Content */}
         <div className="space-y-6">
           <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary leading-[1.1] font-mono tracking-tight">
@@ -63,36 +61,41 @@ export const JoinReiHero = () => {
             </Button>
           </div>
 
-          {/* Badges row */}
-          <div className={`flex flex-wrap items-center gap-3 pt-6 transition-all duration-500 delay-300 ${headlineComplete ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="flex items-center gap-2 px-4 py-2 border border-cream/30 rounded-full bg-cream/5">
-              <img src={heroImg4} alt="Solana" className="h-5 w-5 object-contain" />
-              <span className="text-sm text-cream/90 font-mono">Build on Solana</span>
-            </div>
-            <div className="px-4 py-2 border border-primary/60 rounded-full bg-primary/10">
-              <span className="text-sm text-primary font-mono">1 of 15 Finalists • IGNYTE DIFC</span>
-            </div>
+          {/* IGNYTE Award Badge */}
+          <div className={`pt-6 transition-all duration-500 delay-300 ${headlineComplete ? 'opacity-100' : 'opacity-0'}`}>
+            <img 
+              src={ignyteAward} 
+              alt="IGNYTE Finalist - Build on Solana" 
+              className="h-16 md:h-20 w-auto object-contain"
+            />
           </div>
 
-          {/* Payment methods - matching PDF layout */}
-          <div className={`flex items-center gap-4 pt-2 transition-all duration-500 delay-400 ${headlineComplete ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="flex items-center gap-2">
-              <img src={heroImg5} alt="Solana Pay" className="h-6 w-auto object-contain" />
-            </div>
-            <div className="flex items-center gap-2">
-              <img src={heroImg6} alt="x402" className="h-6 w-auto object-contain" />
-            </div>
+          {/* Payment methods */}
+          <div className={`pt-2 transition-all duration-500 delay-400 ${headlineComplete ? 'opacity-100' : 'opacity-0'}`}>
+            <img 
+              src={solanaBadges} 
+              alt="Solana Pay & x402" 
+              className="h-10 md:h-12 w-auto object-contain"
+            />
           </div>
         </div>
 
-        {/* Right: Hero Image */}
+        {/* Right: Hero Image with speech bubble */}
         <ScrollFadeIn delay={300} className="hidden lg:block">
           <div className="relative">
             <img 
-              src={heroOperator} 
+              src={reiHero} 
               alt="Rei AI Agent" 
-              className="w-full max-w-lg mx-auto rounded-2xl"
+              className="w-full max-w-xl mx-auto rounded-2xl"
             />
+            {/* Animated speech bubble overlay */}
+            <div className="absolute -bottom-8 -left-8">
+              <img 
+                src={reiSpeechBubble} 
+                alt="Rei typing" 
+                className="h-24 w-auto"
+              />
+            </div>
           </div>
         </ScrollFadeIn>
       </div>

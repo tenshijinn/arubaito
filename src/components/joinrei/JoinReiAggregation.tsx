@@ -1,42 +1,65 @@
 import { ScrollFadeIn } from './ScrollFadeIn';
 import { ParallaxWrapper } from './ParallaxWrapper';
-import { Eye, ArrowRight, Users } from 'lucide-react';
-import solanaIcon from '@/assets/solana-icon.png';
+import aggImg1 from '@/assets/joinrei/agg-img1.png';
+import aggImg2 from '@/assets/joinrei/agg-img2.png';
+import aggImg3 from '@/assets/joinrei/agg-img3.png';
+import aggImg5 from '@/assets/joinrei/agg-img5.png';
+import aggImg6 from '@/assets/joinrei/agg-img6.png';
+import aggImg7 from '@/assets/joinrei/agg-img7.png';
+import aggImg8 from '@/assets/joinrei/agg-img8.png';
+import aggImg9 from '@/assets/joinrei/agg-img9.png';
+import aggImg10 from '@/assets/joinrei/agg-img10.png';
+import aggImg11 from '@/assets/joinrei/agg-img11.png';
+import aggImg12 from '@/assets/joinrei/agg-img12.png';
+import aggImg13 from '@/assets/joinrei/agg-img13.png';
 
-const blockchainIcons = [
-  'ETH', 'SOL', 'MATIC', 'BSC', 'AVAX', 'ARB', 'OP', 'BASE',
-  'FTM', 'NEAR', 'ATOM', 'DOT', 'ADA', 'ALGO', 'HBAR', 'XTZ'
-];
-
-const platforms = ['Galxe', 'Zealy', 'QuestN', 'TaskOn', 'Layer3', 'Crew3'];
+const blockchainLogos = [aggImg5, aggImg6, aggImg7, aggImg8, aggImg9, aggImg10, aggImg11, aggImg12, aggImg13];
+const platformLogos = [aggImg1, aggImg2, aggImg3];
 
 export const JoinReiAggregation = () => {
   return (
-    <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden bg-background py-20">
-      <div className="container mx-auto px-6 lg:px-12">
+    <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden bg-background py-16">
+      <div className="container mx-auto px-8 lg:px-16">
+        {/* Title */}
         <ScrollFadeIn>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-cream text-center leading-tight font-mono mb-4">
-            Get Task Talent from{' '}
-            <span className="text-primary">Cross-Chains</span>,{' '}
-            <span className="text-primary">Cross-Platforms</span>,{' '}
-            <span className="text-primary">Cross-Communities</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary text-center leading-tight font-mono mb-16">
+            Get Task Talent from Cross-Chains,<br />
+            Cross Platforms, Cross Communities
           </h2>
-          <p className="text-cream/60 font-mono text-center mb-16 max-w-2xl mx-auto">
-            41+ blockchains. All major task platforms. One unified talent pool.
-          </p>
         </ScrollFadeIn>
 
-        {/* Aggregation Diagram */}
-        <div className="grid lg:grid-cols-5 gap-6 items-center">
-          {/* Blockchains */}
-          <ScrollFadeIn delay={100} className="lg:col-span-1">
-            <div className="p-6 border border-cream/10 rounded-2xl bg-gradient-to-br from-cream/5 to-transparent">
-              <h3 className="text-sm font-bold text-cream/50 font-mono mb-4 text-center uppercase tracking-wider">41+ Chains</h3>
-              <div className="grid grid-cols-4 gap-2">
-                {blockchainIcons.map((chain, i) => (
-                  <ParallaxWrapper key={chain} speed={0.05 * (i % 4)}>
-                    <div className="aspect-square rounded-lg bg-cream/5 border border-cream/10 flex items-center justify-center hover:border-primary/50 transition-colors cursor-default group">
-                      <span className="text-[10px] text-cream/40 font-mono group-hover:text-primary transition-colors">{chain}</span>
+        {/* Aggregation Flow Diagram */}
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-4">
+          
+          {/* Blockchains Column */}
+          <ScrollFadeIn delay={100}>
+            <div className="p-6 border-2 border-primary/40 rounded-3xl bg-primary/5 min-w-[200px]">
+              <h3 className="text-lg font-bold text-primary font-mono mb-4 text-center">Blockchains</h3>
+              <div className="grid grid-cols-3 gap-3">
+                {blockchainLogos.map((logo, i) => (
+                  <ParallaxWrapper key={i} speed={0.02 * (i % 3)}>
+                    <div className="w-12 h-12 rounded-lg bg-cream/5 border border-cream/10 flex items-center justify-center p-2 hover:border-primary/50 transition-colors">
+                      <img src={logo} alt="" className="w-full h-full object-contain" />
+                    </div>
+                  </ParallaxWrapper>
+                ))}
+              </div>
+              <p className="text-sm text-cream/50 font-mono text-center mt-3">41+</p>
+            </div>
+          </ScrollFadeIn>
+
+          {/* Arrow */}
+          <div className="text-primary text-4xl font-mono rotate-90 lg:rotate-0">→</div>
+
+          {/* Project Tasks Column */}
+          <ScrollFadeIn delay={200}>
+            <div className="p-6 border-2 border-primary/40 rounded-3xl bg-primary/5 min-w-[200px]">
+              <h3 className="text-lg font-bold text-primary font-mono mb-4 text-center">Project Tasks</h3>
+              <div className="flex flex-col gap-3">
+                {platformLogos.map((logo, i) => (
+                  <ParallaxWrapper key={i} speed={0.03 * i}>
+                    <div className="h-10 rounded-lg bg-cream/5 border border-cream/10 flex items-center justify-center p-2 hover:border-primary/50 transition-colors">
+                      <img src={logo} alt="" className="h-full object-contain" />
                     </div>
                   </ParallaxWrapper>
                 ))}
@@ -45,71 +68,50 @@ export const JoinReiAggregation = () => {
           </ScrollFadeIn>
 
           {/* Arrow */}
-          <div className="hidden lg:flex justify-center">
-            <ArrowRight className="h-8 w-8 text-primary animate-pulse" />
-          </div>
+          <div className="text-primary text-4xl font-mono rotate-90 lg:rotate-0">→</div>
 
-          {/* Platforms */}
-          <ScrollFadeIn delay={200} className="lg:col-span-1">
-            <div className="p-6 border border-cream/10 rounded-2xl bg-gradient-to-br from-cream/5 to-transparent">
-              <h3 className="text-sm font-bold text-cream/50 font-mono mb-4 text-center uppercase tracking-wider">Platforms</h3>
-              <div className="space-y-2">
-                {platforms.map((platform, i) => (
-                  <ParallaxWrapper key={platform} speed={0.03 * i}>
-                    <div className="px-3 py-2 rounded-lg bg-cream/5 border border-cream/10 text-center hover:border-primary/50 transition-colors">
-                      <span className="text-sm text-cream/70 font-mono">{platform}</span>
-                    </div>
-                  </ParallaxWrapper>
-                ))}
-              </div>
-            </div>
-          </ScrollFadeIn>
-
-          {/* Arrow */}
-          <div className="hidden lg:flex justify-center">
-            <ArrowRight className="h-8 w-8 text-primary animate-pulse" />
-          </div>
-
-          {/* Rei Center */}
-          <ScrollFadeIn delay={300} className="lg:col-span-1">
+          {/* Aggregation Layer - Center (Rei Eye) */}
+          <ScrollFadeIn delay={300}>
             <div className="relative">
-              <div className="p-8 border-2 border-primary rounded-2xl bg-gradient-to-br from-primary/20 to-transparent">
+              <div className="p-8 border-2 border-primary rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5">
                 <div className="flex flex-col items-center gap-4">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-primary/30 blur-xl rounded-full" />
-                    <Eye className="h-16 w-16 text-primary relative z-10" />
+                    <div className="absolute inset-0 bg-primary/40 blur-2xl rounded-full" />
+                    <svg className="h-20 w-20 text-primary relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <circle cx="12" cy="12" r="10"/>
+                      <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                    </svg>
                   </div>
                   <div className="text-center">
-                    <h3 className="text-lg font-bold text-cream font-mono">REI</h3>
-                    <p className="text-xs text-cream/50 font-mono">Aggregation Layer</p>
+                    <h3 className="text-xl font-bold text-primary font-mono">Aggregation Layer</h3>
                   </div>
                 </div>
               </div>
-              {/* Floating elements */}
-              <div className="absolute -top-2 -right-2 px-2 py-1 bg-primary rounded text-xs text-background font-mono font-bold">
-                AI
+            </div>
+          </ScrollFadeIn>
+
+          {/* Arrow */}
+          <div className="text-primary text-4xl font-mono rotate-90 lg:rotate-0">→</div>
+
+          {/* Talent Column */}
+          <ScrollFadeIn delay={400}>
+            <div className="p-6 border-2 border-primary/40 rounded-3xl bg-primary/5 min-w-[200px]">
+              <h3 className="text-lg font-bold text-primary font-mono mb-4 text-center">Talent</h3>
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex -space-x-3">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="w-10 h-10 rounded-full bg-cream/20 border-2 border-background flex items-center justify-center">
+                      <svg className="h-5 w-5 text-cream/60" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                      </svg>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-sm text-cream/70 font-mono">Task Matched</p>
               </div>
             </div>
           </ScrollFadeIn>
         </div>
-
-        {/* Output: Matched Talent */}
-        <ScrollFadeIn delay={400}>
-          <div className="mt-12 flex justify-center">
-            <div className="flex items-center gap-4">
-              <ArrowRight className="h-6 w-6 text-primary rotate-90 lg:rotate-0" />
-              <div className="p-6 border border-primary/50 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent">
-                <div className="flex items-center gap-4">
-                  <Users className="h-10 w-10 text-primary" />
-                  <div>
-                    <h3 className="text-lg font-bold text-cream font-mono">Matched Talent</h3>
-                    <p className="text-sm text-cream/60 font-mono">Skilled contributors matched to your tasks</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </ScrollFadeIn>
       </div>
     </section>
   );

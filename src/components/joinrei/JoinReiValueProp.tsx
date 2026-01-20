@@ -1,6 +1,5 @@
 import { ScrollFadeIn } from './ScrollFadeIn';
 import { ParallaxWrapper } from './ParallaxWrapper';
-import reiBlock from '@/assets/joinrei/rei-block.png';
 
 export const JoinReiValueProp = () => {
   return (
@@ -69,13 +68,16 @@ export const JoinReiValueProp = () => {
           </ScrollFadeIn>
         </div>
 
-        {/* Right: ASCII Art Image */}
+        {/* Right: Video */}
         <ParallaxWrapper speed={0.1} className="hidden lg:flex order-1 lg:order-2 justify-end">
           <ScrollFadeIn>
             <div className="relative">
-              <img 
-                src={reiBlock} 
-                alt="Rei ASCII Art" 
+              <video 
+                src="/rei-room-stats.webm"
+                autoPlay
+                loop
+                muted
+                playsInline
                 className="w-full max-w-lg rounded-3xl"
               />
             </div>

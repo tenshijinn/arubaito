@@ -27,24 +27,24 @@ export const JoinReiDemoSection = () => {
             <ScrollFadeIn key={demo.title} delay={index * 150}>
               <div className="flex flex-col items-center text-center">
                 {/* Title */}
-                <h3 className="text-lg md:text-xl font-bold text-primary font-display mb-2 tracking-wide">
+                <h3 className="text-xs md:text-sm font-bold text-primary font-display mb-1 tracking-wide whitespace-nowrap">
                   {demo.title}
                 </h3>
                 
                 {/* Subtitle */}
-                <p className="text-sm md:text-base text-cream/70 font-mono mb-6">
+                <p className="text-xs text-cream/70 font-mono mb-4 whitespace-nowrap">
                   {demo.subtitle}
                 </p>
 
                 {/* Video Demo */}
-                <div className="w-full aspect-[9/16] rounded-xl overflow-hidden border-2 border-primary/30 bg-background">
+                <div className="w-full aspect-[9/16] rounded-xl overflow-hidden border-2 border-muted-foreground/50 bg-background">
                   <video
                     src={demo.video}
                     autoPlay
                     loop
                     muted
                     playsInline
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </div>
               </div>

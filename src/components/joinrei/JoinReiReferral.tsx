@@ -9,7 +9,7 @@ export const JoinReiReferral = () => {
         {/* Top: Title */}
         <div className="pt-8 lg:pt-16">
           <ScrollFadeIn>
-            <h2 className="text-3xl md:text-4xl lg:text-[3rem] xl:text-[3.5rem] font-bold leading-[1.2] font-mono">
+            <h2 className="text-3xl md:text-4xl lg:text-[3rem] xl:text-[3.5rem] font-bold leading-[1.2] font-display">
               <span className="text-cream">Users Earn </span>
               <span className="text-primary">Solana</span>
               <span className="text-cream"> for Referring </span>

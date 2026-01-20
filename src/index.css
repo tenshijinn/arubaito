@@ -82,6 +82,22 @@ All colors MUST be HSL.
   }
 }
 
+@font-face {
+  font-family: 'Styrene A Trial';
+  src: url('/fonts/StyreneATrial-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Styrene A Trial';
+  src: url('/fonts/StyreneATrial-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -89,7 +105,7 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Consolas', monospace;
     letter-spacing: 0.025em;
     line-height: 1.6;
     position: relative;
@@ -119,19 +135,18 @@ All colors MUST be HSL.
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Styrene A Trial', sans-serif;
     font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    letter-spacing: 0.02em;
   }
 
   button {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Consolas', monospace;
     letter-spacing: 0.05em;
   }
 
   input, textarea, select {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Consolas', monospace;
   }
 
   /* Ensure proper spacing throughout */

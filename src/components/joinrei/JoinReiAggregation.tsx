@@ -8,7 +8,7 @@ export const JoinReiAggregation = () => {
       <div className="container mx-auto px-8 lg:px-16">
         {/* Title */}
         <ScrollFadeIn>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary text-center leading-tight font-mono mb-12">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary text-center leading-tight font-display mb-12">
             Get Task Talent from Cross-Chains,<br />
             Cross Platforms, Cross Communities
           </h2>

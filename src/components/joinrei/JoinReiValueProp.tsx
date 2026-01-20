@@ -1,85 +1,80 @@
 import { ScrollFadeIn } from './ScrollFadeIn';
 import { ParallaxWrapper } from './ParallaxWrapper';
-import valueAscii from '@/assets/joinrei/value-ascii.png';
+import reiBlock from '@/assets/joinrei/rei-block.png';
 
 export const JoinReiValueProp = () => {
   return (
-    <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden bg-background py-20">
-      <div className="container mx-auto px-8 lg:px-16 grid lg:grid-cols-2 gap-16 items-center">
-        {/* Left: ASCII Art Image */}
-        <ParallaxWrapper speed={0.1} className="hidden lg:block">
+    <section className="min-h-screen snap-start relative flex items-center overflow-hidden bg-[#1a1a1a]">
+      <div className="container mx-auto px-8 lg:px-16 grid lg:grid-cols-2 gap-12 items-center">
+        {/* Left: Content */}
+        <div className="space-y-10 order-2 lg:order-1">
           <ScrollFadeIn>
-            <div className="relative">
-              <img 
-                src={valueAscii} 
-                alt="Rei ASCII Art" 
-                className="w-full max-w-md mx-auto"
-              />
-            </div>
-          </ScrollFadeIn>
-        </ParallaxWrapper>
-
-        {/* Right: Content */}
-        <div className="space-y-8">
-          <ScrollFadeIn>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary leading-tight font-mono">
-              Promote your existing task to a growing audience
+            <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-primary leading-[1.2] font-display">
+              Promote your existing task a growing audience
             </h2>
           </ScrollFadeIn>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <ScrollFadeIn delay={100}>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-primary" />
-                <p className="text-xl text-cream font-mono">A One-Stop-Search for users.</p>
-              </div>
+              <p className="text-xl md:text-2xl lg:text-[1.75rem] font-mono text-cream/90">
+                A <span className="text-primary font-display font-bold">One-Stop-Search</span> for users.
+              </p>
             </ScrollFadeIn>
 
             <ScrollFadeIn delay={200}>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-primary" />
-                <p className="text-xl text-cream font-mono">A Unified GTM for projects.</p>
-              </div>
+              <p className="text-xl md:text-2xl lg:text-[1.75rem] font-mono text-cream/90">
+                A <span className="text-primary font-display font-bold">Unified GTM</span> for projects.
+              </p>
             </ScrollFadeIn>
           </div>
 
-          <div className="space-y-6 pt-6">
+          <div className="flex items-center gap-8 pt-4">
             <ScrollFadeIn delay={300}>
-              <div className="flex items-center gap-4 p-5 border-2 border-primary/40 rounded-2xl bg-primary/5">
-                <div className="p-3 rounded-xl bg-primary/20">
-                  <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="currentColor">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#1a1a1a] border border-cream/10">
+                  <svg className="h-6 w-6 text-cream" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
                 </div>
-                <span className="text-xl text-cream font-mono">Login</span>
+                <span className="text-lg text-cream/80 font-mono">Login</span>
               </div>
             </ScrollFadeIn>
 
             <ScrollFadeIn delay={400}>
-              <div className="flex items-center gap-4 p-5 border-2 border-primary/40 rounded-2xl bg-primary/5">
-                <div className="p-3 rounded-xl bg-primary/20">
-                  <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <circle cx="12" cy="12" r="4"/>
-                    <line x1="12" y1="2" x2="12" y2="4"/>
-                    <line x1="12" y1="20" x2="12" y2="22"/>
-                    <line x1="2" y1="12" x2="4" y2="12"/>
-                    <line x1="20" y1="12" x2="22" y2="12"/>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-cream/10 border border-cream/20">
+                  <svg className="h-6 w-6 text-cream" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M9 12l2 2 4-4" />
+                    <line x1="3" y1="9" x2="21" y2="9" />
                   </svg>
                 </div>
-                <span className="text-xl text-cream font-mono">Matches Skills to Tasks</span>
+                <span className="text-lg text-cream/80 font-mono">Matches Skills to Tasks</span>
               </div>
             </ScrollFadeIn>
           </div>
 
           <ScrollFadeIn delay={500}>
-            <div className="pt-8">
-              <p className="text-3xl md:text-4xl font-bold text-primary font-mono">
+            <div className="pt-6">
+              <p className="text-2xl md:text-3xl font-mono text-cream/60">
                 Reduce task slop.
               </p>
             </div>
           </ScrollFadeIn>
         </div>
+
+        {/* Right: ASCII Art Image */}
+        <ParallaxWrapper speed={0.1} className="hidden lg:flex order-1 lg:order-2 justify-end">
+          <ScrollFadeIn>
+            <div className="relative">
+              <img 
+                src={reiBlock} 
+                alt="Rei ASCII Art" 
+                className="w-full max-w-lg rounded-3xl"
+              />
+            </div>
+          </ScrollFadeIn>
+        </ParallaxWrapper>
       </div>
     </section>
   );

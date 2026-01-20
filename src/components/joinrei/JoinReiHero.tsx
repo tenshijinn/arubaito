@@ -20,7 +20,7 @@ export const JoinReiHero = () => {
       <div className="w-full lg:w-[45%] h-full flex flex-col justify-between p-8 lg:p-12 xl:p-16 relative z-10">
         {/* Top: Headline & Subheadline */}
         <div className="pt-4 lg:pt-8">
-          <h1 className="text-[2.5rem] md:text-[3rem] lg:text-[3.5rem] xl:text-[4rem] font-bold text-primary leading-[1.15] font-mono tracking-tight">
+          <h1 className="text-[2.5rem] md:text-[3rem] lg:text-[3.5rem] xl:text-[4rem] font-bold text-primary leading-[1.15] font-display tracking-tight">
             <TypewriterText 
               text="Find Skilled Task Workers Who Care."
               speed={35}
@@ -32,8 +32,8 @@ export const JoinReiHero = () => {
             Rei is an AI Agent who{' '}
             <span className="underline decoration-2 underline-offset-4">Promotes</span> and{' '}
             <span className="underline decoration-2 underline-offset-4">Matches</span>{' '}
-            <span className="font-bold">Your Tasks</span> to Users with the{' '}
-            <span className="font-bold">Right Skills</span>
+            <span className="font-display font-bold">Your Tasks</span> to Users with the{' '}
+            <span className="font-display font-bold">Right Skills</span>
           </p>
         </div>
 

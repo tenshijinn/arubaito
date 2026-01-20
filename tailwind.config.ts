@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        mono: ['IBM Plex Mono', 'monospace'],
-        sans: ['IBM Plex Mono', 'monospace'],
+        display: ['Styrene A Trial', 'sans-serif'],
+        mono: ['Consolas', 'monospace'],
+        sans: ['Consolas', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",

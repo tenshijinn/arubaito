@@ -26,6 +26,12 @@ export const JoinReiValueProp = () => {
                 A <span className="text-primary font-display font-bold">Unified GTM</span> for projects.
               </p>
             </ScrollFadeIn>
+
+            <ScrollFadeIn delay={300}>
+              <p className="text-lg md:text-xl font-mono text-cream/70 mt-6">
+                Web3 task platforms already process hundreds of millions of task completions across tens of millions of users — but discovery is fragmented. Rei gives projects a single distribution layer to amplify tasks that already exist.
+              </p>
+            </ScrollFadeIn>
           </div>
 
           <div className="flex items-center gap-8 pt-4">

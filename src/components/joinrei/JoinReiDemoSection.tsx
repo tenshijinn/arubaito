@@ -37,14 +37,14 @@ export const JoinReiDemoSection = () => {
                 </p>
 
                 {/* Video Demo */}
-                <div className="w-full aspect-[9/16] rounded-xl overflow-hidden border-2 border-muted-foreground/50 bg-background">
+                <div className="w-full aspect-[9/19] rounded-lg overflow-hidden border border-primary/40 bg-black">
                   <video
                     src={demo.video}
                     autoPlay
                     loop
                     muted
                     playsInline
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-cover object-top"
                   />
                 </div>
               </div>

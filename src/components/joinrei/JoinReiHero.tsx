@@ -77,8 +77,8 @@ export const JoinReiHero = () => {
           className="w-full h-full object-cover object-center"
         />
         
-        {/* REI Speech Bubble - positioned beside the face, not covering it */}
-        <div className="absolute top-[25%] left-[5%]">
+        {/* REI Speech Bubble - positioned to the right of her head */}
+        <div className="absolute top-[28%] left-[42%]">
           <img 
             src={reiSpeechBubble} 
             alt="Rei typing" 

@@ -1,5 +1,5 @@
 import { ScrollFadeIn } from './ScrollFadeIn';
-import solanaIcon from '@/assets/solana-icon.png';
+import shareGraphic from '@/assets/joinrei/share-graphic.png';
 
 export const JoinReiReferral = () => {
   return (
@@ -21,35 +21,11 @@ export const JoinReiReferral = () => {
         {/* Bottom: Share graphic - matching reference exactly */}
         <ScrollFadeIn delay={200}>
           <div className="pb-16 lg:pb-24">
-            <div className="flex items-end">
-              {/* Custom share graphic matching reference */}
-              <svg width="200" height="140" viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* Background person (left) */}
-                <circle cx="45" cy="25" r="18" fill="hsl(var(--primary))" />
-                <path d="M25 75 Q25 50 45 50 Q65 50 65 75 L65 90 L25 90 Z" fill="hsl(var(--primary))" />
-                
-                {/* Foreground person (center) with share arrow */}
-                <circle cx="85" cy="35" r="22" fill="hsl(var(--primary))" />
-                <path d="M55 95 Q55 65 85 65 Q115 65 115 95 L115 115 L55 115 Z" fill="hsl(var(--primary))" />
-                
-                {/* Share arrow */}
-                <path d="M45 85 L30 70 M30 70 L30 85 M30 70 L45 70" stroke="hsl(var(--primary))" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                
-                {/* Right person */}
-                <circle cx="130" cy="45" r="16" fill="hsl(var(--primary))" />
-                <path d="M110 95 Q110 70 130 70 Q150 70 150 95 L150 110 L110 110 Z" fill="hsl(var(--primary))" />
-                
-                {/* Solana icon circle (top right) */}
-                <circle cx="155" cy="25" r="22" fill="none" stroke="hsl(var(--primary))" strokeWidth="2" />
-                {/* Solana logo placeholder - 3 lines */}
-                <line x1="145" y1="20" x2="165" y2="20" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" />
-                <line x1="145" y1="25" x2="165" y2="25" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" />
-                <line x1="145" y1="30" x2="165" y2="30" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              
-              {/* Share text */}
-              <span className="text-primary font-mono text-2xl font-bold -ml-2 mb-8">Share</span>
-            </div>
+            <img 
+              src={shareGraphic} 
+              alt="Share and earn Solana" 
+              className="h-40 w-auto object-contain"
+            />
           </div>
         </ScrollFadeIn>
       </div>

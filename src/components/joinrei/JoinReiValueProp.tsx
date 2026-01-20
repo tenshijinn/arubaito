@@ -9,7 +9,7 @@ export const JoinReiValueProp = () => {
         {/* Left: Content */}
         <div className="space-y-10 order-2 lg:order-1">
           <ScrollFadeIn>
-            <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-primary leading-[1.2] font-display">
+            <h2 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-bold text-primary leading-[1.2] font-display">
               Promote your existing task a growing audience
             </h2>
           </ScrollFadeIn>
@@ -31,7 +31,7 @@ export const JoinReiValueProp = () => {
           <div className="flex items-center gap-8 pt-4">
             <ScrollFadeIn delay={300}>
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#1a1a1a] border border-cream/10">
+                <div className="p-2 rounded-lg bg-transparent">
                   <svg className="h-6 w-6 text-cream" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
@@ -42,7 +42,7 @@ export const JoinReiValueProp = () => {
 
             <ScrollFadeIn delay={400}>
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-cream/10 border border-cream/20">
+                <div className="p-2 rounded-lg bg-transparent">
                   <svg className="h-6 w-6 text-cream" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <path d="M9 12l2 2 4-4" />

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import reiHero from '@/assets/joinrei/rei-hero.png';
 import solanaBadges from '@/assets/joinrei/solana-badges.png';
-import ignyteAward from '@/assets/joinrei/ignyte-award.png';
+import ignyteAward from '@/assets/joinrei/awards2.png';
 import reiSpeechBubble from '@/assets/joinrei/rei-speech-bubble.gif';
 
 export const JoinReiHero = () => {

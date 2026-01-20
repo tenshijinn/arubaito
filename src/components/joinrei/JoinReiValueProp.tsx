@@ -1,5 +1,6 @@
 import { ScrollFadeIn } from './ScrollFadeIn';
 import { ParallaxWrapper } from './ParallaxWrapper';
+import tasksPipeline from '@/assets/joinrei/tasks-pipeline.png';
 
 export const JoinReiValueProp = () => {
   return (
@@ -68,16 +69,13 @@ export const JoinReiValueProp = () => {
           </ScrollFadeIn>
         </div>
 
-        {/* Right: Video */}
+        {/* Right: Image */}
         <ParallaxWrapper speed={0.1} className="hidden lg:flex order-1 lg:order-2 justify-end">
           <ScrollFadeIn>
             <div className="relative">
-              <video 
-                src="/rei-room-stats.webm"
-                autoPlay
-                loop
-                muted
-                playsInline
+              <img 
+                src={tasksPipeline}
+                alt="Tasks Pipeline - Galxe, Layer3, TaskOn, Zealy"
                 className="w-full max-w-lg rounded-3xl"
               />
             </div>

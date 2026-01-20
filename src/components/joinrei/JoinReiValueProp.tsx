@@ -29,7 +29,7 @@ export const JoinReiValueProp = () => {
 
             <ScrollFadeIn delay={300}>
               <p className="text-lg md:text-xl font-mono text-cream/70 mt-6">
-                Web3 task platforms already process hundreds of millions of task completions across tens of millions of users — but discovery is fragmented. Rei gives projects a single distribution layer to amplify tasks that already exist.
+                Web3 task platforms already handle hundreds of millions of task completions, but discovery is fragmented. Rei unifies distribution into a single amplification layer for existing tasks.
               </p>
             </ScrollFadeIn>
           </div>
@@ -60,13 +60,6 @@ export const JoinReiValueProp = () => {
             </ScrollFadeIn>
           </div>
 
-          <ScrollFadeIn delay={500}>
-            <div className="pt-6">
-              <p className="text-2xl md:text-3xl font-mono text-cream/60">
-                Reduce task slop.
-              </p>
-            </div>
-          </ScrollFadeIn>
         </div>
 
         {/* Right: Image */}

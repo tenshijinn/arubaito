@@ -18,9 +18,9 @@ export const JoinReiHero = () => {
     <section className="h-screen snap-start relative flex overflow-hidden bg-[#1a1a1a]">
       {/* Left Content Panel - ~45% width */}
       <div className="w-full lg:w-[45%] h-full flex flex-col justify-between p-8 lg:p-12 xl:p-16 relative z-10">
-        {/* Top: Headline & Subheadline */}
-        <div className="pt-4 lg:pt-8">
-          <h1 className="text-[2.5rem] md:text-[3rem] lg:text-[3.5rem] xl:text-[4rem] font-bold text-primary leading-[1.15] font-display tracking-tight">
+        {/* Top: Headline & Subheadline - moved to very top */}
+        <div className="pt-2">
+          <h1 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-bold text-primary leading-[1.15] font-display tracking-tight">
             <TypewriterText 
               text="Find Skilled Task Workers Who Care."
               speed={35}
@@ -39,10 +39,10 @@ export const JoinReiHero = () => {
 
         {/* Bottom: CTAs and Badges */}
         <div className={`space-y-6 transition-all duration-500 delay-300 ${headlineComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          {/* Learn More link */}
+          {/* Learn More link - clickable to scroll */}
           <button 
             onClick={scrollToNext}
-            className="flex items-center gap-2 text-cream/80 hover:text-cream font-mono text-sm underline underline-offset-4 transition-colors"
+            className="flex items-center gap-2 text-cream/80 hover:text-cream font-mono text-sm underline underline-offset-4 transition-colors cursor-pointer"
           >
             <ChevronDown className="h-4 w-4" />
             <span>Learn More</span>
@@ -77,8 +77,8 @@ export const JoinReiHero = () => {
           className="w-full h-full object-cover object-center"
         />
         
-        {/* REI Speech Bubble - positioned on the image */}
-        <div className="absolute top-1/3 left-1/4 transform -translate-x-1/2">
+        {/* REI Speech Bubble - positioned beside the face, not covering it */}
+        <div className="absolute top-[25%] left-[5%]">
           <img 
             src={reiSpeechBubble} 
             alt="Rei typing" 

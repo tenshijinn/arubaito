@@ -10,6 +10,8 @@ const pricingTiers = [
     period: 'Per Post',
     icon: Eye,
     premium: false,
+    showSolanaBadges: true,
+    bookCall: false,
   },
   {
     name: 'Unlimited Posts',
@@ -17,6 +19,8 @@ const pricingTiers = [
     period: '30days',
     icon: Zap,
     premium: false,
+    showSolanaBadges: false,
+    bookCall: true,
   },
   {
     name: 'Rocket Reach',
@@ -24,6 +28,8 @@ const pricingTiers = [
     period: 'Per Post + Ad Campaign',
     icon: Rocket,
     premium: true,
+    showSolanaBadges: false,
+    bookCall: true,
   }
 ];
 
@@ -74,25 +80,33 @@ export const JoinReiPricing = () => {
                 {/* Period */}
                 <p className="text-cream/60 font-mono text-sm text-center mb-8">{tier.period}</p>
 
-                {/* Payment badges */}
-                <div className="flex justify-center mb-6">
-                  <img 
-                    src={solanaBadges} 
-                    alt="Solana Pay & x402" 
-                    className="h-8 w-auto object-contain"
-                  />
-                </div>
+                {/* Payment badges - only show for tiers with showSolanaBadges */}
+                {tier.showSolanaBadges && (
+                  <div className="flex justify-center mb-6">
+                    <img 
+                      src={solanaBadges} 
+                      alt="Solana Pay & x402" 
+                      className="h-8 w-auto object-contain"
+                    />
+                  </div>
+                )}
 
                 {/* CTA */}
                 <Button 
-                  className={`w-full font-mono h-12 rounded-full ${
+                  className={`w-full font-mono h-12 rounded-full mt-auto ${
                     tier.premium 
                       ? 'bg-amber-500 text-background hover:bg-amber-500/90' 
                       : 'bg-primary text-background hover:bg-primary/90'
                   }`}
-                  onClick={() => window.location.href = '/rei'}
+                  onClick={() => {
+                    if (tier.bookCall) {
+                      window.open('https://calendly.com/wayneanthonyd-thepipegdao/join-rei', '_blank');
+                    } else {
+                      window.location.href = '/rei';
+                    }
+                  }}
                 >
-                  Pay
+                  {tier.bookCall ? 'Book a Call' : 'Pay'}
                 </Button>
               </div>
             </ScrollFadeIn>

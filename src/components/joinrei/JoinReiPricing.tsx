@@ -206,7 +206,7 @@ export const JoinReiPricing = () => {
                       }
                     }}
                   >
-                    {tier.bookCall ? 'Book a Call' : 'Pay'}
+                    {tier.bookCall ? 'Book a Call' : 'Get Started'}
                   </Button>
                 </div>
               </ScrollFadeIn>

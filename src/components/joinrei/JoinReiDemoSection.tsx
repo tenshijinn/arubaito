@@ -4,17 +4,17 @@ const demos = [
   {
     title: 'PROOF OF HUMANITY/TALENT',
     subtitle: 'Users Share Skills + On-Chain Experience',
-    video: '/joinrei/1-demo.mp4',
+    video: '/joinrei/1-rei-video.mp4',
   },
   {
     title: 'FIND TASKS MATCHED TO SKILLS',
     subtitle: 'Rei matches tasks to their skills.',
-    video: '/joinrei/2-demo.mp4',
+    video: '/joinrei/2-rei-video.mp4',
   },
   {
     title: 'POST TASKS | CHATBOT OR X',
     subtitle: 'Post + Pay from Chatbot or X',
-    video: '/joinrei/3-demo.mp4',
+    video: '/joinrei/3-rei-video.mp4',
   },
 ];
 

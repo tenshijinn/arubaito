@@ -35,7 +35,7 @@ const pricingTiers = [
     bookCall: true,
     positioning: 'Always-on distribution for teams running continuous tasks.',
     totalValue: '~$2,010',
-    accentColor: 'teal',
+    accentColor: undefined,
     usps: [
       { feature: 'Unlimited task amplification', worth: '$400' },
       { feature: 'API-based ingestion (no manual posting)', worth: '$250' },

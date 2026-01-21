@@ -69,7 +69,8 @@ export const JoinReiValueProp = () => {
               <img 
                 src={multiplatform}
                 alt="Multiple Platforms - Galxe, Quest N, TaskOn, Zealy"
-                className="w-full max-w-lg"
+                className="w-full max-w-lg border-0 outline-none"
+                style={{ border: 'none', outline: 'none' }}
               />
             </div>
           </ScrollFadeIn>

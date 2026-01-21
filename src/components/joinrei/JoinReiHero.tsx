@@ -3,7 +3,6 @@ import { TypewriterText } from './TypewriterText';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import reiHero from '@/assets/joinrei/rei-hero.png';
-import solanaBadges from '@/assets/joinrei/solana-badges.png';
 import ignyteAward from '@/assets/joinrei/awards2.png';
 import reiSpeechBubble from '@/assets/joinrei/rei-speech-bubble.gif';
 
@@ -29,7 +28,7 @@ export const JoinReiHero = () => {
           </h1>
 
           <p className={`mt-6 text-base md:text-lg lg:text-xl text-primary/90 font-mono leading-relaxed transition-opacity duration-500 max-w-lg ${headlineComplete ? 'opacity-100' : 'opacity-0'}`}>
-            Rei is an AI Agent who{' '}
+            Rei{' '}
             <span className="underline decoration-2 underline-offset-4">Promotes</span> and{' '}
             <span className="underline decoration-2 underline-offset-4">Matches</span>{' '}
             <span className="font-display font-bold">Your Tasks</span> to Users with the{' '}
@@ -49,7 +48,7 @@ export const JoinReiHero = () => {
             <ChevronDown className="h-4 w-4" />
           </button>
 
-          {/* Post Now button and payment badges row */}
+          {/* Post Now button */}
           <div className="flex items-center gap-6 flex-wrap">
             <Button 
               variant="outline"
@@ -59,12 +58,6 @@ export const JoinReiHero = () => {
             >
               Post Now
             </Button>
-            
-            <img 
-              src={solanaBadges} 
-              alt="Solana Pay & x402" 
-              className="h-10 md:h-12 w-auto object-contain"
-            />
           </div>
         </div>
       </div>
@@ -77,8 +70,8 @@ export const JoinReiHero = () => {
           className="w-full h-full object-cover object-center"
         />
         
-        {/* REI Speech Bubble - positioned to the right of her head */}
-        <div className="absolute top-[28%] left-[42%]">
+        {/* REI Speech Bubble - positioned closer to her mouth */}
+        <div className="absolute top-[28%] left-[35%]">
           <img 
             src={reiSpeechBubble} 
             alt="Rei typing" 
@@ -86,12 +79,12 @@ export const JoinReiHero = () => {
           />
         </div>
 
-        {/* IGNYTE Award - bottom right corner */}
+        {/* IGNYTE Award - bottom right corner, smaller */}
         <div className="absolute bottom-8 right-8">
           <img 
             src={ignyteAward} 
             alt="IGNYTE Finalist - Build on Solana" 
-            className="h-14 xl:h-16 w-auto object-contain"
+            className="h-10 xl:h-12 w-auto object-contain"
           />
         </div>
       </div>

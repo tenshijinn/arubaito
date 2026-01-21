@@ -1,6 +1,6 @@
 import { ScrollFadeIn } from './ScrollFadeIn';
 import { ParallaxWrapper } from './ParallaxWrapper';
-import multiplatforms from '@/assets/joinrei/multiplatforms.png';
+import multiplatform from '@/assets/joinrei/multiplatform.png';
 
 export const JoinReiValueProp = () => {
   return (
@@ -67,9 +67,9 @@ export const JoinReiValueProp = () => {
           <ScrollFadeIn>
             <div className="relative">
               <img 
-                src={multiplatforms}
+                src={multiplatform}
                 alt="Multiple Platforms - Galxe, Quest N, TaskOn, Zealy"
-                className="w-full max-w-lg rounded-3xl"
+                className="w-full max-w-lg"
               />
             </div>
           </ScrollFadeIn>

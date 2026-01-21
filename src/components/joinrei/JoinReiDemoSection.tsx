@@ -37,7 +37,7 @@ export const JoinReiDemoSection = () => {
                 </p>
 
                 {/* Video Demo */}
-                <div className="w-full aspect-[9/19] rounded-lg overflow-hidden border border-primary/40 bg-black">
+                <div className="w-full aspect-[552/816] rounded-lg overflow-hidden border border-primary/40 bg-black">
                   <video
                     src={demo.video}
                     autoPlay

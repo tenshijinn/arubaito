@@ -89,12 +89,23 @@ export const JoinReiHero = () => {
         </div>
       </div>
 
-      {/* Mobile: Show image below content */}
+      {/* Mobile: Show image as background with gradient overlay */}
       <div className="lg:hidden absolute inset-0 -z-10">
+        {/* Gradient overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1a1a1a] via-[#1a1a1a]/80 to-transparent z-10" />
         <img 
           src={reiHero} 
           alt="Rei AI Agent" 
-          className="w-full h-full object-cover object-center opacity-30"
+          className="w-full h-full object-cover object-right-center opacity-50"
+        />
+      </div>
+
+      {/* Mobile awards badge */}
+      <div className="lg:hidden absolute bottom-6 right-6 z-20">
+        <img 
+          src={ignyteAward} 
+          alt="IGNYTE Finalist - Build on Solana" 
+          className="h-8 w-auto object-contain"
         />
       </div>
     </section>

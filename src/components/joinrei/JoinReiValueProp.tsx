@@ -1,6 +1,6 @@
 import { ScrollFadeIn } from './ScrollFadeIn';
 import { ParallaxWrapper } from './ParallaxWrapper';
-import tasksPipeline from '@/assets/joinrei/tasks-pipeline.png';
+import multiplatforms from '@/assets/joinrei/multiplatforms.png';
 
 export const JoinReiValueProp = () => {
   return (
@@ -10,7 +10,7 @@ export const JoinReiValueProp = () => {
         <div className="space-y-10 order-2 lg:order-1">
           <ScrollFadeIn>
             <h2 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-bold text-primary leading-[1.2] font-display">
-              Promote your existing task a growing audience
+              Multiple Task Platforms, In One Place.
             </h2>
           </ScrollFadeIn>
 
@@ -29,7 +29,7 @@ export const JoinReiValueProp = () => {
 
             <ScrollFadeIn delay={300}>
               <p className="text-lg md:text-xl font-mono text-cream/70 mt-6">
-                Web3 task platforms already handle hundreds of millions of task completions, but discovery is fragmented. Rei unifies distribution into a single amplification layer for existing tasks.
+                Users come to Rei from specific task platforms and become "Task Platform-Agnostic". Skills-based matching exposes your task to users who come from across the entire task ecosystem.
               </p>
             </ScrollFadeIn>
           </div>
@@ -67,8 +67,8 @@ export const JoinReiValueProp = () => {
           <ScrollFadeIn>
             <div className="relative">
               <img 
-                src={tasksPipeline}
-                alt="Tasks Pipeline - Galxe, Layer3, TaskOn, Zealy"
+                src={multiplatforms}
+                alt="Multiple Platforms - Galxe, Quest N, TaskOn, Zealy"
                 className="w-full max-w-lg rounded-3xl"
               />
             </div>

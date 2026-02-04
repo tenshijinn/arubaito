@@ -19,16 +19,30 @@ const IkigaiQRCode: React.FC<IkigaiQRCodeProps> = ({
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
   useEffect(() => {
+    const normalizeTelegramUsername = (input: string) => {
+      const trimmed = input.trim();
+      if (!trimmed) return '';
+
+      const noProtocol = trimmed.replace(/^https?:\/\//i, '');
+      const noDomain = noProtocol
+        .replace(/^(t\.me|telegram\.me)\//i, '')
+        .replace(/^@/, '');
+
+      return noDomain.split(/[/?#]/)[0] || '';
+    };
+
     const generateQR = async () => {
       if (!telegramHandle || !name) return;
 
-      // Remove @ from handle for URL
-      const handle = telegramHandle.startsWith('@') 
-        ? telegramHandle.substring(1) 
-        : telegramHandle;
+      // Ensure we ALWAYS target a specific username (not share-to-saved-messages)
+      const handle = normalizeTelegramUsername(telegramHandle);
+      if (!handle) return;
+
+      const displayName =
+        name?.trim() && name.trim().toLowerCase() !== 'user' ? name.trim() : handle;
 
       // Create third-person Telegram message (not the first-person card statement)
-      const telegramMessage = `Hey ${name} — I came across your Ikigai Card and resonated with this:\n\n"I am a ${whatPaidFor} that helps ${whatWorldNeeds}."\n\nWould be great to connect.`;
+      const telegramMessage = `Hey ${displayName} — I came across your Ikigai Card and resonated with this:\n\n"I am a ${whatPaidFor} that helps ${whatWorldNeeds}."\n\nWould be great to connect.`;
       
       const encodedMessage = encodeURIComponent(telegramMessage);
       // Use t.me/{username} format to open a chat with that specific user
@@ -39,8 +53,8 @@ const IkigaiQRCode: React.FC<IkigaiQRCodeProps> = ({
           width: 150,
           margin: 1,
           color: {
-            dark: '#ed565a',
-            light: isDarkMode ? '#181818' : '#ffffff',
+            dark: 'hsl(358 79% 64%)',
+            light: isDarkMode ? 'hsl(0 0% 9%)' : 'hsl(0 0% 100%)',
           },
         });
         setQrDataUrl(url);

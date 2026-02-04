@@ -35,10 +35,14 @@ const IkigaiForm: React.FC<IkigaiFormProps> = ({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isValid },
   } = useForm<IkigaiFormData>({
     resolver: zodResolver(ikigaiSchema),
     mode: 'onChange',
+    defaultValues: {
+      name: '',
+    },
   });
 
   // Rounded dark field styling to match reference
@@ -59,26 +63,32 @@ const IkigaiForm: React.FC<IkigaiFormProps> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
       {/* Hidden name field - we'll get it from telegram handle for simplicity, or add it back */}
-      <input type="hidden" {...register('name')} value="User" />
+      <input type="hidden" {...register('name')} />
       
       {fields.map(({ name, placeholder }) => (
         <div key={name}>
+          {(() => {
+            const reg = register(name);
+            return (
           <input
-            {...register(name)}
+            {...reg}
             placeholder={placeholder}
             maxLength={25}
             className={inputClass}
             style={{ fontFamily: 'Consolas, monospace', fontSize: '14px' }}
             onChange={(e) => {
-              register(name).onChange(e);
+              reg.onChange(e);
               onInputChange(name, e.target.value);
               // Auto-set name from telegram handle
               if (name === 'telegramHandle') {
-                const handle = e.target.value.replace('@', '');
-                onInputChange('name', handle || 'User');
+                const handle = e.target.value.replace(/^@/, '').trim();
+                setValue('name', handle, { shouldDirty: true, shouldValidate: true });
+                onInputChange('name', handle);
               }
             }}
           />
+            );
+          })()}
           {errors[name] && (
             <p className="text-primary text-xs mt-1">{errors[name]?.message}</p>
           )}

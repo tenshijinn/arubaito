@@ -3,7 +3,6 @@ import QRCode from 'qrcode';
 
 interface IkigaiQRCodeProps {
   telegramHandle: string;
-  statement: string;
   name: string;
   whatPaidFor: string;
   whatWorldNeeds: string;
@@ -32,6 +31,7 @@ const IkigaiQRCode: React.FC<IkigaiQRCodeProps> = ({
       const telegramMessage = `Hey ${name} — I came across your Ikigai Card and resonated with this:\n\n"I am a ${whatPaidFor} that helps ${whatWorldNeeds}."\n\nWould be great to connect.`;
       
       const encodedMessage = encodeURIComponent(telegramMessage);
+      // Use t.me/{username} format to open a chat with that specific user
       const telegramUrl = `https://t.me/${handle}?text=${encodedMessage}`;
 
       try {
@@ -58,14 +58,14 @@ const IkigaiQRCode: React.FC<IkigaiQRCodeProps> = ({
 
   return (
     <div className="flex flex-col items-center gap-2">
+      <span className={`text-xs uppercase tracking-widest ${textColor} opacity-60`}>
+        let's chat
+      </span>
       <img 
         src={qrDataUrl} 
         alt="Telegram QR Code" 
         className="w-[150px] h-[150px]"
       />
-      <span className={`text-xs uppercase tracking-widest ${textColor} opacity-60`}>
-        let's chat
-      </span>
     </div>
   );
 };

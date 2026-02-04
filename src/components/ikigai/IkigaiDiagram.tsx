@@ -1,4 +1,5 @@
 import React from 'react';
+import talentStar from '@/assets/talent-star.png';
 
 interface IkigaiDiagramProps {
   whatYouLove: string;
@@ -15,12 +16,16 @@ const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
   whatGoodAt,
   isDarkMode,
 }) => {
-  const accentColor = "#ed565a";
-  const textColor = isDarkMode ? "#ffffff" : "#181818";
-  const mutedColor = isDarkMode ? "rgba(255,255,255,0.5)" : "rgba(24,24,24,0.5)";
+  const accentColor = "hsl(var(--primary))";
+  const textColor = isDarkMode ? "hsl(0 0% 100%)" : "hsl(0 0% 9%)";
+  const mutedColor = isDarkMode ? "hsl(0 0% 100% / 0.5)" : "hsl(0 0% 9% / 0.5)";
   
   // Helper to split text into lines if over 12 chars
-  const wrapText = (text: string, maxLen: number = 12): string[] => {
+  const wrapText = (
+    text: string,
+    maxLen: number = 12,
+    maxLines: number = 2
+  ): string[] => {
     if (!text || text.length <= maxLen) return [text || ''];
     
     const words = text.split(' ');
@@ -37,7 +42,7 @@ const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
     }
     if (currentLine) lines.push(currentLine);
     
-    return lines.slice(0, 2); // Max 2 lines
+    return lines.slice(0, maxLines);
   };
 
   // Render multi-line text
@@ -46,17 +51,19 @@ const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
     x: number, 
     y: number, 
     anchor: 'start' | 'middle' | 'end' = 'middle',
-    maxLen: number = 12
+    maxLen: number = 12,
+    maxLines: number = 2
   ) => {
-    const lines = wrapText(text, maxLen);
+    const lines = wrapText(text, maxLen, maxLines);
     const lineHeight = 14;
     const startY = y - ((lines.length - 1) * lineHeight) / 2;
+    const initialDy = startY - y;
     
     return lines.map((line, i) => (
       <tspan 
         key={i} 
         x={x} 
-        dy={i === 0 ? 0 : lineHeight}
+        dy={i === 0 ? initialDy : lineHeight}
         textAnchor={anchor}
       >
         {line}
@@ -70,6 +77,24 @@ const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
       className="w-full h-full"
       style={{ fontFamily: 'Consolas, monospace' }}
     >
+      <defs>
+        {/* Masks to keep side-circle text in the non-overlapping lobes (prevents crossing other circle perimeters) */}
+        <mask id="ikigai-right-lobe">
+          <rect x="0" y="0" width="500" height="500" fill="black" />
+          <circle cx="325" cy="250" r="110" fill="white" />
+          <circle cx="250" cy="175" r="110" fill="black" />
+          <circle cx="250" cy="325" r="110" fill="black" />
+          <circle cx="175" cy="250" r="110" fill="black" />
+        </mask>
+        <mask id="ikigai-left-lobe">
+          <rect x="0" y="0" width="500" height="500" fill="black" />
+          <circle cx="175" cy="250" r="110" fill="white" />
+          <circle cx="250" cy="175" r="110" fill="black" />
+          <circle cx="250" cy="325" r="110" fill="black" />
+          <circle cx="325" cy="250" r="110" fill="black" />
+        </mask>
+      </defs>
+
       {/* Circles - dotted stroke - larger for better visibility */}
       {/* Top circle - What you love */}
       <circle
@@ -119,11 +144,15 @@ const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
         opacity="0.8"
       />
 
-      {/* Center star/diamond */}
-      <polygon
-        points="250,220 280,250 250,280 220,250"
-        fill={isDarkMode ? "#faf1e1" : accentColor}
-        opacity="0.9"
+      {/* Center star */}
+      <image
+        href={talentStar}
+        x="214"
+        y="214"
+        width="72"
+        height="72"
+        opacity="0.95"
+        preserveAspectRatio="xMidYMid meet"
       />
 
       {/* Outer labels */}
@@ -179,16 +208,18 @@ const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
       </text>
       
       {/* Right - What the world needs - RIGHT ALIGNED */}
-      <text x="370" y="240" textAnchor="end" fill={textColor} fontSize="12">
-        <tspan fill={mutedColor}>what the</tspan>
-      </text>
-      <text x="370" y="255" textAnchor="end" fill={textColor} fontSize="12">
-        <tspan fill={mutedColor}>world </tspan>
-        <tspan fill={accentColor}>needs</tspan>
-      </text>
-      <text x="370" y="275" textAnchor="end" fill={textColor} fontSize="11">
-        {renderWrappedText(whatWorldNeeds || '', 370, 275, 'end', 12)}
-      </text>
+      <g mask="url(#ikigai-right-lobe)">
+        <text x="418" y="240" textAnchor="end" fill={textColor} fontSize="12">
+          <tspan fill={mutedColor}>what the</tspan>
+        </text>
+        <text x="418" y="255" textAnchor="end" fill={textColor} fontSize="12">
+          <tspan fill={mutedColor}>world </tspan>
+          <tspan fill={accentColor}>needs</tspan>
+        </text>
+        <text x="418" y="275" textAnchor="end" fill={textColor} fontSize="11">
+          {renderWrappedText(whatWorldNeeds || '', 418, 275, 'end', 10, 3)}
+        </text>
+      </g>
       
       {/* Bottom - What you can be paid for */}
       <text x="250" y="375" textAnchor="middle" fill={textColor} fontSize="12">
@@ -202,15 +233,17 @@ const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
       </text>
       
       {/* Left - What you are good at - LEFT ALIGNED */}
-      <text x="130" y="240" textAnchor="start" fill={textColor} fontSize="12">
-        <tspan fill={mutedColor}>what you are</tspan>
-      </text>
-      <text x="130" y="255" textAnchor="start" fill={accentColor} fontSize="12">
-        good at
-      </text>
-      <text x="130" y="275" textAnchor="start" fill={textColor} fontSize="11">
-        {renderWrappedText(whatGoodAt || '', 130, 275, 'start', 12)}
-      </text>
+      <g mask="url(#ikigai-left-lobe)">
+        <text x="82" y="240" textAnchor="start" fill={textColor} fontSize="12">
+          <tspan fill={mutedColor}>what you are</tspan>
+        </text>
+        <text x="82" y="255" textAnchor="start" fill={accentColor} fontSize="12">
+          good at
+        </text>
+        <text x="82" y="275" textAnchor="start" fill={textColor} fontSize="11">
+          {renderWrappedText(whatGoodAt || '', 82, 275, 'start', 10, 3)}
+        </text>
+      </g>
     </svg>
   );
 };

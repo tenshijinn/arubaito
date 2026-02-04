@@ -4,27 +4,34 @@ import QRCode from 'qrcode';
 interface IkigaiQRCodeProps {
   telegramHandle: string;
   statement: string;
+  name: string;
+  whatPaidFor: string;
+  whatWorldNeeds: string;
   isDarkMode: boolean;
 }
 
 const IkigaiQRCode: React.FC<IkigaiQRCodeProps> = ({ 
   telegramHandle, 
-  statement,
+  name,
+  whatPaidFor,
+  whatWorldNeeds,
   isDarkMode 
 }) => {
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
   useEffect(() => {
     const generateQR = async () => {
-      if (!telegramHandle || !statement) return;
+      if (!telegramHandle || !name) return;
 
       // Remove @ from handle for URL
       const handle = telegramHandle.startsWith('@') 
         ? telegramHandle.substring(1) 
         : telegramHandle;
 
-      // Create Telegram deep link with pre-filled message
-      const encodedMessage = encodeURIComponent(statement);
+      // Create third-person Telegram message (not the first-person card statement)
+      const telegramMessage = `Hey ${name} — I came across your Ikigai Card and resonated with this:\n\n"I am a ${whatPaidFor} that helps ${whatWorldNeeds}."\n\nWould be great to connect.`;
+      
+      const encodedMessage = encodeURIComponent(telegramMessage);
       const telegramUrl = `https://t.me/${handle}?text=${encodedMessage}`;
 
       try {
@@ -43,7 +50,7 @@ const IkigaiQRCode: React.FC<IkigaiQRCodeProps> = ({
     };
 
     generateQR();
-  }, [telegramHandle, statement, isDarkMode]);
+  }, [telegramHandle, name, whatPaidFor, whatWorldNeeds, isDarkMode]);
 
   if (!qrDataUrl) return null;
 

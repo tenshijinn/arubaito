@@ -197,6 +197,9 @@ const IkigaiCard: React.FC = () => {
                   <IkigaiQRCode
                     telegramHandle={formData.telegramHandle}
                     statement={statement}
+                    name={formData.name || ''}
+                    whatPaidFor={formData.whatPaidFor || ''}
+                    whatWorldNeeds={formData.whatWorldNeeds || ''}
                     isDarkMode={isDarkMode}
                   />
                 </div>

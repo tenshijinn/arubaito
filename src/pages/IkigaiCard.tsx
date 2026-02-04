@@ -13,7 +13,7 @@ import {
 } from '@/components/ikigai';
 import { downloadIkigaiCard } from '@/utils/ikigaiCardGenerator';
 import IkigaiCardExport from '@/components/ikigai/IkigaiCardExport';
-
+import { TextRotator } from '@/components/TextRotator';
 const IkigaiCard: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -105,9 +105,9 @@ const IkigaiCard: React.FC = () => {
       {/* Main Content */}
       <main className="min-h-screen flex items-center">
         <div className="container mx-auto px-6 py-24">
-          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-12">
-            {/* Left Column - Form */}
-            <div className="w-full lg:w-auto lg:min-w-[280px]" data-export-hide="true">
+          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+            {/* Left Column - Form (centered vertically) */}
+            <div className="w-full lg:w-auto lg:min-w-[280px] flex flex-col justify-center" data-export-hide="true">
               {!isSubmitted ? (
                 <IkigaiForm
                   onSubmit={handleSubmit}
@@ -148,7 +148,7 @@ const IkigaiCard: React.FC = () => {
               )}
             </div>
 
-            {/* Right Column - Diagram (larger) */}
+            {/* Center Column - Diagram */}
             <div className="flex-1 w-full lg:max-w-[600px]">
               <IkigaiDiagram
                 whatYouLove={formData.whatYouLove || ''}
@@ -158,26 +158,36 @@ const IkigaiCard: React.FC = () => {
                 isDarkMode={isDarkMode}
               />
             </div>
+
+            {/* Right Column - Tagline (only before submit) */}
+            {!isSubmitted && (
+              <div className="w-full lg:w-auto lg:min-w-[200px] flex flex-col justify-center items-center lg:items-start px-4" data-export-hide="true">
+                <p 
+                  className={`text-lg ${isDarkMode ? 'text-cream/60' : 'text-[#181818]/60'}`}
+                  style={{ fontFamily: 'Consolas, monospace' }}
+                >
+                  <span className="font-bold">discover meaning</span>
+                  <br />
+                  <span className="font-bold">through your</span>
+                  <br />
+                  <TextRotator
+                    words={['ikigai', 'resondetere', 'purpose']}
+                    isActive={true}
+                    className="text-primary font-bold"
+                  />
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Bottom - Output Statement (only after submit) */}
-          {isSubmitted ? (
+          {isSubmitted && (
             <div className="mt-8 text-center max-w-3xl mx-auto">
               <IkigaiOutput
                 statement={statement}
                 name={formData.name || ''}
                 isDarkMode={isDarkMode}
               />
-            </div>
-          ) : (
-            <div className="mt-12 text-center">
-              <p 
-                className={`text-lg ${isDarkMode ? 'text-white/60' : 'text-[#181818]/60'}`}
-                style={{ fontFamily: 'Consolas, monospace' }}
-              >
-                <span className="font-bold">discover meaning through your</span>{' '}
-                <span className="text-primary">ikigai/resondetere/purpose</span>
-              </p>
             </div>
           )}
         </div>

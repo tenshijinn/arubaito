@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { toast } from 'sonner';
-import { Download, Printer, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +12,7 @@ import {
   type IkigaiFormData,
 } from '@/components/ikigai';
 import { downloadIkigaiCard } from '@/utils/ikigaiCardGenerator';
+import IkigaiCardExport from '@/components/ikigai/IkigaiCardExport';
 
 const IkigaiCard: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -36,12 +36,14 @@ const IkigaiCard: React.FC = () => {
 
   const handleSubmit = async (data: IkigaiFormData) => {
     setIsLoading(true);
-    setFormData(data);
+    // Extract name from telegram handle if not explicitly set
+    const name = data.name || data.telegramHandle.replace('@', '') || 'User';
+    setFormData({ ...data, name });
 
     try {
       const { data: responseData, error } = await supabase.functions.invoke('generate-ikigai', {
         body: {
-          name: data.name,
+          name: name,
           whatYouLove: data.whatYouLove,
           whatWorldNeeds: data.whatWorldNeeds,
           whatPaidFor: data.whatPaidFor,
@@ -63,7 +65,7 @@ const IkigaiCard: React.FC = () => {
     } catch (error) {
       console.error('Error generating ikigai:', error);
       // Fallback to template-based statement
-      const fallbackStatement = `I'm ${data.name}! I am a ${data.whatPaidFor} that helps ${data.whatWorldNeeds}.`;
+      const fallbackStatement = `I'm ${name}! I am a ${data.whatPaidFor} that helps ${data.whatWorldNeeds}.`;
       setStatement(fallbackStatement);
       setIsSubmitted(true);
       toast.warning('Generated using fallback template');
@@ -72,17 +74,13 @@ const IkigaiCard: React.FC = () => {
     }
   };
 
-  const handleDownload = async (format: 'png' | 'pdf') => {
+  const handleDownload = async () => {
     try {
-      await downloadIkigaiCard('ikigai-card-export', format, `ikigai-${formData.name || 'card'}`);
-      toast.success(`Downloaded as ${format.toUpperCase()}`);
+      await downloadIkigaiCard('ikigai-card-export', 'png', `ikigai-${formData.name || 'card'}`);
+      toast.success('Downloaded as PNG');
     } catch (error) {
       toast.error('Failed to download card');
     }
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   const bgColor = isDarkMode ? 'bg-[#181818]' : 'bg-white';
@@ -90,133 +88,117 @@ const IkigaiCard: React.FC = () => {
 
   return (
     <div className={`min-h-screen ${bgColor} ${textColor} transition-colors duration-300`}>
-      {/* Header */}
-      <header className="flex items-center justify-between p-6 border-b border-current/10">
-        <Link 
-          to="/" 
-          className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-xs uppercase tracking-widest">Back</span>
-        </Link>
-        <h1 className="text-sm uppercase tracking-[0.3em] font-bold">Ikigai Card</h1>
+      {/* Header - minimal with just logo and toggle */}
+      <header className="absolute top-0 left-0 right-0 flex items-center justify-between p-6 z-10">
+        <div className="flex items-center gap-2">
+          <span className="text-primary text-2xl">✦</span>
+          <span 
+            className="text-lg uppercase tracking-[0.2em] font-bold"
+            style={{ fontFamily: 'Consolas, monospace' }}
+          >
+            IKIGAI
+          </span>
+        </div>
         <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode(!isDarkMode)} />
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-12">
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Left Column - Form */}
-          <div data-export-hide="true" className={isSubmitted ? 'lg:order-2' : ''}>
-            {!isSubmitted ? (
-              <div className="max-w-md">
-                <h2 className="text-2xl font-bold mb-2">Find Your Purpose</h2>
-                <p className={`text-sm mb-8 ${isDarkMode ? 'text-white/60' : 'text-[#181818]/60'}`}>
-                  Answer these questions to generate your personal Ikigai Card — a shareable artifact of your identity.
-                </p>
+      <main className="min-h-screen flex items-center">
+        <div className="container mx-auto px-6 py-24">
+          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-12">
+            {/* Left Column - Form */}
+            <div className="w-full lg:w-auto lg:min-w-[280px]" data-export-hide="true">
+              {!isSubmitted ? (
                 <IkigaiForm
                   onSubmit={handleSubmit}
                   onInputChange={handleInputChange}
                   isLoading={isLoading}
                   isDarkMode={isDarkMode}
                 />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold mb-4">Your Card is Ready!</h3>
-                <div className="flex flex-wrap gap-3">
+              ) : (
+                <div className="space-y-4">
                   <Button
-                    onClick={() => handleDownload('png')}
-                    variant="outline"
-                    className={`gap-2 ${isDarkMode ? 'border-white/20 hover:bg-white/10' : 'border-[#181818]/20'}`}
+                    onClick={handleDownload}
+                    className="gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3"
+                    style={{ fontFamily: 'Consolas, monospace' }}
                   >
                     <Download className="w-4 h-4" />
-                    Download PNG
+                    Download Card
                   </Button>
                   <Button
-                    onClick={() => handleDownload('pdf')}
-                    variant="outline"
-                    className={`gap-2 ${isDarkMode ? 'border-white/20 hover:bg-white/10' : 'border-[#181818]/20'}`}
+                    onClick={() => {
+                      setIsSubmitted(false);
+                      setStatement('');
+                      setFormData({
+                        name: '',
+                        telegramHandle: '',
+                        whatYouLove: '',
+                        whatWorldNeeds: '',
+                        whatPaidFor: '',
+                        whatGoodAt: '',
+                      });
+                    }}
+                    variant="ghost"
+                    className="block text-primary hover:text-primary/80"
+                    style={{ fontFamily: 'Consolas, monospace' }}
                   >
-                    <Download className="w-4 h-4" />
-                    Download PDF
+                    Create Another
                   </Button>
-                  <Button
-                    onClick={handlePrint}
-                    variant="outline"
-                    className={`gap-2 ${isDarkMode ? 'border-white/20 hover:bg-white/10' : 'border-[#181818]/20'}`}
-                  >
-                    <Printer className="w-4 h-4" />
-                    Print
-                  </Button>
-                </div>
-                <Button
-                  onClick={() => {
-                    setIsSubmitted(false);
-                    setStatement('');
-                  }}
-                  variant="ghost"
-                  className="text-primary hover:text-primary/80"
-                >
-                  Create Another
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {/* Right Column - Diagram & Output */}
-          <div 
-            id="ikigai-card-export" 
-            ref={cardRef}
-            className={`${bgColor} ${textColor} p-8 rounded-lg ${isSubmitted ? 'lg:order-1' : ''}`}
-          >
-            <div className="flex flex-col items-center">
-              {/* Diagram */}
-              <div className="w-full max-w-[400px] aspect-square">
-                <IkigaiDiagram
-                  whatYouLove={formData.whatYouLove || ''}
-                  whatWorldNeeds={formData.whatWorldNeeds || ''}
-                  whatPaidFor={formData.whatPaidFor || ''}
-                  whatGoodAt={formData.whatGoodAt || ''}
-                  isDarkMode={isDarkMode}
-                />
-              </div>
-
-              {/* Output Statement */}
-              {isSubmitted && (
-                <IkigaiOutput
-                  statement={statement}
-                  name={formData.name || ''}
-                  isDarkMode={isDarkMode}
-                />
-              )}
-
-              {/* QR Code */}
-              {isSubmitted && formData.telegramHandle && (
-                <div className="mt-8">
-                  <IkigaiQRCode
-                    telegramHandle={formData.telegramHandle}
-                    statement={statement}
-                    name={formData.name || ''}
-                    whatPaidFor={formData.whatPaidFor || ''}
-                    whatWorldNeeds={formData.whatWorldNeeds || ''}
-                    isDarkMode={isDarkMode}
-                  />
-                </div>
-              )}
-
-              {/* Branding */}
-              {isSubmitted && (
-                <div className={`mt-8 pt-6 border-t border-current/10 w-full text-center`}>
-                  <span className="text-xs uppercase tracking-widest opacity-40">
-                    Powered by Arubaito
-                  </span>
                 </div>
               )}
             </div>
+
+            {/* Right Column - Diagram (larger) */}
+            <div className="flex-1 w-full lg:max-w-[600px]">
+              <IkigaiDiagram
+                whatYouLove={formData.whatYouLove || ''}
+                whatWorldNeeds={formData.whatWorldNeeds || ''}
+                whatPaidFor={formData.whatPaidFor || ''}
+                whatGoodAt={formData.whatGoodAt || ''}
+                isDarkMode={isDarkMode}
+              />
+            </div>
           </div>
+
+          {/* Bottom - Output Statement (only after submit) */}
+          {isSubmitted ? (
+            <div className="mt-8 text-center max-w-3xl mx-auto">
+              <IkigaiOutput
+                statement={statement}
+                name={formData.name || ''}
+                isDarkMode={isDarkMode}
+              />
+            </div>
+          ) : (
+            <div className="mt-12 text-center">
+              <p 
+                className={`text-lg ${isDarkMode ? 'text-white/60' : 'text-[#181818]/60'}`}
+                style={{ fontFamily: 'Consolas, monospace' }}
+              >
+                <span className="font-bold">discover meaning through your</span>{' '}
+                <span className="text-primary">ikigai/resondetere/purpose</span>
+              </p>
+            </div>
+          )}
         </div>
       </main>
+
+      {/* Hidden Export Component for Download */}
+      {isSubmitted && (
+        <div className="fixed -left-[9999px] -top-[9999px]">
+          <IkigaiCardExport
+            id="ikigai-card-export"
+            name={formData.name || ''}
+            statement={statement}
+            whatYouLove={formData.whatYouLove || ''}
+            whatWorldNeeds={formData.whatWorldNeeds || ''}
+            whatPaidFor={formData.whatPaidFor || ''}
+            whatGoodAt={formData.whatGoodAt || ''}
+            telegramHandle={formData.telegramHandle || ''}
+            isDarkMode={isDarkMode}
+          />
+        </div>
+      )}
     </div>
   );
 };

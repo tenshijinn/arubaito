@@ -25,8 +25,9 @@ const IkigaiOutput: React.FC<IkigaiOutputProps> = ({ statement, name, isDarkMode
       const nameText = nameMatch[1];
       const afterName = statement.substring((nameMatch.index || 0) + nameText.length);
       
-      if (beforeName) parts.push({ text: beforeName, highlight: false });
-      parts.push({ text: nameText, highlight: false }); // Name stays normal color
+      // "I'm" in red, name in white
+      parts.push({ text: "I'm ", highlight: true });
+      parts.push({ text: name + "!", highlight: false });
       
       // Parse the rest for role and mission
       // Look for "I am a {role} that helps {mission}"
@@ -34,13 +35,21 @@ const IkigaiOutput: React.FC<IkigaiOutputProps> = ({ statement, name, isDarkMode
       const roleMatch = afterName.match(rolePattern);
       
       if (roleMatch) {
-        const beforeRole = afterName.substring(0, roleMatch.index);
-        if (beforeRole) parts.push({ text: beforeRole, highlight: false });
+        parts.push({ text: ' I am a ', highlight: false });
+        parts.push({ text: roleMatch[1], highlight: false }); // Role in white
+        parts.push({ text: ' that helps ', highlight: true }); // "that helps" in red
         
-        parts.push({ text: 'I am a ', highlight: false });
-        parts.push({ text: roleMatch[1], highlight: true }); // Role in red
-        parts.push({ text: ' that helps ', highlight: false });
-        parts.push({ text: roleMatch[2], highlight: true }); // Mission in red
+        // Split mission to handle "to find" pattern
+        const missionText = roleMatch[2];
+        const toFindMatch = missionText.match(/(.+?)(to find)(.+)/i);
+        
+        if (toFindMatch) {
+          parts.push({ text: toFindMatch[1], highlight: false });
+          parts.push({ text: 'to find', highlight: true });
+          parts.push({ text: toFindMatch[3], highlight: false });
+        } else {
+          parts.push({ text: missionText, highlight: false });
+        }
       } else {
         parts.push({ text: afterName, highlight: false });
       }
@@ -55,10 +64,13 @@ const IkigaiOutput: React.FC<IkigaiOutputProps> = ({ statement, name, isDarkMode
   const parts = parseStatement();
 
   return (
-    <div className="mt-8 p-6 border-t border-current/20">
-      <p className={`text-lg leading-relaxed ${textColor}`} style={{ fontFamily: 'Consolas, monospace' }}>
+    <div className="py-6">
+      <p 
+        className={`text-xl md:text-2xl leading-relaxed ${textColor}`} 
+        style={{ fontFamily: 'Consolas, monospace', fontStyle: 'italic' }}
+      >
         {parts.map((part, index) => (
-          <span key={index} className={part.highlight ? 'text-primary font-semibold' : ''}>
+          <span key={index} className={part.highlight ? 'text-primary' : ''}>
             {part.text}
           </span>
         ))}

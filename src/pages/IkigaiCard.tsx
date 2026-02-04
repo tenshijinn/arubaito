@@ -159,9 +159,9 @@ const IkigaiCard: React.FC = () => {
               />
             </div>
 
-            {/* Right Column - Tagline (only before submit) */}
-            {!isSubmitted && (
-              <div className="w-full lg:w-auto lg:min-w-[200px] flex flex-col justify-center items-center lg:items-start px-4" data-export-hide="true">
+            {/* Right Column - Tagline or Output */}
+            <div className="w-full lg:w-auto lg:min-w-[220px] lg:max-w-[280px] flex flex-col justify-center items-center lg:items-start px-6" data-export-hide="true">
+              {!isSubmitted ? (
                 <p 
                   className={`text-lg ${isDarkMode ? 'text-cream/60' : 'text-[#181818]/60'}`}
                   style={{ fontFamily: 'Consolas, monospace' }}
@@ -176,20 +176,17 @@ const IkigaiCard: React.FC = () => {
                     className="text-primary font-bold"
                   />
                 </p>
-              </div>
-            )}
-          </div>
-
-          {/* Bottom - Output Statement (only after submit) */}
-          {isSubmitted && (
-            <div className="mt-8 text-center max-w-3xl mx-auto">
-              <IkigaiOutput
-                statement={statement}
-                name={formData.name || ''}
-                isDarkMode={isDarkMode}
-              />
+              ) : (
+                <div className="w-full">
+                  <IkigaiOutput
+                    statement={statement}
+                    name={formData.name || ''}
+                    isDarkMode={isDarkMode}
+                  />
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </main>
 

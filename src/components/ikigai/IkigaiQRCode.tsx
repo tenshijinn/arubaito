@@ -45,8 +45,8 @@ const IkigaiQRCode: React.FC<IkigaiQRCodeProps> = ({
       const telegramMessage = `Hey ${displayName} — I came across your Ikigai Card and resonated with this:\n\n"I am a ${whatPaidFor} that helps ${whatWorldNeeds}."\n\nWould be great to connect.`;
       
       const encodedMessage = encodeURIComponent(telegramMessage);
-      // Use t.me/{username} format to open a chat with that specific user
-      const telegramUrl = `https://t.me/${handle}?text=${encodedMessage}`;
+      // Use internal redirect page for reliable app scheme + fallback
+      const telegramUrl = `https://arubaito.app/meaning/tg?u=${handle}&m=${encodedMessage}`;
 
       try {
         const url = await QRCode.toDataURL(telegramUrl, {

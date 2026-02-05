@@ -15,6 +15,7 @@ import Community from "./pages/Community";
 import ReferralRedirect from "./pages/ReferralRedirect";
 import IkigaiCard from "./pages/IkigaiCard";
 import TelegramRedirect from "./pages/TelegramRedirect";
+import Meaning from "./pages/Meaning";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,8 +37,9 @@ const App = () => (
               <Route path="/admin" element={<Admin />} />
               <Route path="/community" element={<Community />} />
               <Route path="/r/:code" element={<ReferralRedirect />} />
-              <Route path="/meaning" element={<IkigaiCard />} />
-              <Route path="/meaning/tg" element={<TelegramRedirect />} />
+              <Route path="/meaning" element={<Meaning />} />
+              <Route path="/ikigai" element={<IkigaiCard />} />
+              <Route path="/ikigai/tg" element={<TelegramRedirect />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

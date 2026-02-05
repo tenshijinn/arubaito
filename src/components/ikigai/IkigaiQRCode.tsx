@@ -46,7 +46,7 @@ const IkigaiQRCode: React.FC<IkigaiQRCodeProps> = ({
       
       const encodedMessage = encodeURIComponent(telegramMessage);
       // Use internal redirect page for reliable app scheme + fallback
-      const telegramUrl = `https://arubaito.app/meaning/tg?u=${handle}&m=${encodedMessage}`;
+      const telegramUrl = `https://arubaito.app/ikigai/tg?u=${handle}&m=${encodedMessage}`;
 
       try {
         const url = await QRCode.toDataURL(telegramUrl, {

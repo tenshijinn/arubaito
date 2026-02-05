@@ -11,7 +11,7 @@ const Meaning: React.FC = () => {
   ];
 
   return (
-    <div className="h-screen bg-[#181818] flex flex-col items-center justify-center px-6">
+    <div className="h-screen bg-[#181818] flex flex-col items-center justify-center px-6 py-12">
       {/* Headline - centered above video */}
       <h1 
         className="text-2xl md:text-3xl text-primary text-center mb-4"
@@ -21,7 +21,7 @@ const Meaning: React.FC = () => {
       </h1>
       
       {/* Video Box with overlaid CTA */}
-      <div className="relative w-full max-w-[600px] aspect-square">
+      <div className="relative w-full max-w-[500px] aspect-square">
         <video
           autoPlay
           loop
@@ -47,7 +47,7 @@ const Meaning: React.FC = () => {
 
       {/* Rotating Text - centered below video */}
       <div 
-        className="mt-6 text-xl md:text-2xl text-primary text-center h-[1.5em]"
+        className="mt-4 text-lg md:text-xl text-primary text-center h-[1.5em]"
         style={{ fontFamily: 'Consolas, monospace' }}
       >
         <TextRotator 

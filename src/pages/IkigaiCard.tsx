@@ -10,16 +10,26 @@ import {
   IkigaiQRCode,
   ThemeToggle,
   type IkigaiFormData,
+  type QuadrantType,
 } from '@/components/ikigai';
 import { downloadIkigaiCard } from '@/utils/ikigaiCardGenerator';
 import IkigaiCardExport from '@/components/ikigai/IkigaiCardExport';
 import { TextRotator } from '@/components/TextRotator';
+
+const QUADRANT_EXPLAINERS: Record<NonNullable<QuadrantType>, string> = {
+  love: "What reliably gives you energy even when it's hard?",
+  paidFor: "Where money already flows, or can realistically be made to flow, without forcing reality.",
+  needs: "Unmet demand, misalignment, or inefficiency that should be fixed.",
+  goodAt: "Things where your output-to-effort ratio is unusually high. You see it clearer than your peers, others ask for your help on this thing, repeatedly.",
+};
 
 const IkigaiCard: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [statement, setStatement] = useState('');
+  const [activeQuadrant, setActiveQuadrant] = useState<QuadrantType>(null);
+  const [mobileActiveQuadrant, setMobileActiveQuadrant] = useState<QuadrantType>(null);
   const [formData, setFormData] = useState<Partial<IkigaiFormData>>({
     name: '',
     telegramHandle: '',
@@ -30,6 +40,15 @@ const IkigaiCard: React.FC = () => {
   });
 
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleQuadrantHover = (quadrant: QuadrantType) => {
+    setActiveQuadrant(quadrant);
+  };
+
+  const handleMobileQuadrantClick = (quadrant: QuadrantType) => {
+    // Toggle: if clicking the same quadrant, deselect it
+    setMobileActiveQuadrant(prev => prev === quadrant ? null : quadrant);
+  };
 
   const handleInputChange = (field: keyof IkigaiFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -108,7 +127,14 @@ const IkigaiCard: React.FC = () => {
         <div className="container mx-auto px-8 py-8 lg:py-24">
           {/* Mobile: Rotating text at top */}
           <div className="lg:hidden mb-6 text-center" data-export-hide="true">
-            {!isSubmitted ? (
+            {mobileActiveQuadrant ? (
+              <p 
+                className="text-base text-primary/90 leading-relaxed"
+                style={{ fontFamily: 'Consolas, monospace' }}
+              >
+                {QUADRANT_EXPLAINERS[mobileActiveQuadrant]}
+              </p>
+            ) : !isSubmitted ? (
               <p 
                 className={`text-lg ${isDarkMode ? 'text-cream/60' : 'text-[#181818]/60'}`}
                 style={{ fontFamily: 'Consolas, monospace' }}
@@ -137,6 +163,8 @@ const IkigaiCard: React.FC = () => {
               whatPaidFor={formData.whatPaidFor || ''}
               whatGoodAt={formData.whatGoodAt || ''}
               isDarkMode={isDarkMode}
+              activeQuadrant={mobileActiveQuadrant}
+              onQuadrantClick={handleMobileQuadrantClick}
             />
           </div>
 
@@ -192,12 +220,21 @@ const IkigaiCard: React.FC = () => {
                 whatPaidFor={formData.whatPaidFor || ''}
                 whatGoodAt={formData.whatGoodAt || ''}
                 isDarkMode={isDarkMode}
+                activeQuadrant={activeQuadrant}
+                onQuadrantHover={handleQuadrantHover}
               />
             </div>
 
             {/* Right Column - Tagline or Output */}
             <div className="w-auto min-w-[220px] max-w-[280px] flex flex-col justify-center items-start px-6" data-export-hide="true">
-              {!isSubmitted ? (
+              {activeQuadrant ? (
+                <p 
+                  className="text-base text-primary/90 leading-relaxed"
+                  style={{ fontFamily: 'Consolas, monospace' }}
+                >
+                  {QUADRANT_EXPLAINERS[activeQuadrant]}
+                </p>
+              ) : !isSubmitted ? (
                 <p 
                   className={`text-lg ${isDarkMode ? 'text-cream/60' : 'text-[#181818]/60'}`}
                   style={{ fontFamily: 'Consolas, monospace' }}

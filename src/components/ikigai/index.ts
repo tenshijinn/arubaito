@@ -1,4 +1,5 @@
 export { default as IkigaiDiagram } from './IkigaiDiagram';
+export type { QuadrantType } from './IkigaiDiagram';
 export { default as IkigaiForm } from './IkigaiForm';
 export type { IkigaiFormData } from './IkigaiForm';
 export { default as IkigaiOutput } from './IkigaiOutput';

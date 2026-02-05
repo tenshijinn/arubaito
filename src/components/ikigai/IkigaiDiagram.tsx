@@ -1,12 +1,17 @@
 import React from 'react';
 import talentStar from '@/assets/talent-star.png';
 
+export type QuadrantType = 'love' | 'needs' | 'paidFor' | 'goodAt' | null;
+
 interface IkigaiDiagramProps {
   whatYouLove: string;
   whatWorldNeeds: string;
   whatPaidFor: string;
   whatGoodAt: string;
   isDarkMode: boolean;
+  activeQuadrant?: QuadrantType;
+  onQuadrantHover?: (quadrant: QuadrantType) => void;
+  onQuadrantClick?: (quadrant: QuadrantType) => void;
 }
 
 const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
@@ -15,10 +20,36 @@ const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
   whatPaidFor,
   whatGoodAt,
   isDarkMode,
+  activeQuadrant = null,
+  onQuadrantHover,
+  onQuadrantClick,
 }) => {
   const accentColor = "hsl(var(--primary))";
   const textColor = isDarkMode ? "hsl(0 0% 100%)" : "hsl(0 0% 9%)";
   const mutedColor = isDarkMode ? "hsl(0 0% 100% / 0.5)" : "hsl(0 0% 9% / 0.5)";
+  
+  // Calculate opacity for each circle based on active quadrant
+  const getCircleOpacity = (quadrant: QuadrantType): number => {
+    if (!activeQuadrant) return 0.8;
+    return activeQuadrant === quadrant ? 1 : 0.2;
+  };
+
+  const getTextOpacity = (quadrant: QuadrantType): number => {
+    if (!activeQuadrant) return 1;
+    return activeQuadrant === quadrant ? 1 : 0.3;
+  };
+
+  const handleMouseEnter = (quadrant: QuadrantType) => {
+    onQuadrantHover?.(quadrant);
+  };
+
+  const handleMouseLeave = () => {
+    onQuadrantHover?.(null);
+  };
+
+  const handleClick = (quadrant: QuadrantType) => {
+    onQuadrantClick?.(quadrant);
+  };
   
   // Helper to split text into lines if over 12 chars
   const wrapText = (
@@ -97,52 +128,84 @@ const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
 
       {/* Circles - dotted stroke - larger for better visibility */}
       {/* Top circle - What you love */}
-      <circle
-        cx="250"
-        cy="175"
-        r="110"
-        fill="none"
-        stroke={accentColor}
-        strokeWidth="1.5"
-        strokeDasharray="4 4"
-        opacity="0.8"
-      />
+      <g
+        onMouseEnter={() => handleMouseEnter('love')}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => handleClick('love')}
+        style={{ cursor: 'pointer' }}
+      >
+        <circle
+          cx="250"
+          cy="175"
+          r="110"
+          fill="transparent"
+          stroke={accentColor}
+          strokeWidth="1.5"
+          strokeDasharray="4 4"
+          opacity={getCircleOpacity('love')}
+          style={{ transition: 'opacity 0.3s ease' }}
+        />
+      </g>
       
       {/* Right circle - What the world needs */}
-      <circle
-        cx="325"
-        cy="250"
-        r="110"
-        fill="none"
-        stroke={accentColor}
-        strokeWidth="1.5"
-        strokeDasharray="4 4"
-        opacity="0.8"
-      />
+      <g
+        onMouseEnter={() => handleMouseEnter('needs')}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => handleClick('needs')}
+        style={{ cursor: 'pointer' }}
+      >
+        <circle
+          cx="325"
+          cy="250"
+          r="110"
+          fill="transparent"
+          stroke={accentColor}
+          strokeWidth="1.5"
+          strokeDasharray="4 4"
+          opacity={getCircleOpacity('needs')}
+          style={{ transition: 'opacity 0.3s ease' }}
+        />
+      </g>
       
       {/* Bottom circle - What you can be paid for */}
-      <circle
-        cx="250"
-        cy="325"
-        r="110"
-        fill="none"
-        stroke={accentColor}
-        strokeWidth="1.5"
-        strokeDasharray="4 4"
-        opacity="0.8"
-      />
+      <g
+        onMouseEnter={() => handleMouseEnter('paidFor')}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => handleClick('paidFor')}
+        style={{ cursor: 'pointer' }}
+      >
+        <circle
+          cx="250"
+          cy="325"
+          r="110"
+          fill="transparent"
+          stroke={accentColor}
+          strokeWidth="1.5"
+          strokeDasharray="4 4"
+          opacity={getCircleOpacity('paidFor')}
+          style={{ transition: 'opacity 0.3s ease' }}
+        />
+      </g>
       
       {/* Left circle - What you are good at */}
-      <circle
-        cx="175"
-        cy="250"
-        r="110"
-        fill="none"
-        stroke={accentColor}
-        strokeWidth="1.5"
-        strokeDasharray="4 4"
-        opacity="0.8"
-      />
+      <g
+        onMouseEnter={() => handleMouseEnter('goodAt')}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => handleClick('goodAt')}
+        style={{ cursor: 'pointer' }}
+      >
+        <circle
+          cx="175"
+          cy="250"
+          r="110"
+          fill="transparent"
+          stroke={accentColor}
+          strokeWidth="1.5"
+          strokeDasharray="4 4"
+          opacity={getCircleOpacity('goodAt')}
+          style={{ transition: 'opacity 0.3s ease' }}
+        />
+      </g>
 
       {/* Center star */}
       <image
@@ -199,16 +262,16 @@ const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
 
       {/* User input text - positioned in each circle with word wrap */}
       {/* Top - What you love - with "what you" prefix and "love" highlighted */}
-      <text x="250" y="110" textAnchor="middle" fill={textColor} fontSize="12">
+      <text x="250" y="110" textAnchor="middle" fill={textColor} fontSize="12" opacity={getTextOpacity('love')} style={{ transition: 'opacity 0.3s ease' }}>
         <tspan fill={mutedColor}>what you </tspan>
         <tspan fill={accentColor}>love</tspan>
       </text>
-      <text x="250" y="128" textAnchor="middle" fill={textColor} fontSize="11">
+      <text x="250" y="128" textAnchor="middle" fill={textColor} fontSize="11" opacity={getTextOpacity('love')} style={{ transition: 'opacity 0.3s ease' }}>
         {renderWrappedText(whatYouLove || '', 250, 128, 'middle', 15)}
       </text>
       
       {/* Right - What the world needs - RIGHT ALIGNED */}
-      <g mask="url(#ikigai-right-lobe)">
+      <g mask="url(#ikigai-right-lobe)" opacity={getTextOpacity('needs')} style={{ transition: 'opacity 0.3s ease' }}>
         <text x="418" y="240" textAnchor="end" fill={textColor} fontSize="12">
           <tspan fill={mutedColor}>what the</tspan>
         </text>
@@ -222,18 +285,18 @@ const IkigaiDiagram: React.FC<IkigaiDiagramProps> = ({
       </g>
       
       {/* Bottom - What you can be paid for */}
-      <text x="250" y="375" textAnchor="middle" fill={textColor} fontSize="12">
+      <text x="250" y="375" textAnchor="middle" fill={textColor} fontSize="12" opacity={getTextOpacity('paidFor')} style={{ transition: 'opacity 0.3s ease' }}>
         <tspan fill={mutedColor}>what you can be</tspan>
       </text>
-      <text x="250" y="390" textAnchor="middle" fill={accentColor} fontSize="12">
+      <text x="250" y="390" textAnchor="middle" fill={accentColor} fontSize="12" opacity={getTextOpacity('paidFor')} style={{ transition: 'opacity 0.3s ease' }}>
         paid for
       </text>
-      <text x="250" y="410" textAnchor="middle" fill={textColor} fontSize="11">
+      <text x="250" y="410" textAnchor="middle" fill={textColor} fontSize="11" opacity={getTextOpacity('paidFor')} style={{ transition: 'opacity 0.3s ease' }}>
         {renderWrappedText(whatPaidFor || '', 250, 410, 'middle', 15)}
       </text>
       
       {/* Left - What you are good at - LEFT ALIGNED */}
-      <g mask="url(#ikigai-left-lobe)">
+      <g mask="url(#ikigai-left-lobe)" opacity={getTextOpacity('goodAt')} style={{ transition: 'opacity 0.3s ease' }}>
         <text x="82" y="240" textAnchor="start" fill={textColor} fontSize="12">
           <tspan fill={mutedColor}>what you are</tspan>
         </text>

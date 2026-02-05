@@ -34,30 +34,35 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are a concise identity statement generator. Your job is to compress someone's purpose into a single, confident identity statement.
+    const systemPrompt = `You are a concise identity statement generator. Your job is to create a clear positioning statement that identifies WHO this person serves (their ideal client) and HOW they deliver value.
 
-Tone: calm, purposeful, human, non-corporate.
+Tone: calm, purposeful, human, non-corporate. Focus on ICP (Ideal Customer Profile) clarity.
 
 STRICT TEMPLATE (follow exactly):
-I'm {Name}! I am a {role/offering} that helps {mission/impact}.
+I'm {Name}! I am a {role/identity} that helps {specific type of person/company} {achieve specific outcome}.
 
 Rules:
 - Maximum 2 sentences
-- Compress intelligently, don't repeat verbatim
-- Focus on value delivered to others
-- Keep the role/offering concise (3-6 words max)
-- Keep the mission/impact specific but brief (8-15 words max)
+- The ICP must be SPECIFIC: who exactly is this person helping? (e.g., "early-stage crypto founders", "burned-out executives", "DeFi protocols")
+- The outcome must be TANGIBLE: what transformation or result does the ICP get?
+- Synthesize from what they love + are good at into a clear role identity
+- Synthesize from what the world needs + what they can be paid for into WHO they serve and WHAT outcome they deliver
 - NO quotes, NO bullet points, just the statement`;
 
     const userPrompt = `Generate an identity statement for this person:
 
 Name: ${name}
-What they can be paid for: ${whatPaidFor}
-What the world needs that they address: ${whatWorldNeeds}
-What they love doing: ${whatYouLove}
-What they are good at: ${whatGoodAt}
+What they can be paid for (their offering): ${whatPaidFor}
+What the world needs (the problem space): ${whatWorldNeeds}
+What they love doing (their passion): ${whatYouLove}
+What they are good at (their skill): ${whatGoodAt}
 
-Generate ONLY the identity statement, nothing else.`;
+From these inputs, identify:
+1. Their ROLE/IDENTITY: Synthesize from what they love + are good at
+2. Their ICP (Ideal Customer Profile): Who specifically benefits from solving the world need?
+3. Their OUTCOME: What specific transformation do they enable?
+
+Generate ONLY the identity statement following the template, nothing else.`;
 
     console.log("Calling Lovable AI Gateway for ikigai generation");
 

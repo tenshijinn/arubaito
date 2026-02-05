@@ -16,6 +16,9 @@ import { downloadIkigaiCard } from '@/utils/ikigaiCardGenerator';
 import IkigaiCardExport from '@/components/ikigai/IkigaiCardExport';
 import { TextRotator } from '@/components/TextRotator';
 
+// Key to force re-render of export component
+let exportKey = 0;
+
 const QUADRANT_EXPLAINERS: Record<NonNullable<QuadrantType>, string> = {
   love: "What reliably gives you energy even when it's hard?",
   paidFor: "Where money already flows, or can realistically be made to flow, without forcing reality.",
@@ -28,6 +31,15 @@ const IkigaiCard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [statement, setStatement] = useState('');
+  const [exportData, setExportData] = useState<{
+    name: string;
+    statement: string;
+    whatYouLove: string;
+    whatWorldNeeds: string;
+    whatPaidFor: string;
+    whatGoodAt: string;
+    telegramHandle: string;
+  } | null>(null);
   const [activeQuadrant, setActiveQuadrant] = useState<QuadrantType>(null);
   const [mobileActiveQuadrant, setMobileActiveQuadrant] = useState<QuadrantType>(null);
   const [formData, setFormData] = useState<Partial<IkigaiFormData>>({
@@ -77,6 +89,17 @@ const IkigaiCard: React.FC = () => {
 
       if (responseData?.statement) {
         setStatement(responseData.statement);
+        // Capture the data at submission time for export
+        exportKey++;
+        setExportData({
+          name,
+          statement: responseData.statement,
+          whatYouLove: data.whatYouLove,
+          whatWorldNeeds: data.whatWorldNeeds,
+          whatPaidFor: data.whatPaidFor,
+          whatGoodAt: data.whatGoodAt,
+          telegramHandle: data.telegramHandle,
+        });
         setIsSubmitted(true);
         toast.success('Your Ikigai Card is ready!');
       } else if (responseData?.error) {
@@ -87,6 +110,16 @@ const IkigaiCard: React.FC = () => {
       // Fallback to template-based statement
       const fallbackStatement = `I'm ${name}! I am a ${data.whatPaidFor} that helps ${data.whatWorldNeeds}.`;
       setStatement(fallbackStatement);
+      exportKey++;
+      setExportData({
+        name,
+        statement: fallbackStatement,
+        whatYouLove: data.whatYouLove,
+        whatWorldNeeds: data.whatWorldNeeds,
+        whatPaidFor: data.whatPaidFor,
+        whatGoodAt: data.whatGoodAt,
+        telegramHandle: data.telegramHandle,
+      });
       setIsSubmitted(true);
       toast.warning('Generated using fallback template');
     } finally {
@@ -306,17 +339,18 @@ const IkigaiCard: React.FC = () => {
       </main>
 
       {/* Hidden Export Component for Download */}
-      {isSubmitted && (
+      {isSubmitted && exportData && (
         <div className="fixed -left-[9999px] -top-[9999px]">
           <IkigaiCardExport
+            key={exportKey}
             id="ikigai-card-export"
-            name={formData.name || ''}
-            statement={statement}
-            whatYouLove={formData.whatYouLove || ''}
-            whatWorldNeeds={formData.whatWorldNeeds || ''}
-            whatPaidFor={formData.whatPaidFor || ''}
-            whatGoodAt={formData.whatGoodAt || ''}
-            telegramHandle={formData.telegramHandle || ''}
+            name={exportData.name}
+            statement={exportData.statement}
+            whatYouLove={exportData.whatYouLove}
+            whatWorldNeeds={exportData.whatWorldNeeds}
+            whatPaidFor={exportData.whatPaidFor}
+            whatGoodAt={exportData.whatGoodAt}
+            telegramHandle={exportData.telegramHandle}
             isDarkMode={isDarkMode}
           />
         </div>

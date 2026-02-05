@@ -11,27 +11,28 @@ const Meaning: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#181818] flex items-center justify-center">
-      <main className="w-full max-w-6xl mx-auto px-6 py-12">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+    <div className="h-screen bg-[#181818] flex items-center justify-center overflow-hidden">
+      <main className="w-full max-w-5xl mx-auto px-6">
+        <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
           {/* Left Column - Video with Copy */}
           <div className="flex-1 flex flex-col items-start">
             {/* Headline - aligned with video left edge */}
             <h1 
-              className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary leading-tight mb-4"
+              className="text-xl md:text-2xl lg:text-3xl font-bold text-primary leading-tight mb-3"
               style={{ fontFamily: 'Consolas, monospace' }}
             >
               You're productive, but it feels hollow
             </h1>
             
-            {/* Video Box */}
-            <div className="w-full aspect-square max-w-[600px]">
+            {/* Video Box - constrained height */}
+            <div className="w-full max-w-[500px]" style={{ maxHeight: '50vh' }}>
               <video
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover aspect-square"
+                style={{ maxHeight: '50vh' }}
               >
                 <source src="/ikigai-bg.mp4" type="video/mp4" />
               </video>
@@ -39,7 +40,7 @@ const Meaning: React.FC = () => {
 
             {/* Rotating Text - aligned with video left edge */}
             <div 
-              className="mt-4 text-lg md:text-xl text-primary/80 h-[1.5em]"
+              className="mt-3 text-base md:text-lg text-primary/80 h-[1.5em]"
               style={{ fontFamily: 'Consolas, monospace' }}
             >
               <TextRotator 
@@ -52,11 +53,11 @@ const Meaning: React.FC = () => {
           </div>
 
           {/* Right Column - Ikigai Diagram and Button */}
-          <div className="flex flex-col items-center gap-6 lg:self-end lg:pb-8">
+          <div className="flex flex-col items-center gap-4 lg:self-end lg:pb-4">
             {/* Ikigai Diagram SVG */}
             <svg 
               viewBox="0 0 400 400" 
-              className="w-48 h-48 md:w-56 md:h-56"
+              className="w-40 h-40 md:w-48 md:h-48"
             >
               {/* Outer circles - dotted */}
               <circle cx="200" cy="130" r="110" fill="none" stroke="#ed565a" strokeWidth="2" strokeDasharray="4 4" opacity="0.6" />
@@ -86,7 +87,7 @@ const Meaning: React.FC = () => {
             {/* CTA Button */}
             <Link to="/ikigai">
               <Button 
-                className="bg-primary hover:bg-primary/90 text-white px-6 py-3 text-sm rounded-lg"
+                className="bg-primary hover:bg-primary/90 text-white px-5 py-2 text-sm rounded-lg"
                 style={{ fontFamily: 'Consolas, monospace' }}
               >
                 Start Ikigai Test

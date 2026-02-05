@@ -14,6 +14,7 @@ import {
 import { downloadIkigaiCard } from '@/utils/ikigaiCardGenerator';
 import IkigaiCardExport from '@/components/ikigai/IkigaiCardExport';
 import { TextRotator } from '@/components/TextRotator';
+
 const IkigaiCard: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -103,11 +104,46 @@ const IkigaiCard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="min-h-screen flex items-center">
-        <div className="container mx-auto px-6 py-24">
-          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-            {/* Left Column - Form (centered vertically) */}
-            <div className="w-full lg:w-auto lg:min-w-[280px] flex flex-col justify-center" data-export-hide="true">
+      <main className="min-h-screen flex flex-col lg:flex-row lg:items-center pt-20 lg:pt-0">
+        <div className="container mx-auto px-8 py-8 lg:py-24">
+          {/* Mobile: Rotating text at top */}
+          <div className="lg:hidden mb-6 text-center" data-export-hide="true">
+            {!isSubmitted ? (
+              <p 
+                className={`text-lg ${isDarkMode ? 'text-cream/60' : 'text-[#181818]/60'}`}
+                style={{ fontFamily: 'Consolas, monospace' }}
+              >
+                <span className="font-bold">discover meaning through your </span>
+                <TextRotator
+                  words={['ikigai', 'resondetere', 'purpose']}
+                  isActive={true}
+                  className="text-primary font-bold"
+                />
+              </p>
+            ) : (
+              <IkigaiOutput
+                statement={statement}
+                name={formData.name || ''}
+                isDarkMode={isDarkMode}
+              />
+            )}
+          </div>
+
+          {/* Mobile: Diagram first */}
+          <div className="lg:hidden w-full mb-8">
+            <IkigaiDiagram
+              whatYouLove={formData.whatYouLove || ''}
+              whatWorldNeeds={formData.whatWorldNeeds || ''}
+              whatPaidFor={formData.whatPaidFor || ''}
+              whatGoodAt={formData.whatGoodAt || ''}
+              isDarkMode={isDarkMode}
+            />
+          </div>
+
+          {/* Desktop layout */}
+          <div className="hidden lg:flex flex-row items-center gap-8 lg:gap-12">
+            {/* Left Column - Form */}
+            <div className="w-auto min-w-[280px] flex flex-col justify-center" data-export-hide="true">
               {!isSubmitted ? (
                 <IkigaiForm
                   onSubmit={handleSubmit}
@@ -148,8 +184,8 @@ const IkigaiCard: React.FC = () => {
               )}
             </div>
 
-            {/* Center Column - Diagram */}
-            <div className="flex-1 w-full lg:max-w-[600px]">
+            {/* Center Column - Diagram (desktop only) */}
+            <div className="flex-1 max-w-[600px]">
               <IkigaiDiagram
                 whatYouLove={formData.whatYouLove || ''}
                 whatWorldNeeds={formData.whatWorldNeeds || ''}
@@ -160,7 +196,7 @@ const IkigaiCard: React.FC = () => {
             </div>
 
             {/* Right Column - Tagline or Output */}
-            <div className="w-full lg:w-auto lg:min-w-[220px] lg:max-w-[280px] flex flex-col justify-center items-center lg:items-start px-6" data-export-hide="true">
+            <div className="w-auto min-w-[220px] max-w-[280px] flex flex-col justify-center items-start px-6" data-export-hide="true">
               {!isSubmitted ? (
                 <p 
                   className={`text-lg ${isDarkMode ? 'text-cream/60' : 'text-[#181818]/60'}`}
@@ -186,6 +222,48 @@ const IkigaiCard: React.FC = () => {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Mobile: Form at bottom */}
+          <div className="lg:hidden" data-export-hide="true">
+            {!isSubmitted ? (
+              <IkigaiForm
+                onSubmit={handleSubmit}
+                onInputChange={handleInputChange}
+                isLoading={isLoading}
+                isDarkMode={isDarkMode}
+              />
+            ) : (
+              <div className="space-y-4 text-center">
+                <Button
+                  onClick={handleDownload}
+                  className="gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3"
+                  style={{ fontFamily: 'Consolas, monospace' }}
+                >
+                  <Download className="w-4 h-4" />
+                  Download Card
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsSubmitted(false);
+                    setStatement('');
+                    setFormData({
+                      name: '',
+                      telegramHandle: '',
+                      whatYouLove: '',
+                      whatWorldNeeds: '',
+                      whatPaidFor: '',
+                      whatGoodAt: '',
+                    });
+                  }}
+                  variant="ghost"
+                  className="block mx-auto text-primary hover:text-primary/80"
+                  style={{ fontFamily: 'Consolas, monospace' }}
+                >
+                  Create Another
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </main>

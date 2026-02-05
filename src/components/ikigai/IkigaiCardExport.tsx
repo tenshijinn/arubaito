@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { IkigaiDiagram } from './index';
+import arubaitoLogo from '@/assets/arubaito-logo-transparent.png';
 
 interface IkigaiCardExportProps {
   id: string;
@@ -175,37 +176,21 @@ const IkigaiCardExport: React.FC<IkigaiCardExportProps> = ({
           )}
         </div>
 
-        {/* Arubaito branding */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center',
-          padding: '12px 16px',
-          border: `1px solid ${accentColor}`,
-          borderRadius: '8px',
-        }}>
+        {/* Arubaito logo branding */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span style={{ 
             fontSize: '10px', 
             color: accentColor,
             marginBottom: '8px',
+            fontStyle: 'italic',
           }}>
             made on
           </span>
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center',
-            color: accentColor,
-          }}>
-            <span style={{ fontSize: '24px' }}>✦</span>
-            <span style={{ 
-              fontSize: '8px', 
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-            }}>
-              ARUBAITO
-            </span>
-          </div>
+          <img 
+            src={arubaitoLogo} 
+            alt="Arubaito" 
+            style={{ width: '120px', height: 'auto' }}
+          />
         </div>
       </div>
     </div>

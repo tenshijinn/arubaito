@@ -1,32 +1,17 @@
  import React from 'react';
  import { Link } from 'react-router-dom';
  import { Button } from '@/components/ui/button';
- import { ThemeToggle } from '@/components/ikigai';
- import { useState } from 'react';
+import { TextRotator } from '@/components/TextRotator';
  
  const Meaning: React.FC = () => {
-   const [isDarkMode, setIsDarkMode] = useState(true);
- 
-   const bgColor = isDarkMode ? 'bg-[#181818]' : 'bg-white';
-   const textColor = isDarkMode ? 'text-primary' : 'text-[#181818]';
-   const subtextColor = isDarkMode ? 'text-primary/80' : 'text-[#181818]/80';
+  const rotatingTexts = [
+    "1. Ikigai clarifies your purpose",
+    "2. Your purpose clarifies your offering",
+    "3. Your offering finds you meaningful work"
+  ];
  
    return (
-     <div className={`min-h-screen ${bgColor} transition-colors duration-300`}>
-       {/* Header */}
-       <header className="absolute top-0 left-0 right-0 flex items-center justify-between p-6 z-10">
-         <div className="flex items-center gap-2">
-           <span className="text-primary text-2xl">✦</span>
-           <span 
-             className={`text-lg uppercase tracking-[0.2em] font-bold ${isDarkMode ? 'text-white' : 'text-[#181818]'}`}
-             style={{ fontFamily: 'Consolas, monospace' }}
-           >
-             IKIGAI
-           </span>
-         </div>
-         <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode(!isDarkMode)} />
-       </header>
- 
+    <div className="min-h-screen bg-[#181818]">
        {/* Main Content */}
        <main className="min-h-screen flex items-center">
          <div className="container mx-auto px-6 lg:px-12">
@@ -137,19 +122,24 @@
              {/* Right Column - Content */}
              <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left">
                <h1 
-                 className={`text-3xl md:text-4xl lg:text-5xl font-bold ${textColor} leading-tight mb-6`}
+                className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary leading-tight mb-6"
                  style={{ fontFamily: 'Consolas, monospace' }}
                >
                  You're productive,<br />
                  but it feels hollow
                </h1>
                
-               <p 
-                 className={`text-lg md:text-xl ${subtextColor} mb-8`}
+              <div 
+                className="text-lg md:text-xl text-primary/80 mb-8 h-[2em]"
                  style={{ fontFamily: 'Consolas, monospace' }}
                >
-                 1. Ikigai clarifies your purpose
-               </p>
+                <TextRotator 
+                  words={rotatingTexts}
+                  isActive={true}
+                  color="#ed565a"
+                  startIndex={0}
+                />
+              </div>
  
                <Link to="/ikigai">
                  <Button 

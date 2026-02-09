@@ -88,11 +88,16 @@ const IkigaiCardExport: React.FC<IkigaiCardExportProps> = ({
 
   const statementParts = renderStatement();
 
+  const statementFontSize = statement.length > 160 ? '15px' 
+    : statement.length > 120 ? '17px' 
+    : statement.length > 80 ? '19px' 
+    : '22px';
+
   const statementBlock = (
     <div style={{ 
       textAlign: 'center', 
-      marginBottom: '30px',
-      fontSize: '22px',
+      marginBottom: '16px',
+      fontSize: statementFontSize,
       lineHeight: '1.4',
       fontStyle: 'italic',
     }}>
@@ -134,8 +139,8 @@ const IkigaiCardExport: React.FC<IkigaiCardExportProps> = ({
       {statementBlock}
 
       {/* Diagram - centered and prominent */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '370px', height: '370px' }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
+        <div style={{ width: '340px', height: '340px' }}>
           <IkigaiDiagram
             whatYouLove={whatYouLove}
             whatWorldNeeds={whatWorldNeeds}
@@ -151,7 +156,9 @@ const IkigaiCardExport: React.FC<IkigaiCardExportProps> = ({
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'flex-end',
-        marginTop: '20px',
+        marginTop: 'auto',
+        flexShrink: 0,
+        paddingTop: '16px',
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
           <span style={{ fontSize: '12px', color: accentColor, fontStyle: 'italic' }}>

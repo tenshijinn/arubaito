@@ -63,37 +63,53 @@ const IkigaiCardExport: React.FC<IkigaiCardExportProps> = ({
     generateQR();
   }, [telegramHandle, name, whatPaidFor, whatWorldNeeds]);
 
-  // Parse statement for styling
-  const parseStatement = () => {
+  // Parse statement for highlighting keywords
+  const renderStatement = () => {
+    // Highlight "I'm", "that helps", and trailing period in accent
     const parts: { text: string; isAccent: boolean }[] = [];
     
-    // Match pattern: "I'm Name! I am a {role} that helps {mission}."
-    const pattern = /^(I'm\s+)(\w+)(!?\s*I am a\s*)(.+?)(\s+that helps\s+)(.+?)(\.?)$/i;
+    // Try to match "I'm {name}! I am a {role} that helps {mission}."
+    const pattern = /^(I'm\s+)(.+?)(!\s*I am a\s+)(.+?)(\s+that helps\s+)(.+?)(\.)?\s*$/is;
     const match = statement.match(pattern);
     
     if (match) {
       parts.push({ text: "I'm ", isAccent: true });
-      parts.push({ text: match[2], isAccent: false }); // Name
-      parts.push({ text: "! I am a", isAccent: false });
-      parts.push({ text: " " + match[4], isAccent: false }); // Role
-      parts.push({ text: " that helps", isAccent: true });
-      parts.push({ text: " " + match[6], isAccent: false }); // Mission
-      parts.push({ text: " to find", isAccent: true });
-      parts.push({ text: " ex-bluechip talent.", isAccent: false });
+      parts.push({ text: match[2] + "!", isAccent: false });
+      parts.push({ text: " I am a " + match[4], isAccent: false });
+      parts.push({ text: " that helps ", isAccent: true });
+      parts.push({ text: match[6], isAccent: false });
+      parts.push({ text: ".", isAccent: true });
     } else {
-      // Simpler fallback
       parts.push({ text: statement, isAccent: false });
     }
     
     return parts;
   };
 
+  const statementParts = renderStatement();
+
+  const statementBlock = (
+    <div style={{ 
+      textAlign: 'center', 
+      marginBottom: '30px',
+      fontSize: '22px',
+      lineHeight: '1.4',
+      fontStyle: 'italic',
+    }}>
+      {statementParts.map((part, i) => (
+        <span key={i} style={{ color: part.isAccent ? accentColor : textColor }}>
+          {part.text}
+        </span>
+      ))}
+    </div>
+  );
+
   return (
     <div
       id={id}
       style={{
         width: '430px',
-        height: '932px', // Phone wallpaper aspect ratio (roughly 9:19.5)
+        height: '932px',
         backgroundColor: bgColor,
         padding: '40px 30px',
         display: 'flex',
@@ -109,34 +125,13 @@ const IkigaiCardExport: React.FC<IkigaiCardExportProps> = ({
           fontSize: '14px', 
           letterSpacing: '0.3em', 
           fontWeight: 'bold',
-          textTransform: 'uppercase',
+          textTransform: 'uppercase' as const,
         }}>
           IKIGAI CARD
         </div>
       </div>
 
-      {/* Statement */}
-      <div style={{ 
-        textAlign: 'center', 
-        marginBottom: '30px',
-        fontSize: '22px',
-        lineHeight: '1.4',
-        fontStyle: 'italic',
-      }}>
-        <span style={{ color: accentColor }}>I'm </span>
-        <span style={{ color: textColor }}>{name}! I am a</span>
-        <br />
-        <span style={{ color: textColor }}>{whatPaidFor}</span>
-        <span style={{ color: accentColor }}> that helps</span>
-        <br />
-        <span style={{ color: textColor }}>{whatWorldNeeds}</span>
-        <br />
-        <span style={{ color: accentColor }}>to find </span>
-        <span style={{ color: textColor }}>ex-bluechip</span>
-        <br />
-        <span style={{ color: textColor }}>talent</span>
-        <span style={{ color: accentColor }}>.</span>
-      </div>
+      {statementBlock}
 
       {/* Diagram - centered and prominent */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -158,39 +153,19 @@ const IkigaiCardExport: React.FC<IkigaiCardExportProps> = ({
         alignItems: 'flex-end',
         marginTop: '20px',
       }}>
-        {/* QR Code */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
-          <span style={{ 
-            fontSize: '12px', 
-            color: accentColor,
-            fontStyle: 'italic',
-          }}>
+          <span style={{ fontSize: '12px', color: accentColor, fontStyle: 'italic' }}>
             let's chat
           </span>
           {qrDataUrl && (
-            <img 
-              src={qrDataUrl} 
-              alt="Telegram QR" 
-              style={{ width: '120px', height: '120px' }}
-            />
+            <img src={qrDataUrl} alt="Telegram QR" style={{ width: '120px', height: '120px' }} />
           )}
         </div>
-
-        {/* Arubaito logo branding */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <span style={{ 
-            fontSize: '10px', 
-            color: accentColor,
-            marginBottom: '8px',
-            fontStyle: 'italic',
-          }}>
+          <span style={{ fontSize: '10px', color: accentColor, marginBottom: '8px', fontStyle: 'italic' }}>
             made on
           </span>
-          <img 
-            src={arubaitoLogo} 
-            alt="Arubaito" 
-            style={{ width: '120px', height: 'auto' }}
-          />
+          <img src={arubaitoLogo} alt="Arubaito" style={{ width: '120px', height: 'auto' }} />
         </div>
       </div>
     </div>

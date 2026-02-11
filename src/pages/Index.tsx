@@ -380,13 +380,14 @@ const Index = () => {
               onClick={(e) => { e.stopPropagation(); navigate("/meaning"); }}
               size="sm"
               variant="outline"
-              className="font-mono text-xs bg-transparent border mt-4"
+              className="font-mono text-xs border mt-4"
               style={{
-                borderColor: "#ed565a",
-                color: "#ed565a",
+                borderColor: "#fff6d0",
+                backgroundColor: "#fff6d0",
+                color: "#181818",
               }}
             >
-              Discover Ikigai
+              Find It
             </Button>
           </div>
         </div>

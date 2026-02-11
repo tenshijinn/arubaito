@@ -373,10 +373,10 @@ const Index = () => {
           <div className="absolute inset-0 flex flex-col items-center pt-[30%] md:pt-[28%]">
             <h2 className="font-mono text-xs md:text-base lg:text-xl tracking-wide">
               <span className="bg-[#181818] px-3 py-1" style={{ color: '#fff6d0' }}>
-                find meaningful
+                find meaning
               </span>
               <span className="bg-[#181818] px-1 py-1 line-through" style={{ color: '#fff6d0' }}>
-                {' '}work
+                ful work
               </span>
             </h2>
             <Button

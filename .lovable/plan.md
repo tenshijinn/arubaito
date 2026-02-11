@@ -1,24 +1,24 @@
 
-# Fix: Ikigai Card Export - Prevent Footer Cutoff on Long Statements
 
-## Problem
-The export card has a fixed height (932px) but the statement text font size is fixed at 22px. When the AI generates a longer statement, the text takes up too much vertical space, pushing the diagram and footer (QR code + logo) off the bottom edge.
+# Add "Find Meaningful Work" Parallax Section to Home Page
 
-## Solution
-Make the statement font size dynamically scale down based on text length, and ensure the footer always has guaranteed space at the bottom.
+## What will be added
+A new full-screen snap-scroll section on the right column of the home page, positioned between the "3 Ways to Join The Club" section and the "Arubaito Apps" section. It will feature the uploaded image centered, with a CTA button below linking to `/meaning`.
 
-### Changes to `src/components/ikigai/IkigaiCardExport.tsx`:
+## Layout (matching the reference screenshot)
+- Full-height snap section with dark background (#181818)
+- The uploaded "find meaningful work" image centered, sized to match the iframe/ASCII block dimensions used in the section above (same `max-w-md aspect-square` pattern)
+- A "Discover Ikigai" button below the image, styled with the coral border (#ed565a), linking to `/meaning`
 
-1. **Dynamic font sizing for the statement** -- Calculate font size based on character count:
-   - Under 80 chars: 22px (current)
-   - 80-120 chars: 19px
-   - 120-160 chars: 17px  
-   - Over 160 chars: 15px
+## Technical Details
 
-2. **Shrink diagram slightly** -- Reduce from 370x370 to 340x340 to give more breathing room.
+### File: Copy uploaded image to project
+- Copy `user-uploads://meaningful-bg-final.png` to `src/assets/meaningful-bg-final.png`
 
-3. **Guarantee footer space** -- Change the footer from `marginTop: '20px'` to `flexShrink: 0` with a fixed minimum height, ensuring QR and logo are never clipped.
-
-4. **Reduce statement bottom margin** -- From 30px to 16px to reclaim vertical space.
-
-These changes ensure the card content always fits within the 932px height regardless of statement length, without distortion or overlap.
+### File: `src/pages/Index.tsx`
+1. Import the new image asset
+2. Insert a new snap section (Section 1.5) between the current "3 Ways to Join The Club" (Section 1) and "Arubaito Apps" (Section 2)
+3. The section structure:
+   - `h-screen snap-start` container, centered flex layout
+   - Image rendered at the same dimensions as the ASCII iframe above (`max-w-md aspect-square`)
+   - Button below styled consistently with the "Join Waitlist" button (outline, coral border, links to `/meaning`)

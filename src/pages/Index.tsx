@@ -16,6 +16,7 @@ import reiButton from "@/assets/rei-button.png";
 import zkprofButton from "@/assets/zkprof-button.png";
 import ubiButton from "@/assets/ubi-button.png";
 import perksButton from "@/assets/perks-button.png";
+import meaningfulBg from "@/assets/meaningful-bg-final.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -353,6 +354,29 @@ const Index = () => {
                 Join Waitlist
               </Button>
             </div>
+          </div>
+        </div>
+
+        {/* Section 1.5 - Find Meaningful Work */}
+        <div className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
+          <div className="max-w-md mx-auto flex flex-col items-center">
+            <img
+              src={meaningfulBg}
+              alt="Find Meaningful Work"
+              className="w-full aspect-square object-contain mb-6"
+            />
+            <Button
+              onClick={() => navigate("/meaning")}
+              size="sm"
+              variant="outline"
+              className="font-mono text-xs bg-transparent border"
+              style={{
+                borderColor: "#ed565a",
+                color: "#ed565a",
+              }}
+            >
+              Discover Ikigai
+            </Button>
           </div>
         </div>
 

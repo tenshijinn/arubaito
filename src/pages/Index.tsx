@@ -358,25 +358,27 @@ const Index = () => {
         </div>
 
         {/* Section 1.5 - Find Meaningful Work */}
-        <div className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start">
-          <div className="max-w-md mx-auto flex flex-col items-center">
-            <img
-              src={meaningfulBg}
-              alt="Find Meaningful Work"
-              className="w-full aspect-square object-contain mb-6"
-            />
-            <Button
-              onClick={() => navigate("/meaning")}
-              size="sm"
-              variant="outline"
-              className="font-mono text-xs bg-transparent border"
-              style={{
-                borderColor: "#ed565a",
-                color: "#ed565a",
-              }}
-            >
-              Discover Ikigai
-            </Button>
+        <div className="h-screen flex-shrink-0 relative snap-start overflow-hidden cursor-pointer" onClick={() => navigate("/meaning")}>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/ikigai-bg.mp4" type="video/mp4" />
+          </video>
+          {/* Text overlay - positioned above the person's head */}
+          <div className="absolute inset-0 flex items-start justify-center pt-[30%] md:pt-[28%]">
+            <h2 className="font-mono text-lg md:text-2xl lg:text-3xl tracking-wide">
+              <span className="bg-[#181818] px-3 py-1 text-cream">
+                find meaning
+              </span>
+              <span className="bg-[#181818] px-1 py-1 text-cream line-through">
+                ful work
+              </span>
+            </h2>
           </div>
         </div>
 

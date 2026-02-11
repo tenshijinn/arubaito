@@ -370,15 +370,27 @@ const Index = () => {
             <source src="/ikigai-bg.mp4" type="video/mp4" />
           </video>
           {/* Text overlay - positioned above the person's head */}
-          <div className="absolute inset-0 flex items-start justify-center pt-[30%] md:pt-[28%]">
-            <h2 className="font-mono text-lg md:text-2xl lg:text-3xl tracking-wide">
-              <span className="bg-[#181818] px-3 py-1 text-cream">
-                find meaning
+          <div className="absolute inset-0 flex flex-col items-center pt-[30%] md:pt-[28%]">
+            <h2 className="font-mono text-xs md:text-base lg:text-xl tracking-wide">
+              <span className="bg-[#181818] px-3 py-1" style={{ color: '#fff6d0' }}>
+                find meaningful
               </span>
-              <span className="bg-[#181818] px-1 py-1 text-cream line-through">
-                ful work
+              <span className="bg-[#181818] px-1 py-1 line-through" style={{ color: '#fff6d0' }}>
+                {' '}work
               </span>
             </h2>
+            <Button
+              onClick={(e) => { e.stopPropagation(); navigate("/meaning"); }}
+              size="sm"
+              variant="outline"
+              className="font-mono text-xs bg-transparent border mt-4"
+              style={{
+                borderColor: "#ed565a",
+                color: "#ed565a",
+              }}
+            >
+              Discover Ikigai
+            </Button>
           </div>
         </div>
 

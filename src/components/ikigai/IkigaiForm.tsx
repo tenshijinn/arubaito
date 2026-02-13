@@ -49,7 +49,7 @@ const IkigaiForm: React.FC<IkigaiFormProps> = ({
   const inputClass = `w-full px-4 py-3 rounded-lg border-2 transition-colors ${
     isDarkMode 
       ? 'bg-[#1a1a1a] border-[#ed565a] text-[#ed565a] placeholder:text-[#ed565a]/50 focus:border-[#ed565a] focus:outline-none' 
-      : 'bg-[#f5f5f5] border-[#181818] text-[#181818] placeholder:text-[#181818]/50 focus:border-[#181818] focus:outline-none'
+      : 'bg-transparent border-[#181818] text-[#181818] placeholder:text-[#181818]/50 focus:border-[#181818] focus:outline-none'
   }`;
 
   const fields: { name: keyof IkigaiFormData; placeholder: string }[] = [

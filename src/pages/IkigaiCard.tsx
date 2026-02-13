@@ -136,7 +136,7 @@ const IkigaiCard: React.FC = () => {
     }
   };
 
-  const bgColor = isDarkMode ? 'bg-[#181818]' : 'bg-white';
+  const bgColor = isDarkMode ? 'bg-[#181818]' : 'bg-[#ebe9e6]';
   const textColor = isDarkMode ? 'text-white' : 'text-[#181818]';
 
   return (

@@ -27,7 +27,7 @@ const QUADRANT_EXPLAINERS: Record<NonNullable<QuadrantType>, string> = {
 };
 
 const IkigaiCard: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [statement, setStatement] = useState('');

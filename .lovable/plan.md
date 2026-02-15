@@ -1,94 +1,58 @@
 
 
-## Reorder CV Profile Onboarding: X First, Wallet After Qualification
+## Fix Sign Out Wallet Trigger + Restructure Login for Returning Users
 
-### Current Problem
-When a user clicks "Continue with CV Profile", they're immediately asked to connect a Solana wallet. The wallet should not be a bottleneck for onboarding. Instead, users should authenticate with X (Twitter) first, then upload their CV, and only see the wallet connection step after they qualify (score 80+ or bluechip verified) -- because the wallet is where their free member NFT will be minted.
+### Issue 1: Sign Out Triggers Solana Wallet
 
-### New Flow
+**Root Cause:** `Auth.tsx` still imports `useWallet()` and has a `useEffect` (lines 237-349) that auto-authenticates whenever a Solana wallet is detected as connected. When the user signs out, `Auth.tsx` re-renders, and if Phantom's adapter still reports `connected=true` from a prior session, the effect fires and opens the wallet popup.
+
+**Fix:** Remove all wallet authentication logic from `Auth.tsx` since wallet connection is no longer part of the initial auth flow (it moved to the post-qualification step in `WalletConnectStep`). Specifically:
+- Remove `useWallet` import and hook usage (lines 7, 32-39)
+- Remove `bs58` import (line 10)
+- Remove the entire `authenticateWallet` useEffect (lines 237-349)
+- Remove `WalletMultiButton` import (line 8)
+
+### Issue 2: Returning User Login
+
+Currently the auth page has:
+- "Blue Chip Twitter" (top, sign-in)
+- "Member NFT" (disabled, coming soon)
+- "Apply for Membership" label
+- "Continue with CV Profile" (register flow)
+
+**Proposed restructure:**
 
 ```text
-[Auth Page]
-  "Continue with CV Profile"
-        |
-        v
-  Sign up with X (Twitter)
-  (no bluechip whitelist check)
-        |
-        v
-  [/arubaito - CV Profile Manager]
-  Upload / Manual / LinkedIn
-        |
-        v
-  CV Analysis Complete
-        |
-        v
-  Score >= 80 or Bluechip Verified?
-     YES --> Wallet Connect Step
-             (Solana + EVM for on-chain
-              verification + future NFT mint)
-     NO  --> Show profile directly
-             (can still improve and retry)
+Sign in with
+  [X / Twitter]           <-- universal login for ALL returning users
+  [Member NFT]            <-- disabled, "Free Mint Soon"
+
+Apply for Membership
+  [Blue Chip Twitter]     <-- moved here, initiates bluechip whitelist check
+  [Continue with CV Profile]  <-- existing register flow
 ```
 
-### Changes
-
-**1. Auth.tsx -- "register" mode uses Twitter/X instead of wallet**
-
-- Replace the wallet connect UI in `mode === "register"` with a Twitter OAuth button (reuse `handleTwitterAuth`)
-- Before initiating Twitter OAuth, store `sessionStorage.setItem("auth_intent", "cv_profile")` so the callback knows to skip the bluechip whitelist check
-- Update heading from "Connect Wallet to Continue" to "Sign up with X to Continue"
-- Remove the wallet-specific messaging (OG status, on-chain verification copy)
-
-**2. Auth.tsx -- Twitter OAuth callback handles CV profile path**
-
-- In the callback handler, read `sessionStorage.getItem("auth_intent")`
-- If `"cv_profile"`: skip the `data.bluechip_verified` check, create/sign-in user normally, navigate to `/arubaito` instead of `/club`
-- If absent (default bluechip path): keep existing behavior (check whitelist, navigate to `/club`)
-- Clean up `auth_intent` from sessionStorage after use
-
-**3. Arubaito.tsx -- Wallet step moves to post-analysis, gated by qualification**
-
-- Flow changes from `wallet -> selecting -> form/upload` to `selecting -> form/upload -> wallet (conditional)`
-- `handleStartNewCV`: go directly to `"selecting"` (method selector)
-- `handleAnalysisComplete`: check if the new analysis has score >= 80 or bluechip_verified; if yes, transition to `"wallet"` step; if no, show the profile directly
-- Add state to hold the pending analysis ID during the wallet step
-- "Back to Wallet" button on method selector becomes "Back to Profiles"
-- Wallet addresses are still passed through to the CV analysis forms (Solana + EVM) when connected at the post-analysis wallet step
-
-**4. WalletConnectStep.tsx -- Reframe as NFT mint + verification step**
-
-- Update hero messaging: "Connect Your Wallet" becomes "Claim Your Membership"
-- New description: "You've qualified for Arubaito Club! Connect your wallet to verify on-chain credentials and receive your free Member NFT (coming soon)."
-- Update benefits grid to emphasize:
-  - Free Member NFT mint (coming soon)
-  - On-chain verification boosts CV score further
-  - Wallet becomes your membership identity
-  - Cross-chain support (Solana + 14 EVM chains)
-- Add visual element/badge indicating NFT benefit (e.g., sparkle icon with "Free NFT Mint Coming Soon" badge)
-- Keep the skip option but reword: "Skip for now -- you can connect your wallet later from your profile"
-- Keep both Solana and EVM wallet connection cards fully functional
-
-**5. Re-analysis with wallet data**
-
-- After wallet connection post-qualification, trigger a re-analysis of the CV with the wallet addresses attached so on-chain data enriches the score
-- This preserves the existing feature where wallet connection improves CV score via the `analyze-cv` edge function
+**How it works:**
+- **"X / Twitter" button (top):** A general sign-in that uses Twitter OAuth. For returning users, it simply signs them in (no whitelist check, no cv_profile intent). It tries `signInWithPassword` first; if the user exists, they're logged in and routed based on their history (check if they have cv_analyses -> `/arubaito`, otherwise `/club`).
+- **"Blue Chip Twitter" (under Apply):** Keeps the existing bluechip whitelist flow -- sets no `auth_intent` (or `"bluechip"`), so the callback checks the whitelist and routes to `/club`.
+- **"Continue with CV Profile":** Keeps the existing register flow -- sets `auth_intent = "cv_profile"`, skips whitelist, routes to `/arubaito`.
 
 ### Technical Details
 
-**Flow state update in Arubaito.tsx:**
-```text
-// Old: null -> 'wallet' -> 'selecting' -> 'form'|'upload'|'linkedin'
-// New: null -> 'selecting' -> 'form'|'upload'|'linkedin' -> 'wallet' (if qualified)
-```
+**Auth.tsx changes:**
 
-**Auth intent in sessionStorage:**
-- Set before Twitter OAuth: `sessionStorage.setItem("auth_intent", "cv_profile")`
-- Read in callback: determines navigation target and whether to check whitelist
-- Cleaned up after use to prevent stale state
+1. Remove wallet-related imports and hooks (`useWallet`, `bs58`, `WalletMultiButton`, wallet useEffect)
 
-**Qualification check in handleAnalysisComplete:**
-- Fetch the completed analysis record
-- If `overall_score >= 80` or `bluechip_verified === true`: show wallet step
-- Otherwise: show profile directly (user can still view their score and improve)
+2. Restructure the `mode === "main"` UI:
+   - Top section "Sign in with":
+     - "X / Twitter" button -- calls `handleTwitterAuth()` with `sessionStorage.setItem("auth_intent", "returning_user")`
+     - "Member NFT" button (disabled, unchanged)
+   - "Apply for Membership" section:
+     - "Blue Chip Twitter" button -- calls `handleTwitterAuth()` with no auth_intent (or `"bluechip"`)
+     - "Continue with CV Profile" button -- unchanged (sets mode to `"register"`)
+
+3. Update Twitter OAuth callback to handle the new `"returning_user"` intent:
+   - If `auth_intent === "returning_user"`: skip bluechip check, try sign-in only (no signup). If user doesn't exist, show error "No account found. Please apply for membership first." Route to `/arubaito` if they have cv_analyses, otherwise `/club`.
+   - If `auth_intent === "cv_profile"`: existing behavior (skip whitelist, allow signup, route to `/arubaito`)
+   - If no intent (bluechip path): existing behavior (check whitelist, route to `/club`)
 

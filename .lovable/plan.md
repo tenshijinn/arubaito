@@ -1,58 +1,53 @@
 
 
-## Fix Sign Out Wallet Trigger + Restructure Login for Returning Users
+## Prevent Registration Paths from Acting as Sign-In
 
-### Issue 1: Sign Out Triggers Solana Wallet
+### Problem
+The "Blue Chip Twitter" and "Continue with CV Profile" buttons under "Apply for Membership" can also sign in existing users. This is because the OAuth callback tries `signInWithPassword` first (line 130), and if it succeeds, the user is silently logged in -- effectively turning registration paths into login paths.
 
-**Root Cause:** `Auth.tsx` still imports `useWallet()` and has a `useEffect` (lines 237-349) that auto-authenticates whenever a Solana wallet is detected as connected. When the user signs out, `Auth.tsx` re-renders, and if Phantom's adapter still reports `connected=true` from a prior session, the effect fires and opens the wallet popup.
+### Fix
 
-**Fix:** Remove all wallet authentication logic from `Auth.tsx` since wallet connection is no longer part of the initial auth flow (it moved to the post-qualification step in `WalletConnectStep`). Specifically:
-- Remove `useWallet` import and hook usage (lines 7, 32-39)
-- Remove `bs58` import (line 10)
-- Remove the entire `authenticateWallet` useEffect (lines 237-349)
-- Remove `WalletMultiButton` import (line 8)
+In `src/components/Auth.tsx`, update the OAuth callback logic for the **bluechip** and **cv_profile** paths (lines 126-165):
 
-### Issue 2: Returning User Login
+- After `signInWithPassword` succeeds (meaning the account already exists), do NOT proceed with login
+- Instead, sign the user back out and show a toast: "You already have an account. Please use 'Sign in with X / Twitter' to log in."
+- Only proceed with `signUp` for genuinely new users
+- The bluechip whitelist check still runs before signup to gate new registrations
 
-Currently the auth page has:
-- "Blue Chip Twitter" (top, sign-in)
-- "Member NFT" (disabled, coming soon)
-- "Apply for Membership" label
-- "Continue with CV Profile" (register flow)
-
-**Proposed restructure:**
+### Updated callback flow (pseudocode)
 
 ```text
-Sign in with
-  [X / Twitter]           <-- universal login for ALL returning users
-  [Member NFT]            <-- disabled, "Free Mint Soon"
+if authIntent === "returning_user":
+  signIn only, no signup (existing logic, unchanged)
 
-Apply for Membership
-  [Blue Chip Twitter]     <-- moved here, initiates bluechip whitelist check
-  [Continue with CV Profile]  <-- existing register flow
+else (bluechip or cv_profile):
+  if authIntent !== "cv_profile" AND !bluechip_verified:
+    block with "Access Denied" (existing logic, unchanged)
+
+  try signInWithPassword:
+    if SUCCESS (user exists):
+      sign out immediately
+      show toast "Account already exists. Use 'Sign in with X / Twitter' to log in."
+      return (do NOT navigate)
+    if FAILS (user does not exist):
+      proceed with signUp (existing logic)
+      navigate to /arubaito or /club as before
 ```
 
-**How it works:**
-- **"X / Twitter" button (top):** A general sign-in that uses Twitter OAuth. For returning users, it simply signs them in (no whitelist check, no cv_profile intent). It tries `signInWithPassword` first; if the user exists, they're logged in and routed based on their history (check if they have cv_analyses -> `/arubaito`, otherwise `/club`).
-- **"Blue Chip Twitter" (under Apply):** Keeps the existing bluechip whitelist flow -- sets no `auth_intent` (or `"bluechip"`), so the callback checks the whitelist and routes to `/club`.
-- **"Continue with CV Profile":** Keeps the existing register flow -- sets `auth_intent = "cv_profile"`, skips whitelist, routes to `/arubaito`.
+### Separate loading states (from prior plan)
+
+Replace the single `twitterLoading` with `returningUserLoading` and `bluechipLoading` so only the clicked button shows "Authenticating...". Both buttons remain disabled when either is loading.
 
 ### Technical Details
 
-**Auth.tsx changes:**
+**File: `src/components/Auth.tsx`**
 
-1. Remove wallet-related imports and hooks (`useWallet`, `bs58`, `WalletMultiButton`, wallet useEffect)
-
-2. Restructure the `mode === "main"` UI:
-   - Top section "Sign in with":
-     - "X / Twitter" button -- calls `handleTwitterAuth()` with `sessionStorage.setItem("auth_intent", "returning_user")`
-     - "Member NFT" button (disabled, unchanged)
-   - "Apply for Membership" section:
-     - "Blue Chip Twitter" button -- calls `handleTwitterAuth()` with no auth_intent (or `"bluechip"`)
-     - "Continue with CV Profile" button -- unchanged (sets mode to `"register"`)
-
-3. Update Twitter OAuth callback to handle the new `"returning_user"` intent:
-   - If `auth_intent === "returning_user"`: skip bluechip check, try sign-in only (no signup). If user doesn't exist, show error "No account found. Please apply for membership first." Route to `/arubaito` if they have cv_analyses, otherwise `/club`.
-   - If `auth_intent === "cv_profile"`: existing behavior (skip whitelist, allow signup, route to `/arubaito`)
-   - If no intent (bluechip path): existing behavior (check whitelist, route to `/club`)
+1. Replace `useState` for `twitterLoading` with two states: `returningUserLoading` and `bluechipLoading`
+2. "X / Twitter" button sets `returningUserLoading`; "Blue Chip Twitter" and "Continue with X" set `bluechipLoading`
+3. In the callback (lines 128-158), when `signInWithPassword` succeeds for bluechip/cv_profile paths:
+   - Call `supabase.auth.signOut()`
+   - Show toast directing user to sign in via the top button
+   - Clear loading states and return early
+4. When `signInWithPassword` fails (new user), proceed with `signUp` as before
+5. `finally` block clears both loading states
 

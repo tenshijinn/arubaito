@@ -24,7 +24,8 @@ export const Auth = () => {
   const [mode, setMode] = useState<"main" | "signin" | "register">("main");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [twitterLoading, setTwitterLoading] = useState(false);
+  const [returningUserLoading, setReturningUserLoading] = useState(false);
+  const [bluechipLoading, setBluechipLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(true);
   const {
     toast
@@ -39,7 +40,9 @@ export const Auth = () => {
       const codeVerifier = sessionStorage.getItem("twitter_code_verifier");
       if (twitterCode && codeVerifier && !twitterProcessingRef.current) {
         twitterProcessingRef.current = true;
-        setTwitterLoading(true);
+        const isReturning = sessionStorage.getItem("auth_intent") === "returning_user";
+        if (isReturning) setReturningUserLoading(true);
+        else setBluechipLoading(true);
 
         // Read the auth intent before clearing
         const authIntent = sessionStorage.getItem("auth_intent");
@@ -78,7 +81,7 @@ export const Auth = () => {
                 description: "No account found for this X account. Please apply for membership first.",
                 variant: "destructive"
               });
-              setTwitterLoading(false);
+              setReturningUserLoading(false);
               twitterProcessingRef.current = false;
               return;
             }
@@ -106,7 +109,7 @@ export const Auth = () => {
             } else {
               navigate("/club");
             }
-            setTwitterLoading(false);
+            setReturningUserLoading(false);
             twitterProcessingRef.current = false;
             return;
           }
@@ -118,44 +121,47 @@ export const Auth = () => {
               description: "Your Twitter account is not on the bluechip whitelist.",
               variant: "destructive"
             });
-            setTwitterLoading(false);
+            setBluechipLoading(false);
             twitterProcessingRef.current = false;
             return;
           }
 
-          // --- CV profile or bluechip path: create/sign-in user ---
-          // Try to sign in first
+          // --- CV profile or bluechip path: registration only ---
+          // Check if user already exists
           const {
             error: signInError
           } = await supabase.auth.signInWithPassword({
             email: twitterEmail,
             password: twitterPassword
           });
-          if (signInError) {
-            // If sign in fails, create account
-            const {
-              error: signUpError
-            } = await supabase.auth.signUp({
-              email: twitterEmail,
-              password: twitterPassword,
-              options: {
-                data: {
-                  twitter_username: data.user.handle,
-                  twitter_id: data.user.x_user_id,
-                  full_name: data.user.display_name,
-                  avatar_url: data.user.profile_image_url
-                }
-              }
+          if (!signInError) {
+            // User already exists — sign them out and block
+            await supabase.auth.signOut();
+            toast({
+              title: "Account Already Exists",
+              description: "You already have an account. Please use 'Sign in with X / Twitter' to log in.",
+              variant: "destructive"
             });
-            if (signUpError) throw signUpError;
-          } else {
-            // User exists, update their metadata with latest profile image
-            await supabase.auth.updateUser({
+            setBluechipLoading(false);
+            twitterProcessingRef.current = false;
+            return;
+          }
+          // New user — create account
+          const {
+            error: signUpError
+          } = await supabase.auth.signUp({
+            email: twitterEmail,
+            password: twitterPassword,
+            options: {
               data: {
+                twitter_username: data.user.handle,
+                twitter_id: data.user.x_user_id,
+                full_name: data.user.display_name,
                 avatar_url: data.user.profile_image_url
               }
-            });
-          }
+            }
+          });
+          if (signUpError) throw signUpError;
           toast({
             title: "Welcome!",
             description: `Signed in with Twitter as @${data.user.handle}`
@@ -171,7 +177,8 @@ export const Auth = () => {
             variant: "destructive"
           });
         } finally {
-          setTwitterLoading(false);
+          setReturningUserLoading(false);
+          setBluechipLoading(false);
           twitterProcessingRef.current = false;
         }
       }
@@ -179,9 +186,10 @@ export const Auth = () => {
     handleTwitterCallback();
   }, [navigate, toast]);
 
-  const handleTwitterAuth = async () => {
+  const handleTwitterAuth = async (flow: "returning" | "bluechip") => {
     try {
-      setTwitterLoading(true);
+      if (flow === "returning") setReturningUserLoading(true);
+      else setBluechipLoading(true);
       const {
         data,
         error
@@ -201,7 +209,8 @@ export const Auth = () => {
         description: "Failed to initiate Twitter authentication",
         variant: "destructive"
       });
-      setTwitterLoading(false);
+      setReturningUserLoading(false);
+      setBluechipLoading(false);
     }
   };
 
@@ -290,9 +299,9 @@ export const Auth = () => {
                   {/* Universal returning user login */}
                   <Button onClick={() => {
                     sessionStorage.setItem("auth_intent", "returning_user");
-                    handleTwitterAuth();
-                  }} className="w-full h-14 text-lg font-medium rounded-xl" variant="default" disabled={loading || twitterLoading}>
-                    {twitterLoading ? "Authenticating..." : "X / Twitter"}
+                    handleTwitterAuth("returning");
+                  }} className="w-full h-14 text-lg font-medium rounded-xl" variant="default" disabled={loading || returningUserLoading || bluechipLoading}>
+                    {returningUserLoading ? "Authenticating..." : "X / Twitter"}
                   </Button>
 
                   <div className="wallet-button-wrapper w-full">
@@ -356,9 +365,9 @@ export const Auth = () => {
                   {/* Bluechip whitelist check path */}
                   <Button onClick={() => {
                     sessionStorage.removeItem("auth_intent");
-                    handleTwitterAuth();
-                  }} className="w-full h-14 text-lg font-medium rounded-xl" variant="outline" disabled={loading || twitterLoading}>
-                    {twitterLoading ? "Authenticating..." : "Blue Chip Twitter"}
+                    handleTwitterAuth("bluechip");
+                  }} className="w-full h-14 text-lg font-medium rounded-xl" variant="outline" disabled={loading || returningUserLoading || bluechipLoading}>
+                    {bluechipLoading ? "Authenticating..." : "Blue Chip Twitter"}
                   </Button>
 
                   <Button onClick={() => setMode("register")} className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button" variant="secondary">
@@ -396,9 +405,9 @@ export const Auth = () => {
 
                 <Button onClick={() => {
                   sessionStorage.setItem("auth_intent", "cv_profile");
-                  handleTwitterAuth();
-                }} className="w-full h-14 text-lg font-medium rounded-xl" variant="default" disabled={loading || twitterLoading}>
-                  {twitterLoading ? "Authenticating..." : "Continue with X"}
+                  handleTwitterAuth("bluechip");
+                }} className="w-full h-14 text-lg font-medium rounded-xl" variant="default" disabled={loading || returningUserLoading || bluechipLoading}>
+                  {bluechipLoading ? "Authenticating..." : "Continue with X"}
                 </Button>
 
                 <Button type="button" variant="ghost" onClick={() => setMode("main")} className="w-full" disabled={loading}>

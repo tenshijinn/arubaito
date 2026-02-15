@@ -4,10 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useNavigate } from "react-router-dom";
-import bs58 from "bs58";
 import { TextRotator } from "@/components/TextRotator";
 
 // Twitter OAuth callback handler - for root and arubaito paths
@@ -32,11 +29,6 @@ export const Auth = () => {
   const {
     toast
   } = useToast();
-  const {
-    publicKey,
-    signMessage,
-    connected
-  } = useWallet();
   const navigate = useNavigate();
   const twitterProcessingRef = useRef(false);
 
@@ -71,7 +63,55 @@ export const Auth = () => {
           });
           if (error) throw error;
 
-          // Only check bluechip whitelist for the bluechip login path
+          const twitterEmail = `${data.user.handle}@twitter.oauth`;
+          const twitterPassword = data.user.x_user_id + "_twitter_auth";
+
+          // --- Returning user path: sign-in only, no signup ---
+          if (authIntent === "returning_user") {
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+              email: twitterEmail,
+              password: twitterPassword
+            });
+            if (signInError) {
+              toast({
+                title: "No Account Found",
+                description: "No account found for this X account. Please apply for membership first.",
+                variant: "destructive"
+              });
+              setTwitterLoading(false);
+              twitterProcessingRef.current = false;
+              return;
+            }
+
+            // Update avatar
+            await supabase.auth.updateUser({
+              data: { avatar_url: data.user.profile_image_url }
+            });
+
+            toast({
+              title: "Welcome Back!",
+              description: `Signed in as @${data.user.handle}`
+            });
+
+            // Route based on whether they have cv_analyses
+            const { data: session } = await supabase.auth.getSession();
+            const userId = session?.session?.user?.id;
+            if (userId) {
+              const { data: cvData } = await supabase
+                .from("cv_analyses")
+                .select("id")
+                .eq("user_id", userId)
+                .limit(1);
+              navigate(cvData && cvData.length > 0 ? "/arubaito" : "/club");
+            } else {
+              navigate("/club");
+            }
+            setTwitterLoading(false);
+            twitterProcessingRef.current = false;
+            return;
+          }
+
+          // --- Bluechip path: check whitelist ---
           if (authIntent !== "cv_profile" && !data.bluechip_verified) {
             toast({
               title: "Access Denied",
@@ -79,13 +119,11 @@ export const Auth = () => {
               variant: "destructive"
             });
             setTwitterLoading(false);
+            twitterProcessingRef.current = false;
             return;
           }
 
-          // Create/sign in user with Twitter data
-          const twitterEmail = `${data.user.handle}@twitter.oauth`;
-          const twitterPassword = data.user.x_user_id + "_twitter_auth";
-
+          // --- CV profile or bluechip path: create/sign-in user ---
           // Try to sign in first
           const {
             error: signInError
@@ -140,6 +178,7 @@ export const Auth = () => {
     };
     handleTwitterCallback();
   }, [navigate, toast]);
+
   const handleTwitterAuth = async () => {
     try {
       setTwitterLoading(true);
@@ -165,6 +204,7 @@ export const Auth = () => {
       setTwitterLoading(false);
     }
   };
+
   const handleGoogleAuth = async (isSignUp: boolean) => {
     try {
       const {
@@ -184,6 +224,7 @@ export const Auth = () => {
       });
     }
   };
+
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
@@ -208,7 +249,6 @@ export const Auth = () => {
           title: "Account created!",
           description: "You are now signed in and can upload your CV."
         });
-        // User is now automatically logged in, no need to change mode or navigate
       } else {
         const {
           error
@@ -233,120 +273,6 @@ export const Auth = () => {
     }
   };
 
-  // Handle wallet authentication after connection
-  useEffect(() => {
-    const authenticateWallet = async () => {
-      if (connected && publicKey && signMessage) {
-        setLoading(true);
-        try {
-          // Use wallet address as identifier
-          const walletAddress = publicKey.toBase58();
-
-          // Verify wallet ownership with signature
-          const message = `Sign this message to authenticate with CV Checker.\n\nWallet: ${walletAddress}`;
-          const encodedMessage = new TextEncoder().encode(message);
-          const signature = await signMessage(encodedMessage);
-          const signatureBase58 = bs58.encode(signature);
-
-          // Create deterministic password based ONLY on wallet address
-          const walletString = walletAddress + "_wallet_auth_v1";
-          const encoded = new TextEncoder().encode(walletString);
-          const buffer = encoded.buffer.slice(encoded.byteOffset, encoded.byteOffset + encoded.byteLength) as ArrayBuffer;
-          const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-          const hashArray = Array.from(new Uint8Array(hashBuffer));
-          const password = hashArray.map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
-
-          // Try to sign in first
-          const {
-            error: signInError
-          } = await supabase.auth.signInWithPassword({
-            email: `${walletAddress}@wallet.local`,
-            password: password
-          });
-          if (signInError) {
-            // If "Invalid login credentials" = new user or old password scheme → sign up
-            if (signInError.message.includes("Invalid login credentials")) {
-              const {
-                error: signUpError
-              } = await supabase.auth.signUp({
-                email: `${walletAddress}@wallet.local`,
-                password: password,
-                options: {
-                  data: {
-                    wallet_address: walletAddress
-                  }
-                }
-              });
-
-              // If "user already exists", reset the old account and retry
-              if (signUpError?.message.includes("User already registered")) {
-                console.log("Migrating old wallet account to new password scheme...");
-
-                // Reset the old account using signature as proof of ownership
-                const {
-                  error: resetError
-                } = await supabase.functions.invoke("reset-wallet-account", {
-                  body: {
-                    walletAddress,
-                    message,
-                    signature: signatureBase58
-                  }
-                });
-                if (resetError) {
-                  console.error("Failed to reset wallet account:", resetError);
-                  throw new Error("Failed to migrate wallet account. Please try again.");
-                }
-
-                // Retry signup with new password scheme
-                const {
-                  error: retrySignUpError
-                } = await supabase.auth.signUp({
-                  email: `${walletAddress}@wallet.local`,
-                  password: password,
-                  options: {
-                    data: {
-                      wallet_address: walletAddress
-                    }
-                  }
-                });
-                if (retrySignUpError) throw retrySignUpError;
-                toast({
-                  title: "Account Migrated!",
-                  description: `Wallet authenticated successfully`
-                });
-                return;
-              }
-              if (signUpError) throw signUpError;
-              toast({
-                title: "Account Created!",
-                description: `Authenticated with Phantom`
-              });
-              return;
-            }
-
-            // Any other error = throw it
-            throw signInError;
-          }
-
-          // Sign-in successful = returning user
-          toast({
-            title: "Welcome Back!",
-            description: `Authenticated with Phantom`
-          });
-        } catch (error) {
-          console.error("Wallet authentication error:", error);
-          toast({
-            title: "Authentication failed",
-            description: error instanceof Error ? error.message : "Failed to authenticate wallet",
-            variant: "destructive"
-          });
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    authenticateWallet();
-  }, [connected, publicKey, signMessage, toast]);
     return <div className="min-h-screen flex items-center justify-center p-4 font-mono">
       <div className="w-full max-w-5xl">
         <div className="flex justify-center">
@@ -360,8 +286,13 @@ export const Auth = () => {
               }}>
                     Sign in with
                   </p>
-                  <Button onClick={handleTwitterAuth} className="w-full h-14 text-lg font-medium rounded-xl" variant="default" disabled={loading || twitterLoading}>
-                    {twitterLoading ? "Authenticating..." : "Blue Chip Twitter"}
+
+                  {/* Universal returning user login */}
+                  <Button onClick={() => {
+                    sessionStorage.setItem("auth_intent", "returning_user");
+                    handleTwitterAuth();
+                  }} className="w-full h-14 text-lg font-medium rounded-xl" variant="default" disabled={loading || twitterLoading}>
+                    {twitterLoading ? "Authenticating..." : "X / Twitter"}
                   </Button>
 
                   <div className="wallet-button-wrapper w-full">
@@ -421,6 +352,14 @@ export const Auth = () => {
                       Apply for Membership
                     </span>
                   </div>
+
+                  {/* Bluechip whitelist check path */}
+                  <Button onClick={() => {
+                    sessionStorage.removeItem("auth_intent");
+                    handleTwitterAuth();
+                  }} className="w-full h-14 text-lg font-medium rounded-xl" variant="outline" disabled={loading || twitterLoading}>
+                    {twitterLoading ? "Authenticating..." : "Blue Chip Twitter"}
+                  </Button>
 
                   <Button onClick={() => setMode("register")} className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button" variant="secondary">
                     Continue with CV Profile

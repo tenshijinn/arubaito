@@ -49,9 +49,14 @@ export const Auth = () => {
         twitterProcessingRef.current = true;
         setTwitterLoading(true);
 
+        // Read the auth intent before clearing
+        const authIntent = sessionStorage.getItem("auth_intent");
+
         // Clear immediately to prevent reuse
         sessionStorage.removeItem("twitter_code");
         sessionStorage.removeItem("twitter_code_verifier");
+        sessionStorage.removeItem("auth_intent");
+
         try {
           const {
             data,
@@ -65,13 +70,14 @@ export const Auth = () => {
             }
           });
           if (error) throw error;
-          if (!data.bluechip_verified) {
+
+          // Only check bluechip whitelist for the bluechip login path
+          if (authIntent !== "cv_profile" && !data.bluechip_verified) {
             toast({
               title: "Access Denied",
               description: "Your Twitter account is not on the bluechip whitelist.",
               variant: "destructive"
             });
-            sessionStorage.removeItem("twitter_code_verifier");
             setTwitterLoading(false);
             return;
           }
@@ -116,7 +122,9 @@ export const Auth = () => {
             title: "Welcome!",
             description: `Signed in with Twitter as @${data.user.handle}`
           });
-          navigate("/club");
+
+          // Navigate based on auth intent
+          navigate(authIntent === "cv_profile" ? "/arubaito" : "/club");
         } catch (error) {
           console.error("Twitter OAuth error:", error);
           toast({
@@ -429,32 +437,30 @@ export const Auth = () => {
                     }
                   `}</style>
                 </div>
-              </div> : mode === "register" ? <div className="space-y-4">
+             </div> : mode === "register" ? <div className="space-y-4">
                 <h2 className="text-xl font-semibold mb-4" style={{
               color: "hsl(var(--foreground))"
             }}>
-                  Connect Wallet to Continue
+                  Sign up with X to Continue
                 </h2>
 
                 <div className="space-y-3 mb-6 p-4 rounded-lg bg-accent/30 border">
-                  <p className="text-sm font-medium text-foreground">⚠️ Important: Verify Your Primary Wallet</p>
-                  <p className="text-sm text-muted-foreground">This wallet will be assessed for:</p>
+                  <p className="text-sm font-medium text-foreground">Apply for Arubaito Club membership</p>
+                  <p className="text-sm text-muted-foreground">Sign up with your X account to:</p>
                   <ul className="text-sm text-muted-foreground space-y-1 ml-4">
-                    <li>• OG status and Bluechip verification</li>
-                    <li>• Proof of talent and crypto experience</li>
-                    <li>• dApp usage, protocols, token/NFT holdings</li>
-                    <li>• Duration in the crypto space</li>
+                    <li>• Create your Web3 CV Profile</li>
+                    <li>• Get AI-powered CV analysis & scoring</li>
+                    <li>• Qualify for club membership (score 80+)</li>
+                    <li>• Unlock free Member NFT mint (coming soon)</li>
                   </ul>
-                  <p className="text-sm font-medium" style={{
-                color: "hsl(var(--primary))"
-              }}>
-                    Everything you claim on your CV will be verified against your wallet's on-chain activity.
-                  </p>
                 </div>
 
-                <div className="wallet-button-wrapper w-full">
-                  <WalletMultiButton className="!h-14 !rounded-xl !font-medium !text-lg !w-full" />
-                </div>
+                <Button onClick={() => {
+                  sessionStorage.setItem("auth_intent", "cv_profile");
+                  handleTwitterAuth();
+                }} className="w-full h-14 text-lg font-medium rounded-xl" variant="default" disabled={loading || twitterLoading}>
+                  {twitterLoading ? "Authenticating..." : "Continue with X"}
+                </Button>
 
                 <Button type="button" variant="ghost" onClick={() => setMode("main")} className="w-full" disabled={loading}>
                   Back

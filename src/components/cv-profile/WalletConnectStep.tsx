@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Wallet, Shield, CheckCircle2, ArrowRight, Link2, Sparkles, BadgeCheck, X } from "lucide-react";
+import { Wallet, Shield, CheckCircle2, ArrowRight, Link2, Sparkles, BadgeCheck, X, Trophy, Star } from "lucide-react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useAccount, useDisconnect } from "wagmi";
@@ -27,24 +27,24 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
 
   const benefits = [
     {
-      icon: Shield,
-      title: "Proof of Talent",
-      description: "On-chain activity verifies your Web3 experience claims"
+      icon: Trophy,
+      title: "Free Member NFT",
+      description: "Mint your exclusive Arubaito Club membership NFT (coming soon)"
     },
     {
-      icon: BadgeCheck,
-      title: "Bluechip Verification",
-      description: "Interactions with top protocols boost your CV score"
+      icon: Shield,
+      title: "On-Chain Verification",
+      description: "Boost your CV score with verified blockchain activity"
+    },
+    {
+      icon: Star,
+      title: "Membership Identity",
+      description: "Your wallet becomes your official club membership address"
     },
     {
       icon: Link2,
-      title: "Cross-Reference Claims",
-      description: "Projects you mention are validated against wallet history"
-    },
-    {
-      icon: Sparkles,
-      title: "OG Status Recognition",
-      description: "Early activity on chains like Ethereum, Solana, BSC is recognized"
+      title: "Cross-Chain Support",
+      description: "Solana + 14 EVM chains verified for comprehensive credentials"
     }
   ];
 
@@ -56,11 +56,17 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
           <Wallet className="h-10 w-10 text-white" />
         </div>
         <h2 className="text-2xl font-bold text-foreground">
-          Connect Your Wallets
+          🎉 Claim Your Membership
         </h2>
         <p className="text-muted-foreground">
-          Strengthen your CV with verifiable on-chain proof of your Web3 experience
+          You've qualified for Arubaito Club! Connect your wallet to verify on-chain credentials and receive your free Member NFT.
         </p>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mt-2">
+          <Sparkles className="h-4 w-4" style={{ color: 'hsl(var(--primary))' }} />
+          <span className="text-sm font-medium" style={{ color: 'hsl(var(--primary))' }}>
+            Free NFT Mint Coming Soon
+          </span>
+        </div>
       </div>
 
       {/* Benefits Grid */}
@@ -180,9 +186,8 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
             <Shield className="h-4 w-4" />
             <AlertDescription>
               <p className="text-sm">
-                Your wallet's on-chain history will be analyzed to verify any Web3 projects, 
-                protocols, or companies you mention in your CV. This creates <strong>verifiable proof</strong> of 
-                your experience and can significantly boost your CV score.
+                Your wallet will be re-analyzed to verify on-chain activity and boost your CV score. 
+                This wallet address will also be used for your <strong>free Member NFT mint</strong> when it launches.
               </p>
             </AlertDescription>
           </Alert>
@@ -194,7 +199,7 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
               evm: evmAddress || null
             })}
           >
-            Continue with {solanaConnected && evmConnected ? 'Both Wallets' : solanaConnected ? 'Solana Verification' : 'EVM Verification'}
+            Verify & Claim Membership
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </Card>
@@ -204,11 +209,8 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
       {!hasAnyWallet && (
         <div className="text-center">
           <Button variant="ghost" onClick={onSkip} className="text-muted-foreground">
-            Skip for now - continue without wallet verification
+            Skip for now — you can connect your wallet later from your profile
           </Button>
-          <p className="text-xs text-muted-foreground mt-2">
-            You can still create a CV profile, but on-chain verification won't be available
-          </p>
         </div>
       )}
     </div>

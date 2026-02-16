@@ -12,6 +12,7 @@ import {
   type IkigaiFormData,
   type QuadrantType,
 } from '@/components/ikigai';
+import IkigaiSuggestions from '@/components/ikigai/IkigaiSuggestions';
 import { downloadIkigaiCard } from '@/utils/ikigaiCardGenerator';
 import IkigaiCardExport from '@/components/ikigai/IkigaiCardExport';
 import { TextRotator } from '@/components/TextRotator';
@@ -40,6 +41,8 @@ const IkigaiCard: React.FC = () => {
     whatGoodAt: string;
     telegramHandle: string;
   } | null>(null);
+  const [icps, setIcps] = useState<string[]>([]);
+  const [arenas, setArenas] = useState<string[]>([]);
   const [activeQuadrant, setActiveQuadrant] = useState<QuadrantType>(null);
   const [mobileActiveQuadrant, setMobileActiveQuadrant] = useState<QuadrantType>(null);
   const [formData, setFormData] = useState<Partial<IkigaiFormData>>({
@@ -89,7 +92,8 @@ const IkigaiCard: React.FC = () => {
 
       if (responseData?.statement) {
         setStatement(responseData.statement);
-        // Capture the data at submission time for export
+        setIcps(responseData.icps || []);
+        setArenas(responseData.arenas || []);
         exportKey++;
         setExportData({
           name,
@@ -213,34 +217,39 @@ const IkigaiCard: React.FC = () => {
                   isDarkMode={isDarkMode}
                 />
               ) : (
-                <div className="space-y-4">
-                  <Button
-                    onClick={handleDownload}
-                    className="gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3"
-                    style={{ fontFamily: 'Consolas, monospace' }}
-                  >
-                    <Download className="w-4 h-4" />
-                    Download Card
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setIsSubmitted(false);
-                      setStatement('');
-                      setFormData({
-                        name: '',
-                        telegramHandle: '',
-                        whatYouLove: '',
-                        whatWorldNeeds: '',
-                        whatPaidFor: '',
-                        whatGoodAt: '',
-                      });
-                    }}
-                    variant="ghost"
-                    className="block text-primary hover:text-primary/80"
-                    style={{ fontFamily: 'Consolas, monospace' }}
-                  >
-                    Create Another
-                  </Button>
+              <div className="space-y-6">
+                  <IkigaiSuggestions icps={icps} arenas={arenas} isDarkMode={isDarkMode} />
+                  <div className="space-y-2">
+                    <Button
+                      onClick={handleDownload}
+                      className="gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3"
+                      style={{ fontFamily: 'Consolas, monospace' }}
+                    >
+                      <Download className="w-4 h-4" />
+                      Download Card
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setIsSubmitted(false);
+                        setStatement('');
+                        setIcps([]);
+                        setArenas([]);
+                        setFormData({
+                          name: '',
+                          telegramHandle: '',
+                          whatYouLove: '',
+                          whatWorldNeeds: '',
+                          whatPaidFor: '',
+                          whatGoodAt: '',
+                        });
+                      }}
+                      variant="ghost"
+                      className="block text-primary hover:text-primary/80"
+                      style={{ fontFamily: 'Consolas, monospace' }}
+                    >
+                      Create Another
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -304,34 +313,39 @@ const IkigaiCard: React.FC = () => {
                 isDarkMode={isDarkMode}
               />
             ) : (
-              <div className="space-y-4 text-center">
-                <Button
-                  onClick={handleDownload}
-                  className="gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3"
-                  style={{ fontFamily: 'Consolas, monospace' }}
-                >
-                  <Download className="w-4 h-4" />
-                  Download Card
-                </Button>
-                <Button
-                  onClick={() => {
-                    setIsSubmitted(false);
-                    setStatement('');
-                    setFormData({
-                      name: '',
-                      telegramHandle: '',
-                      whatYouLove: '',
-                      whatWorldNeeds: '',
-                      whatPaidFor: '',
-                      whatGoodAt: '',
-                    });
-                  }}
-                  variant="ghost"
-                  className="block mx-auto text-primary hover:text-primary/80"
-                  style={{ fontFamily: 'Consolas, monospace' }}
-                >
-                  Create Another
-                </Button>
+              <div className="space-y-6 text-center">
+                <IkigaiSuggestions icps={icps} arenas={arenas} isDarkMode={isDarkMode} />
+                <div className="space-y-2">
+                  <Button
+                    onClick={handleDownload}
+                    className="gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3"
+                    style={{ fontFamily: 'Consolas, monospace' }}
+                  >
+                    <Download className="w-4 h-4" />
+                    Download Card
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setIsSubmitted(false);
+                      setStatement('');
+                      setIcps([]);
+                      setArenas([]);
+                      setFormData({
+                        name: '',
+                        telegramHandle: '',
+                        whatYouLove: '',
+                        whatWorldNeeds: '',
+                        whatPaidFor: '',
+                        whatGoodAt: '',
+                      });
+                    }}
+                    variant="ghost"
+                    className="block mx-auto text-primary hover:text-primary/80"
+                    style={{ fontFamily: 'Consolas, monospace' }}
+                  >
+                    Create Another
+                  </Button>
+                </div>
               </div>
             )}
           </div>

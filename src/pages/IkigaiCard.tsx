@@ -208,7 +208,7 @@ const IkigaiCard: React.FC = () => {
           {/* Desktop layout */}
           <div className="hidden lg:flex flex-row items-center gap-8 lg:gap-12">
             {/* Left Column - Form */}
-            <div className="w-auto min-w-[280px] flex flex-col justify-center" data-export-hide="true">
+            <div className="w-[240px] shrink-0 flex flex-col justify-center" data-export-hide="true">
               {!isSubmitted ? (
                 <IkigaiForm
                   onSubmit={handleSubmit}
@@ -222,7 +222,7 @@ const IkigaiCard: React.FC = () => {
                   <div className="space-y-2">
                     <Button
                       onClick={handleDownload}
-                      className="gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3"
+                      className="w-full gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3"
                       style={{ fontFamily: 'Consolas, monospace' }}
                     >
                       <Download className="w-4 h-4" />

@@ -21,7 +21,6 @@ serve(async (req) => {
   try {
     const { name, whatYouLove, whatWorldNeeds, whatPaidFor, whatGoodAt }: IkigaiInput = await req.json();
 
-    // Validate required fields
     if (!name || !whatWorldNeeds || !whatPaidFor) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
@@ -34,37 +33,40 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are a concise identity statement generator. Your job is to create a clear positioning statement that identifies WHO this person serves (their ideal client) and HOW they deliver value.
+    const systemPrompt = `You are a concise identity statement generator for Web3-native professionals.
 
-Tone: calm, purposeful, human, non-corporate. Focus on ICP (Ideal Customer Profile) clarity.
+Your job: create a tight positioning statement + psychographic ICP matches + Web3 work arenas.
 
-STRICT TEMPLATE (follow exactly):
-I'm {Name}! I am a {role/identity} that helps {specific type of person/company} {achieve specific outcome}.
+STATEMENT RULES:
+- Format: "I'm {Name}! I am a {role} that helps {specific ICP} {outcome}."
+- ONE sentence after the name greeting. Max 20 words.
+- No filler, no compound clauses, no corporate jargon.
+- ICP must be specific (e.g. "early-stage protocol founders", "burned-out executives")
+- Outcome must be tangible and concrete.
 
-Rules:
-- Maximum 2 sentences
-- The ICP must be SPECIFIC: who exactly is this person helping? (e.g., "early-stage crypto founders", "burned-out executives", "DeFi protocols")
-- The outcome must be TANGIBLE: what transformation or result does the ICP get?
-- Synthesize from what they love + are good at into a clear role identity
-- Synthesize from what the world needs + what they can be paid for into WHO they serve and WHAT outcome they deliver
-- NO quotes, NO bullet points, just the statement`;
+ICP RULES (3 items):
+- Psychographic archetypes, NOT demographics
+- People who would naturally be helped by this person
+- Web3/future-of-work native
+- Max 8 words each
 
-    const userPrompt = `Generate an identity statement for this person:
+ARENA RULES (3 items):
+- Web3 environments where this person's ikigai comes alive
+- NOT job titles, NOT Web2 companies
+- Examples: "Early-stage protocol teams", "DAO coordination pods", "Network-state education hubs"
+- Max 8 words each
+
+Derive ICPs and arenas from the raw inputs, not from the statement.`;
+
+    const userPrompt = `Generate for this person:
 
 Name: ${name}
-What they can be paid for (their offering): ${whatPaidFor}
-What the world needs (the problem space): ${whatWorldNeeds}
-What they love doing (their passion): ${whatYouLove}
-What they are good at (their skill): ${whatGoodAt}
+Passion: ${whatYouLove}
+Skill: ${whatGoodAt}
+World need: ${whatWorldNeeds}
+Offering: ${whatPaidFor}`;
 
-From these inputs, identify:
-1. Their ROLE/IDENTITY: Synthesize from what they love + are good at
-2. Their ICP (Ideal Customer Profile): Who specifically benefits from solving the world need?
-3. Their OUTCOME: What specific transformation do they enable?
-
-Generate ONLY the identity statement following the template, nothing else.`;
-
-    console.log("Calling Lovable AI Gateway for ikigai generation");
+    console.log("Calling Lovable AI Gateway for ikigai generation with tool calling");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -78,8 +80,39 @@ Generate ONLY the identity statement following the template, nothing else.`;
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        max_tokens: 150,
+        max_tokens: 400,
         temperature: 0.7,
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "generate_ikigai_output",
+              description: "Return the ikigai statement, 3 ICP matches, and 3 Web3 arenas.",
+              parameters: {
+                type: "object",
+                properties: {
+                  statement: {
+                    type: "string",
+                    description: "The full identity statement starting with I'm {Name}!"
+                  },
+                  icps: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "3 psychographic ICP archetypes, max 8 words each"
+                  },
+                  arenas: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "3 Web3 work environments, max 8 words each"
+                  }
+                },
+                required: ["statement", "icps", "arenas"],
+                additionalProperties: false
+              }
+            }
+          }
+        ],
+        tool_choice: { type: "function", function: { name: "generate_ikigai_output" } },
       }),
     });
 
@@ -102,21 +135,40 @@ Generate ONLY the identity statement following the template, nothing else.`;
     }
 
     const data = await response.json();
-    const statement = data.choices?.[0]?.message?.content?.trim();
+    
+    // Try to extract tool call result
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (toolCall?.function?.arguments) {
+      try {
+        const parsed = JSON.parse(toolCall.function.arguments);
+        console.log("Generated ikigai (tool call):", parsed);
+        return new Response(
+          JSON.stringify({
+            statement: parsed.statement,
+            icps: parsed.icps || [],
+            arenas: parsed.arenas || [],
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      } catch (e) {
+        console.error("Failed to parse tool call arguments:", e);
+      }
+    }
 
-    if (!statement) {
-      // Fallback to template-based statement
-      const fallbackStatement = `I'm ${name}! I am a ${whatPaidFor} that helps ${whatWorldNeeds}.`;
+    // Fallback: try content field
+    const statement = data.choices?.[0]?.message?.content?.trim();
+    if (statement) {
+      console.log("Generated ikigai (content fallback):", statement);
       return new Response(
-        JSON.stringify({ statement: fallbackStatement, fallback: true }),
+        JSON.stringify({ statement, icps: [], arenas: [] }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Generated ikigai statement:", statement);
-
+    // Final fallback
+    const fallbackStatement = `I'm ${name}! I am a ${whatPaidFor} that helps ${whatWorldNeeds}.`;
     return new Response(
-      JSON.stringify({ statement }),
+      JSON.stringify({ statement: fallbackStatement, fallback: true, icps: [], arenas: [] }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 

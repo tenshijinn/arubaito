@@ -31,7 +31,7 @@ const SuggestionCarousel: React.FC<{
       >
         {label}
       </span>
-      <div className={`relative flex items-center border ${borderColor} rounded-md px-8 py-5 min-h-[64px]`}>
+      <div className={`relative flex items-center justify-center border ${borderColor} rounded-md aspect-square p-4`}>
         <button
           onClick={prev}
           className={`absolute left-2 ${arrowColor} transition-colors`}

@@ -223,7 +223,7 @@ const Index = () => {
                     <TextRotator key="default-jobs" words={jobTitles} isActive={true} delay={1600} color="#ed565a" />
                   </span>
                   <br />
-                  <span className="text-xs mt-2 block">Private Member Club for Bluechip Buildrs in Web3</span>
+                  <span className="text-xs mt-2 block">Private Members Network Club for Buidlers in Web3</span>
                 </p>
               )
             )}

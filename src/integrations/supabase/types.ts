@@ -429,6 +429,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ns_quiz_attempts: {
+        Row: {
+          answers: Json
+          created_at: string
+          device_fingerprint: string
+          id: string
+          passed: boolean
+          score: number
+          solana_wallet: string | null
+          twitter_handle: string | null
+          x_user_id: string | null
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          device_fingerprint: string
+          id?: string
+          passed?: boolean
+          score?: number
+          solana_wallet?: string | null
+          twitter_handle?: string | null
+          x_user_id?: string | null
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          device_fingerprint?: string
+          id?: string
+          passed?: boolean
+          score?: number
+          solana_wallet?: string | null
+          twitter_handle?: string | null
+          x_user_id?: string | null
+        }
+        Relationships: []
+      }
       oracle_processed_tweets: {
         Row: {
           author_handle: string | null

@@ -45,26 +45,26 @@ async function generateFingerprint(): Promise<string> {
 }
 
 // ── Timer Hook ──────────────────────────────────────────────────────
-function useTimer(seconds: number, onExpire: () => void, active: boolean) {
+function useTimer(seconds: number, onExpire: () => void, active: boolean, resetKey: number) {
   const [remaining, setRemaining] = useState(seconds);
   const onExpireRef = useRef(onExpire);
   onExpireRef.current = onExpire;
+  const remainingRef = useRef(seconds);
 
   useEffect(() => {
     if (!active) return;
+    remainingRef.current = seconds;
     setRemaining(seconds);
     const interval = setInterval(() => {
-      setRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          onExpireRef.current();
-          return 0;
-        }
-        return prev - 1;
-      });
+      remainingRef.current -= 1;
+      setRemaining(remainingRef.current);
+      if (remainingRef.current <= 0) {
+        clearInterval(interval);
+        onExpireRef.current();
+      }
     }, 1000);
     return () => clearInterval(interval);
-  }, [seconds, active]);
+  }, [seconds, active, resetKey]);
 
   return remaining;
 }
@@ -217,7 +217,8 @@ export default function NetworkSchool() {
   const timerRemaining = useTimer(
     TIMER_SECONDS,
     handleTimerExpire,
-    phase === "quiz"
+    phase === "quiz",
+    timerKey
   );
 
   // ── Render ────────────────────────────────────────────────────────

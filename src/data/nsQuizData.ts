@@ -51,7 +51,7 @@ export const quizPairs: QuizPair[] = [
     bookA: {
       title: "AI Superpowers",
       author: "Kai-Fu Lee",
-      cover: "/ns/covers/ai-superpowers.png",
+      cover: "/ns/covers/ai-superpowers.jpg",
       alignment: "aligned",
     },
     bookB: {
@@ -81,13 +81,13 @@ export const quizPairs: QuizPair[] = [
     bookA: {
       title: "The Feynman Lectures on Physics",
       author: "Richard Feynman",
-      cover: "/ns/covers/feynman-lectures.png",
+      cover: "/ns/covers/feynman-lectures.jpg",
       alignment: "aligned",
     },
     bookB: {
       title: "Against Method",
       author: "Paul Feyerabend",
-      cover: "/ns/covers/against-method.png",
+      cover: "/ns/covers/against-method.jpg",
       alignment: "opposite",
     },
   },
@@ -117,7 +117,7 @@ export const quizPairs: QuizPair[] = [
     bookB: {
       title: "Not in Our Genes",
       author: "Lewontin, Rose & Kamin",
-      cover: "/ns/covers/not-in-our-genes.png",
+      cover: "/ns/covers/not-in-our-genes.jpg",
       alignment: "neutral",
     },
   },
@@ -162,7 +162,7 @@ export const quizPairs: QuizPair[] = [
     bookB: {
       title: "Manufacturing Consent",
       author: "Noam Chomsky & Edward S. Herman",
-      cover: "/ns/covers/manufacturing-consent.png",
+      cover: "/ns/covers/manufacturing-consent.jpg",
       alignment: "opposite",
     },
   },
@@ -246,7 +246,7 @@ export const quizPairs: QuizPair[] = [
     bookA: {
       title: "From Third World to First",
       author: "Lee Kuan Yew",
-      cover: "/ns/covers/from-third-world-to-first.png",
+      cover: "/ns/covers/from-third-world-to-first.jpg",
       alignment: "aligned",
     },
     bookB: {

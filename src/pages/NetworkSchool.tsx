@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import arubaitoLogo from "@/assets/arubaito-logo-transparent.png";
+import arubaitoLogo from "@/assets/arubaito-deck-logo.png";
 import {
   quizPairs,
   shuffleArray,
@@ -361,16 +361,11 @@ export default function NetworkSchool() {
             now accepting NS members
           </h2>
 
-          <div className="flex flex-col items-center space-y-2">
-            <img
-              src={arubaitoLogo}
-              alt="Arubaito"
-              className="w-20 h-20 md:w-24 md:h-24 object-contain"
-            />
-            <span className="text-xs tracking-[0.3em] uppercase">
-              ARUBAITO
-            </span>
-          </div>
+          <img
+            src={arubaitoLogo}
+            alt="Arubaito"
+            className="w-32 md:w-40 object-contain"
+          />
 
           <div className="space-y-1">
             <p className="text-sm font-bold">

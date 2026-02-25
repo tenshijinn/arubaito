@@ -69,30 +69,15 @@ function useTimer(seconds: number, onExpire: () => void, active: boolean, resetK
   return remaining;
 }
 
-// ── Bitcoin Genesis Block Hex ───────────────────────────────────────
-const GENESIS_HEX = [
-  "00000000  01 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................",
-  "00000010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................",
-  "00000020  00 00 00 00 3B A3 ED FD  7A 7B 12 B2 7A C7 2C 3E  ....;£íýz{.²zÇ,>",
-  "00000030  67 76 8F 61 7F C8 1B C3  88 8A 51 32 3A 9F B8 AA  gv.a.È.Ã..Q2:..ª",
-  "00000040  4B 1E 5E 4A 29 AB 5F 49  FF FF 00 1D 1D AC 2B 7C  K.^J)«_Iÿÿ...¬+|",
-  "00000050  01 01 00 00 00 01 00 00  00 00 00 00 00 00 00 00  ................",
-  "00000060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................",
-  "00000070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 1D 00  ................",
-  "00000080  01 04 45 54 68 65 20 54  69 6D 65 73 20 30 33 2F  ..EThe Times 03/",
-  "00000090  4A 61 6E 2F 32 30 30 39  20 43 68 61 6E 63 65 6C  Jan/2009 Chancel",
-  "000000A0  6C 6F 72 20 6F 6E 20 62  72 69 6E 6B 20 6F 66 20  lor on brink of ",
-  "000000B0  73 65 63 6F 6E 64 20 62  61 69 6C 6F 75 74 20 66  second bailout f",
-  "000000C0  6F 72 20 62 61 6E 6B 73  FF FF FF FF 01 00 F2 05  or banksÿÿÿÿ..ò.",
-  "000000D0  2A 01 00 00 00 43 41 04  67 8A FD B0 FE 55 48 27  *....CA.g..°þUH'",
-  "000000E0  19 67 F1 A6 71 30 B7 10  5C D6 A8 28 E0 39 09 A6  .gñ¦q0·.\\Ö¨(à9.¦",
-  "000000F0  79 62 E0 EA 1F 61 DE B6  49 F6 BC 3F 4C EF 38 C4  ybàê.aÞ¶Iö¼?Lï8Ä",
-  "00000100  F3 55 04 E5 1E C1 12 DE  5C 38 4D F7 BA 0B 8D 57  óU.å.Á.Þ\\8M÷º..W",
-  "00000110  8A 4C 70 2B 6B F1 1D 5F  AC 00 00 00 00           .Lp+kñ._¬.....",
-];
-
 // ── Types ───────────────────────────────────────────────────────────
-type Phase = "loading" | "blocked" | "intro" | "signup" | "quiz" | "results";
+type Phase = "loading" | "blocked" | "intro" | "quiz" | "results";
+
+interface TwitterUser {
+  x_user_id: string;
+  handle: string;
+  display_name: string;
+  profile_image_url?: string;
+}
 
 interface Answer {
   pairId: number;
@@ -105,6 +90,10 @@ export default function NetworkSchool() {
   const { toast } = useToast();
   const [phase, setPhase] = useState<Phase>("loading");
   const [fingerprint, setFingerprint] = useState("");
+
+  // Twitter auth state
+  const [twitterUser, setTwitterUser] = useState<TwitterUser | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   // Quiz state
   const [pairs, setPairs] = useState<QuizPair[]>([]);
@@ -119,25 +108,104 @@ export default function NetworkSchool() {
   const [walletSubmitted, setWalletSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // ── Init: generate fingerprint & check for prior attempt ──
+  // ── Init: generate fingerprint, check prior attempt, handle OAuth callback ──
   useEffect(() => {
     (async () => {
       const fp = await generateFingerprint();
       setFingerprint(fp);
 
-      const { data } = await supabase
+      // Handle Twitter OAuth callback
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get("code");
+      const codeVerifier = sessionStorage.getItem("ns_twitter_code_verifier");
+
+      if (code && codeVerifier) {
+        setIsAuthenticating(true);
+        // Clean URL
+        window.history.replaceState({}, "", window.location.pathname);
+        sessionStorage.removeItem("ns_twitter_code_verifier");
+
+        try {
+          const { data, error } = await supabase.functions.invoke("twitter-oauth", {
+            body: {
+              action: "exchangeToken",
+              code,
+              redirectUri: `${window.location.origin}/ns`,
+              codeVerifier,
+              skipWhitelistCheck: true,
+            },
+          });
+
+          if (error || !data?.user) {
+            throw new Error(error?.message || "Failed to authenticate with X");
+          }
+
+          setTwitterUser(data.user);
+          setIsAuthenticating(false);
+
+          // Check fingerprint after successful auth
+          const { data: attemptData } = await supabase
+            .from("ns_quiz_attempts")
+            .select("id, passed, score")
+            .eq("device_fingerprint", fp)
+            .limit(1);
+
+          if (attemptData && attemptData.length > 0) {
+            setPhase("blocked");
+          } else {
+            setPhase("intro");
+          }
+        } catch (err: any) {
+          toast({
+            title: "Authentication failed",
+            description: err.message || "Could not verify your X account.",
+            variant: "destructive",
+          });
+          setIsAuthenticating(false);
+          setPhase("intro");
+        }
+        return;
+      }
+
+      // Normal load — check fingerprint
+      const { data: attemptData } = await supabase
         .from("ns_quiz_attempts")
         .select("id, passed, score")
         .eq("device_fingerprint", fp)
         .limit(1);
 
-      if (data && data.length > 0) {
+      if (attemptData && attemptData.length > 0) {
         setPhase("blocked");
       } else {
         setPhase("intro");
       }
     })();
   }, []);
+
+  // ── Twitter login ──
+  const handleTwitterLogin = async () => {
+    setIsAuthenticating(true);
+    try {
+      const redirectUri = `${window.location.origin}/ns`;
+      const { data, error } = await supabase.functions.invoke("twitter-oauth", {
+        body: { action: "getAuthUrl", redirectUri },
+      });
+
+      if (error || !data?.authUrl) {
+        throw new Error("Failed to get auth URL");
+      }
+
+      sessionStorage.setItem("ns_twitter_code_verifier", data.codeVerifier);
+      window.location.href = data.authUrl;
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Could not start X authentication.",
+        variant: "destructive",
+      });
+      setIsAuthenticating(false);
+    }
+  };
 
   // ── Start quiz ──
   const startQuiz = useCallback(() => {
@@ -210,6 +278,8 @@ export default function NetworkSchool() {
       score,
       answers: finalAnswers as any,
       passed: didPass,
+      x_user_id: twitterUser?.x_user_id || null,
+      twitter_handle: twitterUser?.handle || null,
     });
   };
 
@@ -260,14 +330,16 @@ export default function NetworkSchool() {
       }}
     >
       {/* ── LOADING ── */}
-      {phase === "loading" && (
+      {(phase === "loading" || isAuthenticating) && (
         <div className="text-center animate-pulse">
-          <p className="text-sm tracking-wider">initializing...</p>
+          <p className="text-sm tracking-wider">
+            {isAuthenticating ? "authenticating..." : "initializing..."}
+          </p>
         </div>
       )}
 
       {/* ── BLOCKED ── */}
-      {phase === "blocked" && (
+      {phase === "blocked" && !isAuthenticating && (
         <div className="text-center max-w-md space-y-6 px-6">
           <h2 className="text-lg font-bold tracking-wide">
             already attempted
@@ -279,8 +351,8 @@ export default function NetworkSchool() {
         </div>
       )}
 
-      {/* ── INTRO (Flow Part 1) ── */}
-      {phase === "intro" && (
+      {/* ── INTRO ── */}
+      {phase === "intro" && !isAuthenticating && (
         <div className="flex flex-col items-center text-center px-6 space-y-10">
           <h2
             className="text-xl md:text-2xl font-bold tracking-wide"
@@ -317,22 +389,58 @@ export default function NetworkSchool() {
               <p className="text-sm font-bold">take proof of NS test</p>
               <p className="text-xs opacity-60">(1 min/p question)</p>
             </div>
-            <button
-              onClick={startQuiz}
-              className="px-10 py-3 text-sm tracking-wide text-[#faf1e1] rounded-full transition-opacity hover:opacity-80 active:scale-[0.97]"
-              style={{ backgroundColor: "#1a1a1a" }}
-            >
-              start test
-            </button>
+
+            {/* Show twitter user if authenticated, otherwise show login button */}
+            {twitterUser ? (
+              <div className="space-y-4 flex flex-col items-center">
+                <div className="flex items-center gap-2 text-sm">
+                  {twitterUser.profile_image_url && (
+                    <img
+                      src={twitterUser.profile_image_url}
+                      alt={twitterUser.handle}
+                      className="w-8 h-8 rounded-full"
+                    />
+                  )}
+                  <span className="font-bold">@{twitterUser.handle}</span>
+                </div>
+                <button
+                  onClick={startQuiz}
+                  className="px-10 py-3 text-sm tracking-wide text-[#faf1e1] rounded-full transition-opacity hover:opacity-80 active:scale-[0.97]"
+                  style={{ backgroundColor: "#1a1a1a" }}
+                >
+                  start test
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleTwitterLogin}
+                disabled={isAuthenticating}
+                className="px-10 py-3 text-sm tracking-wide text-[#faf1e1] rounded-full transition-opacity hover:opacity-80 active:scale-[0.97] disabled:opacity-40"
+                style={{ backgroundColor: "#1a1a1a" }}
+              >
+                sign in with X to start
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {/* ── QUIZ (Flow Part 3) ── */}
-      {phase === "quiz" && currentPair && (
+      {/* ── QUIZ ── */}
+      {phase === "quiz" && currentPair && !isAuthenticating && (
         <div className="w-full max-w-4xl px-4 md:px-8 py-6 space-y-6" key={timerKey}>
-          {/* Progress bar + timer */}
-          <div className="flex items-center gap-3">
+          {/* Progress bar + timer + question counter */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold opacity-60">
+                question {currentIndex + 1} of {TOTAL_QUESTIONS}
+              </span>
+              <span
+                className="text-sm font-bold tabular-nums"
+                style={{ color: timerRemaining <= 10 ? "#ed565a" : "#1a1a1a" }}
+              >
+                {formatTime(timerRemaining)}
+              </span>
+            </div>
             <div className="flex-1 h-3 bg-[#999] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-1000 linear"
@@ -342,12 +450,6 @@ export default function NetworkSchool() {
                 }}
               />
             </div>
-            <span
-              className="text-sm font-bold tabular-nums min-w-[3rem] text-right"
-              style={{ color: timerRemaining <= 10 ? "#ed565a" : "#1a1a1a" }}
-            >
-              {formatTime(timerRemaining)}
-            </span>
           </div>
 
           {/* Two-column book cards */}
@@ -378,7 +480,7 @@ export default function NetworkSchool() {
       )}
 
       {/* ── RESULTS ── */}
-      {phase === "results" && (
+      {phase === "results" && !isAuthenticating && (
         <div className="max-w-md text-center space-y-8 px-6">
           <h2 className="text-2xl font-bold tracking-wide">
             {passed ? "aligned" : "not aligned"}

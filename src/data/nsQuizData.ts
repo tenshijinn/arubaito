@@ -207,7 +207,7 @@ export const quizPairs: QuizPair[] = [
     bookB: {
       title: "Atlas Shrugged",
       author: "Ayn Rand",
-      cover: "/ns/covers/atlas-shrugged.png",
+      cover: "/ns/covers/atlas-shrugged.jpg",
       alignment: "opposite",
     },
   },

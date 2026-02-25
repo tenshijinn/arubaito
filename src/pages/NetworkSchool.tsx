@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import arubaitoLogo from "@/assets/arubaito-logo-transparent.png";
 import {
   quizPairs,
   shuffleArray,
@@ -69,8 +69,30 @@ function useTimer(seconds: number, onExpire: () => void, active: boolean, resetK
   return remaining;
 }
 
+// ── Bitcoin Genesis Block Hex ───────────────────────────────────────
+const GENESIS_HEX = [
+  "00000000  01 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................",
+  "00000010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................",
+  "00000020  00 00 00 00 3B A3 ED FD  7A 7B 12 B2 7A C7 2C 3E  ....;£íýz{.²zÇ,>",
+  "00000030  67 76 8F 61 7F C8 1B C3  88 8A 51 32 3A 9F B8 AA  gv.a.È.Ã..Q2:..ª",
+  "00000040  4B 1E 5E 4A 29 AB 5F 49  FF FF 00 1D 1D AC 2B 7C  K.^J)«_Iÿÿ...¬+|",
+  "00000050  01 01 00 00 00 01 00 00  00 00 00 00 00 00 00 00  ................",
+  "00000060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................",
+  "00000070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 1D 00  ................",
+  "00000080  01 04 45 54 68 65 20 54  69 6D 65 73 20 30 33 2F  ..EThe Times 03/",
+  "00000090  4A 61 6E 2F 32 30 30 39  20 43 68 61 6E 63 65 6C  Jan/2009 Chancel",
+  "000000A0  6C 6F 72 20 6F 6E 20 62  72 69 6E 6B 20 6F 66 20  lor on brink of ",
+  "000000B0  73 65 63 6F 6E 64 20 62  61 69 6C 6F 75 74 20 66  second bailout f",
+  "000000C0  6F 72 20 62 61 6E 6B 73  FF FF FF FF 01 00 F2 05  or banksÿÿÿÿ..ò.",
+  "000000D0  2A 01 00 00 00 43 41 04  67 8A FD B0 FE 55 48 27  *....CA.g..°þUH'",
+  "000000E0  19 67 F1 A6 71 30 B7 10  5C D6 A8 28 E0 39 09 A6  .gñ¦q0·.\\Ö¨(à9.¦",
+  "000000F0  79 62 E0 EA 1F 61 DE B6  49 F6 BC 3F 4C EF 38 C4  ybàê.aÞ¶Iö¼?Lï8Ä",
+  "00000100  F3 55 04 E5 1E C1 12 DE  5C 38 4D F7 BA 0B 8D 57  óU.å.Á.Þ\\8M÷º..W",
+  "00000110  8A 4C 70 2B 6B F1 1D 5F  AC 00 00 00 00           .Lp+kñ._¬.....",
+];
+
 // ── Types ───────────────────────────────────────────────────────────
-type Phase = "loading" | "blocked" | "intro" | "quiz" | "results";
+type Phase = "loading" | "blocked" | "intro" | "signup" | "quiz" | "results";
 
 interface Answer {
   pairId: number;
@@ -120,7 +142,6 @@ export default function NetworkSchool() {
   // ── Start quiz ──
   const startQuiz = useCallback(() => {
     const shuffled = shuffleArray(quizPairs);
-    // Also randomise which book appears left vs right
     const randomised = shuffled.map((pair) => {
       if (Math.random() > 0.5) {
         return { ...pair, bookA: pair.bookB, bookB: pair.bookA };
@@ -184,7 +205,6 @@ export default function NetworkSchool() {
     setPassed(didPass);
     setPhase("results");
 
-    // Store attempt
     await supabase.from("ns_quiz_attempts").insert({
       device_fingerprint: fingerprint,
       score,
@@ -221,253 +241,232 @@ export default function NetworkSchool() {
     timerKey
   );
 
+  const formatTime = (s: number) => {
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
   // ── Render ────────────────────────────────────────────────────────
   const currentPair = pairs[currentIndex];
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-mono flex flex-col">
-      {/* Header */}
-      <header className="border-b-4 border-primary p-4 text-center">
-        <h1 className="text-xl md:text-2xl font-bold tracking-widest uppercase">
-          Network School Alignment Test
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1 tracking-wide">
-          17 Questions · 60s Each · Choose Wisely
-        </p>
-      </header>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center"
+      style={{
+        backgroundColor: "#c8c8c8",
+        fontFamily: "'Consolas', 'Monaco', 'Courier New', monospace",
+        color: "#1a1a1a",
+      }}
+    >
+      {/* ── LOADING ── */}
+      {phase === "loading" && (
+        <div className="text-center animate-pulse">
+          <p className="text-sm tracking-wider">initializing...</p>
+        </div>
+      )}
 
-      <main className="flex-1 flex items-center justify-center p-4 md:p-8">
-        {/* ── LOADING ── */}
-        {phase === "loading" && (
-          <div className="text-center animate-pulse">
-            <p className="text-lg tracking-wider">INITIALIZING...</p>
+      {/* ── BLOCKED ── */}
+      {phase === "blocked" && (
+        <div className="text-center max-w-md space-y-6 px-6">
+          <h2 className="text-lg font-bold tracking-wide">
+            already attempted
+          </h2>
+          <p className="text-sm opacity-60">
+            this device has already been used to take the alignment test.
+            only one attempt is permitted per device.
+          </p>
+        </div>
+      )}
+
+      {/* ── INTRO (Flow Part 1) ── */}
+      {phase === "intro" && (
+        <div className="flex flex-col items-center text-center px-6 space-y-10">
+          <h2
+            className="text-xl md:text-2xl font-bold tracking-wide"
+            style={{ color: "#ed565a" }}
+          >
+            now accepting NS members
+          </h2>
+
+          <div className="flex flex-col items-center space-y-2">
+            <img
+              src={arubaitoLogo}
+              alt="Arubaito"
+              className="w-20 h-20 md:w-24 md:h-24 object-contain"
+            />
+            <span className="text-xs tracking-[0.3em] uppercase">
+              ARUBAITO
+            </span>
           </div>
-        )}
 
-        {/* ── BLOCKED ── */}
-        {phase === "blocked" && (
-          <div className="text-center max-w-md space-y-4">
-            <div className="text-4xl">🚫</div>
-            <h2 className="text-xl font-bold uppercase tracking-wider">
-              Already Attempted
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              This device has already been used to take the alignment test.
-              Only one attempt is permitted per device.
+          <div className="space-y-1">
+            <p className="text-sm font-bold">
+              private members network club for
+            </p>
+            <p className="text-sm">
+              <span className="inline-block w-2.5 h-2.5 bg-[#1a1a1a] rounded-full mr-1.5 align-middle" />
+              ex-bluechips
+              <span className="inline-block w-2.5 h-2.5 bg-[#1a1a1a] rounded-full mx-1.5 align-middle" />
+              changemakers
             </p>
           </div>
-        )}
 
-        {/* ── INTRO ── */}
-        {phase === "intro" && (
-          <div className="max-w-lg text-center space-y-6">
-            <div className="space-y-3">
-              <h2 className="text-2xl font-bold uppercase tracking-wider">
-                Are You Aligned?
-              </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                You will be shown 17 pairs of books representing different
-                worldviews. For each pair, choose the book that resonates most
-                with your thinking.
-              </p>
+          <div className="space-y-3 flex flex-col items-center">
+            <div className="text-center space-y-0.5">
+              <p className="text-sm font-bold">take proof of NS test</p>
+              <p className="text-xs opacity-60">(1 min/p question)</p>
             </div>
-
-            <div className="border-2 border-primary/30 p-4 text-left space-y-2 text-xs">
-              <p>
-                <span className="text-primary font-bold">⏱ TIME LIMIT:</span>{" "}
-                60 seconds per question
-              </p>
-              <p>
-                <span className="text-primary font-bold">⚠ ONE ATTEMPT:</span>{" "}
-                Per device — no retakes
-              </p>
-              <p>
-                <span className="text-primary font-bold">🎯 THRESHOLD:</span>{" "}
-                {PASS_THRESHOLD}+ points to pass
-              </p>
-              <p>
-                <span className="text-primary font-bold">📖 FORMAT:</span>{" "}
-                Pick the book closer to your worldview
-              </p>
-            </div>
-
-            <Button onClick={startQuiz} size="lg" className="w-full">
-              BEGIN TEST
-            </Button>
+            <button
+              onClick={startQuiz}
+              className="px-10 py-3 text-sm tracking-wide text-[#faf1e1] rounded-full transition-opacity hover:opacity-80 active:scale-[0.97]"
+              style={{ backgroundColor: "#1a1a1a" }}
+            >
+              start test
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ── QUIZ ── */}
-        {phase === "quiz" && currentPair && (
-          <div className="w-full max-w-4xl space-y-6">
-            {/* Progress + Timer */}
-            <div className="flex items-center justify-between text-sm">
-              <span className="tracking-wider">
-                QUESTION {currentIndex + 1} / {TOTAL_QUESTIONS}
-              </span>
-              <span
-                className={`font-bold text-lg tabular-nums ${
-                  timerRemaining <= 10
-                    ? "text-destructive animate-pulse"
-                    : "text-primary"
-                }`}
-              >
-                {timerRemaining}s
-              </span>
-            </div>
-
-            {/* Progress bar */}
-            <div className="w-full h-1 bg-muted">
+      {/* ── QUIZ (Flow Part 3) ── */}
+      {phase === "quiz" && currentPair && (
+        <div className="w-full max-w-4xl px-4 md:px-8 py-6 space-y-6" key={timerKey}>
+          {/* Progress bar + timer */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-3 bg-[#999] rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary transition-all duration-300"
-                style={{
-                  width: `${((currentIndex + 1) / TOTAL_QUESTIONS) * 100}%`,
-                }}
-              />
-            </div>
-
-            {/* Timer bar */}
-            <div className="w-full h-0.5 bg-muted">
-              <div
-                className={`h-full transition-all duration-1000 linear ${
-                  timerRemaining <= 10 ? "bg-destructive" : "bg-primary/50"
-                }`}
+                className="h-full rounded-full transition-all duration-1000 linear"
                 style={{
                   width: `${(timerRemaining / TIMER_SECONDS) * 100}%`,
+                  backgroundColor: timerRemaining <= 10 ? "#ed565a" : "#1a1a1a",
                 }}
               />
             </div>
-
-            <p className="text-center text-muted-foreground text-xs uppercase tracking-widest">
-              Which book resonates more with your worldview?
-            </p>
-
-            {/* Book Cards */}
-            <div className="grid grid-cols-2 gap-4 md:gap-8" key={timerKey}>
-              <BookCard
-                book={currentPair.bookA}
-                onSelect={() => handleSelect(currentPair.bookA, currentPair)}
-              />
-              <BookCard
-                book={currentPair.bookB}
-                onSelect={() => handleSelect(currentPair.bookB, currentPair)}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* ── RESULTS ── */}
-        {phase === "results" && (
-          <div className="max-w-md text-center space-y-6">
-            <div
-              className={`text-6xl ${
-                passed ? "animate-pulse" : ""
-              }`}
+            <span
+              className="text-sm font-bold tabular-nums min-w-[3rem] text-right"
+              style={{ color: timerRemaining <= 10 ? "#ed565a" : "#1a1a1a" }}
             >
-              {passed ? "✓" : "✗"}
-            </div>
-
-            <h2 className="text-2xl font-bold uppercase tracking-wider">
-              {passed ? "ALIGNED" : "NOT ALIGNED"}
-            </h2>
-
-            <div className="border-2 border-primary/30 p-4 space-y-2">
-              <p className="text-3xl font-bold tabular-nums">
-                {totalScore} / {TOTAL_QUESTIONS}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Pass threshold: {PASS_THRESHOLD} points
-              </p>
-            </div>
-
-            {passed ? (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Congratulations. You may optionally enter a Solana wallet
-                  address for the raffle.
-                </p>
-
-                {!walletSubmitted ? (
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Solana wallet address..."
-                      value={wallet}
-                      onChange={(e) => setWallet(e.target.value)}
-                      className="font-mono text-xs"
-                    />
-                    <Button
-                      onClick={submitWallet}
-                      disabled={submitting || !wallet.trim()}
-                      size="sm"
-                    >
-                      {submitting ? "..." : "SUBMIT"}
-                    </Button>
-                  </div>
-                ) : (
-                  <p className="text-primary text-sm font-bold">
-                    ✓ Wallet registered for raffle
-                  </p>
-                )}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Your worldview did not sufficiently align with the Network
-                School philosophy. This device cannot retake the test.
-              </p>
-            )}
+              {formatTime(timerRemaining)}
+            </span>
           </div>
-        )}
-      </main>
 
-      {/* Footer */}
-      <footer className="border-t border-muted p-3 text-center">
-        <p className="text-[10px] text-muted-foreground tracking-wider uppercase">
-          Network School · Alignment Protocol v1
-        </p>
-      </footer>
+          {/* Two-column book cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+            <BookCard book={currentPair.bookA} label="A" />
+            <BookCard book={currentPair.bookB} label="B" />
+          </div>
+
+          {/* A or B buttons */}
+          <div className="flex items-center justify-center gap-4 md:gap-6 pt-2">
+            <button
+              onClick={() => handleSelect(currentPair.bookA, currentPair)}
+              className="px-12 md:px-16 py-3 text-lg font-bold text-[#faf1e1] rounded-sm transition-opacity hover:opacity-80 active:scale-[0.97]"
+              style={{ backgroundColor: "#1a1a1a" }}
+            >
+              A
+            </button>
+            <span className="text-lg font-bold opacity-50">or</span>
+            <button
+              onClick={() => handleSelect(currentPair.bookB, currentPair)}
+              className="px-12 md:px-16 py-3 text-lg font-bold text-[#faf1e1] rounded-sm transition-opacity hover:opacity-80 active:scale-[0.97]"
+              style={{ backgroundColor: "#1a1a1a" }}
+            >
+              B
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── RESULTS ── */}
+      {phase === "results" && (
+        <div className="max-w-md text-center space-y-8 px-6">
+          <h2 className="text-2xl font-bold tracking-wide">
+            {passed ? "aligned" : "not aligned"}
+          </h2>
+
+          <div className="space-y-2">
+            <p className="text-4xl font-bold tabular-nums">
+              {totalScore} / {TOTAL_QUESTIONS}
+            </p>
+            <p className="text-xs opacity-60">
+              pass threshold: {PASS_THRESHOLD} points
+            </p>
+          </div>
+
+          {passed ? (
+            <div className="space-y-4">
+              <p className="text-sm opacity-70">
+                congratulations. you may optionally enter a solana wallet
+                address for the raffle.
+              </p>
+
+              {!walletSubmitted ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="solana wallet address..."
+                    value={wallet}
+                    onChange={(e) => setWallet(e.target.value)}
+                    className="text-xs border-[#1a1a1a] bg-transparent"
+                    style={{ fontFamily: "inherit" }}
+                  />
+                  <button
+                    onClick={submitWallet}
+                    disabled={submitting || !wallet.trim()}
+                    className="px-6 py-2 text-xs text-[#faf1e1] rounded-sm disabled:opacity-40"
+                    style={{ backgroundColor: "#1a1a1a" }}
+                  >
+                    {submitting ? "..." : "submit"}
+                  </button>
+                </div>
+              ) : (
+                <p className="text-sm font-bold" style={{ color: "#ed565a" }}>
+                  wallet registered for raffle
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm opacity-70">
+              your worldview did not sufficiently align with the network
+              school philosophy. this device cannot retake the test.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Book Card ───────────────────────────────────────────────────────
-function BookCard({
-  book,
-  onSelect,
-}: {
-  book: BookOption;
-  onSelect: () => void;
-}) {
+function BookCard({ book, label }: { book: BookOption; label: string }) {
   const [imgError, setImgError] = useState(false);
 
   return (
-    <button
-      onClick={onSelect}
-      className="group flex flex-col items-center gap-3 p-3 md:p-4 border-2 border-muted hover:border-primary transition-all duration-200 cursor-pointer bg-background hover:bg-primary/5 active:scale-[0.98]"
-    >
-      <div className="w-full aspect-[2/3] bg-muted/20 flex items-center justify-center overflow-hidden">
+    <div className="flex flex-col items-center text-center space-y-4">
+      {/* Description */}
+      <div className="space-y-1">
+        <p className="text-xs font-bold">{book.title}</p>
+        <p className="text-xs opacity-60 leading-relaxed max-w-xs">
+          {book.description || `${book.title} by ${book.author}`}
+        </p>
+      </div>
+
+      {/* Cover */}
+      <div className="w-48 md:w-56 aspect-[2/3] bg-white/50 flex items-center justify-center overflow-hidden shadow-md">
         {!imgError ? (
           <img
             src={book.cover}
             alt={book.title}
-            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-contain"
             onError={() => setImgError(true)}
             loading="eager"
           />
         ) : (
-          <div className="flex flex-col items-center justify-center p-4 text-center">
-            <span className="text-3xl mb-2">📖</span>
-            <span className="text-xs text-muted-foreground">{book.title}</span>
+          <div className="flex flex-col items-center justify-center p-4">
+            <span className="text-2xl mb-1">📖</span>
+            <span className="text-[10px] opacity-60">{book.title}</span>
           </div>
         )}
       </div>
-      <div className="text-center space-y-1">
-        <p className="text-xs md:text-sm font-bold leading-tight">
-          {book.title}
-        </p>
-        <p className="text-[10px] md:text-xs text-muted-foreground">
-          {book.author}
-        </p>
-      </div>
-    </button>
+    </div>
   );
 }

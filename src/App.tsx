@@ -16,6 +16,7 @@ import ReferralRedirect from "./pages/ReferralRedirect";
 import IkigaiCard from "./pages/IkigaiCard";
 import TelegramRedirect from "./pages/TelegramRedirect";
 import Meaning from "./pages/Meaning";
+import NetworkSchool from "./pages/NetworkSchool";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/meaning" element={<Meaning />} />
               <Route path="/ikigai" element={<IkigaiCard />} />
               <Route path="/ikigai/tg" element={<TelegramRedirect />} />
+              <Route path="/ns" element={<NetworkSchool />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

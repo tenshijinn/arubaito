@@ -107,6 +107,7 @@ export default function NetworkSchool() {
   const [wallet, setWallet] = useState("");
   const [walletSubmitted, setWalletSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [telegramRevealed, setTelegramRevealed] = useState(false);
 
   // ── Init: generate fingerprint, check prior attempt, handle OAuth callback ──
   useEffect(() => {
@@ -520,6 +521,32 @@ export default function NetworkSchool() {
                   wallet registered for raffle
                 </p>
               )}
+
+              {/* Secret Telegram group reveal */}
+              <div className="pt-4 space-y-2">
+                <p className="text-xs opacity-50">
+                  join the secret group for raffle results
+                </p>
+                {!telegramRevealed ? (
+                  <button
+                    onClick={() => setTelegramRevealed(true)}
+                    className="w-full py-3 text-sm font-bold tracking-wider rounded-sm transition-opacity hover:opacity-80"
+                    style={{ backgroundColor: "#1a1a1a", color: "#faf1e1" }}
+                  >
+                    ▓▓▓ click to reveal ▓▓▓
+                  </button>
+                ) : (
+                  <a
+                    href="https://t.me/+b70aw6LLzxtlNjRk"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full py-3 text-sm font-bold tracking-wider rounded-sm transition-opacity hover:opacity-80 text-center"
+                    style={{ backgroundColor: "#1a1a1a", color: "#faf1e1" }}
+                  >
+                    join secret telegram →
+                  </a>
+                )}
+              </div>
             </div>
           ) : (
             <p className="text-sm opacity-70">

@@ -6,14 +6,53 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const roleTagToTitle: Record<string, string> = {
-  dev: "Developer",
-  product: "Product",
-  research: "Researcher",
-  community: "Community",
-  design: "Designer",
-  ops: "Operations",
-};
+/** Replace Twitter _normal suffix with _400x400 for high-res images */
+function fixImageUrl(url: string | null): string | null {
+  if (!url) return null;
+  return url.replace(/_normal\./, "_400x400.");
+}
+
+/** Use Lovable AI to generate a concise job title from CV/profile text */
+async function generateJobTitle(text: string): Promise<string | null> {
+  const apiKey = Deno.env.get("LOVABLE_API_KEY");
+  if (!apiKey || !text || text.trim().length < 20) return null;
+
+  try {
+    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-lite",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You generate professional job titles. Return ONLY a 2-4 word job title (e.g. 'Full Stack Developer', 'DeFi Researcher', 'Smart Contract Engineer'). No explanation, no punctuation, no quotes.",
+          },
+          {
+            role: "user",
+            content: `Based on this profile information, generate a concise professional job title:\n\n${text.slice(0, 800)}`,
+          },
+        ],
+      }),
+    });
+
+    if (!resp.ok) {
+      console.error("AI job title error:", resp.status);
+      return null;
+    }
+
+    const data = await resp.json();
+    const title = data.choices?.[0]?.message?.content?.trim();
+    return title && title.length < 60 ? title : null;
+  } catch (e) {
+    console.error("AI job title error:", e);
+    return null;
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -34,10 +73,11 @@ Deno.serve(async (req) => {
         cv_score: number | null;
         top_activities: unknown[];
         job_title: string | null;
+        _feedback_text: string | null; // internal: used for AI job title generation
       }
     > = new Map();
 
-    // 1. Twitter Bluechip Whitelist members — ONLY those with approved submissions (actually claimed/logged in)
+    // 1. Twitter Bluechip Whitelist members — ONLY those with approved submissions
     const { data: approvedSubmissions } = await supabase
       .from("twitter_whitelist_submissions")
       .select("twitter_handle, profile_image_url, display_name")
@@ -47,7 +87,6 @@ Deno.serve(async (req) => {
       for (const sub of approvedSubmissions) {
         const handle = sub.twitter_handle.replace(/^@/, "").toLowerCase();
 
-        // Verify they're actually on the whitelist
         const { data: onWhitelist } = await supabase
           .from("twitter_whitelist")
           .select("twitter_handle")
@@ -59,11 +98,12 @@ Deno.serve(async (req) => {
 
         members.set(handle, {
           twitter_handle: handle,
-          profile_image_url: sub.profile_image_url || null,
+          profile_image_url: fixImageUrl(sub.profile_image_url),
           membership_type: "whitelist",
           cv_score: null,
           top_activities: [],
           job_title: null,
+          _feedback_text: null,
         });
       }
     }
@@ -71,7 +111,7 @@ Deno.serve(async (req) => {
     // 2. NFT Membership Holders from rei_registry
     const { data: nftHolders } = await supabase
       .from("rei_registry")
-      .select("handle, profile_image_url, wallet_address, role_tags")
+      .select("handle, profile_image_url, wallet_address, role_tags, profile_analysis, profile_score, analysis_summary")
       .eq("nft_minted", true)
       .not("handle", "is", null);
 
@@ -81,19 +121,30 @@ Deno.serve(async (req) => {
         const handle = nft.handle.replace(/^@/, "").toLowerCase();
         const existing = members.get(handle);
 
-        // Derive job title from role_tags
-        let jobTitle: string | null = null;
-        if (nft.role_tags && Array.isArray(nft.role_tags) && nft.role_tags.length > 0) {
-          jobTitle = roleTagToTitle[nft.role_tags[0]] || nft.role_tags[0];
+        // Extract on-chain activities from profile_analysis
+        let activities: unknown[] = existing?.top_activities || [];
+        if (nft.profile_analysis) {
+          const analysis = nft.profile_analysis as Record<string, unknown>;
+          const onChain = (analysis.onChainActivities || analysis.significantActivities || []) as Array<{ description?: string; chain?: string }>;
+          if (onChain.length > 0 && activities.length === 0) {
+            activities = onChain.slice(0, 3).map((a) => ({
+              description: a.description || "",
+              chain: a.chain || "",
+            }));
+          }
         }
+
+        const score = nft.profile_score || existing?.cv_score || null;
+        const feedbackText = nft.analysis_summary || existing?._feedback_text || null;
 
         members.set(handle, {
           twitter_handle: handle,
-          profile_image_url: nft.profile_image_url || existing?.profile_image_url || null,
+          profile_image_url: fixImageUrl(nft.profile_image_url) || existing?.profile_image_url || null,
           membership_type: existing ? existing.membership_type + ",nft" : "nft",
-          cv_score: existing?.cv_score || null,
-          top_activities: existing?.top_activities || [],
-          job_title: jobTitle || existing?.job_title || null,
+          cv_score: score && existing?.cv_score ? Math.max(Number(score), Number(existing.cv_score)) : (score || existing?.cv_score || null),
+          top_activities: activities,
+          job_title: existing?.job_title || null,
+          _feedback_text: feedbackText,
         });
       }
     }
@@ -101,7 +152,7 @@ Deno.serve(async (req) => {
     // 3. CV Score 80+ members
     const { data: cvMembers } = await supabase
       .from("cv_analyses")
-      .select("user_id, overall_score, bluechip_details, wallet_address")
+      .select("user_id, overall_score, bluechip_details, wallet_address, feedback")
       .gte("overall_score", 80);
 
     if (cvMembers) {
@@ -113,7 +164,7 @@ Deno.serve(async (req) => {
         const handle = (meta?.preferred_username || meta?.user_name || "").toLowerCase();
         if (!handle) continue;
 
-        const avatarUrl = meta?.avatar_url || meta?.picture || null;
+        const avatarUrl = fixImageUrl(meta?.avatar_url || meta?.picture || null);
 
         let topActivities: unknown[] = [];
         if (cv.bluechip_details) {
@@ -126,18 +177,21 @@ Deno.serve(async (req) => {
         }
 
         const existing = members.get(handle);
+        const bestScore = existing?.cv_score ? Math.max(Number(cv.overall_score), Number(existing.cv_score)) : cv.overall_score;
+
         members.set(handle, {
           twitter_handle: handle,
           profile_image_url: avatarUrl || existing?.profile_image_url || null,
           membership_type: existing ? existing.membership_type + ",cv_score" : "cv_score",
-          cv_score: cv.overall_score,
+          cv_score: bestScore,
           top_activities: topActivities.length > 0 ? topActivities : existing?.top_activities || [],
           job_title: existing?.job_title || null,
+          _feedback_text: cv.feedback || existing?._feedback_text || null,
         });
       }
     }
 
-    // 4. NS Quiz passers (Network School alignment test)
+    // 4. NS Quiz passers
     const { data: nsPassers } = await supabase
       .from("ns_quiz_attempts")
       .select("twitter_handle, x_user_id, score")
@@ -150,17 +204,33 @@ Deno.serve(async (req) => {
         const handle = ns.twitter_handle.replace(/^@/, "").toLowerCase();
         const existing = members.get(handle);
 
-        // Try to get profile image from submissions or auth
+        // Try to get profile image from multiple sources
         let profileImage = existing?.profile_image_url || null;
-        if (!profileImage && ns.x_user_id) {
-          // Check whitelist submissions for avatar
-          const { data: sub } = await supabase
-            .from("twitter_whitelist_submissions")
-            .select("profile_image_url")
-            .eq("x_user_id", ns.x_user_id)
-            .limit(1)
-            .maybeSingle();
-          if (sub?.profile_image_url) profileImage = sub.profile_image_url;
+        if (!profileImage) {
+          // Check whitelist submissions
+          if (ns.x_user_id) {
+            const { data: sub } = await supabase
+              .from("twitter_whitelist_submissions")
+              .select("profile_image_url")
+              .eq("x_user_id", ns.x_user_id)
+              .limit(1)
+              .maybeSingle();
+            if (sub?.profile_image_url) profileImage = fixImageUrl(sub.profile_image_url);
+          }
+          // Check rei_registry by handle
+          if (!profileImage) {
+            const { data: reiProfile } = await supabase
+              .from("rei_registry")
+              .select("profile_image_url, profile_score, analysis_summary")
+              .ilike("handle", handle)
+              .limit(1)
+              .maybeSingle();
+            if (reiProfile?.profile_image_url) profileImage = fixImageUrl(reiProfile.profile_image_url);
+            // Also grab score and summary from rei_registry if available
+            if (reiProfile?.profile_score && !existing?.cv_score) {
+              // Will be set below
+            }
+          }
         }
 
         members.set(handle, {
@@ -170,12 +240,67 @@ Deno.serve(async (req) => {
           cv_score: existing?.cv_score || null,
           top_activities: existing?.top_activities || [],
           job_title: existing?.job_title || null,
+          _feedback_text: existing?._feedback_text || null,
         });
       }
     }
 
-    // Upsert all members into club_member_showcase
-    const upsertData = Array.from(members.values());
+    // 5. For members missing profile images, do a final check in rei_registry by handle
+    for (const [handle, member] of members) {
+      if (!member.profile_image_url) {
+        const { data: reiProfile } = await supabase
+          .from("rei_registry")
+          .select("profile_image_url, profile_score, analysis_summary, profile_analysis")
+          .ilike("handle", handle)
+          .limit(1)
+          .maybeSingle();
+
+        if (reiProfile) {
+          if (reiProfile.profile_image_url) {
+            member.profile_image_url = fixImageUrl(reiProfile.profile_image_url);
+          }
+          if (reiProfile.profile_score && !member.cv_score) {
+            member.cv_score = reiProfile.profile_score;
+          }
+          if (reiProfile.analysis_summary && !member._feedback_text) {
+            member._feedback_text = reiProfile.analysis_summary;
+          }
+          // Extract activities
+          if (member.top_activities.length === 0 && reiProfile.profile_analysis) {
+            const analysis = reiProfile.profile_analysis as Record<string, unknown>;
+            const onChain = (analysis.onChainActivities || analysis.significantActivities || []) as Array<{ description?: string; chain?: string }>;
+            if (onChain.length > 0) {
+              member.top_activities = onChain.slice(0, 3).map((a) => ({
+                description: a.description || "",
+                chain: a.chain || "",
+              }));
+            }
+          }
+        }
+      }
+    }
+
+    // 6. Generate AI job titles for members who have feedback text but no job title
+    const titlePromises: Promise<void>[] = [];
+    for (const [handle, member] of members) {
+      if (!member.job_title && member._feedback_text) {
+        titlePromises.push(
+          generateJobTitle(member._feedback_text).then((title) => {
+            if (title) member.job_title = title;
+          })
+        );
+      }
+    }
+    // Process in batches of 3 to avoid rate limiting
+    for (let i = 0; i < titlePromises.length; i += 3) {
+      await Promise.all(titlePromises.slice(i, i + 3));
+      if (i + 3 < titlePromises.length) {
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+    }
+
+    // Prepare upsert data (strip internal _feedback_text field)
+    const upsertData = Array.from(members.values()).map(({ _feedback_text, ...rest }) => rest);
 
     if (upsertData.length > 0) {
       await supabase.from("club_member_showcase").delete().neq("id", "00000000-0000-0000-0000-000000000000");

@@ -1,85 +1,71 @@
 
 
-## Fix Member Showcase Slider - Missing Details and Layout
+## Remove rei_registry Dependency & Fix NS Profile Images
 
-### Issues to Fix
-
-1. **Missing Proof of Talent pills** -- The on-chain activities aren't being populated for most members because only CV 80+ members have `bluechip_details`. The `rei_registry` also has `profile_analysis` with on-chain data. Need to pull from both sources.
-
-2. **"NS Aligned" label** -- Change to "Network School Member"
-
-3. **Remove member count** -- "X verified members" text at the bottom is anti-marketing with low numbers. Remove entirely.
-
-4. **Missing CV Profile Score** -- Currently only populated for CV 80+ members. For rei_registry members, pull `profile_score`. For NS members, we could show their NS quiz score. Ensure the score is always shown when available.
-
-5. **Job title from AI, not role_tags** -- Instead of mapping `role_tags` to static titles like "Developer", use AI (Lovable AI) to generate a concise job title from the CV feedback/analysis content during sync.
-
-6. **Missing Twitter profile images** -- The `_normal` suffix on Twitter image URLs gives tiny 48x48 images. The whitelist submissions store `_normal` URLs. Need to replace `_normal` with `_400x400` in the sync function. Also, NS-only members have no image path -- need to also check `rei_registry` for their profile image.
-
-7. **Layout alignment** -- Match the exact layout from the reference image: "CLUB MEMBER" large and bold at top, "CV Profile Score XX/100" directly below in smaller mono text, job title in coral italic below that, large circular avatar centered, handle below avatar, then "Proof of Talent" label and pills at bottom.
+Since Rei will move to a separate website, all `rei_registry` lookups in the sync function need to be removed. To solve the missing profile images for NS-only members, we'll add a `profile_image_url` column to `ns_quiz_attempts` and save the Twitter avatar during quiz submission.
 
 ---
 
 ### Changes
 
-#### 1. Update Edge Function: `supabase/functions/sync-club-members/index.ts`
+#### 1. Database Migration: Add `profile_image_url` to `ns_quiz_attempts`
 
-**AI Job Title Generation:**
-- After aggregating all members, for each member that has CV feedback text (from `cv_analyses`) or `profile_analysis` summary (from `rei_registry`), call Lovable AI to generate a 2-4 word job title (e.g. "Full Stack Developer", "DeFi Researcher", "Smart Contract Engineer").
-- Use `LOVABLE_API_KEY` with `google/gemini-2.5-flash-lite` (cheapest/fastest) since this is a simple summarization task.
+```sql
+ALTER TABLE public.ns_quiz_attempts ADD COLUMN profile_image_url text;
+```
 
-**Image URL fix:**
-- Replace `_normal` with `_400x400` in all `profile_image_url` values before storing.
+This lets us capture the Twitter avatar at quiz time, same as `twitter_whitelist_submissions` does.
 
-**Broader Proof of Talent sourcing:**
-- For CV 80+ members: pull `bluechip_details.significantActivities` (top 3) -- already done.
-- For rei_registry members: pull on-chain activities from `profile_analysis` if available.
-- Deduplicate activities by description.
+#### 2. Update NS Quiz Page: `src/pages/NetworkSchool.tsx`
 
-**Profile score sourcing:**
-- CV 80+ members: use `overall_score` from `cv_analyses`.
-- Rei registry members: use `profile_score` from `rei_registry`.
-- Prefer the higher score when a member appears in multiple sources.
+In the `finishQuiz` function, include `profile_image_url` in the insert:
 
-**NS members profile images:**
-- Also check `rei_registry` by handle for profile images when not found elsewhere.
+```typescript
+await supabase.from("ns_quiz_attempts").insert({
+  device_fingerprint: fingerprint,
+  score,
+  answers: finalAnswers,
+  passed: didPass,
+  x_user_id: twitterUser?.x_user_id || null,
+  twitter_handle: twitterUser?.handle || null,
+  profile_image_url: twitterUser?.profile_image_url || null,  // NEW
+});
+```
 
-#### 2. Update Component: `src/components/MemberSlider.tsx`
+#### 3. Update Edge Function: `supabase/functions/sync-club-members/index.ts`
 
-**Layout changes to match reference exactly:**
-- "CLUB MEMBER" -- large bold mono text, centered, at top (bigger than current `text-sm`, use `text-2xl` or similar)
-- "CV Profile Score XX/100" -- smaller mono text in coral directly below, with score number bold. Always show if available.
-- Job title -- coral colored, italic, large font below score
-- Avatar -- large circle (w-36 h-36), grayscale, coral border ring, centered
-- Chevron arrows -- larger, positioned at avatar vertical center, further out
-- @handle -- white/cream text below avatar
-- "Proof of Talent" label in coral mono, left-aligned
-- Activity pills -- larger, in a row, coral background with rounded corners
+**Remove all `rei_registry` queries:**
+- Remove Step 2 (NFT holders from `rei_registry`) entirely
+- Remove the `rei_registry` fallback in Step 4 (NS members image lookup)
+- Remove Step 5 (final `rei_registry` fallback for missing images)
 
-**Remove:**
-- Member count text at the bottom
-- Membership type label ("Verified", "Network School Member" etc.) -- this was the anti-marketing text
+**Update NS passers section (Step 4):**
+- Pull `profile_image_url` directly from `ns_quiz_attempts` (newly added column)
+- Fall back to `twitter_whitelist_submissions` by `x_user_id` if not available (for members who took the quiz before the column was added)
 
-#### 3. No database schema changes needed
-The existing `club_member_showcase` table already has all required columns.
+**Resulting data sources (3 only):**
+1. Approved Twitter whitelist submissions (with `profile_image_url` from submissions)
+2. CV Score 80+ members (with avatar from auth user metadata)
+3. NS Quiz passers (with `profile_image_url` from quiz attempts or whitelist submissions)
+
+**Scores:** Only `cv_analyses.overall_score` will be used (no more `rei_registry.profile_score`).
+
+**Activities/Proof of Talent:** Only `cv_analyses.bluechip_details.significantActivities` will be used (no more `rei_registry.profile_analysis`).
+
+**AI job titles:** Still generated from `cv_analyses.feedback` text. NS-only and whitelist-only members without CV feedback will not get AI-generated titles (no data to summarize).
 
 ---
 
-### Technical Details
+### Technical Summary
 
-**Edge function AI call for job titles:**
-```
-POST https://ai.gateway.lovable.dev/v1/chat/completions
-Model: google/gemini-2.5-flash-lite
-Prompt: "Based on this CV feedback, generate a 2-4 word professional job title. Return ONLY the job title, nothing else."
-Input: The feedback text from cv_analyses or profile_analysis summary from rei_registry
-```
+| Source | Image | Score | Activities | Job Title Input |
+|--------|-------|-------|------------|-----------------|
+| Whitelist (approved) | `twitter_whitelist_submissions.profile_image_url` | -- | -- | -- |
+| CV 80+ | Auth `user_metadata.avatar_url` | `cv_analyses.overall_score` | `bluechip_details.significantActivities` | `cv_analyses.feedback` |
+| NS Passers | `ns_quiz_attempts.profile_image_url` (new) | -- | -- | -- |
 
-This runs once during sync (not on every page load), so cost is minimal.
+**Files changed:**
+1. Database migration -- add `profile_image_url` to `ns_quiz_attempts`
+2. `src/pages/NetworkSchool.tsx` -- save avatar on quiz submit
+3. `supabase/functions/sync-club-members/index.ts` -- remove all `rei_registry` references
 
-**Image URL normalization:**
-All Twitter profile image URLs will have `_normal` replaced with `_400x400` to get high-resolution images.
-
-**File changes:**
-1. `supabase/functions/sync-club-members/index.ts` -- Major rewrite of sync logic
-2. `src/components/MemberSlider.tsx` -- Layout overhaul to match reference image exactly

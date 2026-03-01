@@ -37,7 +37,6 @@ export const MemberSlider = () => {
     fetchMembers();
   }, []);
 
-  // Auto-scroll every 5s
   useEffect(() => {
     if (!emblaApi) return;
     const interval = setInterval(() => {
@@ -51,45 +50,28 @@ export const MemberSlider = () => {
 
   if (members.length === 0) return null;
 
-  const getMembershipLabel = (type: string) => {
-    const types = type.split(",");
-    const labels: string[] = [];
-    if (types.includes("whitelist")) labels.push("Verified");
-    if (types.includes("nft")) labels.push("NFT Holder");
-    if (types.includes("cv_score")) labels.push("Top CV");
-    if (types.includes("ns_member")) labels.push("NS Aligned");
-    return labels.join(" · ");
-  };
-
   return (
     <div
       className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
       style={{ backgroundColor: "#181818" }}
     >
-      <h2
-        className="text-xl font-bold mb-10 font-mono tracking-widest"
-        style={{ color: "hsl(var(--primary))" }}
-      >
-        CLUB MEMBERS
-      </h2>
-
       <div className="relative w-full max-w-sm mx-auto">
         {/* Nav arrows */}
         <button
           onClick={scrollPrev}
-          className="absolute -left-10 top-1/2 -translate-y-1/2 z-10 opacity-50 hover:opacity-100 transition-opacity"
+          className="absolute -left-12 top-1/2 -translate-y-1/2 z-10 opacity-40 hover:opacity-100 transition-opacity"
           style={{ color: "hsl(var(--primary))" }}
           aria-label="Previous member"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="w-8 h-8" />
         </button>
         <button
           onClick={scrollNext}
-          className="absolute -right-10 top-1/2 -translate-y-1/2 z-10 opacity-50 hover:opacity-100 transition-opacity"
+          className="absolute -right-12 top-1/2 -translate-y-1/2 z-10 opacity-40 hover:opacity-100 transition-opacity"
           style={{ color: "hsl(var(--primary))" }}
           aria-label="Next member"
         >
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="w-8 h-8" />
         </button>
 
         {/* Carousel */}
@@ -100,18 +82,18 @@ export const MemberSlider = () => {
                 key={member.id}
                 className="min-w-0 shrink-0 grow-0 basis-full flex flex-col items-center px-4"
               >
-                {/* Heading */}
+                {/* CLUB MEMBER heading */}
                 <p
-                  className="text-sm font-mono tracking-[0.3em] mb-1 font-bold"
+                  className="text-2xl font-mono tracking-[0.3em] mb-2 font-bold text-center"
                   style={{ color: "#faf6f4" }}
                 >
                   CLUB MEMBER
                 </p>
 
-                {/* CV Score */}
+                {/* CV Profile Score */}
                 {member.cv_score && (
                   <p
-                    className="text-xs font-mono mb-2"
+                    className="text-xs font-mono mb-2 text-center"
                     style={{ color: "hsl(var(--primary))" }}
                   >
                     CV Profile Score{" "}
@@ -119,10 +101,10 @@ export const MemberSlider = () => {
                   </p>
                 )}
 
-                {/* Job title / main skill */}
+                {/* Job title */}
                 {member.job_title && (
                   <p
-                    className="text-lg font-mono font-bold mb-4"
+                    className="text-lg font-mono italic mb-6 text-center"
                     style={{ color: "hsl(var(--primary))" }}
                   >
                     {member.job_title}
@@ -131,10 +113,10 @@ export const MemberSlider = () => {
 
                 {/* Avatar */}
                 <div
-                  className="w-28 h-28 rounded-full overflow-hidden mb-4"
+                  className="w-36 h-36 rounded-full overflow-hidden mb-5"
                   style={{
                     border: "3px solid hsl(var(--primary))",
-                    boxShadow: "0 0 20px hsl(358 79% 64% / 0.3)",
+                    boxShadow: "0 0 24px hsl(358 79% 64% / 0.3)",
                   }}
                 >
                   {member.profile_image_url ? (
@@ -146,7 +128,7 @@ export const MemberSlider = () => {
                     />
                   ) : (
                     <div
-                      className="w-full h-full flex items-center justify-center font-mono text-2xl"
+                      className="w-full h-full flex items-center justify-center font-mono text-3xl"
                       style={{
                         backgroundColor: "hsl(var(--muted))",
                         color: "hsl(var(--primary))",
@@ -159,34 +141,26 @@ export const MemberSlider = () => {
 
                 {/* Handle */}
                 <p
-                  className="text-base font-mono mb-2"
+                  className="text-base font-mono mb-6 text-center"
                   style={{ color: "#faf6f4" }}
                 >
                   @{member.twitter_handle}
                 </p>
 
-                {/* Membership type label */}
-                <p
-                  className="text-[10px] font-mono tracking-widest mb-4 uppercase opacity-40"
-                  style={{ color: "#faf6f4" }}
-                >
-                  {getMembershipLabel(member.membership_type)}
-                </p>
-
                 {/* Proof of Talent pills */}
                 {member.top_activities.length > 0 && (
-                  <div className="space-y-1.5">
+                  <div className="w-full space-y-2">
                     <p
-                      className="text-[10px] font-mono tracking-widest text-center opacity-50 mb-2"
-                      style={{ color: "#faf6f4" }}
+                      className="text-[10px] font-mono tracking-widest uppercase text-center"
+                      style={{ color: "hsl(var(--primary))", opacity: 0.7 }}
                     >
                       Proof of Talent
                     </p>
-                    <div className="flex flex-wrap justify-center gap-1.5">
+                    <div className="flex flex-wrap justify-center gap-2">
                       {member.top_activities.map((activity, i) => (
                         <span
                           key={i}
-                          className="text-[10px] font-mono px-2.5 py-1 rounded-full"
+                          className="text-[11px] font-mono px-3 py-1.5 rounded-full"
                           style={{
                             backgroundColor: "hsl(var(--muted))",
                             color: "hsl(var(--primary))",
@@ -205,14 +179,6 @@ export const MemberSlider = () => {
           </div>
         </div>
       </div>
-
-      {/* Member count */}
-      <p
-        className="text-[10px] font-mono mt-8 opacity-30"
-        style={{ color: "#faf6f4" }}
-      >
-        {members.length} verified member{members.length !== 1 ? "s" : ""}
-      </p>
     </div>
   );
 };

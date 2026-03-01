@@ -109,6 +109,36 @@ export type Database = {
           },
         ]
       }
+      club_member_showcase: {
+        Row: {
+          created_at: string | null
+          cv_score: number | null
+          id: string
+          membership_type: string
+          profile_image_url: string | null
+          top_activities: Json | null
+          twitter_handle: string
+        }
+        Insert: {
+          created_at?: string | null
+          cv_score?: number | null
+          id?: string
+          membership_type?: string
+          profile_image_url?: string | null
+          top_activities?: Json | null
+          twitter_handle: string
+        }
+        Update: {
+          created_at?: string | null
+          cv_score?: number | null
+          id?: string
+          membership_type?: string
+          profile_image_url?: string | null
+          top_activities?: Json | null
+          twitter_handle?: string
+        }
+        Relationships: []
+      }
       community_submissions: {
         Row: {
           compensation: string | null

@@ -5,6 +5,7 @@ import { TextRotator } from "@/components/TextRotator";
 import { WaitlistCountdown } from "@/components/WaitlistCountdown";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { VideoHeroSection } from "@/components/VideoHeroSection";
+import { MemberSlider } from "@/components/MemberSlider";
 import arubaitoLogo from "@/assets/arubaito-logo.png";
 import reiUspAi from "@/assets/rei-usp-ai.png";
 import reiUspMatch from "@/assets/rei-usp-match.png";
@@ -297,6 +298,9 @@ const Index = () => {
         <VideoHeroSection
           onScrollDown={() => document.getElementById("how-club-works")?.scrollIntoView({ behavior: "smooth" })}
         />
+
+        {/* Section 0.5 - Club Members Slider */}
+        <MemberSlider />
 
         {/* Section 1 - How the Club Works */}
         <div

@@ -10,6 +10,7 @@ interface ClubMember {
   membership_type: string;
   cv_score: number | null;
   top_activities: Array<{ description?: string; chain?: string }>;
+  job_title: string | null;
 }
 
 export const MemberSlider = () => {
@@ -49,6 +50,16 @@ export const MemberSlider = () => {
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
   if (members.length === 0) return null;
+
+  const getMembershipLabel = (type: string) => {
+    const types = type.split(",");
+    const labels: string[] = [];
+    if (types.includes("whitelist")) labels.push("Verified");
+    if (types.includes("nft")) labels.push("NFT Holder");
+    if (types.includes("cv_score")) labels.push("Top CV");
+    if (types.includes("ns_member")) labels.push("NS Aligned");
+    return labels.join(" · ");
+  };
 
   return (
     <div
@@ -91,8 +102,8 @@ export const MemberSlider = () => {
               >
                 {/* Heading */}
                 <p
-                  className="text-xs font-mono tracking-[0.3em] mb-2 opacity-60"
-                  style={{ color: "hsl(var(--primary))" }}
+                  className="text-sm font-mono tracking-[0.3em] mb-1 font-bold"
+                  style={{ color: "#faf6f4" }}
                 >
                   CLUB MEMBER
                 </p>
@@ -100,33 +111,27 @@ export const MemberSlider = () => {
                 {/* CV Score */}
                 {member.cv_score && (
                   <p
-                    className="text-xs font-mono mb-4"
+                    className="text-xs font-mono mb-2"
                     style={{ color: "hsl(var(--primary))" }}
                   >
-                    CV Profile Score: {Math.round(member.cv_score)}/100
+                    CV Profile Score{" "}
+                    <span className="font-bold">{Math.round(member.cv_score)}/100</span>
                   </p>
                 )}
 
-                {/* Membership type label */}
-                <p
-                  className="text-[10px] font-mono tracking-widest mb-3 uppercase opacity-40"
-                  style={{ color: "#faf6f4" }}
-                >
-                  {member.membership_type
-                    .split(",")
-                    .map((t) =>
-                      t === "whitelist"
-                        ? "Verified"
-                        : t === "nft"
-                        ? "NFT Holder"
-                        : "Top CV"
-                    )
-                    .join(" · ")}
-                </p>
+                {/* Job title / main skill */}
+                {member.job_title && (
+                  <p
+                    className="text-lg font-mono font-bold mb-4"
+                    style={{ color: "hsl(var(--primary))" }}
+                  >
+                    {member.job_title}
+                  </p>
+                )}
 
                 {/* Avatar */}
                 <div
-                  className="w-24 h-24 rounded-full overflow-hidden mb-4"
+                  className="w-28 h-28 rounded-full overflow-hidden mb-4"
                   style={{
                     border: "3px solid hsl(var(--primary))",
                     boxShadow: "0 0 20px hsl(358 79% 64% / 0.3)",
@@ -154,20 +159,28 @@ export const MemberSlider = () => {
 
                 {/* Handle */}
                 <p
-                  className="text-sm font-mono mb-4"
+                  className="text-base font-mono mb-2"
                   style={{ color: "#faf6f4" }}
                 >
                   @{member.twitter_handle}
+                </p>
+
+                {/* Membership type label */}
+                <p
+                  className="text-[10px] font-mono tracking-widest mb-4 uppercase opacity-40"
+                  style={{ color: "#faf6f4" }}
+                >
+                  {getMembershipLabel(member.membership_type)}
                 </p>
 
                 {/* Proof of Talent pills */}
                 {member.top_activities.length > 0 && (
                   <div className="space-y-1.5">
                     <p
-                      className="text-[10px] font-mono tracking-widest text-center opacity-40 mb-2"
+                      className="text-[10px] font-mono tracking-widest text-center opacity-50 mb-2"
                       style={{ color: "#faf6f4" }}
                     >
-                      PROOF OF TALENT
+                      Proof of Talent
                     </p>
                     <div className="flex flex-wrap justify-center gap-1.5">
                       {member.top_activities.map((activity, i) => (

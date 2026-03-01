@@ -114,6 +114,7 @@ export type Database = {
           created_at: string | null
           cv_score: number | null
           id: string
+          job_title: string | null
           membership_type: string
           profile_image_url: string | null
           top_activities: Json | null
@@ -123,6 +124,7 @@ export type Database = {
           created_at?: string | null
           cv_score?: number | null
           id?: string
+          job_title?: string | null
           membership_type?: string
           profile_image_url?: string | null
           top_activities?: Json | null
@@ -132,6 +134,7 @@ export type Database = {
           created_at?: string | null
           cv_score?: number | null
           id?: string
+          job_title?: string | null
           membership_type?: string
           profile_image_url?: string | null
           top_activities?: Json | null

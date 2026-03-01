@@ -1,0 +1,1 @@
+ALTER TABLE public.club_member_showcase ADD COLUMN job_title text;

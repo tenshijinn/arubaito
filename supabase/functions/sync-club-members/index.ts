@@ -73,14 +73,14 @@ Deno.serve(async (req) => {
         cv_score: number | null;
         top_activities: unknown[];
         job_title: string | null;
-        _feedback_text: string | null; // internal: used for AI job title generation
+        _feedback_text: string | null;
       }
     > = new Map();
 
-    // 1. Twitter Bluechip Whitelist members — ONLY those with approved submissions
+    // ── Step 1: Approved whitelist members ─────────────────────────────
     const { data: approvedSubmissions } = await supabase
       .from("twitter_whitelist_submissions")
-      .select("twitter_handle, profile_image_url, display_name")
+      .select("twitter_handle, profile_image_url, display_name, x_user_id")
       .eq("status", "approved");
 
     if (approvedSubmissions) {
@@ -108,48 +108,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 2. NFT Membership Holders from rei_registry
-    const { data: nftHolders } = await supabase
-      .from("rei_registry")
-      .select("handle, profile_image_url, wallet_address, role_tags, profile_analysis, profile_score, analysis_summary")
-      .eq("nft_minted", true)
-      .not("handle", "is", null);
-
-    if (nftHolders) {
-      for (const nft of nftHolders) {
-        if (!nft.handle) continue;
-        const handle = nft.handle.replace(/^@/, "").toLowerCase();
-        const existing = members.get(handle);
-
-        // Extract on-chain activities from profile_analysis
-        let activities: unknown[] = existing?.top_activities || [];
-        if (nft.profile_analysis) {
-          const analysis = nft.profile_analysis as Record<string, unknown>;
-          const onChain = (analysis.onChainActivities || analysis.significantActivities || []) as Array<{ description?: string; chain?: string }>;
-          if (onChain.length > 0 && activities.length === 0) {
-            activities = onChain.slice(0, 3).map((a) => ({
-              description: a.description || "",
-              chain: a.chain || "",
-            }));
-          }
-        }
-
-        const score = nft.profile_score || existing?.cv_score || null;
-        const feedbackText = nft.analysis_summary || existing?._feedback_text || null;
-
-        members.set(handle, {
-          twitter_handle: handle,
-          profile_image_url: fixImageUrl(nft.profile_image_url) || existing?.profile_image_url || null,
-          membership_type: existing ? existing.membership_type + ",nft" : "nft",
-          cv_score: score && existing?.cv_score ? Math.max(Number(score), Number(existing.cv_score)) : (score || existing?.cv_score || null),
-          top_activities: activities,
-          job_title: existing?.job_title || null,
-          _feedback_text: feedbackText,
-        });
-      }
-    }
-
-    // 3. CV Score 80+ members
+    // ── Step 2: CV Score 80+ members (entry via CV alone) ──────────────
     const { data: cvMembers } = await supabase
       .from("cv_analyses")
       .select("user_id, overall_score, bluechip_details, wallet_address, feedback")
@@ -191,10 +150,10 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 4. NS Quiz passers
+    // ── Step 3: NS Quiz passers ────────────────────────────────────────
     const { data: nsPassers } = await supabase
       .from("ns_quiz_attempts")
-      .select("twitter_handle, x_user_id, score")
+      .select("twitter_handle, x_user_id, score, profile_image_url")
       .eq("passed", true)
       .not("twitter_handle", "is", null);
 
@@ -204,33 +163,19 @@ Deno.serve(async (req) => {
         const handle = ns.twitter_handle.replace(/^@/, "").toLowerCase();
         const existing = members.get(handle);
 
-        // Try to get profile image from multiple sources
+        // Profile image: quiz attempt (new column) → whitelist submissions → existing
         let profileImage = existing?.profile_image_url || null;
-        if (!profileImage) {
-          // Check whitelist submissions
-          if (ns.x_user_id) {
-            const { data: sub } = await supabase
-              .from("twitter_whitelist_submissions")
-              .select("profile_image_url")
-              .eq("x_user_id", ns.x_user_id)
-              .limit(1)
-              .maybeSingle();
-            if (sub?.profile_image_url) profileImage = fixImageUrl(sub.profile_image_url);
-          }
-          // Check rei_registry by handle
-          if (!profileImage) {
-            const { data: reiProfile } = await supabase
-              .from("rei_registry")
-              .select("profile_image_url, profile_score, analysis_summary")
-              .ilike("handle", handle)
-              .limit(1)
-              .maybeSingle();
-            if (reiProfile?.profile_image_url) profileImage = fixImageUrl(reiProfile.profile_image_url);
-            // Also grab score and summary from rei_registry if available
-            if (reiProfile?.profile_score && !existing?.cv_score) {
-              // Will be set below
-            }
-          }
+        if (!profileImage && ns.profile_image_url) {
+          profileImage = fixImageUrl(ns.profile_image_url);
+        }
+        if (!profileImage && ns.x_user_id) {
+          const { data: sub } = await supabase
+            .from("twitter_whitelist_submissions")
+            .select("profile_image_url")
+            .eq("x_user_id", ns.x_user_id)
+            .limit(1)
+            .maybeSingle();
+          if (sub?.profile_image_url) profileImage = fixImageUrl(sub.profile_image_url);
         }
 
         members.set(handle, {
@@ -245,42 +190,97 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 5. For members missing profile images, do a final check in rei_registry by handle
-    for (const [handle, member] of members) {
-      if (!member.profile_image_url) {
-        const { data: reiProfile } = await supabase
-          .from("rei_registry")
-          .select("profile_image_url, profile_score, analysis_summary, profile_analysis")
-          .ilike("handle", handle)
-          .limit(1)
-          .maybeSingle();
+    // ── Step 4: Cross-reference CV data for ALL existing members ───────
+    // For every member missing cv_score or top_activities, look up their CV
+    // by matching x_user_id → auth.users → cv_analyses
+    let crossRefCount = 0;
 
-        if (reiProfile) {
-          if (reiProfile.profile_image_url) {
-            member.profile_image_url = fixImageUrl(reiProfile.profile_image_url);
-          }
-          if (reiProfile.profile_score && !member.cv_score) {
-            member.cv_score = reiProfile.profile_score;
-          }
-          if (reiProfile.analysis_summary && !member._feedback_text) {
-            member._feedback_text = reiProfile.analysis_summary;
-          }
-          // Extract activities
-          if (member.top_activities.length === 0 && reiProfile.profile_analysis) {
-            const analysis = reiProfile.profile_analysis as Record<string, unknown>;
-            const onChain = (analysis.onChainActivities || analysis.significantActivities || []) as Array<{ description?: string; chain?: string }>;
-            if (onChain.length > 0) {
-              member.top_activities = onChain.slice(0, 3).map((a) => ({
-                description: a.description || "",
-                chain: a.chain || "",
-              }));
-            }
+    // Build a lookup of handle → x_user_id from whitelist submissions
+    const handleToXUserId: Map<string, string> = new Map();
+    if (approvedSubmissions) {
+      for (const sub of approvedSubmissions) {
+        if (sub.x_user_id) {
+          const handle = sub.twitter_handle.replace(/^@/, "").toLowerCase();
+          handleToXUserId.set(handle, sub.x_user_id);
+        }
+      }
+    }
+    // Also add from NS passers
+    if (nsPassers) {
+      for (const ns of nsPassers) {
+        if (ns.x_user_id && ns.twitter_handle) {
+          const handle = ns.twitter_handle.replace(/^@/, "").toLowerCase();
+          if (!handleToXUserId.has(handle)) {
+            handleToXUserId.set(handle, ns.x_user_id);
           }
         }
       }
     }
 
-    // 6. Generate AI job titles for members who have feedback text but no job title
+    // Fetch all auth users once for cross-referencing
+    const { data: allUsersData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+    const allAuthUsers = allUsersData?.users || [];
+
+    for (const [handle, member] of members) {
+      // Skip members who already have CV data
+      if (member.cv_score && member.top_activities.length > 0) continue;
+
+      const xUserId = handleToXUserId.get(handle);
+
+      // Try multiple matching strategies to find the auth user:
+      // 1. provider_id matches x_user_id
+      // 2. email matches {handle}@twitter.oauth (custom twitter auth pattern)
+      let authUser = null;
+      if (xUserId) {
+        authUser = allAuthUsers.find((u) => {
+          const providerId = u.user_metadata?.provider_id || u.user_metadata?.sub;
+          return providerId === xUserId;
+        });
+      }
+      if (!authUser) {
+        const twitterEmail = `${handle}@twitter.oauth`;
+        authUser = allAuthUsers.find((u) => u.email === twitterEmail);
+      }
+
+      if (!authUser) continue;
+
+      // Get best CV analysis for this user
+      const { data: cvData } = await supabase
+        .from("cv_analyses")
+        .select("overall_score, bluechip_details, feedback")
+        .eq("user_id", authUser.id)
+        .order("overall_score", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!cvData) continue;
+
+      crossRefCount++;
+
+      // Attach score
+      if (!member.cv_score) {
+        member.cv_score = cvData.overall_score;
+      }
+
+      // Attach activities
+      if (member.top_activities.length === 0 && cvData.bluechip_details) {
+        const details = cvData.bluechip_details as Record<string, unknown>;
+        const activities = (details.significantActivities || []) as Array<{ description?: string; chain?: string }>;
+        if (activities.length > 0) {
+          member.top_activities = activities.slice(0, 3).map((a) => ({
+            description: a.description || "",
+            chain: a.chain || "",
+          }));
+        }
+      }
+
+      // Attach feedback for AI job title generation
+      if (!member._feedback_text && cvData.feedback) {
+        member._feedback_text = cvData.feedback;
+      }
+    }
+
+    // ── Step 5: Generate AI job titles ─────────────────────────────────
     const titlePromises: Promise<void>[] = [];
     for (const [handle, member] of members) {
       if (!member.job_title && member._feedback_text) {
@@ -291,7 +291,6 @@ Deno.serve(async (req) => {
         );
       }
     }
-    // Process in batches of 3 to avoid rate limiting
     for (let i = 0; i < titlePromises.length; i += 3) {
       await Promise.all(titlePromises.slice(i, i + 3));
       if (i + 3 < titlePromises.length) {
@@ -299,7 +298,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Prepare upsert data (strip internal _feedback_text field)
+    // ── Upsert to showcase table ──────────────────────────────────────
     const upsertData = Array.from(members.values()).map(({ _feedback_text, ...rest }) => rest);
 
     if (upsertData.length > 0) {
@@ -324,9 +323,9 @@ Deno.serve(async (req) => {
         members_synced: upsertData.length,
         sources: {
           whitelist_claimed: approvedSubmissions?.length || 0,
-          nft_holders: nftHolders?.length || 0,
           cv_80_plus: cvMembers?.length || 0,
           ns_passers: nsPassers?.length || 0,
+          cross_referenced: crossRefCount,
         },
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

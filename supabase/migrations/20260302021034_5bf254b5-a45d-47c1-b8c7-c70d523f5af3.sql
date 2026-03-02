@@ -1,0 +1,1 @@
+ALTER TABLE public.ns_quiz_attempts ADD COLUMN profile_image_url text;

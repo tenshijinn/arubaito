@@ -469,6 +469,7 @@ export type Database = {
           device_fingerprint: string
           id: string
           passed: boolean
+          profile_image_url: string | null
           score: number
           solana_wallet: string | null
           twitter_handle: string | null
@@ -480,6 +481,7 @@ export type Database = {
           device_fingerprint: string
           id?: string
           passed?: boolean
+          profile_image_url?: string | null
           score?: number
           solana_wallet?: string | null
           twitter_handle?: string | null
@@ -491,6 +493,7 @@ export type Database = {
           device_fingerprint?: string
           id?: string
           passed?: boolean
+          profile_image_url?: string | null
           score?: number
           solana_wallet?: string | null
           twitter_handle?: string | null

@@ -281,6 +281,7 @@ export default function NetworkSchool() {
       passed: didPass,
       x_user_id: twitterUser?.x_user_id || null,
       twitter_handle: twitterUser?.handle || null,
+      profile_image_url: twitterUser?.profile_image_url || null,
     });
   };
 

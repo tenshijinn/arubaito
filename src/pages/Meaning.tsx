@@ -4,16 +4,16 @@ import { Button } from '@/components/ui/button';
 
 const Meaning: React.FC = () => {
   const painPoints = [
-    "You're skilled, but unclear on your direction",
-    "You apply to jobs that don't excite you",
-    "You know you're capable of more — but more of what?",
+    "No clear direction",
+    "Uninspiring work",
+    "Untapped potential",
   ];
 
   const usps = [
-    "Discover your Ikigai in under 3 minutes",
-    "Get a personalised purpose statement",
-    "Find your ideal customer & work arena",
-    "Download a shareable Ikigai Card",
+    "Find purpose in 3 mins",
+    "Get your Ikigai Card",
+    "Know your ideal arena",
+    "Shareable proof of you",
   ];
 
   return (

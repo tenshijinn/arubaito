@@ -57,27 +57,18 @@ const Meaning: React.FC = () => {
           No clear direction. Uninspiring work. Untapped potential.
         </p>
 
-        {/* USPs */}
-        <div className="mb-10">
-          <p
-            className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3"
-            style={{ fontFamily: 'Consolas, monospace' }}
-          >
-            What you'll get
-          </p>
-          <ul className="space-y-2">
-            {usps.map((usp, i) => (
-              <li
-                key={i}
-                className="text-sm flex items-start gap-2"
-                style={{ fontFamily: 'Consolas, monospace', color: '#ebe9e6' }}
-              >
-                <span className="text-primary mt-0.5">+</span>
-                {usp}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <p
+          className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3"
+          style={{ fontFamily: 'Consolas, monospace' }}
+        >
+          What you'll get
+        </p>
+        <p
+          className="text-sm mb-10 max-w-md"
+          style={{ fontFamily: 'Consolas, monospace', color: '#ebe9e6' }}
+        >
+          Your purpose in 3 mins. A shareable Ikigai Card. Clarity on where you belong.
+        </p>
 
         {/* CTA */}
         <Link to="/ikigai">

@@ -37,36 +37,25 @@ const Meaning: React.FC = () => {
         </h1>
 
         <p
-          className="text-sm md:text-base text-muted-foreground mb-8 max-w-md leading-relaxed"
+          className="text-sm md:text-base text-muted-foreground mb-6 max-w-md leading-relaxed"
           style={{ fontFamily: 'Consolas, monospace' }}
         >
-          Ikigai is a Japanese framework for finding your purpose — the
-          intersection of what you love, what you're good at, what the
-          world needs, and what you can be paid for. This tool helps you
-          find yours.
+          Ikigai is the intersection of what you love, what you're great at,
+          what the world needs, and what pays. Find yours.
         </p>
 
-        {/* Pain points */}
-        <div className="mb-8">
-          <p
-            className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3"
-            style={{ fontFamily: 'Consolas, monospace' }}
-          >
-            Sound familiar?
-          </p>
-          <ul className="space-y-2">
-            {painPoints.map((point, i) => (
-              <li
-                key={i}
-                className="text-sm text-muted-foreground flex items-start gap-2"
-                style={{ fontFamily: 'Consolas, monospace' }}
-              >
-                <span className="text-primary mt-0.5">—</span>
-                {point}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <p
+          className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3"
+          style={{ fontFamily: 'Consolas, monospace' }}
+        >
+          Sound familiar?
+        </p>
+        <p
+          className="text-sm text-muted-foreground mb-8 max-w-md"
+          style={{ fontFamily: 'Consolas, monospace' }}
+        >
+          No clear direction. Uninspiring work. Untapped potential.
+        </p>
 
         {/* USPs */}
         <div className="mb-10">

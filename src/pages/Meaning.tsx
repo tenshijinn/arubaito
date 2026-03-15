@@ -3,18 +3,6 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const Meaning: React.FC = () => {
-  const painPoints = [
-    "No clear direction",
-    "Uninspiring work",
-    "Untapped potential",
-  ];
-
-  const usps = [
-    "Find purpose in 3 mins",
-    "Get your Ikigai Card",
-    "Know your ideal arena",
-    "Shareable proof of you",
-  ];
 
   return (
     <div className="min-h-screen bg-[#181818] flex flex-col lg:flex-row">

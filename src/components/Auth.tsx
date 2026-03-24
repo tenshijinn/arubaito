@@ -279,15 +279,11 @@ export const Auth = () => {
                 </p>
 
                 <Button
-                  onClick={() => {
-                    sessionStorage.removeItem("auth_intent");
-                    handleTwitterAuth("bluechip");
-                  }}
+                  onClick={() => navigate("/guestlist")}
                   className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
                   variant="outline"
-                  disabled={loading || returningUserLoading || bluechipLoading}
                 >
-                  {bluechipLoading ? "Authenticating..." : "Apply with Twitter Guest List"}
+                  Apply with Twitter Guest List
                 </Button>
 
                 <Button

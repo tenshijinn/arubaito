@@ -43,6 +43,7 @@ const App = () => (
               <Route path="/ikigai" element={<IkigaiCard />} />
               <Route path="/ikigai/tg" element={<TelegramRedirect />} />
               <Route path="/ns" element={<NetworkSchool />} />
+              <Route path="/guestlist" element={<GuestList />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

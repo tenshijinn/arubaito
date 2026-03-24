@@ -350,10 +350,10 @@ export const Auth = () => {
           ) : mode === "register" ? (
             <div className="space-y-4">
               <h2 className="text-xl font-semibold mb-4 text-foreground">
-                Sign up with X to Continue
+                Sign up with Twitter to Continue
               </h2>
 
-              <div className="space-y-3 mb-6 p-4 rounded-lg bg-accent/30 border">
+              <div className="space-y-3 mb-6 p-4">
                 <p className="text-sm font-medium text-foreground">Apply for Arubaito Club membership</p>
                 <p className="text-sm text-muted-foreground">Sign up with your X account to:</p>
                 <ul className="text-sm text-muted-foreground space-y-1 ml-4">
@@ -373,7 +373,7 @@ export const Auth = () => {
                 variant="default"
                 disabled={loading || returningUserLoading || bluechipLoading}
               >
-                {bluechipLoading ? "Authenticating..." : "Continue with X"}
+                {bluechipLoading ? "Authenticating..." : "Continue with Twitter"}
               </Button>
 
               <Button type="button" variant="ghost" onClick={() => setMode("main")} className="w-full" disabled={loading}>

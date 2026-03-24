@@ -65,6 +65,7 @@ export default function Rei() {
   // Auth mode: 'signin' for returning users, 'signup' for new users
   const [authMode, setAuthMode] = useState<'signin' | 'signup' | null>(null);
   const [noAccountFound, setNoAccountFound] = useState(false);
+  const [showSignUp, setShowSignUp] = useState(false);
   
   // Form state
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);

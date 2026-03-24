@@ -738,7 +738,7 @@ export default function Rei() {
     <div className="min-h-screen flex flex-col md:flex-row" style={{ backgroundImage: `url(${reiBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Left side - Form */}
       <div className="w-full md:w-1/2 min-h-screen flex flex-col">
-        <div className="flex-1 flex items-center justify-center overflow-y-auto" style={{ padding: '100px' }}>
+        <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto" style={{ padding: '100px' }}>
           {/* Title and progress above the card */}
           <div className="w-full max-w-2xl mb-6">
             <div className="flex items-center gap-2 mb-4">

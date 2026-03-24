@@ -841,7 +841,7 @@ export default function Rei() {
                     </Alert>
                   )}
                 </div>
-              )}
+              )
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">

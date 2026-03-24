@@ -19,111 +19,141 @@ Deno.serve(async (req) => {
       });
     }
 
-    const cleaned = twitter_handle.replace(/^@/, '').trim();
-    console.log(`Checking followers for @${cleaned}`);
+    const cleaned = twitter_handle.replace(/^@/, '').trim().toLowerCase();
+    console.log(`Checking follows for @${cleaned}`);
 
-    // Get a Bearer token using consumer credentials (App-only auth)
-    const consumerKey = Deno.env.get('TWITTER_DM_CONSUMER_KEY');
-    const consumerSecret = Deno.env.get('TWITTER_DM_CONSUMER_SECRET');
-    if (!consumerKey || !consumerSecret) {
-      throw new Error('Twitter API credentials not configured');
-    }
-
-    const credentials = btoa(`${encodeURIComponent(consumerKey)}:${encodeURIComponent(consumerSecret)}`);
-    const tokenRes = await fetch('https://api.x.com/oauth2/token', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Basic ${credentials}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: 'grant_type=client_credentials',
-    });
-
-    if (!tokenRes.ok) {
-      const err = await tokenRes.text();
-      console.error('Bearer token error:', err);
-      throw new Error('Failed to get Twitter bearer token');
-    }
-
-    const { access_token: bearerToken } = await tokenRes.json();
-
-    // Look up the user by username
-    const userRes = await fetch(`https://api.x.com/2/users/by/username/${cleaned}`, {
-      headers: { 'Authorization': `Bearer ${bearerToken}` },
-    });
-
-    if (!userRes.ok) {
-      if (userRes.status === 404 || userRes.status === 400) {
-        return new Response(JSON.stringify({ found: false, followed_by: null, error: 'User not found on Twitter' }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      throw new Error(`Twitter user lookup failed: ${userRes.status}`);
-    }
-
-    const userData = await userRes.json();
-    if (!userData.data) {
-      return new Response(JSON.stringify({ found: false, followed_by: null }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const userId = userData.data.id;
-
-    // Get the whitelist from our database
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    const socialDataKey = Deno.env.get('SOCIALDATA_API_KEY');
+    if (!socialDataKey) {
+      throw new Error('SOCIALDATA_API_KEY not configured');
+    }
+
+    // Rate limit: 1 check per 30 days per handle
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: recentCheck } = await supabase
+      .from('guest_list_checks')
+      .select('*')
+      .eq('twitter_handle', cleaned)
+      .gte('checked_at', thirtyDaysAgo)
+      .order('checked_at', { ascending: false })
+      .limit(1);
+
+    if (recentCheck && recentCheck.length > 0) {
+      const cached = recentCheck[0];
+      console.log(`Rate limited: returning cached result for @${cleaned}`);
+      return new Response(JSON.stringify({
+        found: cached.result_found,
+        followed_by: cached.followed_by,
+        rate_limited: true,
+        next_check_at: new Date(new Date(cached.checked_at).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Resolve target user ID via SocialData
+    const userRes = await fetch(`https://api.socialdata.tools/twitter/user/${cleaned}`, {
+      headers: { 'Authorization': `Bearer ${socialDataKey}` },
+    });
+
+    if (!userRes.ok) {
+      const errText = await userRes.text();
+      console.error('SocialData user lookup failed:', userRes.status, errText);
+      if (userRes.status === 404) {
+        // Log the check as not found
+        await supabase.from('guest_list_checks').insert({
+          twitter_handle: cleaned,
+          result_found: false,
+        });
+        return new Response(JSON.stringify({ found: false, followed_by: null, error: 'User not found on Twitter' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      throw new Error(`SocialData user lookup failed: ${userRes.status}`);
+    }
+
+    const userData = await userRes.json();
+    const targetUserId = userData.id_str || String(userData.id);
+    console.log(`Resolved @${cleaned} to ID ${targetUserId}`);
+
+    // Fetch guest list
     const { data: whitelistData } = await supabase
       .from('twitter_whitelist')
-      .select('twitter_handle');
+      .select('id, twitter_handle, twitter_user_id');
 
     if (!whitelistData || whitelistData.length === 0) {
+      await supabase.from('guest_list_checks').insert({
+        twitter_handle: cleaned,
+        result_found: false,
+      });
       return new Response(JSON.stringify({ found: false, followed_by: null }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const whitelistHandles = new Set(whitelistData.map(w => w.twitter_handle.toLowerCase()));
-
-    // Paginate through the user's followers to find a match
-    let paginationToken: string | undefined;
-    let matchedHandle: string | null = null;
-
-    // Check up to 5 pages (5000 followers max) to keep API usage reasonable
-    for (let page = 0; page < 5; page++) {
-      const url = new URL(`https://api.x.com/2/users/${userId}/followers`);
-      url.searchParams.set('max_results', '1000');
-      if (paginationToken) {
-        url.searchParams.set('pagination_token', paginationToken);
-      }
-
-      const followersRes = await fetch(url.toString(), {
-        headers: { 'Authorization': `Bearer ${bearerToken}` },
-      });
-
-      if (!followersRes.ok) {
-        // Rate limited or other error - return what we have
-        console.error(`Followers fetch failed: ${followersRes.status}`);
-        break;
-      }
-
-      const followersData = await followersRes.json();
-      const followers = followersData.data || [];
-
-      for (const follower of followers) {
-        if (whitelistHandles.has(follower.username.toLowerCase())) {
-          matchedHandle = follower.username;
-          break;
+    // Resolve any guest-list entries missing a cached twitter_user_id
+    for (const entry of whitelistData) {
+      if (!entry.twitter_user_id) {
+        try {
+          const guestRes = await fetch(`https://api.socialdata.tools/twitter/user/${entry.twitter_handle.toLowerCase()}`, {
+            headers: { 'Authorization': `Bearer ${socialDataKey}` },
+          });
+          if (guestRes.ok) {
+            const guestData = await guestRes.json();
+            const guestId = guestData.id_str || String(guestData.id);
+            entry.twitter_user_id = guestId;
+            // Cache it in DB
+            await supabase
+              .from('twitter_whitelist')
+              .update({ twitter_user_id: guestId })
+              .eq('id', entry.id);
+            console.log(`Cached ID for @${entry.twitter_handle}: ${guestId}`);
+          } else {
+            console.warn(`Could not resolve guest @${entry.twitter_handle}: ${guestRes.status}`);
+          }
+        } catch (e) {
+          console.warn(`Error resolving guest @${entry.twitter_handle}:`, e);
         }
       }
-
-      if (matchedHandle) break;
-
-      paginationToken = followersData.meta?.next_token;
-      if (!paginationToken) break;
     }
+
+    // Check if any guest-listed account follows the target user
+    let matchedHandle: string | null = null;
+
+    for (const entry of whitelistData) {
+      if (!entry.twitter_user_id) continue;
+
+      try {
+        const checkUrl = `https://api.socialdata.tools/twitter/user/${entry.twitter_user_id}/following/${targetUserId}`;
+        const checkRes = await fetch(checkUrl, {
+          headers: { 'Authorization': `Bearer ${socialDataKey}` },
+        });
+
+        if (checkRes.ok) {
+          const checkData = await checkRes.json();
+          // API returns { is_following: true/false }
+          if (checkData.is_following) {
+            matchedHandle = entry.twitter_handle;
+            console.log(`Match found: @${entry.twitter_handle} follows @${cleaned}`);
+            break;
+          }
+        } else {
+          console.warn(`Follow check failed for @${entry.twitter_handle}: ${checkRes.status}`);
+        }
+      } catch (e) {
+        console.warn(`Error checking follow for @${entry.twitter_handle}:`, e);
+      }
+    }
+
+    // Log the check
+    await supabase.from('guest_list_checks').insert({
+      twitter_handle: cleaned,
+      result_found: !!matchedHandle,
+      followed_by: matchedHandle,
+    });
 
     console.log(`Result for @${cleaned}: followed_by=${matchedHandle}`);
 

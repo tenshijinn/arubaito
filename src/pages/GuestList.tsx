@@ -20,12 +20,13 @@ if (typeof window !== "undefined") {
   }
 }
 
-type SearchResult = "found" | "followed_by" | "not_found" | null;
+type SearchResult = "found" | "followed_by" | "not_found" | "rate_limited" | null;
 
 const GuestList = () => {
   const [handle, setHandle] = useState("");
   const [searchResult, setSearchResult] = useState<SearchResult>(null);
   const [followedByHandle, setFollowedByHandle] = useState<string | null>(null);
+  const [nextCheckDate, setNextCheckDate] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
   const [checkingFollows, setCheckingFollows] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
@@ -144,7 +145,13 @@ const GuestList = () => {
 
         if (followError) throw followError;
 
-        if (followData?.found && followData?.followed_by) {
+        if (followData?.rate_limited && !followData?.found) {
+          setNextCheckDate(followData.next_check_at);
+          setSearchResult("rate_limited");
+        } else if (followData?.found && followData?.followed_by) {
+          setFollowedByHandle(followData.followed_by);
+          setSearchResult("followed_by");
+        } else if (followData?.rate_limited && followData?.found) {
           setFollowedByHandle(followData.followed_by);
           setSearchResult("followed_by");
         } else {
@@ -251,6 +258,25 @@ const GuestList = () => {
             <Button onClick={handleTwitterAuth} disabled={authLoading} className="w-full h-12 text-sm font-medium rounded-xl gl-btn" variant="outline">
               {authLoading ? "Authenticating..." : "Apply with Twitter Guest List"}
             </Button>
+          </div>
+        )}
+
+        {searchResult === "rate_limited" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-muted-foreground/40">
+              <XCircle className="w-4 h-4 text-muted-foreground shrink-0" />
+              <span className="text-xs text-foreground">
+                You've already checked this month. Try again after {nextCheckDate ? new Date(nextCheckDate).toLocaleDateString() : 'next month'}.
+              </span>
+            </div>
+
+            <div className="text-center space-y-2">
+              <p className="text-xs text-muted-foreground">Alternative Member Application Method</p>
+              <Button onClick={() => navigate("/arubaito")} className="w-full h-12 text-sm font-medium rounded-xl gl-btn" variant="outline">
+                Apply with CV Profile
+              </Button>
+              <p className="text-[11px] text-muted-foreground">Requires CV Profile Score of 80+</p>
+            </div>
           </div>
         )}
 

@@ -15,10 +15,10 @@ interface NotificationRequest {
   display_name?: string;
   profile_image_url?: string;
   x_user_id?: string;
+  contact_email?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -50,6 +50,7 @@ const handler = async (req: Request): Promise<Response> => {
         <p><strong>Twitter Handle:</strong> @${data.twitter_handle || "Unknown"}</p>
         <p><strong>Display Name:</strong> ${data.display_name || "Unknown"}</p>
         <p><strong>X User ID:</strong> ${data.x_user_id || "Unknown"}</p>
+        <p><strong>Contact Email:</strong> ${data.contact_email || "Not provided"}</p>
         ${data.profile_image_url ? `<p><strong>Profile Image:</strong> <img src="${data.profile_image_url}" width="48" height="48" /></p>` : ""}
         <p><strong>Requested at:</strong> ${new Date().toISOString()}</p>
         <hr />
@@ -59,7 +60,6 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Invalid notification type");
     }
 
-    // Send email using Resend API directly
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {

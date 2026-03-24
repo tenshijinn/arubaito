@@ -1082,6 +1082,7 @@ export type Database = {
       }
       twitter_whitelist_submissions: {
         Row: {
+          contact_email: string | null
           display_name: string | null
           dm_sent: boolean | null
           dm_sent_at: string | null
@@ -1096,6 +1097,7 @@ export type Database = {
           x_user_id: string | null
         }
         Insert: {
+          contact_email?: string | null
           display_name?: string | null
           dm_sent?: boolean | null
           dm_sent_at?: string | null
@@ -1110,6 +1112,7 @@ export type Database = {
           x_user_id?: string | null
         }
         Update: {
+          contact_email?: string | null
           display_name?: string | null
           dm_sent?: boolean | null
           dm_sent_at?: string | null

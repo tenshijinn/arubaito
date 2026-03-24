@@ -737,13 +737,7 @@ export default function Rei() {
     <div className="min-h-screen flex flex-col md:flex-row" style={{ backgroundImage: `url(${reiBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Left side - Form */}
       <div className="w-full md:w-1/2 min-h-screen flex flex-col">
-        {/* Rei Logo Header */}
-        <div className="w-full z-50">
-          <div className="px-6 py-3 flex justify-center">
-            <img src={reiLogo} alt="REI" className="h-12 w-auto" />
-          </div>
-        </div>
-        <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="flex-1 flex items-center justify-center overflow-y-auto" style={{ padding: '100px' }}>
           <Card className="w-full max-w-2xl bg-transparent">
         <CardHeader>
           <div className="flex items-center gap-2">

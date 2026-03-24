@@ -373,7 +373,7 @@ export const Auth = () => {
                 variant="default"
                 disabled={loading || returningUserLoading || bluechipLoading}
               >
-                {bluechipLoading ? "Authenticating..." : "Continue with X"}
+                {bluechipLoading ? "Authenticating..." : "Continue with Twitter"}
               </Button>
 
               <Button type="button" variant="ghost" onClick={() => setMode("main")} className="w-full" disabled={loading}>

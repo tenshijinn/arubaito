@@ -317,7 +317,7 @@ export const Auth = () => {
                   max-width: 100% !important;
                   background-color: transparent !important;
                   color: hsl(var(--muted-foreground)) !important;
-                  border: 1px solid hsl(var(--primary) / 0.4) !important;
+                  border: 1px solid hsl(var(--foreground)) !important;
                   display: flex !important;
                   align-items: center !important;
                   justify-content: center !important;

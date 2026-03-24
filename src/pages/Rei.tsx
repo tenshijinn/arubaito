@@ -738,42 +738,35 @@ export default function Rei() {
     <div className="min-h-screen flex flex-col md:flex-row" style={{ backgroundImage: `url(${reiBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Left side - Form */}
       <div className="w-full md:w-1/2 min-h-screen flex flex-col">
-        <div className="flex-1 flex items-center justify-center overflow-y-auto" style={{ padding: '100px' }}>
-          <Card className="w-full max-w-2xl bg-transparent">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <CardTitle className="text-3xl font-bold">Rei Proof-Of-Talent Portal</CardTitle>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-5 w-5 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent className="max-w-sm">
-                  <p>Register as a Web3 contributor by verifying your identity, connecting your wallet, and submitting your video CV. Upon completion, you'll receive a Soul-Bound NFT proof of talent.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+        <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto" style={{ padding: '100px' }}>
+          {/* Title and progress above the card */}
+          <div className="w-full max-w-2xl mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <h1 className="text-3xl font-bold">Rei Proof-Of-Talent Portal</h1>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-5 w-5 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <p>Register as a Web3 contributor by verifying your identity, connecting your wallet, and submitting your video CV. Upon completion, you'll receive a Soul-Bound NFT proof of talent.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="flex items-center gap-2">
+              {[1, 2, 3].map((s) => (
+                <div key={s} className="flex items-center flex-1">
+                  <div className={`h-2 rounded-full flex-1 ${s <= step ? 'bg-primary' : 'bg-muted'}`} />
+                </div>
+              ))}
+            </div>
           </div>
-          
-          {/* Progress indicator */}
-          <div className="flex items-center gap-2 mt-6">
-            {[1, 2, 3].map((s) => (
-              <div key={s} className="flex items-center flex-1">
-                <div className={`h-2 rounded-full flex-1 ${s <= step ? 'bg-primary' : 'bg-muted'}`} />
-              </div>
-            ))}
-          </div>
-        </CardHeader>
 
-        <CardContent className="space-y-6">
+          <Card className="w-full max-w-2xl bg-transparent">
+        <CardContent className="space-y-6 pt-6">
           {/* Step 1: Twitter Verification */}
           <div className={step !== 1 && twitterUser ? 'opacity-50' : ''}>
-            <div className="flex items-center gap-2 mb-4">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${twitterUser ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                {twitterUser ? <Check className="h-4 w-4" /> : '1'}
-              </div>
-              <h3 className="text-lg font-semibold">Verify Your Identity</h3>
-            </div>
 
             {!twitterUser ? (
               showSignUp ? (

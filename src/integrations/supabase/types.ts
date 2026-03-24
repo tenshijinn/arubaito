@@ -387,6 +387,30 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_list_checks: {
+        Row: {
+          checked_at: string
+          followed_by: string | null
+          id: string
+          result_found: boolean
+          twitter_handle: string
+        }
+        Insert: {
+          checked_at?: string
+          followed_by?: string | null
+          id?: string
+          result_found?: boolean
+          twitter_handle: string
+        }
+        Update: {
+          checked_at?: string
+          followed_by?: string | null
+          id?: string
+          result_found?: boolean
+          twitter_handle?: string
+        }
+        Relationships: []
+      }
       job_drafts: {
         Row: {
           company_name: string | null
@@ -1161,6 +1185,7 @@ export type Database = {
           id: string
           notes: string | null
           twitter_handle: string
+          twitter_user_id: string | null
           updated_at: string | null
           verification_type: Database["public"]["Enums"]["verification_type"]
           verified_by: string | null
@@ -1172,6 +1197,7 @@ export type Database = {
           id?: string
           notes?: string | null
           twitter_handle: string
+          twitter_user_id?: string | null
           updated_at?: string | null
           verification_type: Database["public"]["Enums"]["verification_type"]
           verified_by?: string | null
@@ -1183,6 +1209,7 @@ export type Database = {
           id?: string
           notes?: string | null
           twitter_handle?: string
+          twitter_user_id?: string | null
           updated_at?: string | null
           verification_type?: Database["public"]["Enums"]["verification_type"]
           verified_by?: string | null

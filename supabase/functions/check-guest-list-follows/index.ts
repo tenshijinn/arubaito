@@ -11,6 +11,16 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // DORMANT: SocialData API paused to save costs. Re-enable when funded.
+    return new Response(JSON.stringify({
+      found: false,
+      followed_by: null,
+      dormant: true,
+      message: 'Follow verification is temporarily unavailable. Please use the CV Profile path to apply.',
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
     const { twitter_handle } = await req.json();
     if (!twitter_handle) {
       return new Response(JSON.stringify({ error: 'twitter_handle required' }), {

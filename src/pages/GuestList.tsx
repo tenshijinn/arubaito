@@ -145,7 +145,10 @@ const GuestList = () => {
 
         if (followError) throw followError;
 
-        if (followData?.rate_limited && !followData?.found) {
+        if (followData?.dormant) {
+          // Follow verification is paused — skip to not_found
+          setSearchResult("not_found");
+        } else if (followData?.rate_limited && !followData?.found) {
           setNextCheckDate(followData.next_check_at);
           setSearchResult("rate_limited");
         } else if (followData?.found && followData?.followed_by) {

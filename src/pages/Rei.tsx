@@ -1022,8 +1022,18 @@ export default function Rei() {
           )}
         </CardContent>
       </Card>
+        </div>
       </div>
 
+      {/* Right side - ASCII Art */}
+      <div className="hidden md:block w-1/2 min-h-screen">
+        <iframe
+          src="/ascii/rei.html"
+          className="w-full h-full border-0"
+          title="Rei ASCII Art"
+          style={{ minHeight: '100vh' }}
+        />
+      </div>
     </div>
   );
 }

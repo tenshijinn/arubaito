@@ -238,7 +238,7 @@ export const Auth = () => {
           {mode === "main" ? (
             <div className="space-y-4">
               {/* Members section */}
-              <Card className="p-8 bg-transparent border border-primary/40 rounded-lg">
+              <Card className="p-8 bg-transparent border border-primary/40 rounded-xl">
                 <h2 className="text-2xl font-bold text-center mb-2 font-display text-primary">
                   Members
                 </h2>

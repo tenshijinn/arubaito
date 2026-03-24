@@ -215,33 +215,39 @@ const GuestList = () => {
 
             <hr className="border-foreground/20" />
 
-            <div className="text-center space-y-3">
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Think your Twitter should've been on the Guest List? Thought Leaders, OGs, KOLs — submit your account and we'll vet your profile and contact you if approved.
-              </p>
+            <details className="group">
+              <summary className="flex items-center justify-center gap-2 cursor-pointer text-xs text-muted-foreground hover:text-primary transition-colors py-1 list-none [&::-webkit-details-marker]:hidden">
+                How to get onto the Guest List
+                <svg className="w-3 h-3 transition-transform group-open:rotate-180" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+              </summary>
+              <div className="text-center space-y-3 pt-3">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Think your Twitter should've been on the Guest List? Thought Leaders, OGs, KOLs — submit your account and we'll vet your profile and contact you if approved.
+                </p>
 
-              {!submitted ? (
-                <>
-                  <Input
-                    type="email"
-                    placeholder="your@email.com"
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    className="h-12 text-base rounded-xl gl-input"
-                  />
-                  <Button
-                    onClick={handleSubmitForReview}
-                    disabled={submitting}
-                    className="w-full h-12 text-sm font-medium rounded-xl gl-btn"
-                    variant="outline"
-                  >
-                    {submitting ? "Submitting..." : "Submit for Review"}
-                  </Button>
-                </>
-              ) : (
-                <p className="text-xs text-primary">Submitted — we'll be in touch.</p>
-              )}
-            </div>
+                {!submitted ? (
+                  <>
+                    <Input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
+                      className="h-12 text-base rounded-xl gl-input"
+                    />
+                    <Button
+                      onClick={handleSubmitForReview}
+                      disabled={submitting}
+                      className="w-full h-12 text-sm font-medium rounded-xl gl-btn"
+                      variant="outline"
+                    >
+                      {submitting ? "Submitting..." : "Submit for Review"}
+                    </Button>
+                  </>
+                ) : (
+                  <p className="text-xs text-primary">Submitted — we'll be in touch.</p>
+                )}
+              </div>
+            </details>
 
             <hr className="border-foreground/20" />
 

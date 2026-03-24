@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { Search, CheckCircle, XCircle } from "lucide-react";
+import { Search, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import guestlistIcon from "@/assets/guestlist-icon.png";
 
 // Twitter OAuth callback handler for /guestlist
@@ -20,10 +20,14 @@ if (typeof window !== "undefined") {
   }
 }
 
+type SearchResult = "found" | "followed_by" | "not_found" | null;
+
 const GuestList = () => {
   const [handle, setHandle] = useState("");
-  const [searchResult, setSearchResult] = useState<"found" | "not_found" | null>(null);
+  const [searchResult, setSearchResult] = useState<SearchResult>(null);
+  const [followedByHandle, setFollowedByHandle] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
+  const [checkingFollows, setCheckingFollows] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [contactEmail, setContactEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -116,15 +120,46 @@ const GuestList = () => {
     }
     setSearching(true);
     setSearchResult(null);
+    setFollowedByHandle(null);
     setSubmitted(false);
     try {
+      // Step 1: Check direct whitelist
       const { data, error } = await supabase.from("twitter_whitelist").select("id").ilike("twitter_handle", cleaned).limit(1);
       if (error) throw error;
-      setSearchResult(data && data.length > 0 ? "found" : "not_found");
+
+      if (data && data.length > 0) {
+        setSearchResult("found");
+        setSearching(false);
+        return;
+      }
+
+      // Step 2: Not directly on the list — check if followed by someone on the list
+      setCheckingFollows(true);
+      setSearching(false);
+
+      try {
+        const { data: followData, error: followError } = await supabase.functions.invoke("check-guest-list-follows", {
+          body: { twitter_handle: cleaned }
+        });
+
+        if (followError) throw followError;
+
+        if (followData?.found && followData?.followed_by) {
+          setFollowedByHandle(followData.followed_by);
+          setSearchResult("followed_by");
+        } else {
+          setSearchResult("not_found");
+        }
+      } catch (followErr) {
+        console.error("Follow check error:", followErr);
+        // If follow check fails (rate limit etc.), fall back to not_found
+        setSearchResult("not_found");
+      } finally {
+        setCheckingFollows(false);
+      }
     } catch (error) {
       console.error("Search error:", error);
       toast({ title: "Error", description: "Failed to search the guest list.", variant: "destructive" });
-    } finally {
       setSearching(false);
     }
   };
@@ -172,6 +207,8 @@ const GuestList = () => {
     }
   };
 
+  const isEligible = searchResult === "found" || searchResult === "followed_by";
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 font-mono">
       <img src={guestlistIcon} alt="Guest List" className="w-28 h-auto mb-8" />
@@ -185,20 +222,31 @@ const GuestList = () => {
           <Input
             placeholder="@handle"
             value={handle}
-            onChange={(e) => { setHandle(e.target.value); setSearchResult(null); setSubmitted(false); }}
+            onChange={(e) => { setHandle(e.target.value); setSearchResult(null); setSubmitted(false); setFollowedByHandle(null); }}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             className="h-12 text-base rounded-xl gl-input"
           />
-          <Button onClick={handleSearch} disabled={searching} className="h-12 px-5 rounded-xl gl-btn" variant="outline">
-            {searching ? "..." : <Search className="w-4 h-4" />}
+          <Button onClick={handleSearch} disabled={searching || checkingFollows} className="h-12 px-5 rounded-xl gl-btn" variant="outline">
+            {searching || checkingFollows ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
           </Button>
         </div>
 
-        {searchResult === "found" && (
+        {checkingFollows && (
+          <div className="flex items-center gap-3 p-3 rounded-xl border border-muted-foreground/40 mb-4">
+            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0" />
+            <span className="text-xs text-muted-foreground">Checking if you're followed by someone on the Guest List...</span>
+          </div>
+        )}
+
+        {isEligible && (
           <div className="space-y-4">
             <div className="flex items-center gap-3 p-3 rounded-xl border border-primary/40">
               <CheckCircle className="w-4 h-4 text-primary shrink-0" />
-              <span className="text-xs text-foreground">You're on the Guest List</span>
+              <span className="text-xs text-foreground">
+                {searchResult === "found"
+                  ? "You're on the Guest List"
+                  : `You're followed by @${followedByHandle} who is on the Guest List`}
+              </span>
             </div>
             <Button onClick={handleTwitterAuth} disabled={authLoading} className="w-full h-12 text-sm font-medium rounded-xl gl-btn" variant="outline">
               {authLoading ? "Authenticating..." : "Apply with Twitter Guest List"}

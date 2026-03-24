@@ -145,7 +145,13 @@ const GuestList = () => {
 
         if (followError) throw followError;
 
-        if (followData?.found && followData?.followed_by) {
+        if (followData?.rate_limited && !followData?.found) {
+          setNextCheckDate(followData.next_check_at);
+          setSearchResult("rate_limited");
+        } else if (followData?.found && followData?.followed_by) {
+          setFollowedByHandle(followData.followed_by);
+          setSearchResult("followed_by");
+        } else if (followData?.rate_limited && followData?.found) {
           setFollowedByHandle(followData.followed_by);
           setSearchResult("followed_by");
         } else {

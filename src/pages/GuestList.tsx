@@ -261,6 +261,25 @@ const GuestList = () => {
           </div>
         )}
 
+        {searchResult === "rate_limited" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-muted-foreground/40">
+              <XCircle className="w-4 h-4 text-muted-foreground shrink-0" />
+              <span className="text-xs text-foreground">
+                You've already checked this month. Try again after {nextCheckDate ? new Date(nextCheckDate).toLocaleDateString() : 'next month'}.
+              </span>
+            </div>
+
+            <div className="text-center space-y-2">
+              <p className="text-xs text-muted-foreground">Alternative Member Application Method</p>
+              <Button onClick={() => navigate("/arubaito")} className="w-full h-12 text-sm font-medium rounded-xl gl-btn" variant="outline">
+                Apply with CV Profile
+              </Button>
+              <p className="text-[11px] text-muted-foreground">Requires CV Profile Score of 80+</p>
+            </div>
+          </div>
+        )}
+
         {searchResult === "not_found" && (
           <div className="space-y-4">
             <div className="flex items-center gap-3 p-3 rounded-xl border border-destructive/40">

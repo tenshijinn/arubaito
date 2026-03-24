@@ -268,10 +268,6 @@ export const Auth = () => {
                 </div>
               </Card>
 
-              {/* Divider */}
-              <div className="flex items-center py-2">
-                <div className="flex-1 border-t border-primary/30" />
-              </div>
 
               {/* Non-Members section */}
               <div className="space-y-3">

@@ -1,116 +1,83 @@
 project_id = "hmdxufttehhpyyqoaosz"
 
 [auth]
-enabled = true
-site_url = "https://arubaito.app"
+  enabled = true
+  site_url = "https://arubaito.app"
 
-[functions.analyze-cv]
-verify_jwt = true
-
-[functions.get-treasury-data]
-verify_jwt = false
-
-[functions.analyze-rei-profile]
-verify_jwt = false
-
-[functions.transcribe-video]
-verify_jwt = false
-
-[functions.twitter-oauth]
-verify_jwt = false
-
-[functions.submit-rei-registration]
-verify_jwt = false
-
-[functions.submit-whitelist-request]
-verify_jwt = false
-
-[functions.approve-whitelist-submission]
-verify_jwt = true
-
-[functions.send-twitter-dm]
-verify_jwt = true
-
-[functions.verify-sol-payment]
-verify_jwt = false
-
-[functions.match-talent-to-jobs]
-verify_jwt = false
-
-[functions.match-jobs-to-talent]
-verify_jwt = false
-
-[functions.rei-chat]
-verify_jwt = false
-
-[functions.extract-og-image]
-verify_jwt = false
-
-[functions.check-duplicate-opportunity]
-verify_jwt = false
-
-[functions.submit-community-opportunity]
-verify_jwt = false
-
-[functions.review-community-submission]
-verify_jwt = true
-
-[functions.verify-solana-pay]
-verify_jwt = false
-
-[functions.award-payment-points]
-verify_jwt = true
-
-[functions.x402-create-payment]
-verify_jwt = false
-
-[functions.x402-verify-payment]
-verify_jwt = false
-
-[functions.reset-wallet-account]
-verify_jwt = false
-
-[functions.linkedin-oauth]
-verify_jwt = false
-
-[functions.send-club-notification]
-verify_jwt = false
-
-[functions.check-rei-registration]
-verify_jwt = false
-
-[functions.ingest-job-signals]
-verify_jwt = false
-
-[functions.fetch-wallet-nfts]
-verify_jwt = false
-
-[functions.generate-referral-code]
-verify_jwt = false
-
-[functions.track-referral-click]
-verify_jwt = false
-
-[functions.track-referral-conversion]
-verify_jwt = false
-
-[functions.get-referral-stats]
-verify_jwt = false
-
-[functions.oracle-tweet-tracker]
-verify_jwt = false
-
-[functions.search-jobs]
-verify_jwt = false
-
-[functions.ingest-rss-feeds]
-verify_jwt = false
-
-[functions.cron-trigger]
-verify_jwt = false
-
-[functions.generate-ikigai]
-verify_jwt = false
-
-[functions.process-email-queue]
-verify_jwt = true
+[functions]
+  [functions.analyze-cv]
+    verify_jwt = true
+  [functions.analyze-rei-profile]
+    verify_jwt = false
+  [functions.approve-whitelist-submission]
+    verify_jwt = true
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.award-payment-points]
+    verify_jwt = true
+  [functions.check-duplicate-opportunity]
+    verify_jwt = false
+  [functions.check-rei-registration]
+    verify_jwt = false
+  [functions.cron-trigger]
+    verify_jwt = false
+  [functions.extract-og-image]
+    verify_jwt = false
+  [functions.fetch-wallet-nfts]
+    verify_jwt = false
+  [functions.generate-ikigai]
+    verify_jwt = false
+  [functions.generate-referral-code]
+    verify_jwt = false
+  [functions.get-referral-stats]
+    verify_jwt = false
+  [functions.get-treasury-data]
+    verify_jwt = false
+  [functions.ingest-job-signals]
+    verify_jwt = false
+  [functions.ingest-rss-feeds]
+    verify_jwt = false
+  [functions.linkedin-oauth]
+    verify_jwt = false
+  [functions.match-jobs-to-talent]
+    verify_jwt = false
+  [functions.match-talent-to-jobs]
+    verify_jwt = false
+  [functions.oracle-tweet-tracker]
+    verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
+  [functions.rei-chat]
+    verify_jwt = false
+  [functions.reset-wallet-account]
+    verify_jwt = false
+  [functions.review-community-submission]
+    verify_jwt = true
+  [functions.search-jobs]
+    verify_jwt = false
+  [functions.send-club-notification]
+    verify_jwt = false
+  [functions.send-twitter-dm]
+    verify_jwt = true
+  [functions.submit-community-opportunity]
+    verify_jwt = false
+  [functions.submit-rei-registration]
+    verify_jwt = false
+  [functions.submit-whitelist-request]
+    verify_jwt = false
+  [functions.track-referral-click]
+    verify_jwt = false
+  [functions.track-referral-conversion]
+    verify_jwt = false
+  [functions.transcribe-video]
+    verify_jwt = false
+  [functions.twitter-oauth]
+    verify_jwt = false
+  [functions.verify-sol-payment]
+    verify_jwt = false
+  [functions.verify-solana-pay]
+    verify_jwt = false
+  [functions.x402-create-payment]
+    verify_jwt = false
+  [functions.x402-verify-payment]
+    verify_jwt = false

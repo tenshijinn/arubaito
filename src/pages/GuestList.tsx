@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Search, CheckCircle, XCircle } from "lucide-react";
+import guestlistIcon from "@/assets/guestlist-icon.png";
 
 // Twitter OAuth callback handler for /guestlist
 if (typeof window !== "undefined") {
@@ -28,7 +29,6 @@ const GuestList = () => {
   const navigate = useNavigate();
   const twitterProcessingRef = useRef(false);
 
-  // Handle Twitter OAuth callback
   useEffect(() => {
     const handleTwitterCallback = async () => {
       const twitterCode = sessionStorage.getItem("twitter_code");
@@ -53,11 +53,7 @@ const GuestList = () => {
           if (error) throw error;
 
           if (!data.bluechip_verified) {
-            toast({
-              title: "Not on Guest List",
-              description: "Your Twitter account is not on the guest list.",
-              variant: "destructive"
-            });
+            toast({ title: "Not on Guest List", description: "Your Twitter account is not on the guest list.", variant: "destructive" });
             setAuthLoading(false);
             twitterProcessingRef.current = false;
             return;
@@ -66,24 +62,15 @@ const GuestList = () => {
           const twitterEmail = `${data.user.handle}@twitter.oauth`;
           const twitterPassword = data.user.x_user_id + "_twitter_auth";
 
-          // Check if account already exists
-          const { error: signInError } = await supabase.auth.signInWithPassword({
-            email: twitterEmail,
-            password: twitterPassword
-          });
+          const { error: signInError } = await supabase.auth.signInWithPassword({ email: twitterEmail, password: twitterPassword });
           if (!signInError) {
             await supabase.auth.signOut();
-            toast({
-              title: "Account Already Exists",
-              description: "You already have an account. Please use 'Guest Listed Twitter' sign in on /arubaito.",
-              variant: "destructive"
-            });
+            toast({ title: "Account Already Exists", description: "You already have an account. Please use 'Guest Listed Twitter' sign in on /arubaito.", variant: "destructive" });
             setAuthLoading(false);
             twitterProcessingRef.current = false;
             return;
           }
 
-          // Sign up new user
           const { error: signUpError } = await supabase.auth.signUp({
             email: twitterEmail,
             password: twitterPassword,
@@ -98,18 +85,11 @@ const GuestList = () => {
           });
           if (signUpError) throw signUpError;
 
-          toast({
-            title: "Welcome!",
-            description: `Signed in with Twitter as @${data.user.handle}`
-          });
+          toast({ title: "Welcome!", description: `Signed in with Twitter as @${data.user.handle}` });
           navigate("/club");
         } catch (error) {
           console.error("Twitter OAuth error:", error);
-          toast({
-            title: "Authentication Failed",
-            description: error instanceof Error ? error.message : "Failed to authenticate with Twitter",
-            variant: "destructive"
-          });
+          toast({ title: "Authentication Failed", description: error instanceof Error ? error.message : "Failed to authenticate with Twitter", variant: "destructive" });
         } finally {
           setAuthLoading(false);
           twitterProcessingRef.current = false;
@@ -128,12 +108,7 @@ const GuestList = () => {
     setSearching(true);
     setSearchResult(null);
     try {
-      const { data, error } = await supabase
-        .from("twitter_whitelist")
-        .select("id")
-        .ilike("twitter_handle", cleaned)
-        .limit(1);
-
+      const { data, error } = await supabase.from("twitter_whitelist").select("id").ilike("twitter_handle", cleaned).limit(1);
       if (error) throw error;
       setSearchResult(data && data.length > 0 ? "found" : "not_found");
     } catch (error) {
@@ -148,10 +123,7 @@ const GuestList = () => {
     try {
       setAuthLoading(true);
       const { data, error } = await supabase.functions.invoke("twitter-oauth", {
-        body: {
-          action: "getAuthUrl",
-          redirectUri: window.location.origin + "/guestlist"
-        }
+        body: { action: "getAuthUrl", redirectUri: window.location.origin + "/guestlist" }
       });
       if (error) throw error;
       sessionStorage.setItem("twitter_code_verifier", data.codeVerifier);
@@ -165,92 +137,75 @@ const GuestList = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12 font-mono">
-      <Card className="w-full max-w-md p-8 bg-transparent border border-primary/40 rounded-xl">
-        <h1 className="text-2xl font-bold text-center mb-8 font-display text-primary">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 font-mono">
+      <img src={guestlistIcon} alt="Guest List" className="w-28 h-auto mb-8" />
+
+      <Card className="w-full max-w-md p-8 bg-transparent border border-foreground/40 rounded-xl">
+        <h1 className="text-lg font-bold text-center mb-6 font-display text-primary whitespace-nowrap">
           Is your Twitter on the Guest List?
         </h1>
 
-        {/* Search */}
         <div className="flex gap-2 mb-6">
           <Input
             placeholder="@handle"
             value={handle}
             onChange={(e) => { setHandle(e.target.value); setSearchResult(null); }}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            className="h-14 text-lg rounded-xl cv-profile-button-input"
+            className="h-12 text-base rounded-xl gl-input"
           />
-          <Button
-            onClick={handleSearch}
-            disabled={searching}
-            className="h-14 px-6 rounded-xl cv-profile-button"
-            variant="outline"
-          >
-            {searching ? "..." : <Search className="w-5 h-5" />}
+          <Button onClick={handleSearch} disabled={searching} className="h-12 px-5 rounded-xl gl-btn" variant="outline">
+            {searching ? "..." : <Search className="w-4 h-4" />}
           </Button>
         </div>
 
-        {/* Result */}
         {searchResult === "found" && (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-4 rounded-xl border border-primary/40">
-              <CheckCircle className="w-5 h-5 text-primary shrink-0" />
-              <span className="text-sm text-foreground">You're on the Guest List</span>
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-primary/40">
+              <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+              <span className="text-xs text-foreground">You're on the Guest List</span>
             </div>
-
-            <Button
-              onClick={handleTwitterAuth}
-              disabled={authLoading}
-              className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
-              variant="outline"
-            >
+            <Button onClick={handleTwitterAuth} disabled={authLoading} className="w-full h-12 text-sm font-medium rounded-xl gl-btn" variant="outline">
               {authLoading ? "Authenticating..." : "Apply with Twitter Guest List"}
             </Button>
           </div>
         )}
 
         {searchResult === "not_found" && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-4 rounded-xl border border-destructive/40">
-              <XCircle className="w-5 h-5 text-destructive shrink-0" />
-              <span className="text-sm text-foreground">You're not on the Guest List</span>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-destructive/40">
+              <XCircle className="w-4 h-4 text-destructive shrink-0" />
+              <span className="text-xs text-foreground">You're not on the Guest List</span>
             </div>
 
-            <p className="text-xs text-muted-foreground text-center">
-              <button
-                onClick={() => navigate("/arubaito")}
-                className="underline underline-offset-4 hover:text-primary transition-colors"
-              >
+            <div className="text-center space-y-2">
+              <p className="text-xs text-muted-foreground">Alternative Member Application Method</p>
+              <Button onClick={() => navigate("/arubaito")} className="w-full h-12 text-sm font-medium rounded-xl gl-btn" variant="outline">
                 Apply with CV Profile
-              </button>
-              {" "}instead — requires CV Profile Score of 80+
-            </p>
+              </Button>
+              <p className="text-[11px] text-muted-foreground">Requires CV Profile Score of 80+</p>
+            </div>
           </div>
         )}
 
-        {/* Back link */}
         <div className="mt-8 text-center">
-          <button
-            onClick={() => navigate("/arubaito")}
-            className="text-xs text-muted-foreground underline underline-offset-4 hover:text-primary transition-colors"
-          >
+          <button onClick={() => navigate("/arubaito")} className="text-xs text-muted-foreground underline underline-offset-4 hover:text-primary transition-colors">
             Back
           </button>
         </div>
       </Card>
 
       <style>{`
-        .cv-profile-button {
+        .gl-btn {
           color: hsl(var(--foreground)) !important;
           border: 1px solid hsl(var(--foreground)) !important;
           background-color: transparent !important;
         }
-        .cv-profile-button:hover {
+        .gl-btn:hover {
           background-color: hsl(var(--primary)) !important;
           color: hsl(var(--background)) !important;
           border-color: hsl(var(--primary)) !important;
         }
-        .cv-profile-button-input {
+        .gl-input {
           border: 1px solid hsl(var(--foreground)) !important;
           background-color: transparent !important;
         }

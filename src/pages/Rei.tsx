@@ -733,15 +733,17 @@ export default function Rei() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundImage: `url(${reiBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
-      {/* Rei Logo Header */}
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex justify-center">
-          <img src={reiLogo} alt="REI" className="h-12 w-auto" />
+    <div className="min-h-screen flex flex-col md:flex-row" style={{ backgroundImage: `url(${reiBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      {/* Left side - Form */}
+      <div className="w-full md:w-1/2 min-h-screen flex flex-col">
+        {/* Rei Logo Header */}
+        <div className="w-full z-50">
+          <div className="px-6 py-3 flex justify-center">
+            <img src={reiLogo} alt="REI" className="h-12 w-auto" />
+          </div>
         </div>
-      </div>
-      <div className="flex items-center justify-center p-4 min-h-screen pt-20">
-        <Card className="w-full max-w-2xl bg-transparent">
+        <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+          <Card className="w-full max-w-2xl bg-transparent">
         <CardHeader>
           <div className="flex items-center gap-2">
             <CardTitle className="text-3xl font-bold">Rei Proof-Of-Talent Portal</CardTitle>
@@ -1020,8 +1022,18 @@ export default function Rei() {
           )}
         </CardContent>
       </Card>
+        </div>
       </div>
 
+      {/* Right side - ASCII Art */}
+      <div className="hidden md:block w-1/2 min-h-screen">
+        <iframe
+          src="/ascii/rei.html"
+          className="w-full h-full border-0"
+          title="Rei ASCII Art"
+          style={{ minHeight: '100vh' }}
+        />
+      </div>
     </div>
   );
 }

@@ -5,24 +5,22 @@ interface MessageContentProps {
 }
 
 export const MessageContent = ({ content }: MessageContentProps) => {
-  // Parse content and convert markdown patterns to React elements
   const parseContent = (text: string) => {
     const elements: (string | JSX.Element)[] = [];
     let keyIndex = 0;
 
-    // Split by lines first to handle separators
     const lines = text.split('\n');
     
     lines.forEach((line, lineIndex) => {
       // Handle horizontal rule (---)
       if (line.trim() === '---') {
         elements.push(
-          <div key={`sep-${keyIndex++}`} className="my-4 border-t border-primary/30" />
+          <div key={`sep-${keyIndex++}`} className="term-divider" style={{ margin: '8px 0' }} />
         );
         return;
       }
 
-      // Handle numbered titles (1. Title, 2. Title, etc.) - render with highlight
+      // Handle numbered titles
       const titleMatch = line.match(/^(\d+)\.\s+(.+)$/);
       if (titleMatch) {
         const number = titleMatch[1];
@@ -30,59 +28,51 @@ export const MessageContent = ({ content }: MessageContentProps) => {
         const parsedTitle = parseLine(titleContent, keyIndex);
         keyIndex += parsedTitle.keyCount;
         elements.push(
-          <div key={`title-${keyIndex++}`} className="font-bold text-foreground mt-3 first:mt-0">
-            <span className="bg-primary/15 px-1 rounded-sm">{number}. {parsedTitle.elements}</span>
+          <div key={`title-${keyIndex++}`} style={{ fontWeight: 500, color: '#f0ede8', marginTop: '8px' }}>
+            <span style={{ background: 'hsla(18,52%,82%,0.12)', padding: '1px 4px', borderRadius: '4px' }}>
+              {number}. {parsedTitle.elements}
+            </span>
           </div>
         );
-        if (lineIndex < lines.length - 1) {
-          elements.push('\n');
-        }
+        if (lineIndex < lines.length - 1) elements.push('\n');
         return;
       }
 
-      // Handle > chevron prefix for details lines (company/location/pay)
+      // Handle > chevron prefix
       if (line.trim().startsWith('> ') && !line.trim().startsWith('>> ')) {
         const innerContent = line.trim().substring(2);
         const parsedInner = parseLine(innerContent, keyIndex);
         keyIndex += parsedInner.keyCount;
         elements.push(
-          <div key={`chevron-${keyIndex++}`} className="flex items-start gap-2 text-muted-foreground">
-            <span className="text-primary/70 font-mono">▶</span>
+          <div key={`chevron-${keyIndex++}`} style={{ display: 'flex', alignItems: 'start', gap: '8px', color: '#a09e9a' }}>
+            <span style={{ color: 'hsla(18,52%,82%,0.5)' }}>▶</span>
             <span>{parsedInner.elements}</span>
           </div>
         );
-        if (lineIndex < lines.length - 1) {
-          elements.push('\n');
-        }
+        if (lineIndex < lines.length - 1) elements.push('\n');
         return;
       }
 
-      // Handle >> action prefix (apply links)
+      // Handle >> action prefix
       if (line.trim().startsWith('>> ')) {
         const innerContent = line.trim().substring(3);
         const parsedInner = parseLine(innerContent, keyIndex);
         keyIndex += parsedInner.keyCount;
         elements.push(
-          <div key={`action-${keyIndex++}`} className="flex items-center gap-2 mt-1">
-            <span className="text-primary font-mono">»</span>
+          <div key={`action-${keyIndex++}`} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+            <span style={{ color: '#e8c4b8' }}>»</span>
             <span>{parsedInner.elements}</span>
           </div>
         );
-        if (lineIndex < lines.length - 1) {
-          elements.push('\n');
-        }
+        if (lineIndex < lines.length - 1) elements.push('\n');
         return;
       }
 
-      // Parse the line for markdown links and bold text
       const parsedLine = parseLine(line, keyIndex);
       keyIndex += parsedLine.keyCount;
       elements.push(...parsedLine.elements);
       
-      // Add line break if not last line
-      if (lineIndex < lines.length - 1) {
-        elements.push('\n');
-      }
+      if (lineIndex < lines.length - 1) elements.push('\n');
     });
 
     return elements;
@@ -91,21 +81,13 @@ export const MessageContent = ({ content }: MessageContentProps) => {
   const parseLine = (line: string, startKey: number) => {
     const elements: (string | JSX.Element)[] = [];
     let keyCount = 0;
-    let remaining = line;
 
-    // Pattern for markdown links: [text](url)
-    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-    // Pattern for bold: **text**
-    const boldRegex = /\*\*([^*]+)\*\*/g;
-
-    // Combined pattern to match either
     const combinedRegex = /(\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*)/g;
     
     let lastIndex = 0;
     let match;
 
     while ((match = combinedRegex.exec(line)) !== null) {
-      // Add text before the match
       if (match.index > lastIndex) {
         elements.push(line.substring(lastIndex, match.index));
       }
@@ -113,7 +95,6 @@ export const MessageContent = ({ content }: MessageContentProps) => {
       const fullMatch = match[1];
       
       if (fullMatch.startsWith('[')) {
-        // It's a link
         const linkText = match[2];
         const url = match[3];
         elements.push(
@@ -122,17 +103,27 @@ export const MessageContent = ({ content }: MessageContentProps) => {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 px-2 py-0.5 border border-primary/50 rounded hover:bg-primary/10 hover:border-primary transition-colors text-primary underline-offset-2"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '2px 8px',
+              border: '0.5px solid hsla(18,52%,82%,0.3)',
+              borderRadius: '100px',
+              color: '#e8c4b8',
+              fontSize: '12px',
+              transition: 'border-color 0.15s',
+              textDecoration: 'none',
+            }}
           >
             {linkText}
-            <ExternalLink className="h-3 w-3" />
+            <ExternalLink style={{ width: '10px', height: '10px' }} />
           </a>
         );
       } else if (fullMatch.startsWith('**')) {
-        // It's bold text - render as emphasized span without asterisks
         const boldText = match[4];
         elements.push(
-          <span key={`bold-${startKey + keyCount++}`} className="text-primary font-medium">
+          <span key={`bold-${startKey + keyCount++}`} style={{ color: '#e8c4b8', fontWeight: 500 }}>
             {boldText}
           </span>
         );
@@ -141,7 +132,6 @@ export const MessageContent = ({ content }: MessageContentProps) => {
       lastIndex = match.index + fullMatch.length;
     }
 
-    // Add remaining text after last match
     if (lastIndex < line.length) {
       elements.push(line.substring(lastIndex));
     }
@@ -150,7 +140,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
   };
 
   return (
-    <div className="whitespace-pre-wrap">
+    <div style={{ whiteSpace: 'pre-wrap' }}>
       {parseContent(content)}
     </div>
   );

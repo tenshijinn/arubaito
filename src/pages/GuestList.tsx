@@ -85,6 +85,13 @@ const GuestList = () => {
           });
           if (signUpError) throw signUpError;
 
+          // Sign in immediately after signup to establish session
+          const { error: postSignupSignInError } = await supabase.auth.signInWithPassword({
+            email: twitterEmail,
+            password: twitterPassword
+          });
+          if (postSignupSignInError) throw postSignupSignInError;
+
           toast({ title: "Welcome!", description: `Signed in with Twitter as @${data.user.handle}` });
           navigate("/club");
         } catch (error) {

@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Session, User } from '@supabase/supabase-js';
 import reiLogo from '@/assets/rei-logo.png';
 import reiBg from '@/assets/bg-rei1.webp';
+import reiSplit from '@/assets/rei-split.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

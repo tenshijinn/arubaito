@@ -774,7 +774,7 @@ export default function Rei() {
                   {/* Sign Up Section */}
                   <div className="space-y-3">
                     <div>
-                      <h4 className="text-sm font-semibold">Sign Up</h4>
+                      <h4 className="text-2xl font-bold">Sign Up</h4>
                       <p className="text-xs text-muted-foreground">Create a new talent profile</p>
                     </div>
                     <Button 

@@ -1026,13 +1026,12 @@ export default function Rei() {
         </div>
       </div>
 
-      {/* Right side - ASCII Art */}
-      <div className="hidden md:block w-1/2 min-h-screen">
-        <iframe
-          src="/ascii/rei.html"
-          className="w-full h-full border-0"
-          title="Rei ASCII Art"
-          style={{ minHeight: '100vh' }}
+      {/* Right side - Image */}
+      <div className="hidden md:block w-1/2 min-h-screen relative">
+        <img
+          src={reiSplit}
+          alt="Rei"
+          className="absolute inset-0 w-full h-full object-cover"
         />
       </div>
     </div>

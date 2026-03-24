@@ -776,7 +776,7 @@ export default function Rei() {
             </div>
 
             {!twitterUser ? (
-              {showSignUp ? (
+              showSignUp ? (
                 <div className="space-y-6">
                   {/* Sign Up Section */}
                   <div className="space-y-3">

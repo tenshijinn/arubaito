@@ -283,7 +283,7 @@ export const Auth = () => {
                     sessionStorage.removeItem("auth_intent");
                     handleTwitterAuth("bluechip");
                   }}
-                  className="w-full h-14 text-lg font-medium rounded-xl"
+                  className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
                   variant="outline"
                   disabled={loading || returningUserLoading || bluechipLoading}
                 >

@@ -238,7 +238,7 @@ export const Auth = () => {
           {mode === "main" ? (
             <div className="space-y-4">
               {/* Members section */}
-              <Card className="p-8 bg-transparent border border-primary/40 rounded-lg">
+              <Card className="p-8 bg-transparent border border-primary/40 rounded-xl">
                 <h2 className="text-2xl font-bold text-center mb-2 font-display text-primary">
                   Members
                 </h2>
@@ -252,7 +252,7 @@ export const Auth = () => {
                       sessionStorage.setItem("auth_intent", "returning_user");
                       handleTwitterAuth("returning");
                     }}
-                    className="w-full h-14 text-lg font-medium rounded-xl"
+                    className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
                     variant="outline"
                     disabled={loading || returningUserLoading || bluechipLoading}
                   >
@@ -268,10 +268,6 @@ export const Auth = () => {
                 </div>
               </Card>
 
-              {/* Divider */}
-              <div className="flex items-center py-2">
-                <div className="flex-1 border-t border-primary/30" />
-              </div>
 
               {/* Non-Members section */}
               <div className="space-y-3">
@@ -287,7 +283,7 @@ export const Auth = () => {
                     sessionStorage.removeItem("auth_intent");
                     handleTwitterAuth("bluechip");
                   }}
-                  className="w-full h-14 text-lg font-medium rounded-xl"
+                  className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
                   variant="outline"
                   disabled={loading || returningUserLoading || bluechipLoading}
                 >
@@ -321,7 +317,7 @@ export const Auth = () => {
                   max-width: 100% !important;
                   background-color: transparent !important;
                   color: hsl(var(--muted-foreground)) !important;
-                  border: 1px solid hsl(var(--primary) / 0.4) !important;
+                  border: 1px solid hsl(var(--foreground)) !important;
                   display: flex !important;
                   align-items: center !important;
                   justify-content: center !important;

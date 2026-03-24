@@ -778,9 +778,35 @@ export default function Rei() {
             {!twitterUser ? (
               showSignUp ? (
                 <div className="space-y-6">
+                  {/* Sign Up Section */}
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="text-sm font-semibold">Sign Up</h4>
+                      <p className="text-xs text-muted-foreground">Create a new talent profile</p>
+                    </div>
+                    <Button 
+                      onClick={() => handleTwitterLogin('signup')} 
+                      size="lg" 
+                      className="w-full"
+                    >
+                      <Twitter className="mr-2 h-5 w-5" />
+                      Verify with X (Twitter)
+                    </Button>
+                  </div>
+
                   <p className="text-center text-sm text-muted-foreground">
                     Already have an account? <button onClick={() => setShowSignUp(false)} className="font-bold text-foreground hover:underline">Sign in</button>
                   </p>
+
+                  {/* No account found error */}
+                  {noAccountFound && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        No existing account found with this X account. Please sign up to create one.
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-6">

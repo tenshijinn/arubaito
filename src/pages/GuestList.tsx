@@ -26,6 +26,7 @@ const GuestList = () => {
   const [handle, setHandle] = useState("");
   const [searchResult, setSearchResult] = useState<SearchResult>(null);
   const [followedByHandle, setFollowedByHandle] = useState<string | null>(null);
+  const [nextCheckDate, setNextCheckDate] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
   const [checkingFollows, setCheckingFollows] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);

@@ -11,6 +11,7 @@ const whitelistSchema = z.object({
   x_user_id: z.string().max(100).optional(),
   display_name: z.string().max(200).optional(),
   profile_image_url: z.string().url().max(500).optional(),
+  contact_email: z.string().email().max(255).optional(),
 });
 
 Deno.serve(async (req) => {
@@ -53,6 +54,7 @@ Deno.serve(async (req) => {
         x_user_id: submission.x_user_id,
         display_name: submission.display_name,
         profile_image_url: submission.profile_image_url,
+        contact_email: submission.contact_email,
       })
       .select()
       .single();
@@ -63,6 +65,19 @@ Deno.serve(async (req) => {
     }
 
     console.log('Whitelist submission created successfully');
+
+    // Send notification email
+    try {
+      await supabase.functions.invoke('send-club-notification', {
+        body: {
+          type: 'whitelist_request',
+          twitter_handle: submission.twitter_handle,
+          contact_email: submission.contact_email,
+        },
+      });
+    } catch (notifError) {
+      console.error('Failed to send notification:', notifError);
+    }
 
     return new Response(
       JSON.stringify({
@@ -75,7 +90,6 @@ Deno.serve(async (req) => {
   } catch (error: any) {
     console.error('Error processing submission:', error);
     
-    // Handle zod validation errors
     if (error instanceof z.ZodError) {
       return new Response(
         JSON.stringify({ 

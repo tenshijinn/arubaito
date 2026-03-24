@@ -25,6 +25,9 @@ const GuestList = () => {
   const [searchResult, setSearchResult] = useState<"found" | "not_found" | null>(null);
   const [searching, setSearching] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+  const [contactEmail, setContactEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const twitterProcessingRef = useRef(false);
@@ -85,7 +88,6 @@ const GuestList = () => {
           });
           if (signUpError) throw signUpError;
 
-          // Sign in immediately after signup to establish session
           const { error: postSignupSignInError } = await supabase.auth.signInWithPassword({
             email: twitterEmail,
             password: twitterPassword
@@ -114,6 +116,7 @@ const GuestList = () => {
     }
     setSearching(true);
     setSearchResult(null);
+    setSubmitted(false);
     try {
       const { data, error } = await supabase.from("twitter_whitelist").select("id").ilike("twitter_handle", cleaned).limit(1);
       if (error) throw error;
@@ -143,6 +146,32 @@ const GuestList = () => {
     }
   };
 
+  const handleSubmitForReview = async () => {
+    const cleaned = handle.trim().replace(/^@/, "");
+    if (!contactEmail.trim()) {
+      toast({ title: "Email required", description: "Please enter your email so we can contact you.", variant: "destructive" });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("submit-whitelist-request", {
+        body: { twitter_handle: cleaned, contact_email: contactEmail.trim() }
+      });
+      if (error) throw error;
+      if (data?.success === false) {
+        toast({ title: "Already Submitted", description: data.message, variant: "destructive" });
+      } else {
+        setSubmitted(true);
+        toast({ title: "Submitted", description: "We'll review your profile and get back to you." });
+      }
+    } catch (error) {
+      console.error("Submit error:", error);
+      toast({ title: "Error", description: "Failed to submit. Please try again.", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 font-mono">
       <img src={guestlistIcon} alt="Guest List" className="w-28 h-auto mb-8" />
@@ -156,7 +185,7 @@ const GuestList = () => {
           <Input
             placeholder="@handle"
             value={handle}
-            onChange={(e) => { setHandle(e.target.value); setSearchResult(null); }}
+            onChange={(e) => { setHandle(e.target.value); setSearchResult(null); setSubmitted(false); }}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             className="h-12 text-base rounded-xl gl-input"
           />
@@ -183,6 +212,38 @@ const GuestList = () => {
               <XCircle className="w-4 h-4 text-destructive shrink-0" />
               <span className="text-xs text-foreground">You're not on the Guest List</span>
             </div>
+
+            <hr className="border-foreground/20" />
+
+            <div className="text-center space-y-3">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Think your Twitter should've been on the Guest List? Thought Leaders, OGs, KOLs — submit your account and we'll vet your profile and contact you if approved.
+              </p>
+
+              {!submitted ? (
+                <>
+                  <Input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    className="h-12 text-base rounded-xl gl-input"
+                  />
+                  <Button
+                    onClick={handleSubmitForReview}
+                    disabled={submitting}
+                    className="w-full h-12 text-sm font-medium rounded-xl gl-btn"
+                    variant="outline"
+                  >
+                    {submitting ? "Submitting..." : "Submit for Review"}
+                  </Button>
+                </>
+              ) : (
+                <p className="text-xs text-primary">Submitted — we'll be in touch.</p>
+              )}
+            </div>
+
+            <hr className="border-foreground/20" />
 
             <div className="text-center space-y-2">
               <p className="text-xs text-muted-foreground">Alternative Member Application Method</p>

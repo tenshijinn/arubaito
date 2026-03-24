@@ -1,0 +1,1 @@
+ALTER TABLE public.twitter_whitelist_submissions ADD COLUMN contact_email text;

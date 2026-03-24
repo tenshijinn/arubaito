@@ -65,6 +65,7 @@ export default function Rei() {
   // Auth mode: 'signin' for returning users, 'signup' for new users
   const [authMode, setAuthMode] = useState<'signin' | 'signup' | null>(null);
   const [noAccountFound, setNoAccountFound] = useState(false);
+  const [showSignUp, setShowSignUp] = useState(false);
   
   // Form state
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -775,60 +776,72 @@ export default function Rei() {
             </div>
 
             {!twitterUser ? (
-              <div className="space-y-6">
-                {/* Sign In Section */}
-                <div className="space-y-3">
-                  <div>
-                    <h4 className="text-sm font-semibold">Sign In</h4>
-                    <p className="text-xs text-muted-foreground">Access your existing talent profile</p>
+              showSignUp ? (
+                <div className="space-y-6">
+                  {/* Sign Up Section */}
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="text-sm font-semibold">Sign Up</h4>
+                      <p className="text-xs text-muted-foreground">Create a new talent profile</p>
+                    </div>
+                    <Button 
+                      onClick={() => handleTwitterLogin('signup')} 
+                      size="lg" 
+                      className="w-full"
+                    >
+                      <Twitter className="mr-2 h-5 w-5" />
+                      Verify with X (Twitter)
+                    </Button>
                   </div>
-                  <Button 
-                    onClick={() => handleTwitterLogin('signin')} 
-                    size="lg" 
-                    variant="outline" 
-                    className="w-full"
-                  >
-                    <Twitter className="mr-2 h-5 w-5" />
-                    Sign in with X (Twitter)
-                  </Button>
-                </div>
 
-                {/* Separator */}
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-muted-foreground/30" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">or</span>
-                  </div>
-                </div>
+                  <p className="text-center text-sm text-muted-foreground">
+                    Already have an account? <button onClick={() => setShowSignUp(false)} className="font-bold text-foreground hover:underline">Sign in</button>
+                  </p>
 
-                {/* Sign Up Section */}
-                <div className="space-y-3">
-                  <div>
-                    <h4 className="text-sm font-semibold">Sign Up</h4>
-                    <p className="text-xs text-muted-foreground">Create a new talent profile</p>
-                  </div>
-                  <Button 
-                    onClick={() => handleTwitterLogin('signup')} 
-                    size="lg" 
-                    className="w-full"
-                  >
-                    <Twitter className="mr-2 h-5 w-5" />
-                    Verify with X (Twitter)
-                  </Button>
+                  {/* No account found error */}
+                  {noAccountFound && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        No existing account found with this X account. Please sign up to create one.
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Sign In Section */}
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="text-sm font-semibold">Sign In</h4>
+                      <p className="text-xs text-muted-foreground">Access your existing talent profile</p>
+                    </div>
+                    <Button 
+                      onClick={() => handleTwitterLogin('signin')} 
+                      size="lg" 
+                      variant="outline" 
+                      className="w-full"
+                    >
+                      <Twitter className="mr-2 h-5 w-5" />
+                      Sign in with X (Twitter)
+                    </Button>
+                  </div>
 
-                {/* No account found error */}
-                {noAccountFound && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      No existing account found with this X account. Please sign up to create one.
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </div>
+                  <p className="text-center text-sm text-muted-foreground">
+                    Don't have an account? <button onClick={() => setShowSignUp(true)} className="font-bold text-foreground hover:underline">Sign up</button>
+                  </p>
+
+                  {/* No account found error */}
+                  {noAccountFound && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        No existing account found with this X account. Please sign up to create one.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              )
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">

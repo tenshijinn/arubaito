@@ -252,7 +252,7 @@ export const Auth = () => {
                       sessionStorage.setItem("auth_intent", "returning_user");
                       handleTwitterAuth("returning");
                     }}
-                    className="w-full h-14 text-lg font-medium rounded-xl"
+                    className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
                     variant="outline"
                     disabled={loading || returningUserLoading || bluechipLoading}
                   >

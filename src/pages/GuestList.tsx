@@ -20,7 +20,7 @@ if (typeof window !== "undefined") {
   }
 }
 
-type SearchResult = "found" | "followed_by" | "not_found" | null;
+type SearchResult = "found" | "followed_by" | "not_found" | "rate_limited" | null;
 
 const GuestList = () => {
   const [handle, setHandle] = useState("");

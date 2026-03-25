@@ -379,7 +379,7 @@ export default function Rei() {
                 >
                   {label}
                 </button>
-              )}
+              ))}
             </div>
           </div>
         </div>

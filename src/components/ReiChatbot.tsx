@@ -577,7 +577,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       </div>
 
       {/* Input row */}
-      <div className="input-row" style={{ position: 'sticky', bottom: 0 }}>
+      <div className="input-row" style={{ flexShrink: 0 }}>
         <button
           onClick={() => setShowQuickActions(!showQuickActions)}
           className="send-btn mr-2"

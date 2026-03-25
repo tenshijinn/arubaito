@@ -529,7 +529,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       </div>
 
       {/* Messages area */}
-      <div className="log-area flex-1 overflow-y-auto pb-16 scrollbar-hide">
+      <div className="log-area flex-1 overflow-y-auto pb-4 scrollbar-hide" style={{ minHeight: 0 }}>
         {messages.length === 0 && (
           <>
             {/* System message */}

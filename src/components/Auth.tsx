@@ -352,7 +352,7 @@ export const Auth = () => {
                 <div className="space-y-3">
                   <Button
                     onClick={() => navigate("/guestlist")}
-                    className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
+                    className="w-full h-14 text-base md:text-lg font-medium rounded-xl cv-profile-button"
                     variant="outline"
                   >
                     Twitter Guest List

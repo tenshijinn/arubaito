@@ -367,6 +367,23 @@ export default function Rei() {
                   {tab.label}
                 </button>
               ))}
+              {['Post Tasks', 'Post Gigs'].map(label => (
+                <button
+                  key={label}
+                  disabled
+                  className="rei-chip"
+                  style={{
+                    padding: '7px 18px',
+                    fontSize: '12px',
+                    fontFamily: "'SF Mono', 'Consolas', monospace",
+                    opacity: 0.35,
+                    cursor: 'not-allowed',
+                  }}
+                  title="Coming soon"
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
         </div>

@@ -403,116 +403,207 @@ export default function Rei() {
         <div className="flex-1 overflow-hidden">
           {activeTab === 'profile' && (
             <div className="overflow-y-auto h-full scrollbar-hide">
-              <div className="max-w-4xl mx-auto px-4 pb-20">
-                <div className="rei-surface" style={{ marginTop: '8px' }}>
-                  {/* Profile Header */}
-                  <div className="text-center mb-6">
-                    <div className="mx-auto mb-4 h-14 w-14 rounded-full flex items-center justify-center" style={{ background: 'hsla(18,52%,82%,0.12)' }}>
-                      <Check className="h-7 w-7" style={{ color: '#e8c4b8' }} />
+              <div className="max-w-4xl mx-auto px-4 pb-20 space-y-4" style={{ marginTop: '8px' }}>
+
+                {/* ── 1. Profile Header Card ── */}
+                <div className="rei-surface" style={{ padding: '24px' }}>
+                  <div className="flex items-start gap-4">
+                    {twitterUser?.profile_image_url && (
+                      <img src={twitterUser.profile_image_url} alt={twitterUser.handle} className="h-14 w-14 rounded-full flex-shrink-0" />
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h2 style={{ fontSize: '20px', fontWeight: 500, color: '#f0ede8', letterSpacing: '-0.02em', margin: 0 }}>
+                          {registrationData.display_name}
+                        </h2>
+                        {registrationData.verified && (
+                          <span className="rei-chip" style={{ padding: '2px 8px', fontSize: '9px' }}>Verified</span>
+                        )}
+                      </div>
+                      <p style={{ fontSize: '13px', color: '#5c5a57', marginTop: '2px' }}>@{registrationData.handle}</p>
+
+                      {/* Roles */}
+                      {registrationData.role_tags?.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-3">
+                          {registrationData.role_tags.map((role: string) => (
+                            <span key={role} className="rei-chip" style={{ padding: '4px 10px', fontSize: '10px' }}>
+                              <span className="rei-chip-dot" />
+                              {ROLE_OPTIONS.find(r => r.value === role)?.label || role}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <h2 style={{ fontSize: '24px', fontWeight: 300, color: '#f0ede8', letterSpacing: '-0.025em' }}>
-                      Registration Summary
-                    </h2>
-                    <p style={{ fontSize: '13px', color: '#5c5a57', marginTop: '4px' }}>
-                      Your Proof-of-Talent registration is complete
-                    </p>
+
+                    {/* Score */}
+                    {registrationData.profile_score && (
+                      <div className="flex-shrink-0 text-right">
+                        <div style={{ fontSize: '36px', fontWeight: 300, color: '#e8c4b8', lineHeight: 1 }}>
+                          {Math.round(registrationData.profile_score)}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#5c5a57', marginTop: '2px' }}>/100</div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* AI Profile Analysis */}
-                  {analysis && registrationData.profile_score && (
-                    <div className="rei-surface-2" style={{ padding: '20px', marginBottom: '16px' }}>
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="rei-section-label" style={{ marginBottom: 0 }}>Profile Analysis</span>
-                        <div className="flex items-center gap-2">
-                          <span style={{ fontSize: '28px', fontWeight: 300, color: '#e8c4b8' }}>
-                            {Math.round(registrationData.profile_score)}
-                          </span>
-                          <span style={{ fontSize: '12px', color: '#5c5a57' }}>/100</span>
+                  {/* Wallet status */}
+                  {analysis?.wallet_verification?.verified && (
+                    <div className="flex items-center gap-2 mt-4 pt-3" style={{ borderTop: '0.5px solid hsla(0,0%,100%,0.06)' }}>
+                      <Shield className="h-3.5 w-3.5" style={{ color: '#e8c4b8' }} />
+                      <span style={{ fontSize: '11px', color: '#a09e9a' }}>
+                        Wallet verified · {analysis.wallet_verification.chain} · {analysis.wallet_verification.account_age_days}d old · {analysis.wallet_verification.transaction_count} txns
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── 2. Capabilities Card ── */}
+                {analysis && (
+                  <div className="rei-surface" style={{ padding: '24px' }}>
+                    <span className="rei-section-label">Capabilities</span>
+
+                    {/* Skill Breakdown */}
+                    {analysis.category_scores && (
+                      <div className="grid grid-cols-2 gap-3 mb-5">
+                        {Object.entries(analysis.category_scores).map(([category, score]: [string, any]) => (
+                          <div key={category} className="rei-stat-card" style={{ padding: '12px' }}>
+                            <div className="flex justify-between items-center mb-2">
+                              <span style={{ fontSize: '11px', textTransform: 'capitalize', color: '#5c5a57', letterSpacing: '0.04em' }}>
+                                {category.replace('_', ' ')}
+                              </span>
+                              <span style={{ fontSize: '13px', fontWeight: 500, color: '#f0ede8' }}>{score}/25</span>
+                            </div>
+                            <Progress value={(score / 25) * 100} className="h-1.5" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Key Strengths */}
+                    {analysis.key_strengths?.length > 0 && (
+                      <div>
+                        <div className="rei-section-label">Key Strengths</div>
+                        <div className="space-y-1.5">
+                          {analysis.key_strengths.map((strength: string, idx: number) => (
+                            <div key={idx} className="flex items-start gap-2" style={{ fontSize: '13px', color: '#a09e9a' }}>
+                              <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" style={{ color: '#e8c4b8' }} />
+                              <span>{strength}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
+                    )}
+                  </div>
+                )}
 
+                {/* ── 3. Proof of Talent Card ── */}
+                {analysis?.wallet_verification?.verified && (
+                  <div className="rei-surface" style={{ padding: '24px', borderColor: 'hsla(18,52%,82%,0.15)' }}>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Sparkles className="h-4 w-4" style={{ color: '#e8c4b8' }} />
+                      <span className="rei-section-label" style={{ marginBottom: 0 }}>Proof of Talent</span>
+                    </div>
+
+                    {/* Wallet Stats */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                      {[
+                        { label: 'Chain', value: analysis.wallet_verification.chain },
+                        { label: 'Age', value: `${analysis.wallet_verification.account_age_days}d` },
+                        { label: 'Transactions', value: analysis.wallet_verification.transaction_count },
+                        { label: 'Bluechip', value: `${analysis.wallet_verification.bluechip_score}/100` },
+                      ].map(stat => (
+                        <div key={stat.label} className="rei-stat-card" style={{ padding: '10px', textAlign: 'center' }}>
+                          <div style={{ fontSize: '10px', color: '#5c5a57', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>{stat.label}</div>
+                          <div style={{ fontSize: '14px', fontWeight: 500, color: '#f0ede8' }}>{stat.value}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* On-Chain Activity */}
+                    {analysis.wallet_verification.notable_interactions?.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: '10px', color: '#5c5a57', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>On-Chain Activity</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {analysis.wallet_verification.notable_interactions.map((interaction: string, idx: number) => (
+                            <span key={idx} className="rei-chip" style={{ padding: '3px 10px', fontSize: '10px' }}>
+                              {interaction}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Wallet address */}
+                    <div className="mt-4 pt-3" style={{ borderTop: '0.5px solid hsla(0,0%,100%,0.06)' }}>
+                      <p style={{ fontSize: '10px', fontFamily: "'SF Mono', 'Consolas', monospace", color: '#5c5a57', wordBreak: 'break-all' }}>
+                        {registrationData.wallet_address}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Proof of Talent fallback (no wallet verification) */}
+                {(!analysis?.wallet_verification?.verified) && registrationData.wallet_address && (
+                  <div className="rei-surface" style={{ padding: '24px' }}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="h-4 w-4" style={{ color: '#e8c4b8' }} />
+                      <span className="rei-section-label" style={{ marginBottom: 0 }}>Proof of Talent</span>
+                    </div>
+                    <div className="rei-section-label">Wallet</div>
+                    <p style={{ fontSize: '11px', fontFamily: "'SF Mono', 'Consolas', monospace", color: '#a09e9a', wordBreak: 'break-all' }}>
+                      {registrationData.wallet_address}
+                    </p>
+                  </div>
+                )}
+
+                {/* ── 4. Track Record Card ── */}
+                {analysis && (analysis.experience_highlights?.length > 0 || registrationData.portfolio_url) && (
+                  <div className="rei-surface" style={{ padding: '24px' }}>
+                    <span className="rei-section-label">Track Record</span>
+
+                    {analysis.experience_highlights?.length > 0 && (
+                      <div className="space-y-1.5 mb-4">
+                        {analysis.experience_highlights.map((exp: string, idx: number) => (
+                          <div key={idx} className="flex items-start gap-2" style={{ fontSize: '13px', color: '#a09e9a' }}>
+                            <Briefcase className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" style={{ color: '#e8c4b8' }} />
+                            <span>{exp}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {registrationData.portfolio_url && (
+                      <div>
+                        <div className="rei-section-label">Portfolio</div>
+                        <a href={registrationData.portfolio_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#e8c4b8', wordBreak: 'break-all' }}>
+                          {registrationData.portfolio_url}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ── 5. AI Insights Card (collapsed by default) ── */}
+                {analysis && (analysis.recommended_improvements?.length > 0 || registrationData.analysis_summary) && (
+                  <details className="rei-surface" style={{ padding: '0' }}>
+                    <summary className="flex items-center justify-between cursor-pointer" style={{ padding: '20px 24px', listStyle: 'none' }}>
+                      <div className="flex items-center gap-2">
+                        <Info className="h-4 w-4" style={{ color: '#e8c4b8' }} />
+                        <span style={{ fontSize: '12px', fontWeight: 500, color: '#f0ede8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>AI Insights</span>
+                      </div>
+                      <span style={{ fontSize: '11px', color: '#5c5a57' }}>tap to expand</span>
+                    </summary>
+                    <div style={{ padding: '0 24px 24px' }}>
                       {registrationData.analysis_summary && (
-                        <p style={{ fontSize: '13px', color: '#a09e9a', fontStyle: 'italic', marginBottom: '12px', lineHeight: '1.65' }}>
+                        <p style={{ fontSize: '13px', color: '#a09e9a', fontStyle: 'italic', marginBottom: '16px', lineHeight: '1.65' }}>
                           "{registrationData.analysis_summary}"
                         </p>
                       )}
 
-                      {analysis.category_scores && (
-                        <div className="grid grid-cols-2 gap-3 mb-4">
-                          {Object.entries(analysis.category_scores).map(([category, score]: [string, any]) => (
-                            <div key={category} className="rei-stat-card" style={{ padding: '12px' }}>
-                              <div className="flex justify-between items-center mb-2">
-                                <span style={{ fontSize: '11px', textTransform: 'capitalize', color: '#5c5a57', letterSpacing: '0.04em' }}>
-                                  {category.replace('_', ' ')}
-                                </span>
-                                <span style={{ fontSize: '13px', fontWeight: 500, color: '#f0ede8' }}>{score}/25</span>
-                              </div>
-                              <Progress value={(score / 25) * 100} className="h-1.5" />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {analysis.key_strengths && analysis.key_strengths.length > 0 && (
-                        <div className="mb-4">
-                          <div className="rei-section-label">Key Strengths</div>
-                          <div className="space-y-1">
-                            {analysis.key_strengths.map((strength: string, idx: number) => (
-                              <div key={idx} className="flex items-start gap-2" style={{ fontSize: '13px', color: '#a09e9a' }}>
-                                <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" style={{ color: '#e8c4b8' }} />
-                                <span>{strength}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {analysis.experience_highlights && analysis.experience_highlights.length > 0 && (
-                        <div className="mb-4">
-                          <div className="rei-section-label">Experience</div>
-                          <div className="space-y-1">
-                            {analysis.experience_highlights.map((exp: string, idx: number) => (
-                              <div key={idx} className="flex items-start gap-2" style={{ fontSize: '13px', color: '#a09e9a' }}>
-                                <span style={{ color: '#e8c4b8' }}>•</span>
-                                <span>{exp}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {analysis.wallet_verification?.verified && (
-                        <div className="rei-stat-card" style={{ padding: '12px', marginBottom: '12px' }}>
-                          <div className="flex items-center gap-2 mb-2">
-                            <Shield className="h-4 w-4" style={{ color: '#e8c4b8' }} />
-                            <span style={{ fontSize: '12px', fontWeight: 500, color: '#f0ede8' }}>Wallet Verified</span>
-                          </div>
-                          <div className="grid grid-cols-2 gap-2" style={{ fontSize: '11px' }}>
-                            <div><span style={{ color: '#5c5a57' }}>Chain:</span> <span style={{ color: '#a09e9a' }}>{analysis.wallet_verification.chain}</span></div>
-                            <div><span style={{ color: '#5c5a57' }}>Age:</span> <span style={{ color: '#a09e9a' }}>{analysis.wallet_verification.account_age_days}d</span></div>
-                            <div><span style={{ color: '#5c5a57' }}>Txns:</span> <span style={{ color: '#a09e9a' }}>{analysis.wallet_verification.transaction_count}</span></div>
-                            <div><span style={{ color: '#5c5a57' }}>Blue:</span> <span style={{ color: '#a09e9a' }}>{analysis.wallet_verification.bluechip_score}/100</span></div>
-                          </div>
-
-                          {analysis.wallet_verification.notable_interactions?.length > 0 && (
-                            <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '0.5px solid hsla(0,0%,100%,0.08)' }}>
-                              <p style={{ fontSize: '10px', color: '#5c5a57', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>On-Chain Activity</p>
-                              <div className="flex flex-wrap gap-1.5">
-                                {analysis.wallet_verification.notable_interactions.map((interaction: string, idx: number) => (
-                                  <span key={idx} className="rei-chip" style={{ padding: '3px 10px', fontSize: '10px' }}>
-                                    {interaction}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {analysis.recommended_improvements && analysis.recommended_improvements.length > 0 && (
+                      {analysis.recommended_improvements?.length > 0 && (
                         <div>
-                          <div className="rei-section-label">Improvements</div>
-                          <div className="space-y-1">
+                          <div className="rei-section-label">Suggested Improvements</div>
+                          <div className="space-y-1.5">
                             {analysis.recommended_improvements.map((improvement: string, idx: number) => (
                               <div key={idx} className="flex items-start gap-2" style={{ fontSize: '13px', color: '#a09e9a' }}>
                                 <span style={{ color: '#e8c4b8' }}>→</span>
@@ -523,82 +614,35 @@ export default function Rei() {
                         </div>
                       )}
                     </div>
-                  )}
+                  </details>
+                )}
 
-                  {/* Identity */}
-                  <div className="rei-section-label">Identity</div>
-                  <div className="rei-surface-2 flex items-center gap-3 mb-4" style={{ padding: '14px' }}>
-                    {twitterUser?.profile_image_url && (
-                      <img src={twitterUser.profile_image_url} alt={twitterUser.handle} className="h-10 w-10 rounded-full" />
-                    )}
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontWeight: 500, color: '#f0ede8', fontSize: '14px' }}>{registrationData.display_name}</p>
-                      <p style={{ fontSize: '12px', color: '#5c5a57' }}>@{registrationData.handle}</p>
-                    </div>
-                    {registrationData.verified && (
-                      <span className="rei-chip" style={{ padding: '3px 10px', fontSize: '10px' }}>Verified</span>
-                    )}
-                  </div>
-
-                  {/* Wallet */}
-                  <div className="rei-section-label">Wallet</div>
-                  <div className="rei-surface-2 mb-4" style={{ padding: '14px' }}>
-                    <p style={{ fontSize: '11px', fontFamily: "'SF Mono', 'Consolas', monospace", color: '#a09e9a', wordBreak: 'break-all' }}>
-                      {registrationData.wallet_address}
-                    </p>
-                  </div>
-
-                  {/* Portfolio */}
-                  {registrationData.portfolio_url && (
-                    <>
-                      <div className="rei-section-label">Portfolio</div>
-                      <div className="rei-surface-2 mb-4" style={{ padding: '14px' }}>
-                        <a href={registrationData.portfolio_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#e8c4b8', wordBreak: 'break-all' }}>
-                          {registrationData.portfolio_url}
-                        </a>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Role Tags */}
-                  <div className="rei-section-label">Roles</div>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {registrationData.role_tags?.map((role: string) => (
-                      <span key={role} className="rei-chip" style={{ padding: '5px 12px', fontSize: '11px' }}>
-                        <span className="rei-chip-dot" />
-                        {ROLE_OPTIONS.find(r => r.value === role)?.label || role}
+                {/* ── 6. Footer / Status Section ── */}
+                <div className="rei-surface" style={{ padding: '16px 24px' }}>
+                  <div className="flex items-center justify-between flex-wrap gap-3">
+                    <div className="flex items-center gap-3">
+                      <span style={{ fontSize: '12px', color: '#5c5a57' }}>
+                        Submitted {new Date(registrationData.created_at).toLocaleDateString()}
                       </span>
-                    ))}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-3.5 w-3.5" style={{ color: registrationData.nft_minted ? '#e8c4b8' : '#f59e0b' }} />
+                      <span style={{ fontSize: '12px', fontWeight: 500, color: registrationData.nft_minted ? '#e8c4b8' : '#f59e0b' }}>
+                        {registrationData.nft_minted ? 'NFT Minted' : 'NFT Pending'}
+                      </span>
+                    </div>
                   </div>
-
-                  {/* Video CV */}
-                  <div className="rei-section-label">Video CV</div>
-                  <div className="rei-surface-2 mb-4" style={{ padding: '14px' }}>
-                    <p style={{ fontSize: '13px', color: '#a09e9a' }}>
-                      Submitted: {new Date(registrationData.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-
-                  {/* NFT Status */}
-                  <div className="rei-surface-2 flex items-center gap-3 mb-6" style={{
-                    padding: '14px',
-                    borderColor: registrationData.nft_minted ? 'hsla(18,52%,82%,0.3)' : 'hsla(45,100%,50%,0.3)',
-                  }}>
-                    <Shield className="h-4 w-4" style={{ color: registrationData.nft_minted ? '#e8c4b8' : '#f59e0b' }} />
-                    <span style={{ fontSize: '13px', fontWeight: 500, color: registrationData.nft_minted ? '#e8c4b8' : '#f59e0b' }}>
-                      {registrationData.nft_minted ? 'NFT Minted' : 'NFT Pending'}
-                    </span>
-                  </div>
-
-                  {/* Edit Button */}
-                  <button
-                    onClick={() => setIsEditMode(true)}
-                    className="btn-manga btn-manga-outline w-full"
-                    style={{ borderRadius: '28px', padding: '11px 22px', fontSize: '13px', cursor: 'pointer' }}
-                  >
-                    Edit Profile
-                  </button>
                 </div>
+
+                {/* Edit Button */}
+                <button
+                  onClick={() => setIsEditMode(true)}
+                  className="btn-manga btn-manga-outline w-full"
+                  style={{ borderRadius: '28px', padding: '11px 22px', fontSize: '13px', cursor: 'pointer' }}
+                >
+                  Edit Profile
+                </button>
+
               </div>
             </div>
           )}

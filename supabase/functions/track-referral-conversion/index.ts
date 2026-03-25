@@ -145,6 +145,7 @@ serve(async (req) => {
     const { error: pointsError } = await supabase.rpc('increment_user_points', {
       p_wallet_address: codeData.wallet_address,
       p_points: pointsToAward,
+      p_x_user_id: codeData.x_user_id || null,
     });
 
     if (pointsError) {

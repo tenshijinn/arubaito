@@ -199,6 +199,18 @@ export default function Rei() {
 
       if (error) throw error;
 
+      // Block unverified accounts on signup
+      const storedMode = sessionStorage.getItem('rei_auth_mode') as 'signin' | 'signup' | null;
+      if (storedMode === 'signup' && !data.user.verified) {
+        toast({
+          title: 'Verified Account Required',
+          description: 'Only verified X (Twitter) accounts with a checkmark can register with Rei. This helps us maintain quality.',
+          variant: 'destructive',
+        });
+        setIsProcessingCallback(false);
+        return;
+      }
+
       setTwitterUser(data.user);
       setVerificationStatus({ bluechip_verified: data.bluechip_verified, verification_type: data.verification_type });
       localStorage.setItem('rei_twitter_user', JSON.stringify(data.user));

@@ -53,14 +53,33 @@ export function ReiEarningsHub({ registrationWallet, connectedWallet, xUserId }:
         return { total_points: 0, points_pending: 0, lifetime_earnings_sol: 0, wallet_count: 0 };
       }
 
-      const { data: pointsRecords, error } = await supabase
+      // Query by wallet addresses
+      const { data: walletRecords, error } = await supabase
         .from('user_points')
-        .select('total_points, points_pending, lifetime_earnings_sol')
+        .select('total_points, points_pending, lifetime_earnings_sol, wallet_address')
         .in('wallet_address', walletAddresses);
 
       if (error) throw error;
 
-      return (pointsRecords || []).reduce<AggregatedPoints>(
+      // Also query by x_user_id to catch records linked by identity
+      let xUserRecords: any[] = [];
+      if (xUserId) {
+        const { data: xRecords } = await supabase
+          .from('user_points')
+          .select('total_points, points_pending, lifetime_earnings_sol, wallet_address')
+          .eq('x_user_id', xUserId);
+        xUserRecords = xRecords || [];
+      }
+
+      // Deduplicate by wallet_address
+      const seenWallets = new Set<string>();
+      const allRecords = [...(walletRecords || []), ...xUserRecords].filter(r => {
+        if (seenWallets.has(r.wallet_address)) return false;
+        seenWallets.add(r.wallet_address);
+        return true;
+      });
+
+      return allRecords.reduce<AggregatedPoints>(
         (acc, record) => ({
           total_points: acc.total_points + (record.total_points || 0),
           points_pending: acc.points_pending + (record.points_pending || 0),

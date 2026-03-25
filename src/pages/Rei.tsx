@@ -67,7 +67,7 @@ export default function Rei() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoadingRegistration, setIsLoadingRegistration] = useState(false);
   const [useExistingTranscript, setUseExistingTranscript] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profile' | 'askrei' | 'post'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'askrei' | 'post'>('askrei');
 
   useEffect(() => {
     const restoreTwitterState = async () => {
@@ -349,9 +349,9 @@ export default function Rei() {
           <div className="max-w-4xl mx-auto">
             <div className="flex gap-2 mt-4 mb-4">
               {[
-                { key: 'profile' as const, label: 'Profile' },
                 { key: 'askrei' as const, label: 'AskRei' },
-                { key: 'post' as const, label: 'Post' },
+                { key: 'post' as const, label: 'Promote Task' },
+                { key: 'profile' as const, label: 'Profile' },
               ].map(tab => (
                 <button
                   key={tab.key}
@@ -576,12 +576,14 @@ export default function Rei() {
           )}
 
           {activeTab === 'askrei' && (
-            <div className="h-full">
-              <ReiChatbot 
-                walletAddress={registrationData.wallet_address} 
-                userMode="talent"
-                twitterHandle={twitterUser?.handle}
-              />
+            <div className="overflow-y-auto h-full scrollbar-hide">
+              <div className="max-w-4xl mx-auto px-4 pb-20">
+                <ReiChatbot 
+                  walletAddress={registrationData.wallet_address} 
+                  userMode="talent"
+                  twitterHandle={twitterUser?.handle}
+                />
+              </div>
             </div>
           )}
 

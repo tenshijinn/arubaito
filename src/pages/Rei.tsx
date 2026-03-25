@@ -67,7 +67,7 @@ export default function Rei() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoadingRegistration, setIsLoadingRegistration] = useState(false);
   const [useExistingTranscript, setUseExistingTranscript] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profile' | 'askrei' | 'post'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'askrei' | 'post'>('askrei');
 
   useEffect(() => {
     const restoreTwitterState = async () => {

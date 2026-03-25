@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import logoNoWordmark from '@/assets/logo-no-wordmark.png';
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -20,7 +21,7 @@ if (typeof window !== "undefined") {
 
 export const Auth = () => {
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"main" | "signin" | "register">("main");
+  const [mode, setMode] = useState<"main" | "apply" | "signin" | "register">("main");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [returningUserLoading, setReturningUserLoading] = useState(false);
@@ -235,9 +236,17 @@ export const Auth = () => {
       {/* Left side — Auth content */}
       <div className="w-full lg:w-1/2 flex items-center justify-center px-6 md:px-16 py-12 lg:py-0">
         <div className="w-full max-w-md">
+          {/* Logo + tagline above card */}
+          {(mode === "main" || mode === "apply") && (
+            <div className="flex flex-col items-center mb-8">
+              <img src={logoNoWordmark} alt="Arubaito" className="h-16 w-auto mb-3" />
+              <p className="text-sm text-muted-foreground tracking-widest uppercase">Private Members Network Club</p>
+            </div>
+          )}
+
           {mode === "main" ? (
             <div className="space-y-4">
-              {/* Members section */}
+              {/* Members sign-in card */}
               <Card className="p-8 bg-transparent border border-primary/40 rounded-xl">
                 <h2 className="text-2xl font-bold text-center mb-2 font-display text-primary">
                   Members
@@ -266,34 +275,17 @@ export const Auth = () => {
                     </button>
                   </div>
                 </div>
-              </Card>
 
-
-              {/* Non-Members section */}
-              <div className="space-y-3">
-                <h2 className="text-2xl font-bold text-center font-display text-primary">
-                  Non-Members
-                </h2>
-                <p className="text-sm text-center mb-2 text-muted-foreground">
-                  Apply for Membership with
+                <p className="text-sm text-center mt-6 text-muted-foreground">
+                  Not a member yet?{" "}
+                  <button
+                    onClick={() => setMode("apply")}
+                    className="font-bold text-primary hover:underline"
+                  >
+                    Apply to Join
+                  </button>
                 </p>
-
-                <Button
-                  onClick={() => navigate("/guestlist")}
-                  className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
-                  variant="outline"
-                >
-                  Apply with Twitter Guest List
-                </Button>
-
-                <Button
-                  onClick={() => setMode("register")}
-                  className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
-                  variant="secondary"
-                >
-                  Apply with CV Profile
-                </Button>
-              </div>
+              </Card>
 
               <style>{`
                 .wallet-button-wrapper {
@@ -335,6 +327,58 @@ export const Auth = () => {
                   border-color: hsl(var(--primary)) !important;
                   color: hsl(var(--primary)) !important;
                 }
+                .cv-profile-button {
+                  color: hsl(var(--foreground)) !important;
+                  border: 1px solid hsl(var(--foreground)) !important;
+                  background-color: transparent !important;
+                }
+                .cv-profile-button:hover {
+                  background-color: hsl(var(--primary)) !important;
+                  color: hsl(var(--background)) !important;
+                  border-color: hsl(var(--primary)) !important;
+                }
+              `}</style>
+            </div>
+          ) : mode === "apply" ? (
+            <div className="space-y-4">
+              <Card className="p-8 bg-transparent border border-primary/40 rounded-xl">
+                <h2 className="text-2xl font-bold text-center mb-2 font-display text-primary">
+                  Apply for Membership
+                </h2>
+                <p className="text-sm text-center mb-6 text-muted-foreground">
+                  Choose how you'd like to apply
+                </p>
+
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => navigate("/guestlist")}
+                    className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
+                    variant="outline"
+                  >
+                    Apply with Twitter Guest List
+                  </Button>
+
+                  <Button
+                    onClick={() => setMode("register")}
+                    className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
+                    variant="secondary"
+                  >
+                    Apply with CV Profile
+                  </Button>
+                </div>
+
+                <p className="text-sm text-center mt-6 text-muted-foreground">
+                  Already a member?{" "}
+                  <button
+                    onClick={() => setMode("main")}
+                    className="font-bold text-primary hover:underline"
+                  >
+                    Sign in
+                  </button>
+                </p>
+              </Card>
+
+              <style>{`
                 .cv-profile-button {
                   color: hsl(var(--foreground)) !important;
                   border: 1px solid hsl(var(--foreground)) !important;

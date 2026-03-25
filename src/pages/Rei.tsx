@@ -363,7 +363,6 @@ export default function Rei() {
               {[
                 { key: 'askrei' as const, label: 'AskRei' },
                 { key: 'post' as const, label: 'Promote' },
-                { key: 'profile' as const, label: 'Profile' },
               ].map(tab => (
                 <button
                   key={tab.key}

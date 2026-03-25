@@ -352,18 +352,18 @@ export const Auth = () => {
                 <div className="space-y-3">
                   <Button
                     onClick={() => navigate("/guestlist")}
-                    className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
+                    className="w-full h-14 text-base md:text-lg font-medium rounded-xl cv-profile-button"
                     variant="outline"
                   >
-                    Apply with Twitter Guest List
+                    Twitter Guest List
                   </Button>
 
                   <Button
                     onClick={() => setMode("register")}
-                    className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
+                    className="w-full h-14 text-base md:text-lg font-medium rounded-xl cv-profile-button"
                     variant="secondary"
                   >
-                    Apply with CV Profile
+                    CV Profile
                   </Button>
                 </div>
 

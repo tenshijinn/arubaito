@@ -43,7 +43,7 @@ serve(async (req) => {
     // Verify referral code exists and is active
     const { data: codeData, error: codeError } = await supabase
       .from('referral_codes')
-      .select('wallet_address, is_active')
+      .select('wallet_address, is_active, x_user_id')
       .eq('referral_code', referralCode)
       .single();
 

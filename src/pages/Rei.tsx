@@ -350,7 +350,7 @@ export default function Rei() {
             <div className="flex gap-2 mt-4 mb-4">
               {[
                 { key: 'askrei' as const, label: 'AskRei' },
-                { key: 'post' as const, label: 'Promote Task' },
+                { key: 'post' as const, label: 'Promote' },
                 { key: 'profile' as const, label: 'Profile' },
               ].map(tab => (
                 <button

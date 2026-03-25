@@ -350,34 +350,21 @@ export default function Rei() {
             <div className="flex gap-2 mt-4 mb-4">
               {[
                 { key: 'askrei' as const, label: 'AskRei' },
-                { key: 'post' as const, label: 'Promote' },
+                { key: 'post' as const, label: 'Promote Task' },
                 { key: 'profile' as const, label: 'Profile' },
               ].map(tab => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className="rei-tab"
+                  className={activeTab === tab.key ? 'btn-manga btn-manga-primary' : 'rei-chip'}
                   style={{
-                    color: activeTab === tab.key ? '#e8c4b8' : '#5c5a57',
-                    borderBottomColor: activeTab === tab.key ? '#e8c4b8' : 'transparent',
+                    padding: '7px 18px',
+                    fontSize: '12px',
+                    fontFamily: "'SF Mono', 'Consolas', monospace",
+                    ...(activeTab === tab.key ? { borderRadius: '28px', background: '#f0ede8', color: '#0a0a0a', border: 'none', fontWeight: 500 } : {}),
                   }}
                 >
                   {tab.label}
-                </button>
-              ))}
-              {['Post Gig', 'Post Task'].map(label => (
-                <button
-                  key={label}
-                  disabled
-                  className="rei-tab"
-                  style={{
-                    color: '#3a3a3a',
-                    borderBottomColor: 'transparent',
-                    cursor: 'not-allowed',
-                    opacity: 0.5,
-                  }}
-                >
-                  {label}
                 </button>
               ))}
             </div>

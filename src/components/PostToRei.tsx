@@ -216,10 +216,11 @@ export const PostToRei = () => {
     <div className="rei-surface" style={{ marginTop: '8px' }}>
       <div className="mb-6">
         <h2 style={{ fontSize: '18px', fontWeight: 500, color: '#f0ede8', marginBottom: '4px' }}>
-          Post Opportunity to Rei
+          Promote Your Project's <span style={{ color: '#e8c4b8' }}>| Tasks | Jobs | Contracts | Bounty | Gigs | Quests</span>
         </h2>
         <p style={{ fontSize: '13px', color: '#5c5a57', lineHeight: '1.65' }}>
-          Post a job or task for $5 worth of SOL. Your posting will be accessible to talent through Rei.
+          Promote anything from crypto tasks to jobs for $5. Community members with the right skills will be matched to your opportunities by chatting with Rei.{' '}
+          <a href="https://arubaito.app/joinrei" target="_blank" rel="noopener noreferrer" style={{ color: '#e8c4b8', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Learn More</a>
         </p>
       </div>
 

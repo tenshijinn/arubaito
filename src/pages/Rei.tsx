@@ -379,21 +379,7 @@ export default function Rei() {
                 >
                   {label}
                 </button>
-              ))}
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={activeTab === tab.key ? 'btn-manga btn-manga-primary' : 'rei-chip'}
-                  style={{
-                    padding: '7px 18px',
-                    fontSize: '12px',
-                    fontFamily: "'SF Mono', 'Consolas', monospace",
-                    ...(activeTab === tab.key ? { borderRadius: '28px', background: '#f0ede8', color: '#0a0a0a', border: 'none', fontWeight: 500 } : {}),
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              )}
             </div>
           </div>
         </div>

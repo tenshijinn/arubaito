@@ -350,9 +350,36 @@ export default function Rei() {
             <div className="flex gap-2 mt-4 mb-4">
               {[
                 { key: 'askrei' as const, label: 'AskRei' },
-                { key: 'post' as const, label: 'Promote Task' },
+                { key: 'post' as const, label: 'Promote' },
                 { key: 'profile' as const, label: 'Profile' },
               ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className="rei-tab"
+                  style={{
+                    color: activeTab === tab.key ? '#e8c4b8' : '#5c5a57',
+                    borderBottomColor: activeTab === tab.key ? '#e8c4b8' : 'transparent',
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+              {['Post Gig', 'Post Task'].map(label => (
+                <button
+                  key={label}
+                  disabled
+                  className="rei-tab"
+                  style={{
+                    color: '#3a3a3a',
+                    borderBottomColor: 'transparent',
+                    cursor: 'not-allowed',
+                    opacity: 0.5,
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}

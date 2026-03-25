@@ -134,7 +134,7 @@ export function ReiEarningsHub({ registrationWallet, connectedWallet, xUserId }:
 
   return (
     <div 
-      className={`fixed top-2 left-4 md:top-20 z-40 transition-all duration-300 ease-out ${isExpanded ? 'w-72' : 'w-40'}`}
+      className={`fixed top-2 left-4 md:top-20 z-[60] transition-all duration-300 ease-out ${isExpanded ? 'w-72' : 'w-40'}`}
       style={{
         background: 'rgba(20,20,20,0.92)',
         backdropFilter: 'blur(12px)',

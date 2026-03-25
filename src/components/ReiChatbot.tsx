@@ -529,7 +529,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       </div>
 
       {/* Messages area */}
-      <div className="log-area flex-1 overflow-y-auto pb-16 scrollbar-hide">
+      <div className="log-area flex-1 overflow-y-auto pb-20 scrollbar-hide">
         {messages.length === 0 && (
           <>
             {/* System message */}
@@ -576,8 +576,8 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input row */}
-      <div className="input-row" style={{ position: 'sticky', bottom: 0 }}>
+      {/* Input row - fixed at bottom */}
+      <div className="input-row" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50 }}>
         <button
           onClick={() => setShowQuickActions(!showQuickActions)}
           className="send-btn mr-2"

@@ -10,7 +10,7 @@ import { AudioRecorder } from '@/components/AudioRecorder';
 import ReiChatbot from '@/components/ReiChatbot';
 import { PostToRei } from '@/components/PostToRei';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Twitter, Shield, AlertCircle, Info, Sparkles, Briefcase, CheckCircle2, Edit2, LogOut } from 'lucide-react';
+import { Check, Twitter, Shield, AlertCircle, Info, Sparkles, Briefcase, CheckCircle2, Edit2, LogOut, UserCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ReiEarningsHub } from '@/components/ReiEarningsHub';
 import { Progress } from '@/components/ui/progress';
@@ -335,7 +335,19 @@ export default function Rei() {
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="w-20" />
             <img src={reiLogo} alt="REI" className="h-10 w-auto" style={{ opacity: 0.8 }} />
-            <div className="w-20 flex justify-end">
+            <div className="flex items-center gap-2 justify-end">
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={activeTab === 'profile' ? 'btn-manga btn-manga-primary' : 'rei-chip'}
+                style={{
+                  padding: '5px 10px',
+                  fontSize: '11px',
+                  ...(activeTab === 'profile' ? { borderRadius: '28px', background: '#f0ede8', color: '#0a0a0a', border: 'none' } : {}),
+                }}
+                title="Profile"
+              >
+                <UserCircle style={{ width: '14px', height: '14px' }} />
+              </button>
               <button onClick={handleLogout} className="rei-chip" style={{ padding: '5px 12px', fontSize: '11px' }}>
                 <LogOut style={{ width: '12px', height: '12px', color: '#a09e9a' }} />
                 Logout
@@ -351,7 +363,6 @@ export default function Rei() {
               {[
                 { key: 'askrei' as const, label: 'AskRei' },
                 { key: 'post' as const, label: 'Promote' },
-                { key: 'profile' as const, label: 'Profile' },
               ].map(tab => (
                 <button
                   key={tab.key}

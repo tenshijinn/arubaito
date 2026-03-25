@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Loader2, Send } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -33,31 +31,21 @@ interface ReiChatbotProps {
 const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps) => {
   const { publicKey } = useWallet();
   const [messages, setMessages] = useState<Message[]>(() => {
-    // Load messages from localStorage on mount
     const stored = localStorage.getItem(`rei_chat_${walletAddress}`);
     return stored ? JSON.parse(stored) : [];
   });
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(() => {
-    // Load conversationId from localStorage on mount
     return localStorage.getItem(`rei_chat_id_${walletAddress}`) || null;
   });
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [showPaymentMethod, setShowPaymentMethod] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'solana-pay' | 'x402' | null>(null);
   const [currentPaymentData, setCurrentPaymentData] = useState<any>(null);
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [operationStatus, setOperationStatus] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-
-  const placeholders = [
-    "> type command or select quick action...",
-    `> try: '${getWelcomePresets(userMode)[0]}'`,
-    "> try: 'check my points'",
-    "> try: 'submit opportunity'",
-  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -67,15 +55,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     scrollToBottom();
   }, [messages]);
 
-  // Cycle through placeholders
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [userMode]);
-
-  // Save messages and conversationId to localStorage whenever they change
+  // Save messages and conversationId to localStorage
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem(`rei_chat_${walletAddress}`, JSON.stringify(messages));
@@ -88,32 +68,23 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     }
   }, [conversationId, walletAddress]);
 
-  // Load conversation on mount and when wallet changes
   useEffect(() => {
-    // Only load from database if we don't have localStorage data
     if (messages.length === 0) {
       loadConversation();
     }
-  }, []); // Only run once on mount
+  }, []);
 
-  // Track previous userMode to detect actual changes
   const prevUserModeRef = useRef(userMode);
 
-  // Only reset conversation when mode actually changes (not on initial mount)
   useEffect(() => {
     const resetConversation = async () => {
-      // Only reset if userMode actually changed (not initial mount)
       if (prevUserModeRef.current !== undefined && prevUserModeRef.current !== userMode) {
-        console.log("User mode changed, resetting conversation");
         if (conversationId) {
-          // Delete all messages from the database for this conversation
           try {
             await supabase.from("chat_messages").delete().eq("conversation_id", conversationId);
           } catch (error) {
             console.error("Error deleting conversation messages:", error);
           }
-
-          // Clear local state and localStorage
           setMessages([]);
           setConversationId(null);
           localStorage.removeItem(`rei_chat_${walletAddress}`);
@@ -122,9 +93,8 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       }
       prevUserModeRef.current = userMode;
     };
-
     resetConversation();
-  }, [userMode, walletAddress]); // Only depend on userMode, not conversationId
+  }, [userMode, walletAddress]);
 
   const loadConversation = async () => {
     try {
@@ -136,7 +106,6 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
 
       if (conversation) {
         setConversationId(conversation.id);
-
         const { data: messages } = await supabase
           .from("chat_messages")
           .select("role, content, metadata")
@@ -159,12 +128,10 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
   };
 
   const handlePaymentComplete = async (reference: string) => {
-    // Reset payment UI state
     setShowPaymentMethod(false);
     setSelectedPaymentMethod(null);
     setCurrentPaymentData(null);
     
-    // Send confirmation to AI by setting input and triggering send
     const confirmMessage = `Payment completed with reference: ${reference}`;
     setMessages((prev) => [...prev, { role: "user", content: confirmMessage }]);
     setLoading(true);
@@ -182,10 +149,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       if (error) throw error;
 
       const timestamp = new Date().toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
+        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
       });
       const assistantMessage: Message = {
         role: "assistant",
@@ -195,7 +159,6 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-
       if (!conversationId && data.conversationId) {
         setConversationId(data.conversationId);
       }
@@ -218,33 +181,20 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
   };
 
   const handleClearChat = async () => {
-    if (!confirm("Are you sure you want to clear the chat? This cannot be undone.")) {
-      return;
-    }
+    if (!confirm("Are you sure you want to clear the chat? This cannot be undone.")) return;
 
     try {
-      // Delete from database if conversation exists
       if (conversationId) {
         await supabase.from("chat_messages").delete().eq("conversation_id", conversationId);
       }
-
-      // Clear local state and localStorage
       setMessages([]);
       setConversationId(null);
       localStorage.removeItem(`rei_chat_${walletAddress}`);
       localStorage.removeItem(`rei_chat_id_${walletAddress}`);
-
-      toast({
-        title: "Chat Cleared",
-        description: "Your conversation has been reset.",
-      });
+      toast({ title: "Chat Cleared", description: "Your conversation has been reset." });
     } catch (error) {
       console.error("Error clearing chat:", error);
-      toast({
-        title: "Error",
-        description: "Failed to clear chat. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to clear chat.", variant: "destructive" });
     }
   };
 
@@ -252,7 +202,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     setInput(preset);
     setShowQuickActions(false);
     setTimeout(() => {
-      const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
+      const inputElement = document.querySelector('.term-input') as HTMLInputElement;
       inputElement?.focus();
     }, 100);
   };
@@ -261,21 +211,16 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     if (!input.trim() || loading) return;
 
     const timestamp = new Date().toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
     });
     const userMessage: Message = { role: "user", content: input, timestamp };
     setMessages((prev) => [...prev, userMessage]);
     
-    // Detect operation type for status messages
     const isPostOperation = /post|submit|create|add.*job|add.*task|add.*gig/i.test(input);
     
     setInput("");
     setLoading(true);
     
-    // Progressive status updates
     const statusTimers: NodeJS.Timeout[] = [];
     
     if (isPostOperation) {
@@ -300,17 +245,12 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         },
       });
 
-      // Check for errors in both the Supabase error and the response data
       if (error) throw error;
-      if (data?.error) {
-        throw new Error(data.error);
-      }
+      if (data?.error) throw new Error(data.error);
 
-      // Check if response contains action or solanaPay metadata
       let metadata = data.metadata || null;
       let cleanContent = data.response;
 
-      // Extract JSON metadata from response if present
       const jsonMatch = data.response.match(/\{"action":"[^"]+","link":"[^"]+"\}/);
       if (jsonMatch) {
         try {
@@ -322,30 +262,23 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         }
       }
       
-      // Clean up any remaining "Metadata: {...}" text that AI might include
       const metadataLabelMatch = cleanContent.match(/\n*Metadata:\s*\{[\s\S]*?\}\s*$/i);
       if (metadataLabelMatch) {
         cleanContent = cleanContent.replace(metadataLabelMatch[0], "").trim();
       }
-      
-      // Also clean up standalone "Metadata:" labels
       cleanContent = cleanContent.replace(/\n*Metadata:\s*$/i, "").trim();
 
-      const timestamp = new Date().toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
+      const ts = new Date().toLocaleTimeString("en-US", {
+        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
       });
       const assistantMessage: Message = {
         role: "assistant",
         content: cleanContent,
         metadata,
-        timestamp,
+        timestamp: ts,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-
       if (!conversationId && data.conversationId) {
         setConversationId(data.conversationId);
       }
@@ -359,20 +292,18 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     } finally {
       setLoading(false);
       setOperationStatus("");
-      // Clear all status timers
       statusTimers.forEach(timer => clearTimeout(timer));
     }
   };
 
   const [displayedContent, setDisplayedContent] = useState<Record<number, string>>(() => {
-    // Initialize with all loaded messages already fully displayed
     const stored = localStorage.getItem(`rei_chat_${walletAddress}`);
     if (stored) {
       const loadedMessages = JSON.parse(stored);
       const initial: Record<number, string> = {};
       loadedMessages.forEach((msg: Message, idx: number) => {
         if (msg.role === "assistant") {
-          initial[idx] = msg.content; // Show full content immediately for loaded messages
+          initial[idx] = msg.content;
         }
       });
       return initial;
@@ -381,9 +312,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
   });
   const [lastMessageCount, setLastMessageCount] = useState(0);
 
-  // Typewriter effect for NEW AI messages only
   useEffect(() => {
-    // Only apply typewriter to newly added messages
     if (messages.length <= lastMessageCount) {
       setLastMessageCount(messages.length);
       return;
@@ -407,7 +336,7 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         } else {
           clearInterval(intervalId);
         }
-      }, 15); // 15ms per character for smooth typewriter
+      }, 15);
       intervals.push(intervalId);
     }
 
@@ -416,55 +345,52 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
     return () => {
       intervals.forEach((i) => clearInterval(i));
     };
-  }, [messages.length]); // Only trigger when message count changes
+  }, [messages.length]);
 
   const renderMessage = (message: Message, index: number) => {
     const isUser = message.role === "user";
     const timestamp =
       message.timestamp ||
       new Date().toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
+        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
       });
-    const username = isUser ? `@${twitterHandle || "user"}` : "@Rei";
+    const handle = isUser ? `@${twitterHandle || "user"}` : "@rei";
     const content = isUser ? message.content : displayedContent[index] || "";
     const isTyping = !isUser && content.length < message.content.length;
 
     return (
-      <div key={index} className="mb-6 font-mono">
-        <div className="flex gap-3 text-sm">
-          <span className="text-muted-foreground">[{timestamp}]</span>
-          <span style={{ color: isUser ? "#f1eee6" : "#e565a0" }}>{username}</span>
-          <div className="flex-1 break-words" style={{ color: isUser ? "#f1eee6" : "#e565a0" }}>
+      <div key={index}>
+        <div className="chat-line">
+          <span className="chat-ts">[{timestamp}]</span>
+          <span className={`chat-handle ${isUser ? 'handle-user' : 'handle-ai'}`}>{handle}</span>
+          <div className={`chat-msg ${!isUser ? 'msg-ai' : ''}`} style={{ flex: 1 }}>
             {isUser ? (
-              <span className="whitespace-pre-wrap">{content}</span>
+              <span>{content}</span>
             ) : (
               <>
                 <MessageContent content={content} />
-                {isTyping && <span className="animate-pulse">▋</span>}
+                {isTyping && <span className="rei-cursor" />}
               </>
             )}
           </div>
         </div>
 
-        {/* Render action button if metadata contains link */}
+        {/* Action button */}
         {!isUser && message.metadata?.action === "register" && message.metadata?.link && (
-          <div className="mt-3 ml-[120px]">
-            <Button
+          <div className="mt-2 ml-[148px]">
+            <button
               onClick={() => (window.location.href = message.metadata.link)}
-              variant="outline"
-              className="text-sm"
+              className="rei-chip"
             >
+              <span className="rei-chip-dot" />
               Complete Registration
-            </Button>
+            </button>
           </div>
         )}
 
-        {/* Render draft selection buttons if metadata contains drafts */}
+        {/* Draft selection */}
         {!isUser && message.metadata?.drafts && Array.isArray(message.metadata.drafts) && (
-          <div className="mt-3 ml-[120px] space-y-2">
+          <div className="mt-2 ml-[148px] space-y-2">
             {message.metadata.drafts.map((draft: any, idx: number) => (
               <button
                 key={draft.id}
@@ -472,15 +398,16 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
                   setInput(`load draft ${draft.id} ${draft.type}`);
                   handleSend();
                 }}
-                className="w-full text-left px-4 py-3 border border-primary/30 rounded hover:border-primary hover:bg-primary/5 transition-colors font-mono text-sm"
+                className="w-full text-left px-4 py-3 rei-surface-2 hover:border-[hsla(18,52%,82%,0.3)] transition-colors text-sm"
+                style={{ padding: '10px 14px', borderRadius: '14px' }}
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-primary font-medium">[{idx + 1}]</span>
-                  <div className="flex-1">
-                    <div className="text-primary font-medium">
+                  <span style={{ color: '#e8c4b8', fontWeight: 500 }}>[{idx + 1}]</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ color: '#f0ede8', fontWeight: 500 }}>
                       [{draft.type.toUpperCase()}] {draft.title}
                     </div>
-                    <div className="text-muted-foreground text-xs mt-1">
+                    <div style={{ color: '#5c5a57', fontSize: '11px', marginTop: '4px' }}>
                       Status: {draft.status}
                     </div>
                   </div>
@@ -492,16 +419,17 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
                 setInput("start a new one");
                 handleSend();
               }}
-              className="w-full text-left px-4 py-3 border border-primary/30 rounded hover:border-primary hover:bg-primary/5 transition-colors font-mono text-sm text-muted-foreground"
+              className="w-full text-left rei-surface-2 hover:border-[hsla(18,52%,82%,0.3)] transition-colors text-sm"
+              style={{ padding: '10px 14px', borderRadius: '14px', color: '#5c5a57' }}
             >
-              <span className="text-primary/70 mr-2">+</span> Start a new one instead
+              <span style={{ color: 'hsla(18,52%,82%,0.7)', marginRight: '8px' }}>+</span> Start a new one instead
             </button>
           </div>
         )}
 
-        {/* Render quick action buttons if metadata contains quickActions */}
+        {/* Quick action buttons */}
         {!isUser && message.metadata?.quickActions && Array.isArray(message.metadata.quickActions) && (
-          <div className="mt-3 ml-[120px] flex flex-wrap gap-2">
+          <div className="mt-2 ml-[148px] flex flex-wrap gap-2">
             {message.metadata.quickActions.map((action: any, idx: number) => (
               <button
                 key={idx}
@@ -509,21 +437,22 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
                   setInput(action.value);
                   handleSend();
                 }}
-                className="px-3 py-2 border border-primary/30 rounded hover:border-primary hover:bg-primary/5 transition-colors font-mono text-sm"
+                className="rei-chip"
               >
-                {action.emoji} {action.label}
+                <span className="rei-chip-dot" />
+                {action.label}
               </button>
             ))}
           </div>
         )}
 
-        {/* Render Solana Pay QR code if metadata contains solanaPay */}
+        {/* Payment section */}
         {!isUser && message.metadata?.solanaPay && (
-          <div className="mt-3 ml-[120px]">
+          <div className="mt-2 ml-[148px]">
             {!publicKey && !selectedPaymentMethod && !showPaymentMethod && (
-              <div className="space-y-3 p-4 border border-primary/30 bg-background/50 rounded font-mono text-sm">
-                <p className="text-muted-foreground">Connect wallet to choose payment method:</p>
-                <WalletMultiButton className="!bg-primary hover:!bg-primary/90 w-full" />
+              <div className="rei-surface-2 space-y-3" style={{ padding: '14px', borderRadius: '14px' }}>
+                <p style={{ color: '#5c5a57', fontSize: '12px' }}>Connect wallet to choose payment method:</p>
+                <WalletMultiButton className="!bg-[#f0ede8] !text-[#0a0a0a] hover:!opacity-80 w-full !rounded-[28px] !font-sans !text-sm" />
               </div>
             )}
             
@@ -533,9 +462,10 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
                   setCurrentPaymentData(message.metadata.solanaPay);
                   setShowPaymentMethod(true);
                 }}
-                className="text-sm text-primary hover:underline font-mono"
+                className="rei-chip"
               >
-                [Choose Payment Method]
+                <span className="rei-chip-dot" />
+                Choose Payment Method
               </button>
             )}
             
@@ -569,42 +499,75 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
             )}
           </div>
         )}
+
+        <div className="line-gap" />
       </div>
     );
   };
 
   return (
-    <div className="relative h-full flex flex-col">
-      {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-8 py-6 pb-32 max-w-4xl mx-auto w-full scrollbar-hide">
-        {messages.length === 0 && (
-          <div className="font-mono space-y-4">
-            <p className="text-sm text-muted-foreground">Hi! I'm Rei, your Web3 talent assistant.</p>
-            <p className="text-sm text-muted-foreground mb-6">Try one of these commands:</p>
+    <div className="relative h-full flex flex-col rei-terminal" style={{ border: 'none', borderRadius: 0 }}>
+      {/* Terminal bar */}
+      <div className="term-bar">
+        <div className="flex gap-1.5">
+          <div className="term-dot" />
+          <div className="term-dot" />
+          <div className="term-dot" />
+        </div>
+        <span className="term-title">rei.chat — {twitterHandle ? `@${twitterHandle}` : 'session'}</span>
+        <span className="term-status">
+          <span className="term-online">●</span> connected
+        </span>
+        {messages.length > 0 && (
+          <button
+            onClick={handleClearChat}
+            className="send-btn ml-2"
+          >
+            clear
+          </button>
+        )}
+      </div>
 
-            <div className="space-y-2">
+      {/* Messages area */}
+      <div className="log-area flex-1 overflow-y-auto pb-16 scrollbar-hide">
+        {messages.length === 0 && (
+          <>
+            {/* System message */}
+            <div className="chat-line">
+              <span className="chat-ts">[--:--:--]</span>
+              <span className="chat-handle handle-sys">* system</span>
+              <span className="chat-msg msg-sys">session started. select a command or type a message.</span>
+            </div>
+            <div className="line-gap" />
+            <div className="term-divider" />
+            <div className="line-gap" />
+
+            {/* Welcome presets as chips */}
+            <div className="flex flex-wrap gap-2 px-2">
               {getWelcomePresets(userMode).map((preset, idx) => (
                 <PresetButton key={idx} text={preset} onClick={() => handlePresetSelect(preset)} />
               ))}
             </div>
-          </div>
+          </>
         )}
 
         {messages.map((message, index) => renderMessage(message, index))}
 
         {loading && (
-          <div className="font-mono text-sm mb-6 space-y-2">
-            <div className="flex gap-3">
-              <span className="text-muted-foreground">[...]</span>
-              <span className="text-primary">@Rei</span>
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                <span className="text-muted-foreground">thinking...</span>
-              </div>
+          <div>
+            <div className="chat-line">
+              <span className="chat-ts">[...]</span>
+              <span className="chat-handle handle-ai">@rei</span>
+              <span className="chat-msg msg-ai" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Loader2 className="h-3 w-3 animate-spin" style={{ color: '#7a7874' }} />
+                <span style={{ color: '#4a4845' }}>thinking...</span>
+              </span>
             </div>
             {operationStatus && (
-              <div className="ml-[120px] text-xs text-muted-foreground animate-pulse">
-                {operationStatus}
+              <div className="chat-line">
+                <span className="chat-ts" />
+                <span className="chat-handle" />
+                <span className="chat-msg msg-sys" style={{ fontSize: '11px' }}>{operationStatus}</span>
               </div>
             )}
           </div>
@@ -613,46 +576,32 @@ const ReiChatbot = ({ walletAddress, userMode, twitterHandle }: ReiChatbotProps)
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area - fixed to bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-primary/20 z-10">
-        <div className="max-w-4xl mx-auto px-8 py-4">
-          <div className="flex items-center gap-2 mb-2">
-            <button
-              onClick={() => setShowQuickActions(!showQuickActions)}
-              className="text-xs font-mono text-muted-foreground 
-                       hover:text-primary transition-colors"
-            >
-              [?]
-            </button>
-            {messages.length > 0 && (
-              <button
-                onClick={handleClearChat}
-                className="text-xs font-mono text-muted-foreground 
-                         hover:text-destructive transition-colors ml-auto"
-              >
-                [clear chat]
-              </button>
-            )}
-          </div>
-          <div className="relative">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-              placeholder={placeholders[placeholderIndex]}
-              disabled={loading}
-              className="w-full pr-12 h-12 rounded-full border-2 border-primary/50 bg-transparent font-mono text-sm focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50"
-            />
-            <Button
-              onClick={handleSend}
-              disabled={loading || !input.trim()}
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 bg-primary hover:bg-primary/90"
-            >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            </Button>
-          </div>
-        </div>
+      {/* Input row */}
+      <div className="input-row" style={{ position: 'sticky', bottom: 0 }}>
+        <button
+          onClick={() => setShowQuickActions(!showQuickActions)}
+          className="send-btn mr-2"
+          style={{ fontSize: '12px', padding: '4px 8px' }}
+        >
+          ?
+        </button>
+        <span className="prompt-prefix">@{twitterHandle || 'user'} &gt;</span>
+        <input
+          className="term-input"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+          placeholder="type a message or /command..."
+          disabled={loading}
+        />
+        <button
+          onClick={handleSend}
+          disabled={loading || !input.trim()}
+          className="send-btn"
+          style={{ opacity: loading || !input.trim() ? 0.3 : 1 }}
+        >
+          {loading ? '...' : 'send'}
+        </button>
       </div>
 
       {/* Quick Actions Panel */}

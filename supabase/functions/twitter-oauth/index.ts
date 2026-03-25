@@ -91,8 +91,8 @@ Deno.serve(async (req) => {
       const tokenData: TwitterTokenResponse = await tokenResponse.json();
       console.log('Token received successfully');
 
-      // Get user info
-      const userResponse = await fetch('https://api.twitter.com/2/users/me?user.fields=profile_image_url,verified', {
+      // Get user info (include verified_type for X Premium / Blue checkmark)
+      const userResponse = await fetch('https://api.twitter.com/2/users/me?user.fields=profile_image_url,verified,verified_type', {
         headers: {
           'Authorization': `Bearer ${tokenData.access_token}`,
         },

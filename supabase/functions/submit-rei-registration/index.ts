@@ -34,6 +34,14 @@ Deno.serve(async (req) => {
     console.log('Submitting registration for:', registrationData.handle || registrationData.wallet_address);
     console.log('Reanalyze mode:', registrationData.reanalyze);
 
+    // Server-side enforcement: only verified X accounts can register (skip for reanalyze)
+    if (!registrationData.reanalyze && !registrationData.verified) {
+      return new Response(
+        JSON.stringify({ error: 'Only verified X (Twitter) accounts can register with Rei.' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Check if file is audio/video and needs transcription
     let processedFilePath = registrationData.file_path;
     const isAudioVideo = registrationData.file_path.match(/\.(webm|mp4|mov|mp3|wav|m4a)$/i);

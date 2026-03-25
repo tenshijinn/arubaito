@@ -1340,10 +1340,19 @@ export type Database = {
         }
         Returns: boolean
       }
-      increment_user_points: {
-        Args: { p_points: number; p_wallet_address: string }
-        Returns: undefined
-      }
+      increment_user_points:
+        | {
+            Args: { p_points: number; p_wallet_address: string }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_points: number
+              p_wallet_address: string
+              p_x_user_id?: string
+            }
+            Returns: undefined
+          }
       move_to_dlq: {
         Args: {
           dlq_name: string

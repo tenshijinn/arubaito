@@ -62,10 +62,20 @@ serve(async (req) => {
       );
     }
 
+    // Look up x_user_id from rei_registry for this wallet
+    let xUserId: string | null = null;
+    const { data: registryData } = await supabase
+      .from('rei_registry')
+      .select('x_user_id')
+      .eq('wallet_address', walletAddress)
+      .maybeSingle();
+    if (registryData?.x_user_id) xUserId = registryData.x_user_id;
+
     // Use atomic increment function to update user points
     const { error: incrementError } = await supabase.rpc('increment_user_points', {
       p_wallet_address: walletAddress,
-      p_points: POINTS_PER_PAYMENT
+      p_points: POINTS_PER_PAYMENT,
+      p_x_user_id: xUserId,
     });
 
     if (incrementError) {

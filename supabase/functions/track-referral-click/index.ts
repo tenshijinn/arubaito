@@ -43,7 +43,7 @@ serve(async (req) => {
     // Verify referral code exists and is active
     const { data: codeData, error: codeError } = await supabase
       .from('referral_codes')
-      .select('wallet_address, is_active')
+      .select('wallet_address, is_active, x_user_id')
       .eq('referral_code', referralCode)
       .single();
 
@@ -142,6 +142,7 @@ serve(async (req) => {
     const { error: pointsError } = await supabase.rpc('increment_user_points', {
       p_wallet_address: codeData.wallet_address,
       p_points: POINTS_PER_CLICK,
+      p_x_user_id: codeData.x_user_id || null,
     });
 
     if (pointsError) {

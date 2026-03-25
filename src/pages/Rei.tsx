@@ -576,12 +576,14 @@ export default function Rei() {
           )}
 
           {activeTab === 'askrei' && (
-            <div className="h-full">
-              <ReiChatbot 
-                walletAddress={registrationData.wallet_address} 
-                userMode="talent"
-                twitterHandle={twitterUser?.handle}
-              />
+            <div className="overflow-y-auto h-full scrollbar-hide">
+              <div className="max-w-4xl mx-auto px-4 pb-20">
+                <ReiChatbot 
+                  walletAddress={registrationData.wallet_address} 
+                  userMode="talent"
+                  twitterHandle={twitterUser?.handle}
+                />
+              </div>
             </div>
           )}
 

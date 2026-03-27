@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,8 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { generateCVProfilePDF } from "@/utils/cvPdfGenerator";
+import { NSIcon } from "@/components/icons/NSIcon";
+import { GoldenCheckmark } from "@/components/icons/GoldenCheckmark";
 
 interface CVContent {
   personal_info?: {
@@ -69,7 +71,25 @@ export const ProfileHeader = ({
 }: ProfileHeaderProps) => {
   const [downloading, setDownloading] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [membershipType, setMembershipType] = useState<string | null>(null);
   const displayName = userName || fileName.replace(/\.[^/.]+$/, "");
+
+  // Fetch membership pathway from club_member_showcase
+  useEffect(() => {
+    const fetchMembership = async () => {
+      if (!twitterHandle) return;
+      const { data } = await supabase
+        .from("club_member_showcase")
+        .select("membership_type")
+        .eq("twitter_handle", twitterHandle)
+        .maybeSingle();
+      if (data) setMembershipType(data.membership_type);
+    };
+    fetchMembership();
+  }, [twitterHandle]);
+
+  const hasNS = membershipType?.toLowerCase().includes("ns_member") || membershipType?.toLowerCase().includes("network_school");
+  const hasGuestlist = membershipType?.toLowerCase().includes("whitelist") || membershipType?.toLowerCase().includes("guestlist") || membershipType?.toLowerCase().includes("bluechip");
   const truncatedWallet = walletAddress 
     ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
     : null;
@@ -153,7 +173,9 @@ export const ProfileHeader = ({
         <div className="flex-1 space-y-3">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-foreground">
+              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                {hasNS && <NSIcon size={22} color="hsl(var(--primary))" />}
+                {hasGuestlist && <GoldenCheckmark size={22} />}
                 {displayName}
               </h2>
               {twitterHandle && (

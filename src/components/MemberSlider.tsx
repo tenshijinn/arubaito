@@ -110,6 +110,27 @@ export const MemberSlider = () => {
                   CLUB MEMBER
                 </p>
 
+                {/* Membership pathway badges */}
+                <div className="flex flex-wrap justify-center gap-2 mb-2">
+                  {getMembershipBadges(member.membership_type).map((badge, i) => {
+                    const Icon = badge.icon;
+                    return (
+                      <span
+                        key={i}
+                        className="inline-flex items-center gap-1 text-[10px] font-mono tracking-wider uppercase px-2.5 py-1 rounded-full"
+                        style={{
+                          backgroundColor: "hsl(var(--muted))",
+                          color: badge.color,
+                          border: `1px solid ${badge.color}40`,
+                        }}
+                      >
+                        <Icon className="w-3 h-3" />
+                        {badge.label}
+                      </span>
+                    );
+                  })}
+                </div>
+
                 {/* CV Profile Score */}
                 {member.cv_score && (
                   <p

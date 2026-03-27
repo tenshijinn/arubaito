@@ -99,20 +99,8 @@ export const MemberSlider = () => {
           <ChevronRight className="w-8 h-8" />
         </button>
 
-        {/* Carousel with terminal flip effect */}
-        <div
-          ref={emblaRef}
-          className="overflow-hidden"
-          style={{
-            transition: isFlipping ? "none" : "opacity 0.3s ease",
-          }}
-        >
-          <div
-            className="flex"
-            style={{
-              animation: isFlipping ? "terminalFlip 0.4s ease-out" : "none",
-            }}
-          >
+        <div ref={emblaRef} className="overflow-hidden">
+          <div className="flex">
             {members.map((member) => {
               const badges = getMemberBadges(member.membership_type);
               const hasNS = badges.some((b) => b.key === "ns");

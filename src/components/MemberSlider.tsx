@@ -157,15 +157,20 @@ export const MemberSlider = () => {
                     </div>
 
                     {/* Handle with X icon */}
-                    <div className="flex items-center gap-2">
+                    <a
+                      href={`https://x.com/${member.twitter_handle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                    >
                       <div
-                        className="flex items-center justify-center w-7 h-7"
+                        className="flex items-center justify-center w-4 h-4"
                         style={{
                           border: "1px solid #ED565A",
-                          borderRadius: "10px",
+                          borderRadius: "5px",
                         }}
                       >
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <svg width="8" height="8" viewBox="0 0 14 14" fill="none">
                           <path
                             d="M8.33 5.93L13.53 0H12.3L7.78 5.15L4.17 0H0L5.45 7.78L0 14H1.23L5.99 8.56L9.83 14H14L8.33 5.93ZM6.62 7.85L6.07 7.08L1.68 0.91H3.58L7.11 5.89L7.66 6.66L12.3 13.13H10.4L6.62 7.85Z"
                             fill="#ED565A"
@@ -173,12 +178,12 @@ export const MemberSlider = () => {
                         </svg>
                       </div>
                       <span
-                        className="font-mono text-sm leading-5"
+                        className="font-mono text-[7px] leading-3"
                         style={{ color: "#ED565A" }}
                       >
                         @{member.twitter_handle}
                       </span>
-                    </div>
+                    </a>
 
                     {/* Job title / bio */}
                     {member.job_title && (

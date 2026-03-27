@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight, GraduationCap, Diamond, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, Wallet, Link2, Globe, Layers } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ClubMember {
@@ -11,26 +11,6 @@ interface ClubMember {
   cv_score: number | null;
   top_activities: Array<{ description?: string; chain?: string }>;
   job_title: string | null;
-}
-
-function getMembershipBadges(membershipType: string) {
-  const badges: Array<{ label: string; icon: typeof GraduationCap; color: string }> = [];
-  const types = membershipType.toLowerCase();
-  
-  if (types.includes("ns_member")) {
-    badges.push({ label: "NS", icon: GraduationCap, color: "hsl(var(--primary))" });
-  }
-  if (types.includes("whitelist")) {
-    badges.push({ label: "Bluechip", icon: Diamond, color: "#60a5fa" });
-  }
-  if (types.includes("cv_score")) {
-    badges.push({ label: "CV Profile", icon: FileText, color: "#a78bfa" });
-  }
-  // Fallback if none matched
-  if (badges.length === 0) {
-    badges.push({ label: "Member", icon: Diamond, color: "hsl(var(--muted-foreground))" });
-  }
-  return badges;
 }
 
 export const MemberSlider = () => {
@@ -47,9 +27,7 @@ export const MemberSlider = () => {
         setMembers(
           data.map((m: Record<string, unknown>) => ({
             ...m,
-            top_activities: Array.isArray(m.top_activities)
-              ? m.top_activities
-              : [],
+            top_activities: Array.isArray(m.top_activities) ? m.top_activities : [],
           })) as ClubMember[]
         );
       }
@@ -59,9 +37,7 @@ export const MemberSlider = () => {
 
   useEffect(() => {
     if (!emblaApi) return;
-    const interval = setInterval(() => {
-      emblaApi.scrollNext();
-    }, 5000);
+    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
     return () => clearInterval(interval);
   }, [emblaApi]);
 
@@ -70,17 +46,19 @@ export const MemberSlider = () => {
 
   if (members.length === 0) return null;
 
+  const proofIcons = [Wallet, Link2, Globe, Layers];
+
   return (
     <div
       className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
-      style={{ backgroundColor: "#181818" }}
+      style={{ backgroundColor: "#1A1A1A" }}
     >
-      <div className="relative w-full max-w-sm mx-auto">
+      <div className="relative w-full max-w-[400px] mx-auto">
         {/* Nav arrows */}
         <button
           onClick={scrollPrev}
           className="absolute -left-12 top-1/2 -translate-y-1/2 z-10 opacity-40 hover:opacity-100 transition-opacity"
-          style={{ color: "hsl(var(--primary))" }}
+          style={{ color: "#ED565A" }}
           aria-label="Previous member"
         >
           <ChevronLeft className="w-8 h-8" />
@@ -88,7 +66,7 @@ export const MemberSlider = () => {
         <button
           onClick={scrollNext}
           className="absolute -right-12 top-1/2 -translate-y-1/2 z-10 opacity-40 hover:opacity-100 transition-opacity"
-          style={{ color: "hsl(var(--primary))" }}
+          style={{ color: "#ED565A" }}
           aria-label="Next member"
         >
           <ChevronRight className="w-8 h-8" />
@@ -100,121 +78,154 @@ export const MemberSlider = () => {
             {members.map((member) => (
               <div
                 key={member.id}
-                className="min-w-0 shrink-0 grow-0 basis-full flex flex-col items-center px-4"
+                className="min-w-0 shrink-0 grow-0 basis-full flex justify-center"
               >
-                {/* CLUB MEMBER heading */}
-                <p
-                  className="text-2xl font-mono tracking-[0.3em] mb-2 font-bold text-center"
-                  style={{ color: "#faf6f4" }}
-                >
-                  CLUB MEMBER
-                </p>
-
-                {/* Membership pathway badges */}
-                <div className="flex flex-wrap justify-center gap-2 mb-2">
-                  {getMembershipBadges(member.membership_type).map((badge, i) => {
-                    const Icon = badge.icon;
-                    return (
-                      <span
-                        key={i}
-                        className="inline-flex items-center gap-1 text-[10px] font-mono tracking-wider uppercase px-2.5 py-1 rounded-full"
-                        style={{
-                          backgroundColor: "hsl(var(--muted))",
-                          color: badge.color,
-                          border: `1px solid ${badge.color}40`,
-                        }}
-                      >
-                        <Icon className="w-3 h-3" />
-                        {badge.label}
-                      </span>
-                    );
-                  })}
-                </div>
-
-                {/* CV Profile Score */}
-                {member.cv_score && (
-                  <p
-                    className="text-xs font-mono mb-2 text-center"
-                    style={{ color: "hsl(var(--primary))" }}
-                  >
-                    CV Profile Score{" "}
-                    <span className="font-bold">{Math.round(member.cv_score)}/100</span>
-                  </p>
-                )}
-
-                {/* Job title */}
-                {member.job_title && (
-                  <p
-                    className="text-lg font-mono italic mb-6 text-center"
-                    style={{ color: "hsl(var(--primary))" }}
-                  >
-                    {member.job_title}
-                  </p>
-                )}
-
-                {/* Avatar */}
+                {/* Card container */}
                 <div
-                  className="w-36 h-36 rounded-full overflow-hidden mb-5"
+                  className="flex flex-col items-start w-full max-w-[400px]"
                   style={{
-                    border: "3px solid hsl(var(--primary))",
-                    boxShadow: "0 0 24px hsl(358 79% 64% / 0.3)",
+                    padding: "13px 13px 16px",
+                    gap: "16px",
+                    border: "1px solid #ED565A",
+                    borderRadius: "32px",
+                    background: "transparent",
                   }}
                 >
-                  {member.profile_image_url ? (
-                    <img
-                      src={member.profile_image_url}
-                      alt={`@${member.twitter_handle}`}
-                      className="w-full h-full object-cover"
-                      style={{ filter: "grayscale(100%)" }}
-                    />
-                  ) : (
-                    <div
-                      className="w-full h-full flex items-center justify-center font-mono text-3xl"
-                      style={{
-                        backgroundColor: "hsl(var(--muted))",
-                        color: "hsl(var(--primary))",
-                      }}
-                    >
-                      {member.twitter_handle.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-
-                {/* Handle */}
-                <p
-                  className="text-base font-mono mb-6 text-center"
-                  style={{ color: "#faf6f4" }}
-                >
-                  @{member.twitter_handle}
-                </p>
-
-                {/* Proof of Talent pills */}
-                {member.top_activities.length > 0 && (
-                  <div className="w-full space-y-2">
-                    <p
-                      className="text-[10px] font-mono tracking-widest uppercase text-center"
-                      style={{ color: "hsl(var(--primary))", opacity: 0.7 }}
-                    >
-                      Proof of Talent
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-2">
-                      {member.top_activities.map((activity, i) => (
-                        <span
-                          key={i}
-                          className="text-[11px] font-mono px-3 py-1.5 rounded-full"
-                          style={{
-                            backgroundColor: "hsl(var(--muted))",
-                            color: "hsl(var(--primary))",
-                            border: "1px solid hsl(var(--primary) / 0.3)",
-                          }}
-                        >
-                          {activity.description ||
-                            `${activity.chain || "On-chain"}`}
-                        </span>
-                      ))}
-                    </div>
+                  {/* Image container */}
+                  <div
+                    className="w-full aspect-square overflow-hidden"
+                    style={{
+                      border: "1px solid #ED565A",
+                      borderRadius: "28px",
+                    }}
+                  >
+                    {member.profile_image_url ? (
+                      <img
+                        src={member.profile_image_url}
+                        alt={`@${member.twitter_handle}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center font-mono text-4xl"
+                        style={{ backgroundColor: "#141414", color: "#ED565A" }}
+                      >
+                        {member.twitter_handle.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                   </div>
-                )}
+
+                  {/* Content section */}
+                  <div className="w-full px-0 flex flex-col gap-3">
+                    {/* Name + Score row */}
+                    <div className="flex items-start justify-between w-full">
+                      <span
+                        className="font-mono text-xl leading-7"
+                        style={{ color: "#ED565A" }}
+                      >
+                        {member.job_title
+                          ? member.twitter_handle
+                              .replace(/([a-z])([A-Z])/g, "$1 $2")
+                              .replace(/^./, (c) => c.toUpperCase())
+                          : `@${member.twitter_handle}`}
+                      </span>
+
+                      {member.cv_score && (
+                        <div className="flex flex-col items-end">
+                          <span
+                            className="font-mono text-[9px] tracking-[0.9px] leading-[14px]"
+                            style={{ color: "#ED565A", opacity: 0.7 }}
+                          >
+                            CV PROFILE SCORE
+                          </span>
+                          <div className="flex items-baseline">
+                            <span
+                              className="font-mono font-bold text-[30px] leading-9"
+                              style={{ color: "#ED565A" }}
+                            >
+                              {Math.round(member.cv_score)}
+                            </span>
+                            <span
+                              className="font-mono text-lg leading-7"
+                              style={{ color: "#ED565A", opacity: 0.5 }}
+                            >
+                              /100
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Handle with X icon */}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="flex items-center justify-center w-7 h-7"
+                        style={{
+                          border: "1px solid #ED565A",
+                          borderRadius: "10px",
+                        }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                          <path
+                            d="M8.33 5.93L13.53 0H12.3L7.78 5.15L4.17 0H0L5.45 7.78L0 14H1.23L5.99 8.56L9.83 14H14L8.33 5.93ZM6.62 7.85L6.07 7.08L1.68 0.91H3.58L7.11 5.89L7.66 6.66L12.3 13.13H10.4L6.62 7.85Z"
+                            fill="#ED565A"
+                          />
+                        </svg>
+                      </div>
+                      <span
+                        className="font-mono text-sm leading-5"
+                        style={{ color: "#ED565A" }}
+                      >
+                        @{member.twitter_handle}
+                      </span>
+                    </div>
+
+                    {/* Job title / bio */}
+                    {member.job_title && (
+                      <p
+                        className="font-mono text-sm leading-[23px]"
+                        style={{ color: "#ED565A" }}
+                      >
+                        {member.job_title}
+                      </p>
+                    )}
+
+                    {/* Proof of Talent */}
+                    {member.top_activities.length > 0 && (
+                      <div className="flex flex-col gap-3 mt-1">
+                        <span
+                          className="font-mono text-[10px] tracking-[1.5px] leading-[15px]"
+                          style={{ color: "#ED565A" }}
+                        >
+                          PROOF OF TALENT
+                        </span>
+                        <div className="flex items-center gap-3">
+                          {member.top_activities.slice(0, 4).map((_, i) => {
+                            const Icon = proofIcons[i % proofIcons.length];
+                            return (
+                              <div
+                                key={i}
+                                className="flex items-center justify-center"
+                                style={{
+                                  width: "46px",
+                                  height: "46px",
+                                  border: "1px solid #ED565A",
+                                  borderRadius: "14px",
+                                }}
+                              >
+                                <Icon
+                                  className="w-5 h-5"
+                                  style={{ color: "#ED565A" }}
+                                  strokeWidth={1.67}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
           </div>

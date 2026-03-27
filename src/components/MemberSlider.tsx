@@ -133,20 +133,20 @@ export const MemberSlider = () => {
                       {member.cv_score && (
                         <div className="flex flex-col items-end">
                           <span
-                            className="font-mono text-[9px] tracking-[0.9px] leading-[14px]"
+                            className="font-mono text-[5px] tracking-[0.5px] leading-[8px]"
                             style={{ color: "#ED565A", opacity: 0.7 }}
                           >
                             CV PROFILE SCORE
                           </span>
                           <div className="flex items-baseline">
                             <span
-                              className="font-mono font-bold text-[30px] leading-9"
+                              className="font-mono font-bold text-[15px] leading-5"
                               style={{ color: "#ED565A" }}
                             >
                               {Math.round(member.cv_score)}
                             </span>
                             <span
-                              className="font-mono text-lg leading-7"
+                              className="font-mono text-[9px] leading-4"
                               style={{ color: "#ED565A", opacity: 0.5 }}
                             >
                               /100

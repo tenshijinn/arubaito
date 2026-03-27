@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,8 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { generateCVProfilePDF } from "@/utils/cvPdfGenerator";
+import { NSIcon } from "@/components/icons/NSIcon";
+import { GoldenCheckmark } from "@/components/icons/GoldenCheckmark";
 
 interface CVContent {
   personal_info?: {

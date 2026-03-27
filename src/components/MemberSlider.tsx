@@ -50,22 +50,8 @@ export const MemberSlider = () => {
     fetchMembers();
   }, []);
 
-  // Terminal flip effect on slide change
-  useEffect(() => {
-    if (!emblaApi) return;
 
-    const onSelect = () => {
-      setIsFlipping(true);
-      if (flipTimeoutRef.current) clearTimeout(flipTimeoutRef.current);
-      flipTimeoutRef.current = setTimeout(() => setIsFlipping(false), 400);
-    };
 
-    emblaApi.on("select", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-      if (flipTimeoutRef.current) clearTimeout(flipTimeoutRef.current);
-    };
-  }, [emblaApi]);
 
   // Auto-scroll
   useEffect(() => {

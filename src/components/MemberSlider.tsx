@@ -116,7 +116,7 @@ export const MemberSlider = () => {
                   </div>
 
                   {/* Content section */}
-                  <div className="w-full px-0 flex flex-col gap-3">
+                  <div className="w-full flex flex-col gap-3 py-[5px] px-[5px]">
                     {/* Name + Score row */}
                     <div className="flex items-start justify-between w-full">
                       <span

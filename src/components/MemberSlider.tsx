@@ -99,7 +99,8 @@ export const MemberSlider = () => {
         }}
       />
 
-      <div className="relative w-full max-w-[320px] mx-auto z-10">
+      <div className="flex items-end gap-10 z-10">
+      <div className="relative w-full max-w-[320px]">
 
         {/* Nav arrows */}
         <button

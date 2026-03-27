@@ -169,7 +169,7 @@ export const MemberSlider = () => {
                     <div className="w-full flex flex-col gap-3 py-[5px] px-[5px]">
                       {/* Name row */}
                       <div className="flex items-center gap-1.5">
-                        {hasNS && <NSIcon size={21} />}
+                        {hasNS && <NSIcon size={26} />}
                         {hasGuestlist && <GoldenCheckmark size={21} />}
                         <span
                           className="font-mono text-xl leading-7"

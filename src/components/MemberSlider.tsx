@@ -103,7 +103,7 @@ export const MemberSlider = () => {
                       <img
                         src={member.profile_image_url}
                         alt={`@${member.twitter_handle}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover grayscale"
                       />
                     ) : (
                       <div

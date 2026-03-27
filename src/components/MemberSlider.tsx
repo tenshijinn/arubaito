@@ -31,8 +31,6 @@ const getMemberBadges = (type: string) => {
 export const MemberSlider = () => {
   const [members, setMembers] = useState<ClubMember[]>([]);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
-  const [isFlipping, setIsFlipping] = useState(false);
-  const flipTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -52,22 +50,8 @@ export const MemberSlider = () => {
     fetchMembers();
   }, []);
 
-  // Terminal flip effect on slide change
-  useEffect(() => {
-    if (!emblaApi) return;
 
-    const onSelect = () => {
-      setIsFlipping(true);
-      if (flipTimeoutRef.current) clearTimeout(flipTimeoutRef.current);
-      flipTimeoutRef.current = setTimeout(() => setIsFlipping(false), 400);
-    };
 
-    emblaApi.on("select", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-      if (flipTimeoutRef.current) clearTimeout(flipTimeoutRef.current);
-    };
-  }, [emblaApi]);
 
   // Auto-scroll
   useEffect(() => {
@@ -115,20 +99,8 @@ export const MemberSlider = () => {
           <ChevronRight className="w-8 h-8" />
         </button>
 
-        {/* Carousel with terminal flip effect */}
-        <div
-          ref={emblaRef}
-          className="overflow-hidden"
-          style={{
-            transition: isFlipping ? "none" : "opacity 0.3s ease",
-          }}
-        >
-          <div
-            className="flex"
-            style={{
-              animation: isFlipping ? "terminalFlip 0.4s ease-out" : "none",
-            }}
-          >
+        <div ref={emblaRef} className="overflow-hidden">
+          <div className="flex">
             {members.map((member) => {
               const badges = getMemberBadges(member.membership_type);
               const hasNS = badges.some((b) => b.key === "ns");
@@ -181,7 +153,7 @@ export const MemberSlider = () => {
                         <div className="flex items-center gap-1.5">
                           {/* NS icon before name */}
                           {hasNS && (
-                            <NSIcon size={18} color="#ED565A" />
+                            <NSIcon size={18} />
                           )}
                           {/* Golden checkmark for guestlist */}
                           {hasGuestlist && (
@@ -307,35 +279,8 @@ export const MemberSlider = () => {
         </div>
       </div>
 
-      {/* Terminal flip keyframes */}
-      <style>{`
-        @keyframes terminalFlip {
-          0% {
-            opacity: 0;
-            transform: perspective(600px) rotateX(-90deg) scaleY(0.1);
-            filter: brightness(3) contrast(2);
-          }
-          30% {
-            opacity: 0.6;
-            transform: perspective(600px) rotateX(-20deg) scaleY(0.6);
-            filter: brightness(2) contrast(1.5);
-          }
-          60% {
-            opacity: 0.9;
-            transform: perspective(600px) rotateX(5deg) scaleY(1.02);
-            filter: brightness(1.3) contrast(1.1);
-          }
-          80% {
-            transform: perspective(600px) rotateX(-2deg) scaleY(1);
-            filter: brightness(1.1);
-          }
-          100% {
-            opacity: 1;
-            transform: perspective(600px) rotateX(0deg) scaleY(1);
-            filter: brightness(1) contrast(1);
-          }
-        }
-      `}</style>
+
+
     </div>
   );
 };

@@ -53,7 +53,7 @@ export const MemberSlider = () => {
       className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
       style={{ backgroundColor: "#1A1A1A" }}
     >
-      <div className="relative w-full max-w-[400px] mx-auto">
+      <div className="relative w-full max-w-[320px] mx-auto">
         {/* Nav arrows */}
         <button
           onClick={scrollPrev}
@@ -82,9 +82,9 @@ export const MemberSlider = () => {
               >
                 {/* Card container */}
                 <div
-                  className="flex flex-col items-start w-full max-w-[400px]"
+                  className="flex flex-col items-start w-full max-w-[320px]"
                   style={{
-                    padding: "13px 13px 16px",
+                    padding: "10px 10px 13px",
                     gap: "16px",
                     border: "1px solid #ED565A",
                     borderRadius: "32px",
@@ -103,7 +103,7 @@ export const MemberSlider = () => {
                       <img
                         src={member.profile_image_url}
                         alt={`@${member.twitter_handle}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover grayscale"
                       />
                     ) : (
                       <div
@@ -157,7 +157,12 @@ export const MemberSlider = () => {
                     </div>
 
                     {/* Handle with X icon */}
-                    <div className="flex items-center gap-2">
+                    <a
+                      href={`https://x.com/${member.twitter_handle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                    >
                       <div
                         className="flex items-center justify-center w-7 h-7"
                         style={{
@@ -178,7 +183,7 @@ export const MemberSlider = () => {
                       >
                         @{member.twitter_handle}
                       </span>
-                    </div>
+                    </a>
 
                     {/* Job title / bio */}
                     {member.job_title && (

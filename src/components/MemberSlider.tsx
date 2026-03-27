@@ -24,13 +24,23 @@ const getMemberBadges = (type: string) => {
   if (types.some((t) => t.includes("whitelist") || t.includes("guestlist") || t.includes("bluechip"))) {
     badges.push({ key: "guestlist", label: "Bluechip" });
   }
-  // cv_score only → no badge
   return badges;
 };
+
+const proofIcons = [Wallet, Link2, Globe, Layers];
+
+const proofLabels = [
+  "Wallet Activity",
+  "On-Chain Links",
+  "Multi-Chain",
+  "DeFi & Staking",
+];
 
 export const MemberSlider = () => {
   const [members, setMembers] = useState<ClubMember[]>([]);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [hoveredProof, setHoveredProof] = useState<{ memberId: string; index: number } | null>(null);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -50,27 +60,36 @@ export const MemberSlider = () => {
     fetchMembers();
   }, []);
 
+  // Auto-scroll with pause-on-hover support
+  const startAutoScroll = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => emblaApi?.scrollNext(), 5000);
+  }, [emblaApi]);
 
+  const stopAutoScroll = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
 
-
-  // Auto-scroll
   useEffect(() => {
     if (!emblaApi) return;
-    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
-    return () => clearInterval(interval);
-  }, [emblaApi]);
+    startAutoScroll();
+    return () => stopAutoScroll();
+  }, [emblaApi, startAutoScroll, stopAutoScroll]);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
   if (members.length === 0) return null;
 
-  const proofIcons = [Wallet, Link2, Globe, Layers];
-
   return (
     <div
       className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
       style={{ backgroundColor: "#1A1A1A" }}
+      onMouseEnter={stopAutoScroll}
+      onMouseLeave={startAutoScroll}
     >
       {/* Terminal scanline overlay */}
       <div
@@ -148,53 +167,20 @@ export const MemberSlider = () => {
 
                     {/* Content section */}
                     <div className="w-full flex flex-col gap-3 py-[5px] px-[5px]">
-                      {/* Name + Score row */}
-                      <div className="flex items-start justify-between w-full">
-                        <div className="flex items-center gap-1.5">
-                          {/* NS icon before name */}
-                          {hasNS && (
-                            <NSIcon size={18} />
-                          )}
-                          {/* Golden checkmark for guestlist */}
-                          {hasGuestlist && (
-                            <GoldenCheckmark size={18} />
-                          )}
-                          <span
-                            className="font-mono text-xl leading-7"
-                            style={{ color: "#ED565A" }}
-                          >
-                            {member.job_title
-                              ? member.twitter_handle
-                                  .replace(/([a-z])([A-Z])/g, "$1 $2")
-                                  .replace(/^./, (c) => c.toUpperCase())
-                              : `@${member.twitter_handle}`}
-                          </span>
-                        </div>
-
-                        {member.cv_score && (
-                          <div className="flex flex-col items-end">
-                            <span
-                              className="font-mono text-[9px] tracking-[0.9px] leading-[14px]"
-                              style={{ color: "#ED565A", opacity: 0.7 }}
-                            >
-                              CV PROFILE SCORE
-                            </span>
-                            <div className="flex items-baseline">
-                              <span
-                                className="font-mono font-bold text-[30px] leading-9"
-                                style={{ color: "#ED565A" }}
-                              >
-                                {Math.round(member.cv_score)}
-                              </span>
-                              <span
-                                className="font-mono text-lg leading-7"
-                                style={{ color: "#ED565A", opacity: 0.5 }}
-                              >
-                                /100
-                              </span>
-                            </div>
-                          </div>
-                        )}
+                      {/* Name row */}
+                      <div className="flex items-center gap-1.5">
+                        {hasNS && <NSIcon size={21} />}
+                        {hasGuestlist && <GoldenCheckmark size={21} />}
+                        <span
+                          className="font-mono text-xl leading-7"
+                          style={{ color: "#ED565A" }}
+                        >
+                          {member.job_title
+                            ? member.twitter_handle
+                                .replace(/([a-z])([A-Z])/g, "$1 $2")
+                                .replace(/^./, (c) => c.toUpperCase())
+                            : `@${member.twitter_handle}`}
+                        </span>
                       </div>
 
                       {/* Handle with X icon */}
@@ -236,40 +222,121 @@ export const MemberSlider = () => {
                         </p>
                       )}
 
-                      {/* Proof of Talent */}
-                      {member.top_activities.length > 0 && (
-                        <div className="flex flex-col gap-3 mt-1">
-                          <span
-                            className="font-mono text-[10px] tracking-[1.5px] leading-[15px]"
-                            style={{ color: "#ED565A" }}
-                          >
-                            PROOF OF TALENT
-                          </span>
-                          <div className="flex items-center gap-3">
-                            {member.top_activities.slice(0, 4).map((_, i) => {
-                              const Icon = proofIcons[i % proofIcons.length];
-                              return (
-                                <div
-                                  key={i}
-                                  className="flex items-center justify-center"
-                                  style={{
-                                    width: "46px",
-                                    height: "46px",
-                                    border: "1px solid #ED565A",
-                                    borderRadius: "14px",
-                                  }}
-                                >
-                                  <Icon
-                                    className="w-5 h-5"
-                                    style={{ color: "#ED565A" }}
-                                    strokeWidth={1.67}
-                                  />
-                                </div>
-                              );
-                            })}
+                      {/* Proof of Talent + CV Score row */}
+                      <div className="flex items-end justify-between mt-1">
+                        {/* Proof icons */}
+                        {member.top_activities.length > 0 && (
+                          <div className="flex flex-col gap-3">
+                            <span
+                              className="font-mono text-[10px] tracking-[1.5px] leading-[15px]"
+                              style={{ color: "#ED565A" }}
+                            >
+                              PROOF OF TALENT
+                            </span>
+                            <div className="flex items-center gap-3">
+                              {member.top_activities.slice(0, 4).map((activity, i) => {
+                                const Icon = proofIcons[i % proofIcons.length];
+                                const isHovered =
+                                  hoveredProof?.memberId === member.id &&
+                                  hoveredProof?.index === i;
+
+                                return (
+                                  <div
+                                    key={i}
+                                    className="relative"
+                                    onMouseEnter={() =>
+                                      setHoveredProof({ memberId: member.id, index: i })
+                                    }
+                                    onMouseLeave={() => setHoveredProof(null)}
+                                  >
+                                    <div
+                                      className="flex items-center justify-center cursor-pointer transition-all"
+                                      style={{
+                                        width: "46px",
+                                        height: "46px",
+                                        border: `1px solid ${isHovered ? "#fff" : "#ED565A"}`,
+                                        borderRadius: "14px",
+                                        background: isHovered
+                                          ? "rgba(237,86,90,0.1)"
+                                          : "transparent",
+                                      }}
+                                    >
+                                      <Icon
+                                        className="w-5 h-5"
+                                        style={{ color: "#ED565A" }}
+                                        strokeWidth={1.67}
+                                      />
+                                    </div>
+
+                                    {/* Floating detail card */}
+                                    {isHovered && (
+                                      <div
+                                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-30 pointer-events-none animate-fade-in"
+                                        style={{
+                                          minWidth: "180px",
+                                          maxWidth: "220px",
+                                          padding: "10px 12px",
+                                          background: "rgba(26,26,26,0.95)",
+                                          border: "1px solid rgba(237,86,90,0.4)",
+                                          borderRadius: "12px",
+                                          backdropFilter: "blur(8px)",
+                                        }}
+                                      >
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <Icon
+                                            className="w-4 h-4 shrink-0"
+                                            style={{ color: "#ED565A" }}
+                                            strokeWidth={1.67}
+                                          />
+                                          <span
+                                            className="font-mono text-xs font-bold"
+                                            style={{ color: "#ED565A" }}
+                                          >
+                                            {proofLabels[i % proofLabels.length]}
+                                          </span>
+                                        </div>
+                                        <p
+                                          className="font-mono text-[11px] leading-4"
+                                          style={{ color: "rgba(237,86,90,0.7)" }}
+                                        >
+                                          {activity.description ||
+                                            `${activity.chain ? `Experience on ${activity.chain}` : "Verified on-chain activity"}`}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+
+                        {/* CV Score — bottom right */}
+                        {member.cv_score && (
+                          <div className="flex flex-col items-end shrink-0">
+                            <span
+                              className="font-mono text-[9px] tracking-[0.9px] leading-[14px]"
+                              style={{ color: "#ED565A", opacity: 0.7 }}
+                            >
+                              CV PROFILE SCORE
+                            </span>
+                            <div className="flex items-baseline">
+                              <span
+                                className="font-mono font-bold text-[30px] leading-9"
+                                style={{ color: "#ED565A" }}
+                              >
+                                {Math.round(member.cv_score)}
+                              </span>
+                              <span
+                                className="font-mono text-lg leading-7"
+                                style={{ color: "#ED565A", opacity: 0.5 }}
+                              >
+                                /100
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -278,9 +345,6 @@ export const MemberSlider = () => {
           </div>
         </div>
       </div>
-
-
-
     </div>
   );
 };

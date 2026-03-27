@@ -197,14 +197,14 @@ export const MemberSlider = () => {
 
                     {/* Proof of Talent */}
                     {member.top_activities.length > 0 && (
-                      <div className="flex flex-col gap-3 mt-1">
+                      <div className="flex flex-col gap-1.5 mt-0.5">
                         <span
-                          className="font-mono text-[10px] tracking-[1.5px] leading-[15px]"
+                          className="font-mono text-[5px] tracking-[0.75px] leading-[8px]"
                           style={{ color: "#ED565A" }}
                         >
                           PROOF OF TALENT
                         </span>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5">
                           {member.top_activities.slice(0, 4).map((_, i) => {
                             const Icon = proofIcons[i % proofIcons.length];
                             return (
@@ -212,14 +212,14 @@ export const MemberSlider = () => {
                                 key={i}
                                 className="flex items-center justify-center"
                                 style={{
-                                  width: "46px",
-                                  height: "46px",
+                                  width: "23px",
+                                  height: "23px",
                                   border: "1px solid #ED565A",
-                                  borderRadius: "14px",
+                                  borderRadius: "7px",
                                 }}
                               >
                                 <Icon
-                                  className="w-5 h-5"
+                                  className="w-2.5 h-2.5"
                                   style={{ color: "#ED565A" }}
                                   strokeWidth={1.67}
                                 />

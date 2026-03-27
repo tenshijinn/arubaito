@@ -96,7 +96,7 @@ export const MemberSlider = () => {
                     className="w-full aspect-square overflow-hidden"
                     style={{
                       border: "1px solid #ED565A",
-                      borderRadius: "28px",
+                      borderRadius: "14px",
                     }}
                   >
                     {member.profile_image_url ? (

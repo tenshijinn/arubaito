@@ -188,7 +188,7 @@ export const MemberSlider = () => {
                     {/* Job title / bio */}
                     {member.job_title && (
                       <p
-                        className="font-mono text-sm leading-[23px]"
+                        className="font-mono text-[7px] leading-[11px]"
                         style={{ color: "#ED565A" }}
                       >
                         {member.job_title}

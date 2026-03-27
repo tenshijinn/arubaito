@@ -53,7 +53,7 @@ export const MemberSlider = () => {
       className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
       style={{ backgroundColor: "#1A1A1A" }}
     >
-      <div className="relative w-full max-w-[400px] mx-auto">
+      <div className="relative w-full max-w-[200px] mx-auto">
         {/* Nav arrows */}
         <button
           onClick={scrollPrev}

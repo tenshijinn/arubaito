@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, GraduationCap, Diamond, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ClubMember {
@@ -11,6 +11,26 @@ interface ClubMember {
   cv_score: number | null;
   top_activities: Array<{ description?: string; chain?: string }>;
   job_title: string | null;
+}
+
+function getMembershipBadges(membershipType: string) {
+  const badges: Array<{ label: string; icon: typeof GraduationCap; color: string }> = [];
+  const types = membershipType.toLowerCase();
+  
+  if (types.includes("ns_member")) {
+    badges.push({ label: "NS", icon: GraduationCap, color: "hsl(var(--primary))" });
+  }
+  if (types.includes("whitelist")) {
+    badges.push({ label: "Bluechip", icon: Diamond, color: "#60a5fa" });
+  }
+  if (types.includes("cv_score")) {
+    badges.push({ label: "CV Profile", icon: FileText, color: "#a78bfa" });
+  }
+  // Fallback if none matched
+  if (badges.length === 0) {
+    badges.push({ label: "Member", icon: Diamond, color: "hsl(var(--muted-foreground))" });
+  }
+  return badges;
 }
 
 export const MemberSlider = () => {
@@ -89,6 +109,27 @@ export const MemberSlider = () => {
                 >
                   CLUB MEMBER
                 </p>
+
+                {/* Membership pathway badges */}
+                <div className="flex flex-wrap justify-center gap-2 mb-2">
+                  {getMembershipBadges(member.membership_type).map((badge, i) => {
+                    const Icon = badge.icon;
+                    return (
+                      <span
+                        key={i}
+                        className="inline-flex items-center gap-1 text-[10px] font-mono tracking-wider uppercase px-2.5 py-1 rounded-full"
+                        style={{
+                          backgroundColor: "hsl(var(--muted))",
+                          color: badge.color,
+                          border: `1px solid ${badge.color}40`,
+                        }}
+                      >
+                        <Icon className="w-3 h-3" />
+                        {badge.label}
+                      </span>
+                    );
+                  })}
+                </div>
 
                 {/* CV Profile Score */}
                 {member.cv_score && (

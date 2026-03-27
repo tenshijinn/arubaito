@@ -173,7 +173,9 @@ export const ProfileHeader = ({
         <div className="flex-1 space-y-3">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-foreground">
+              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                {hasNS && <NSIcon size={22} color="hsl(var(--primary))" />}
+                {hasGuestlist && <GoldenCheckmark size={22} />}
                 {displayName}
               </h2>
               {twitterHandle && (

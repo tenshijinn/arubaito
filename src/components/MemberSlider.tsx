@@ -153,7 +153,7 @@ export const MemberSlider = () => {
                         <div className="flex items-center gap-1.5">
                           {/* NS icon before name */}
                           {hasNS && (
-                            <NSIcon size={18} color="#ED565A" />
+                            <NSIcon size={18} />
                           )}
                           {/* Golden checkmark for guestlist */}
                           {hasGuestlist && (

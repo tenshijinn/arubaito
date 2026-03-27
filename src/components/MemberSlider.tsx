@@ -272,8 +272,9 @@ export const MemberSlider = () => {
                                     {/* Floating detail card */}
                                     {isHovered && (
                                       <div
-                                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-30 pointer-events-none animate-fade-in"
+                                        className="absolute left-1/2 -translate-x-1/2 mb-2 z-30 pointer-events-none animate-fade-in"
                                         style={{
+                                          bottom: "calc(100% + 4px)",
                                           minWidth: "180px",
                                           maxWidth: "220px",
                                           padding: "10px 12px",

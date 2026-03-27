@@ -71,7 +71,25 @@ export const ProfileHeader = ({
 }: ProfileHeaderProps) => {
   const [downloading, setDownloading] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [membershipType, setMembershipType] = useState<string | null>(null);
   const displayName = userName || fileName.replace(/\.[^/.]+$/, "");
+
+  // Fetch membership pathway from club_member_showcase
+  useEffect(() => {
+    const fetchMembership = async () => {
+      if (!twitterHandle) return;
+      const { data } = await supabase
+        .from("club_member_showcase")
+        .select("membership_type")
+        .eq("twitter_handle", twitterHandle)
+        .maybeSingle();
+      if (data) setMembershipType(data.membership_type);
+    };
+    fetchMembership();
+  }, [twitterHandle]);
+
+  const hasNS = membershipType?.toLowerCase().includes("ns_member") || membershipType?.toLowerCase().includes("network_school");
+  const hasGuestlist = membershipType?.toLowerCase().includes("whitelist") || membershipType?.toLowerCase().includes("guestlist") || membershipType?.toLowerCase().includes("bluechip");
   const truncatedWallet = walletAddress 
     ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
     : null;

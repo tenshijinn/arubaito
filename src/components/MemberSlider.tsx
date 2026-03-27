@@ -86,7 +86,7 @@ export const MemberSlider = () => {
 
   return (
     <div
-      className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
+      className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
       style={{ backgroundColor: "#1A1A1A" }}
       onMouseEnter={stopAutoScroll}
       onMouseLeave={startAutoScroll}
@@ -99,7 +99,9 @@ export const MemberSlider = () => {
         }}
       />
 
-      <div className="relative w-full max-w-[320px] mx-auto z-10">
+      <div className="flex items-end gap-10 z-10">
+      <div className="relative w-full max-w-[320px]">
+
         {/* Nav arrows */}
         <button
           onClick={scrollPrev}
@@ -271,8 +273,9 @@ export const MemberSlider = () => {
                                     {/* Floating detail card */}
                                     {isHovered && (
                                       <div
-                                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-30 pointer-events-none animate-fade-in"
+                                        className="absolute left-1/2 -translate-x-1/2 mb-2 z-30 pointer-events-none animate-fade-in"
                                         style={{
+                                          bottom: "calc(100% + 4px)",
                                           minWidth: "180px",
                                           maxWidth: "220px",
                                           padding: "10px 12px",
@@ -344,6 +347,26 @@ export const MemberSlider = () => {
             })}
           </div>
         </div>
+      </div>
+
+      {/* Title + Join button — right side, bottom-aligned with card */}
+      <div
+        className="hidden md:flex flex-col items-start gap-4"
+      >
+        <h2
+          className="text-xl font-bold font-mono tracking-widest"
+          style={{ color: "#ED565A" }}
+        >
+          Club Members
+        </h2>
+        <a
+          href="/arubaito"
+          className="inline-flex items-center justify-center font-mono text-xs font-bold tracking-wider bg-transparent border px-4 py-2 rounded-button transition-colors hover:bg-[#ED565A] hover:text-[#1A1A1A]"
+          style={{ borderColor: "#ED565A", color: "#ED565A" }}
+        >
+          Join Club
+        </a>
+      </div>
       </div>
     </div>
   );

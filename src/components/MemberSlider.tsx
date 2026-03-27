@@ -31,8 +31,6 @@ const getMemberBadges = (type: string) => {
 export const MemberSlider = () => {
   const [members, setMembers] = useState<ClubMember[]>([]);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
-  const [isFlipping, setIsFlipping] = useState(false);
-  const flipTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     const fetchMembers = async () => {

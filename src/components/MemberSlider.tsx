@@ -157,7 +157,12 @@ export const MemberSlider = () => {
                     </div>
 
                     {/* Handle with X icon */}
-                    <div className="flex items-center gap-2">
+                    <a
+                      href={`https://x.com/${member.twitter_handle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                    >
                       <div
                         className="flex items-center justify-center w-7 h-7"
                         style={{
@@ -178,7 +183,7 @@ export const MemberSlider = () => {
                       >
                         @{member.twitter_handle}
                       </span>
-                    </div>
+                    </a>
 
                     {/* Job title / bio */}
                     {member.job_title && (

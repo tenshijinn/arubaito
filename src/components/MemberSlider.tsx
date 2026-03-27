@@ -347,6 +347,26 @@ export const MemberSlider = () => {
           </div>
         </div>
       </div>
+
+      {/* Title + Join button — right side, bottom-aligned with card */}
+      <div
+        className="hidden md:flex flex-col items-start gap-4 ml-10 z-10 self-center"
+        style={{ marginBottom: "-140px" }}
+      >
+        <h2
+          className="text-xl font-bold font-mono tracking-widest"
+          style={{ color: "#ED565A" }}
+        >
+          Club Members
+        </h2>
+        <a
+          href="/arubaito"
+          className="inline-flex items-center justify-center font-mono text-xs font-bold tracking-wider bg-transparent border px-4 py-2 rounded-button transition-colors hover:bg-[#ED565A] hover:text-[#1A1A1A]"
+          style={{ borderColor: "#ED565A", color: "#ED565A" }}
+        >
+          Join Club
+        </a>
+      </div>
     </div>
   );
 };

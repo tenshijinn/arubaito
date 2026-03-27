@@ -279,35 +279,8 @@ export const MemberSlider = () => {
         </div>
       </div>
 
-      {/* Terminal flip keyframes */}
-      <style>{`
-        @keyframes terminalFlip {
-          0% {
-            opacity: 0;
-            transform: perspective(600px) rotateX(-90deg) scaleY(0.1);
-            filter: brightness(3) contrast(2);
-          }
-          30% {
-            opacity: 0.6;
-            transform: perspective(600px) rotateX(-20deg) scaleY(0.6);
-            filter: brightness(2) contrast(1.5);
-          }
-          60% {
-            opacity: 0.9;
-            transform: perspective(600px) rotateX(5deg) scaleY(1.02);
-            filter: brightness(1.3) contrast(1.1);
-          }
-          80% {
-            transform: perspective(600px) rotateX(-2deg) scaleY(1);
-            filter: brightness(1.1);
-          }
-          100% {
-            opacity: 1;
-            transform: perspective(600px) rotateX(0deg) scaleY(1);
-            filter: brightness(1) contrast(1);
-          }
-        }
-      `}</style>
+
+
     </div>
   );
 };

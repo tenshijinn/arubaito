@@ -119,8 +119,8 @@ export const MemberSlider = () => {
                   <div className="w-full px-0 flex flex-col gap-1.5">
                     {/* Name + Score row */}
                     <div className="flex items-start justify-between w-full">
-                      <span
-                        className="font-mono text-xl leading-7"
+                       <span
+                        className="font-mono text-[10px] leading-4"
                         style={{ color: "#ED565A" }}
                       >
                         {member.job_title

@@ -53,7 +53,7 @@ export const MemberSlider = () => {
       className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
       style={{ backgroundColor: "#1A1A1A" }}
     >
-      <div className="relative w-full max-w-[400px] mx-auto">
+      <div className="relative w-full max-w-[200px] mx-auto">
         {/* Nav arrows */}
         <button
           onClick={scrollPrev}
@@ -61,7 +61,7 @@ export const MemberSlider = () => {
           style={{ color: "#ED565A" }}
           aria-label="Previous member"
         >
-          <ChevronLeft className="w-8 h-8" />
+          <ChevronLeft className="w-5 h-5" />
         </button>
         <button
           onClick={scrollNext}
@@ -69,7 +69,7 @@ export const MemberSlider = () => {
           style={{ color: "#ED565A" }}
           aria-label="Next member"
         >
-          <ChevronRight className="w-8 h-8" />
+          <ChevronRight className="w-5 h-5" />
         </button>
 
         {/* Carousel */}
@@ -82,12 +82,12 @@ export const MemberSlider = () => {
               >
                 {/* Card container */}
                 <div
-                  className="flex flex-col items-start w-full max-w-[400px]"
+                  className="flex flex-col items-start w-full max-w-[200px]"
                   style={{
-                    padding: "13px 13px 16px",
-                    gap: "16px",
+                    padding: "6px 6px 8px",
+                    gap: "8px",
                     border: "1px solid #ED565A",
-                    borderRadius: "32px",
+                    borderRadius: "16px",
                     background: "transparent",
                   }}
                 >
@@ -96,14 +96,14 @@ export const MemberSlider = () => {
                     className="w-full aspect-square overflow-hidden"
                     style={{
                       border: "1px solid #ED565A",
-                      borderRadius: "28px",
+                      borderRadius: "14px",
                     }}
                   >
                     {member.profile_image_url ? (
                       <img
                         src={member.profile_image_url}
                         alt={`@${member.twitter_handle}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover grayscale"
                       />
                     ) : (
                       <div
@@ -116,11 +116,11 @@ export const MemberSlider = () => {
                   </div>
 
                   {/* Content section */}
-                  <div className="w-full px-0 flex flex-col gap-3">
+                  <div className="w-full px-0 flex flex-col gap-1.5">
                     {/* Name + Score row */}
                     <div className="flex items-start justify-between w-full">
-                      <span
-                        className="font-mono text-xl leading-7"
+                       <span
+                        className="font-mono text-[10px] leading-4"
                         style={{ color: "#ED565A" }}
                       >
                         {member.job_title
@@ -133,20 +133,20 @@ export const MemberSlider = () => {
                       {member.cv_score && (
                         <div className="flex flex-col items-end">
                           <span
-                            className="font-mono text-[9px] tracking-[0.9px] leading-[14px]"
+                            className="font-mono text-[5px] tracking-[0.5px] leading-[8px]"
                             style={{ color: "#ED565A", opacity: 0.7 }}
                           >
                             CV PROFILE SCORE
                           </span>
                           <div className="flex items-baseline">
                             <span
-                              className="font-mono font-bold text-[30px] leading-9"
+                              className="font-mono font-bold text-[15px] leading-5"
                               style={{ color: "#ED565A" }}
                             >
                               {Math.round(member.cv_score)}
                             </span>
                             <span
-                              className="font-mono text-lg leading-7"
+                              className="font-mono text-[9px] leading-4"
                               style={{ color: "#ED565A", opacity: 0.5 }}
                             >
                               /100
@@ -157,15 +157,20 @@ export const MemberSlider = () => {
                     </div>
 
                     {/* Handle with X icon */}
-                    <div className="flex items-center gap-2">
+                    <a
+                      href={`https://x.com/${member.twitter_handle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                    >
                       <div
-                        className="flex items-center justify-center w-7 h-7"
+                        className="flex items-center justify-center w-4 h-4"
                         style={{
                           border: "1px solid #ED565A",
-                          borderRadius: "10px",
+                          borderRadius: "5px",
                         }}
                       >
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <svg width="8" height="8" viewBox="0 0 14 14" fill="none">
                           <path
                             d="M8.33 5.93L13.53 0H12.3L7.78 5.15L4.17 0H0L5.45 7.78L0 14H1.23L5.99 8.56L9.83 14H14L8.33 5.93ZM6.62 7.85L6.07 7.08L1.68 0.91H3.58L7.11 5.89L7.66 6.66L12.3 13.13H10.4L6.62 7.85Z"
                             fill="#ED565A"
@@ -173,17 +178,17 @@ export const MemberSlider = () => {
                         </svg>
                       </div>
                       <span
-                        className="font-mono text-sm leading-5"
+                        className="font-mono text-[7px] leading-3"
                         style={{ color: "#ED565A" }}
                       >
                         @{member.twitter_handle}
                       </span>
-                    </div>
+                    </a>
 
                     {/* Job title / bio */}
                     {member.job_title && (
                       <p
-                        className="font-mono text-sm leading-[23px]"
+                        className="font-mono text-[7px] leading-[11px]"
                         style={{ color: "#ED565A" }}
                       >
                         {member.job_title}
@@ -192,14 +197,14 @@ export const MemberSlider = () => {
 
                     {/* Proof of Talent */}
                     {member.top_activities.length > 0 && (
-                      <div className="flex flex-col gap-3 mt-1">
+                      <div className="flex flex-col gap-1.5 mt-0.5">
                         <span
-                          className="font-mono text-[10px] tracking-[1.5px] leading-[15px]"
+                          className="font-mono text-[5px] tracking-[0.75px] leading-[8px]"
                           style={{ color: "#ED565A" }}
                         >
                           PROOF OF TALENT
                         </span>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5">
                           {member.top_activities.slice(0, 4).map((_, i) => {
                             const Icon = proofIcons[i % proofIcons.length];
                             return (
@@ -207,14 +212,14 @@ export const MemberSlider = () => {
                                 key={i}
                                 className="flex items-center justify-center"
                                 style={{
-                                  width: "46px",
-                                  height: "46px",
+                                  width: "23px",
+                                  height: "23px",
                                   border: "1px solid #ED565A",
-                                  borderRadius: "14px",
+                                  borderRadius: "7px",
                                 }}
                               >
                                 <Icon
-                                  className="w-5 h-5"
+                                  className="w-2.5 h-2.5"
                                   style={{ color: "#ED565A" }}
                                   strokeWidth={1.67}
                                 />

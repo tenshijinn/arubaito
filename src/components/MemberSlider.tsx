@@ -82,9 +82,9 @@ export const MemberSlider = () => {
               >
                 {/* Card container */}
                 <div
-                  className="flex flex-col items-start w-full max-w-[400px]"
+                  className="flex flex-col items-start w-full max-w-[320px]"
                   style={{
-                    padding: "13px 13px 16px",
+                    padding: "10px 10px 13px",
                     gap: "16px",
                     border: "1px solid #ED565A",
                     borderRadius: "32px",

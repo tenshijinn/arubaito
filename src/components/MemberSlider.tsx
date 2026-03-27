@@ -69,7 +69,7 @@ export const MemberSlider = () => {
           style={{ color: "#ED565A" }}
           aria-label="Next member"
         >
-          <ChevronRight className="w-8 h-8" />
+          <ChevronRight className="w-5 h-5" />
         </button>
 
         {/* Carousel */}

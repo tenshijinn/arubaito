@@ -86,7 +86,7 @@ export const MemberSlider = () => {
 
   return (
     <div
-      className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
+      className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
       style={{ backgroundColor: "#1A1A1A" }}
       onMouseEnter={stopAutoScroll}
       onMouseLeave={startAutoScroll}
@@ -100,6 +100,7 @@ export const MemberSlider = () => {
       />
 
       <div className="relative w-full max-w-[320px] mx-auto z-10">
+
         {/* Nav arrows */}
         <button
           onClick={scrollPrev}

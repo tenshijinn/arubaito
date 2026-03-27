@@ -61,7 +61,7 @@ export const MemberSlider = () => {
           style={{ color: "#ED565A" }}
           aria-label="Previous member"
         >
-          <ChevronLeft className="w-8 h-8" />
+          <ChevronLeft className="w-5 h-5" />
         </button>
         <button
           onClick={scrollNext}

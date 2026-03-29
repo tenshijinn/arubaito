@@ -4,12 +4,12 @@ import multiplatform from '@/assets/joinrei/multiplatform.png';
 
 export const JoinReiValueProp = () => {
   return (
-    <section className="min-h-screen snap-start relative flex items-center overflow-hidden bg-[#1a1a1a]">
+    <section className="min-h-screen snap-start relative flex items-center overflow-hidden bg-[#0a0a0a]">
       <div className="container mx-auto px-8 lg:px-16 grid lg:grid-cols-2 gap-12 items-center">
         {/* Left: Content */}
         <div className="space-y-10 order-2 lg:order-1">
           <ScrollFadeIn>
-            <h2 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-bold text-primary leading-[1.2] font-display">
+            <h2 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-light text-primary leading-[1.2]">
               Multiple Task Platforms, In One Place.
             </h2>
           </ScrollFadeIn>
@@ -17,13 +17,13 @@ export const JoinReiValueProp = () => {
           <div className="space-y-3">
             <ScrollFadeIn delay={100}>
               <p className="text-xl md:text-2xl lg:text-[1.75rem] font-mono text-cream/90">
-                A <span className="text-primary font-display font-bold">One-Stop-Search</span> for users.
+                A <span className="text-primary font-medium">One-Stop-Search</span> for users.
               </p>
             </ScrollFadeIn>
 
             <ScrollFadeIn delay={200}>
               <p className="text-xl md:text-2xl lg:text-[1.75rem] font-mono text-cream/90">
-                A <span className="text-primary font-display font-bold">Unified GTM</span> for projects.
+                A <span className="text-primary font-medium">Unified GTM</span> for projects.
               </p>
             </ScrollFadeIn>
 
@@ -59,7 +59,6 @@ export const JoinReiValueProp = () => {
               </div>
             </ScrollFadeIn>
           </div>
-
         </div>
 
         {/* Right: Image */}

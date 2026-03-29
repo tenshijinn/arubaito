@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ScrollFadeIn } from './ScrollFadeIn';
-import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
-import chatImg1 from '@/assets/joinrei/chat-img1.png';
 
 const chatMessages = [
   { role: 'talent', text: 'Yes. A task matching your skills just opened.' },
@@ -25,10 +23,10 @@ export const JoinReiChatDemo = () => {
   }, [visibleMessages, isInView]);
 
   return (
-    <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden bg-background py-20">
+    <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden bg-[#0a0a0a] py-20">
       <div className="container mx-auto px-8 lg:px-16">
         <ScrollFadeIn>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary text-center font-display mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-primary text-center mb-4">
             How it works
           </h2>
         </ScrollFadeIn>
@@ -45,36 +43,29 @@ export const JoinReiChatDemo = () => {
               }
             }}
           >
-            {/* Terminal-style chat */}
-            <div className="border-2 border-primary/40 rounded-3xl overflow-hidden bg-background">
-              {/* Chat messages area */}
+            {/* Terminal-style chat using rei-terminal */}
+            <div className="rei-terminal rounded-2xl overflow-hidden border-[0.5px] border-white/10">
               <div className="p-8 space-y-6 min-h-[400px]">
                 {chatMessages.slice(0, visibleMessages).map((msg, index) => (
-                  <div
-                    key={index}
-                    className="animate-fade-in"
-                  >
+                  <div key={index} className="animate-fade-in">
                     <div className="flex items-start gap-4">
-                      {/* Label */}
-                      <div className={`px-3 py-1 rounded-full text-sm font-mono font-bold shrink-0 ${
+                      <span className={`btn-manga text-xs px-3 py-1 shrink-0 ${
                         msg.role === 'rei' 
-                          ? 'bg-primary text-background' 
-                          : 'bg-cream/20 text-cream'
+                          ? 'btn-manga-primary' 
+                          : 'btn-manga-outline'
                       }`}>
                         {msg.role === 'rei' ? 'Rei' : 'Talent'}
-                      </div>
-                      {/* Message */}
+                      </span>
                       <p className="text-cream font-mono text-lg pt-0.5">{msg.text}</p>
                     </div>
                   </div>
                 ))}
 
-                {/* Typing indicator */}
                 {isInView && visibleMessages < chatMessages.length && (
                   <div className="flex items-center gap-4">
-                    <div className="px-3 py-1 rounded-full text-sm font-mono font-bold bg-cream/20 text-cream">
+                    <span className="btn-manga btn-manga-outline text-xs px-3 py-1">
                       {chatMessages[visibleMessages].role === 'rei' ? 'Rei' : 'Talent'}
-                    </div>
+                    </span>
                     <div className="flex gap-1">
                       <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -87,14 +78,13 @@ export const JoinReiChatDemo = () => {
 
             {/* Post Task CTA */}
             <div className="mt-8 flex justify-center">
-              <Button 
-                size="lg"
-                className="bg-primary text-background hover:bg-primary/90 font-mono text-lg px-8 h-14 rounded-full gap-3"
+              <button 
+                className="btn-manga btn-manga-primary flex items-center gap-3 px-8 py-3"
                 onClick={() => window.location.href = '/rei'}
               >
-                <Eye className="h-6 w-6" />
+                <Eye className="h-5 w-5" />
                 Post Task
-              </Button>
+              </button>
             </div>
           </div>
         </ScrollFadeIn>

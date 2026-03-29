@@ -4,17 +4,15 @@ import reiFlowDiagram from '@/assets/joinrei/rei-flow-diagram.png';
 
 export const JoinReiAggregation = () => {
   return (
-    <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden bg-background py-16">
+    <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden bg-[#0a0a0a] py-16">
       <div className="container mx-auto px-8 lg:px-16">
-        {/* Title - consistent h1 size */}
         <ScrollFadeIn>
-          <h2 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-bold text-primary text-center leading-tight font-display mb-12">
+          <h2 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-light text-primary text-center leading-tight mb-12">
             Get Task Talent from Cross-Chains,<br />
             Cross Platforms, Cross Communities
           </h2>
         </ScrollFadeIn>
 
-        {/* Flow Diagram Image - smaller, not full width */}
         <ScrollFadeIn delay={200}>
           <ParallaxWrapper speed={0.05}>
             <div className="flex justify-center">

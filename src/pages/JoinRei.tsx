@@ -9,7 +9,7 @@ import { JoinReiPricing } from '@/components/joinrei/JoinReiPricing';
 
 const JoinRei = () => {
   return (
-    <div className="h-screen overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-background">
+    <div className="rei-theme h-screen overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-[#0a0a0a]">
       <JoinReiHero />
       <JoinReiValueProp />
       <JoinReiAggregation />

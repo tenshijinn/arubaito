@@ -20,24 +20,19 @@ const demos = [
 
 export const JoinReiDemoSection = () => {
   return (
-    <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden bg-background py-20">
+    <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden bg-[#0a0a0a] py-20">
       <div className="container mx-auto px-8 lg:px-16">
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {demos.map((demo, index) => (
             <ScrollFadeIn key={demo.title} delay={index * 150}>
               <div className="flex flex-col items-center text-center">
-                {/* Title */}
-                <h3 className="text-xs md:text-sm font-bold text-primary font-display mb-1 tracking-wide whitespace-nowrap">
+                <h3 className="text-xs md:text-sm font-light text-primary mb-1 tracking-wide whitespace-nowrap">
                   {demo.title}
                 </h3>
-                
-                {/* Subtitle */}
                 <p className="text-xs text-cream/70 font-mono mb-4 whitespace-nowrap">
                   {demo.subtitle}
                 </p>
-
-                {/* Video Demo */}
-                <div className="w-full aspect-[552/816] rounded-lg overflow-hidden border border-primary/40 bg-black">
+                <div className="w-full aspect-[552/816] rounded-2xl overflow-hidden border-[0.5px] border-white/10 bg-black">
                   <video
                     src={demo.video}
                     autoPlay

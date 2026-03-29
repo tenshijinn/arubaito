@@ -1,72 +1,74 @@
 
 
-## Plan: Twitter Verified Check + Fix Points Aggregation
+## Plan: Rebrand /joinrei to Match Rei's Manga Dark Theme
 
-### Problem 1: Allow only verified Twitter accounts to register
-Currently any Twitter account can register with Rei. We need to block unverified accounts (no checkmark) during signup.
+### What Changes
+The /joinrei landing page currently uses the old Arubaito style (coral red #ed565a, bold fonts, thick borders). The /rei page uses the refined "Manga Dark" theme (AMOLED black #0a0a0a, warm peach #e8c4b8, thin 0.5px borders, light-weight SF Pro Display headings, pill buttons). This plan aligns /joinrei with that aesthetic.
 
-### Problem 2: Points showing 0
-The `user_points` table has both `wallet_address` and `x_user_id` columns, but:
-- The `increment_user_points` database function only inserts/updates by `wallet_address` — it never sets `x_user_id`
-- The `ReiEarningsHub` fetches wallets from `rei_registry` by `x_user_id`, then queries `user_points` by those wallet addresses
-- If the wallet used for points earning differs from the registration wallet, or `x_user_id` is never populated on `user_points`, the aggregation may miss records
+### Changes by File
 
-### Changes
+**1. `src/pages/JoinRei.tsx`**
+- Wrap the entire page in `rei-theme` class so all CSS variables and overrides apply automatically
+- Change background from `bg-background` to `bg-[#0a0a0a]`
 
-#### 1. Block unverified Twitter accounts (frontend)
-**File: `src/pages/Rei.tsx`**
-- After `handleTwitterCallback` receives the user data, check `data.user.verified`
-- If `verified === false` and mode is `signup`, show an error toast ("Only verified X accounts can register") and clear the Twitter state
-- Allow sign-in for existing accounts regardless of verification (they already registered)
+**2. `src/components/joinrei/JoinReiHero.tsx`**
+- Background: `#1a1a1a` → `#0a0a0a`
+- Headline font: remove `font-bold`, use `font-light` + `font-display` replaced with SF Pro style (handled by .rei-theme h1 override)
+- Accent color references: `text-primary` will now resolve to peach via rei-theme CSS vars
+- Button: swap to `btn-manga btn-manga-outline` pill style
+- Gradient overlay on mobile: update from `#1a1a1a` to `#0a0a0a`
+- "Learn More" text: use peach accent instead of cream
 
-#### 2. Block unverified accounts (edge function — server-side enforcement)
-**File: `supabase/functions/submit-rei-registration/index.ts`**
-- Add a check at the top: if `verified` is falsy, return a 403 error ("Only verified X (Twitter) accounts can register with Rei")
-- This prevents bypassing the frontend check
+**3. `src/components/joinrei/JoinReiValueProp.tsx`**
+- Background: `#1a1a1a` → `#0a0a0a`
+- Heading weight: `font-bold` → `font-light`
+- Border/card styles: use `rei-surface` class or 0.5px borders
+- Text colors: `text-cream` references stay (foreground maps correctly)
 
-#### 3. Request `verified` field from Twitter API properly
-**File: `supabase/functions/twitter-oauth/index.ts`**
-- The current API call already requests `user.fields=verified` — good
-- Note: Twitter API v2 returns `verified` as the legacy blue checkmark. For the paid checkmark (Twitter Blue / X Premium), the field may be `verified_type` or part of `public_metrics`. We should also request the `verified_type` field to check for the blue subscription checkmark
-- Update the user fields request to include `verified_type` if available
+**4. `src/components/joinrei/JoinReiAggregation.tsx`**
+- Background: `bg-background` (will inherit from rei-theme)
+- Heading weight: `font-bold` → `font-light`
 
-#### 4. Fix points aggregation — update `increment_user_points` to also set `x_user_id`
-**Database migration:**
-```sql
-CREATE OR REPLACE FUNCTION public.increment_user_points(
-  p_wallet_address text, 
-  p_points integer, 
-  p_x_user_id text DEFAULT NULL
-)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $$
-BEGIN
-  INSERT INTO user_points (wallet_address, total_points, x_user_id)
-  VALUES (p_wallet_address, p_points, p_x_user_id)
-  ON CONFLICT (wallet_address) DO UPDATE
-  SET total_points = user_points.total_points + p_points,
-      x_user_id = COALESCE(EXCLUDED.x_user_id, user_points.x_user_id),
-      updated_at = now();
-END;
-$$;
+**5. `src/components/joinrei/JoinReiHowItWorks.tsx`**
+- Cards: `border-2 border-primary/40 rounded-3xl` → `border-[0.5px] border-white/10 rounded-2xl` with `bg-[#141414]`
+- Heading weight: `font-bold` → `font-light`
+
+**6. `src/components/joinrei/JoinReiDemoSection.tsx`**
+- Video borders: `border-primary/40` → `border-white/10 border-[0.5px]`
+- Title color: inherits peach from rei-theme primary
+
+**7. `src/components/joinrei/JoinReiChatDemo.tsx`**
+- Replace the custom terminal markup with `rei-terminal` CSS classes for consistency
+- Chat labels: use `btn-manga` pill styles
+- CTA button: pill-shaped, peach accent
+
+**8. `src/components/joinrei/JoinReiReferral.tsx`**
+- Background: `#1a1a1a` → `#0a0a0a`
+- Heading weight: light
+
+**9. `src/components/joinrei/JoinReiPricing.tsx`**
+- Card borders: 2px → 0.5px, use `rei-surface` styling
+- Default tier accent: peach instead of coral red
+- Buttons: pill-shaped (`rounded-full` stays, but use peach bg)
+- Premium tier: amber stays as a differentiation
+- Heading weight: light
+
+### Visual Summary
+```text
+BEFORE (old style)              AFTER (Manga Dark)
+─────────────────               ──────────────────
+Background: #1a1a1a             Background: #0a0a0a
+Accent: #ed565a (coral)         Accent: #e8c4b8 (peach)
+Borders: 2px solid              Borders: 0.5px solid
+Font weight: 700 (bold)         Font weight: 300 (light)
+Font: Styrene A Trial           Font: SF Pro Display (headings)
+Border radius: 24px             Border radius: 14-20px
 ```
 
-#### 5. Update edge functions that call `increment_user_points` to pass `x_user_id`
-- `award-payment-points/index.ts` — look up `x_user_id` from `rei_registry` by wallet and pass it
-- `track-referral-click/index.ts` — pass `x_user_id` from referral code lookup
-- `track-referral-conversion/index.ts` — pass `x_user_id` similarly
-
-#### 6. Update `ReiEarningsHub` to also query `user_points` by `x_user_id` directly
-**File: `src/components/ReiEarningsHub.tsx`**
-- In addition to querying by wallet addresses, also query `user_points` where `x_user_id` matches
-- This catches any points records that were created with `x_user_id` set but with wallets not in `rei_registry`
-- Deduplicate by combining both result sets
-
-### Summary
-- Frontend + backend enforcement of Twitter verified-only registration
-- Database function updated to track `x_user_id` on points records
-- Points aggregation improved to query by both wallet addresses and `x_user_id`
+### What Stays the Same
+- Snap-scroll section structure
+- All images and videos
+- Content/copy
+- ScrollFadeIn and ParallaxWrapper animations
+- Overall layout (split panels, grids)
 

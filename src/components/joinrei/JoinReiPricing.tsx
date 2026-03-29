@@ -1,5 +1,4 @@
 import { ScrollFadeIn } from './ScrollFadeIn';
-import { Button } from '@/components/ui/button';
 import { Eye, Zap, Rocket, Check } from 'lucide-react';
 import solanaBadges from '@/assets/joinrei/solana-badges.png';
 
@@ -35,7 +34,6 @@ const pricingTiers = [
     bookCall: true,
     positioning: 'Always-on distribution for teams running continuous tasks.',
     totalValue: '~$2,010',
-    accentColor: undefined,
     usps: [
       { feature: 'Unlimited task amplification', worth: '$400' },
       { feature: 'API-based ingestion (no manual posting)', worth: '$250' },
@@ -73,78 +71,44 @@ const pricingTiers = [
   }
 ];
 
-const getTierColors = (tier: typeof pricingTiers[0]) => {
-  if (tier.premium) {
-    return {
-      border: 'border-amber-500/60',
-      bg: 'bg-gradient-to-br from-amber-500/15 to-transparent',
-      shadow: 'hover:shadow-amber-500/20',
-      iconBg: 'bg-amber-500/20 border-amber-500/40',
-      iconColor: 'text-amber-500',
-      textColor: 'text-amber-500',
-      buttonBg: 'bg-amber-500 hover:bg-amber-500/90',
-      worthBg: 'bg-amber-500/10',
-      worthText: 'text-amber-400',
-    };
-  }
-  if (tier.accentColor === 'teal') {
-    return {
-      border: 'border-teal-500/60',
-      bg: 'bg-gradient-to-br from-teal-500/15 to-transparent',
-      shadow: 'hover:shadow-teal-500/20',
-      iconBg: 'bg-teal-500/20 border-teal-500/40',
-      iconColor: 'text-teal-500',
-      textColor: 'text-teal-500',
-      buttonBg: 'bg-teal-500 hover:bg-teal-500/90',
-      worthBg: 'bg-teal-500/10',
-      worthText: 'text-teal-400',
-    };
-  }
-  return {
-    border: 'border-primary/40',
-    bg: 'bg-primary/5',
-    shadow: 'hover:shadow-primary/20',
-    iconBg: 'bg-primary/20 border-primary/40',
-    iconColor: 'text-primary',
-    textColor: 'text-primary',
-    buttonBg: 'bg-primary hover:bg-primary/90',
-    worthBg: 'bg-primary/10',
-    worthText: 'text-primary',
-  };
-};
-
 export const JoinReiPricing = () => {
   return (
-    <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden bg-background py-20">
+    <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden bg-[#0a0a0a] py-20">
       <div className="container mx-auto px-4 lg:px-8">
         <ScrollFadeIn>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary text-center font-display mb-12">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-primary text-center mb-12">
             Packages
           </h2>
         </ScrollFadeIn>
 
         <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {pricingTiers.map((tier, index) => {
-            const colors = getTierColors(tier);
+            const isPremium = tier.premium;
             return (
               <ScrollFadeIn key={tier.name} delay={index * 100}>
-                <div className={`relative h-full flex flex-col p-6 rounded-3xl border-2 transition-all duration-300 hover:shadow-2xl ${colors.border} ${colors.bg} ${colors.shadow}`}>
+                <div className={`relative h-full flex flex-col p-6 rounded-2xl border-[0.5px] transition-all duration-300 hover:shadow-2xl ${
+                  isPremium 
+                    ? 'border-amber-500/40 bg-gradient-to-br from-amber-500/10 to-transparent hover:shadow-amber-500/10' 
+                    : 'border-white/10 bg-[#141414] hover:shadow-white/5'
+                }`}>
                   
                   {/* Icon */}
                   <div className="flex justify-center mb-4">
-                    <div className={`p-3 rounded-2xl border ${colors.iconBg}`}>
-                      <tier.icon className={`h-8 w-8 ${colors.iconColor}`} />
+                    <div className={`p-3 rounded-2xl border-[0.5px] ${
+                      isPremium ? 'bg-amber-500/10 border-amber-500/30' : 'bg-white/5 border-white/10'
+                    }`}>
+                      <tier.icon className={`h-8 w-8 ${isPremium ? 'text-amber-500' : 'text-primary'}`} />
                     </div>
                   </div>
 
                   {/* Name */}
-                  <h3 className={`text-xl font-bold font-mono mb-1 text-center ${colors.textColor}`}>
+                  <h3 className={`text-xl font-light font-mono mb-1 text-center ${isPremium ? 'text-amber-500' : 'text-primary'}`}>
                     {tier.name}
                   </h3>
 
                   {/* Price */}
                   <div className="text-center mb-1">
-                    <span className={`text-3xl font-bold font-mono ${tier.premium ? 'text-amber-500' : tier.accentColor === 'teal' ? 'text-teal-500' : 'text-cream'}`}>
+                    <span className={`text-3xl font-light font-mono ${isPremium ? 'text-amber-500' : 'text-cream'}`}>
                       {tier.price}
                     </span>
                   </div>
@@ -157,28 +121,22 @@ export const JoinReiPricing = () => {
                     {tier.positioning}
                   </p>
 
-                  {/* Payment badges - only show for tiers with showSolanaBadges */}
+                  {/* Solana badges */}
                   {tier.showSolanaBadges && (
                     <div className="flex justify-center mb-4">
-                      <img 
-                        src={solanaBadges} 
-                        alt="Solana Pay & x402" 
-                        className="h-7 w-auto object-contain"
-                      />
+                      <img src={solanaBadges} alt="Solana Pay & x402" className="h-7 w-auto object-contain" />
                     </div>
                   )}
 
-                  {/* USPs List */}
+                  {/* USPs */}
                   <div className="flex-1 mb-4">
                     <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-hide">
                       {tier.usps.map((usp, uspIndex) => (
                         <div key={uspIndex} className="flex items-start gap-2">
-                          <Check className={`h-4 w-4 mt-0.5 flex-shrink-0 ${colors.iconColor}`} />
+                          <Check className={`h-4 w-4 mt-0.5 flex-shrink-0 ${isPremium ? 'text-amber-500' : 'text-primary'}`} />
                           <div className="flex-1 min-w-0">
-                            <span className="text-cream/90 text-xs font-mono leading-tight block">
-                              {usp.feature}
-                            </span>
-                            <span className={`text-xs font-mono ${colors.worthText}`}>
+                            <span className="text-cream/90 text-xs font-mono leading-tight block">{usp.feature}</span>
+                            <span className={`text-xs font-mono ${isPremium ? 'text-amber-400' : 'text-primary'}`}>
                               Worth {usp.worth}
                             </span>
                           </div>
@@ -188,16 +146,20 @@ export const JoinReiPricing = () => {
                   </div>
 
                   {/* Total Value */}
-                  <div className={`rounded-xl p-3 mb-4 ${colors.worthBg}`}>
+                  <div className={`rounded-xl p-3 mb-4 ${isPremium ? 'bg-amber-500/10' : 'bg-white/5'}`}>
                     <p className="text-center font-mono">
                       <span className="text-cream/60 text-xs">Total Value: </span>
-                      <span className={`text-lg font-bold ${colors.textColor}`}>{tier.totalValue}</span>
+                      <span className={`text-lg font-light ${isPremium ? 'text-amber-500' : 'text-primary'}`}>{tier.totalValue}</span>
                     </p>
                   </div>
 
                   {/* CTA */}
-                  <Button 
-                    className={`w-full font-mono h-11 rounded-full text-background ${colors.buttonBg}`}
+                  <button 
+                    className={`w-full font-mono py-3 rounded-full transition-all duration-300 text-sm ${
+                      isPremium 
+                        ? 'bg-amber-500 text-[#0a0a0a] hover:bg-amber-400' 
+                        : 'btn-manga btn-manga-primary w-full'
+                    }`}
                     onClick={() => {
                       if (tier.bookCall) {
                         window.open('https://calendly.com/wayneanthonyd-thepipegdao/join-rei', '_blank');
@@ -207,7 +169,7 @@ export const JoinReiPricing = () => {
                     }}
                   >
                     {tier.bookCall ? 'Book a Call' : 'Get Started'}
-                  </Button>
+                  </button>
                 </div>
               </ScrollFadeIn>
             );

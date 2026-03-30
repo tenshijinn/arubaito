@@ -121,7 +121,11 @@ const Index = () => {
 
         {/* Logo - dead center of left panel */}
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-          <img src={arubaitoLogo} alt="Arubaito" className="h-24 md:h-32 w-auto" />
+          <img
+            src={hoveredButton === "rei" ? reiLogoEye : arubaitoLogo}
+            alt={hoveredButton === "rei" ? "Rei" : "Arubaito"}
+            className="h-24 md:h-32 w-auto transition-all duration-300"
+          />
         </div>
 
         {/* Text and buttons - bottom left corner */}

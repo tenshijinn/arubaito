@@ -23,7 +23,7 @@ import meaningfulBg from "@/assets/meaningful-bg-final.png";
 const Index = () => {
   const navigate = useNavigate();
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
-  const tasksWords = ["Jobs", "Tasks", "Gigs", "Bounties"];
+  const tasksWords = ["Tasks", "Gigs", "Bounties"];
   const humansWords = ["AI", "Humans"];
   const companies = [
     "Binance",
@@ -140,23 +140,17 @@ const Index = () => {
                   color: "#faf6f4",
                 }}
               >
-                Aggregating Web3{" "}
+                Aggregates Web3{" "}
                 <span className="underline">
-                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} />
+                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color="#ffa6ff" />
                 </span>{" "}
                 for{" "}
                 <span className="underline">
-                  <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} />
+                  <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} color="#ffa6ff" />
                 </span>{" "}
-                <span
-                  style={{
-                    color: "#ed565a",
-                  }}
-                >
-                  hiring
-                </span>{" "}
+                hiring{" "}
                 <span className="underline">
-                  <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} />
+                  <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} color="#ffa6ff" />
                 </span>
                 <br />
                 <span className="text-xs mt-2 block">
@@ -218,7 +212,7 @@ const Index = () => {
                     <TextRotator key="default-jobs" words={jobTitles} isActive={true} delay={1600} color="#ed565a" />
                   </span>
                   <br />
-                  <span className="text-xs mt-2 block">Private Members Network Club for Buidlers in Web3</span>
+                  <span className="text-xs mt-2 block">Private Members Network Club</span>
                 </p>
               )
             )}

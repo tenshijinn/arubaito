@@ -7,6 +7,7 @@ import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { VideoHeroSection } from "@/components/VideoHeroSection";
 import { MemberSlider } from "@/components/MemberSlider";
 import arubaitoLogo from "@/assets/arubaito-logo.png";
+import reiLogoEye from "@/assets/rei-logo-eye.png";
 import reiUspAi from "@/assets/rei-usp-ai.png";
 import reiUspMatch from "@/assets/rei-usp-match.png";
 import reiUspX from "@/assets/rei-usp-x.png";

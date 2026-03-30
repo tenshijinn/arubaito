@@ -108,17 +108,6 @@ const Index = () => {
     >
       {/* LEFT COLUMN - Static */}
       <div className="w-full lg:w-1/2 min-h-screen lg:h-screen lg:sticky lg:top-0 relative flex items-center justify-center overflow-hidden">
-        {/* Background image for hover state */}
-        {hoveredButton === "rei" && (
-          <div
-            className="absolute inset-0 w-full h-full"
-            style={{
-              backgroundImage: "url(/rei-hover.png)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-        )}
 
         {/* Treasury - top left corner */}
         <div className="absolute top-4 left-4 z-50 hidden lg:block">

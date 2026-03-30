@@ -281,13 +281,24 @@ const Index = () => {
 
       {/* RIGHT COLUMN - Scrollable */}
       <div
-        className="w-full lg:w-1/2 h-screen overflow-y-scroll snap-y snap-mandatory"
+        className="w-full lg:w-1/2 h-screen overflow-y-scroll snap-y snap-mandatory relative"
         style={{
           backgroundColor: "#181818",
           scrollSnapType: "y mandatory",
           scrollSnapStop: "always",
         }}
       >
+        {/* Hover overlay from @AskRei button */}
+        {hoveredButton === "rei" && (
+          <div
+            className="absolute inset-0 z-50 pointer-events-none"
+            style={{
+              backgroundImage: "url(/rei-hover.png)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+        )}
         {/* Section 0 - Video Hero */}
         <VideoHeroSection
           onScrollDown={() => document.getElementById("how-club-works")?.scrollIntoView({ behavior: "smooth" })}

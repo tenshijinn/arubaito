@@ -7,6 +7,7 @@ import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { VideoHeroSection } from "@/components/VideoHeroSection";
 import { MemberSlider } from "@/components/MemberSlider";
 import arubaitoLogo from "@/assets/arubaito-logo.png";
+import reiLogoEye from "@/assets/rei-logo-eye.png";
 import reiUspAi from "@/assets/rei-usp-ai.png";
 import reiUspMatch from "@/assets/rei-usp-match.png";
 import reiUspX from "@/assets/rei-usp-x.png";
@@ -107,17 +108,6 @@ const Index = () => {
     >
       {/* LEFT COLUMN - Static */}
       <div className="w-full lg:w-1/2 min-h-screen lg:h-screen lg:sticky lg:top-0 relative flex items-center justify-center overflow-hidden">
-        {/* Background image for hover state */}
-        {hoveredButton === "rei" && (
-          <div
-            className="absolute inset-0 w-full h-full"
-            style={{
-              backgroundImage: "url(/rei-hover.png)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-        )}
 
         {/* Treasury - top left corner */}
         <div className="absolute top-4 left-4 z-50 hidden lg:block">
@@ -131,7 +121,11 @@ const Index = () => {
 
         {/* Logo - dead center of left panel */}
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-          <img src={arubaitoLogo} alt="Arubaito" className="h-24 md:h-32 w-auto" />
+          <img
+            src={hoveredButton === "rei" ? reiLogoEye : arubaitoLogo}
+            alt={hoveredButton === "rei" ? "Rei" : "Arubaito"}
+            className="h-24 md:h-32 w-auto transition-all duration-300"
+          />
         </div>
 
         {/* Text and buttons - bottom left corner */}
@@ -287,13 +281,24 @@ const Index = () => {
 
       {/* RIGHT COLUMN - Scrollable */}
       <div
-        className="w-full lg:w-1/2 h-screen overflow-y-scroll snap-y snap-mandatory"
+        className="w-full lg:w-1/2 h-screen overflow-y-scroll snap-y snap-mandatory relative"
         style={{
           backgroundColor: "#181818",
           scrollSnapType: "y mandatory",
           scrollSnapStop: "always",
         }}
       >
+        {/* Hover overlay from @AskRei button */}
+        {hoveredButton === "rei" && (
+          <div
+            className="absolute inset-0 z-50 pointer-events-none"
+            style={{
+              backgroundImage: "url(/rei-hover.png)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+        )}
         {/* Section 0 - Video Hero */}
         <VideoHeroSection
           onScrollDown={() => document.getElementById("how-club-works")?.scrollIntoView({ behavior: "smooth" })}

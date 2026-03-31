@@ -207,6 +207,7 @@ const Index = () => {
                       delay={800}
                       color="#faf6f4"
                       startIndex={10}
+                      pauseDuration={10000}
                     />
                   </span>{" "}
                   <span className="underline">

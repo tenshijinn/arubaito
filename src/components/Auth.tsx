@@ -36,10 +36,11 @@ export const Auth = () => {
   const twitterProcessingRef = useRef(false);
   const blockClock = useBlockClock();
 
-  const handleReminderSubmit = async () => {
-    if (!reminderEmail) return;
+  const handleReminderSubmit = async (emailToSubmit?: string) => {
+    const targetEmail = emailToSubmit || reminderEmail;
+    if (!targetEmail) return;
     try {
-      await supabase.from("block_clock_reminders" as any).insert({ email: reminderEmail } as any);
+      await supabase.from("block_clock_reminders" as any).insert({ email: targetEmail } as any);
       setReminderSubmitted(true);
       toast({ title: "Reminder Set!", description: "We'll notify you when signup opens." });
     } catch {
@@ -367,6 +368,10 @@ export const Auth = () => {
                       progress={blockClock.progress}
                       timeRemaining={blockClock.timeRemaining}
                       blocksRemaining={blockClock.blocksRemaining}
+                      onReminderSubmit={async (email) => {
+                        await handleReminderSubmit(email);
+                      }}
+                      reminderSubmitted={reminderSubmitted}
                     />
                   </>
                 ) : blockClock.state === "closed" && !blockClock.loading ? (

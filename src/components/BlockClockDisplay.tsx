@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 interface BlockClockDisplayProps {
   currentBlock: number;
@@ -7,6 +9,8 @@ interface BlockClockDisplayProps {
   timeRemaining: number;
   blocksRemaining: number;
   compact?: boolean;
+  onReminderSubmit?: (email: string) => Promise<void>;
+  reminderSubmitted?: boolean;
 }
 
 const formatTime = (totalSeconds: number): string => {
@@ -32,8 +36,25 @@ export const BlockClockDisplay = ({
   timeRemaining,
   blocksRemaining,
   compact = false,
+  onReminderSubmit,
+  reminderSubmitted = false,
 }: BlockClockDisplayProps) => {
   const [showBlockDetails, setShowBlockDetails] = useState(false);
+  const [showReminderForm, setShowReminderForm] = useState(false);
+  const [reminderEmail, setReminderEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleReminder = async () => {
+    if (!reminderEmail || !onReminderSubmit) return;
+    setSubmitting(true);
+    try {
+      await onReminderSubmit(reminderEmail);
+      setReminderEmail('');
+      setShowReminderForm(false);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (compact) {
     const compactBarCount = 20;
@@ -44,7 +65,6 @@ export const BlockClockDisplay = ({
         <div className="text-[10px] font-semibold mb-1" style={{ letterSpacing: '0.02em' }}>
           Club Waitlist
         </div>
-        {/* Mini progress bars */}
         <div style={{ display: 'flex', gap: '2px', height: '12px', marginBottom: '4px' }}>
           {Array.from({ length: compactBarCount }).map((_, i) => (
             <div
@@ -57,7 +77,6 @@ export const BlockClockDisplay = ({
             />
           ))}
         </div>
-        {/* Combined pill */}
         <div
           className="text-[8px] inline-flex items-center gap-1"
           style={{
@@ -89,17 +108,10 @@ export const BlockClockDisplay = ({
       </div>
 
       {/* Divider */}
-      <div style={{ height: '1px', backgroundColor: 'rgba(237,86,90,0.2)', marginBottom: '12px' }} />
-
-      {/* Percentage + time estimate row */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '6px' }}>
-        <span style={{ color: '#ed565a', fontSize: '42px', fontWeight: 700, lineHeight: 1 }}>
-          {Math.round(progress)}%
-        </span>
-      </div>
+      <div style={{ height: '1px', backgroundColor: 'rgba(237,86,90,0.2)', marginBottom: '10px' }} />
 
       {/* Combined pill: blocks remaining | time remaining */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '6px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
         <span
           style={{
             display: 'inline-flex',
@@ -116,31 +128,45 @@ export const BlockClockDisplay = ({
         </span>
       </div>
 
-      {/* Bar visualization — hover to show block details */}
+      {/* Bar visualization + percentage in single row */}
       <div
-        style={{ display: 'flex', alignItems: 'stretch', gap: '3px', height: '56px', marginBottom: '12px', cursor: 'pointer', position: 'relative' }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '12px',
+          cursor: 'pointer',
+          position: 'relative',
+        }}
         onMouseEnter={() => setShowBlockDetails(true)}
         onMouseLeave={() => setShowBlockDetails(false)}
       >
-        {Array.from({ length: BAR_COUNT }).map((_, i) => {
-          const isFilled = i < filledBars;
-          return (
-            <div
-              key={i}
-              style={{
-                flex: 1,
-                borderRadius: '4px',
-                backgroundColor: isFilled ? '#ed565a' : 'rgba(237,86,90,0.15)',
-                opacity: isFilled ? 1 - (i / Math.max(filledBars, 1)) * 0.25 : 1,
-              }}
-            />
-          );
-        })}
+        {/* Progress bars */}
+        <div style={{ display: 'flex', alignItems: 'stretch', gap: '3px', height: '56px', flex: 1 }}>
+          {Array.from({ length: BAR_COUNT }).map((_, i) => {
+            const isFilled = i < filledBars;
+            return (
+              <div
+                key={i}
+                style={{
+                  flex: 1,
+                  borderRadius: '4px',
+                  backgroundColor: isFilled ? '#ed565a' : 'rgba(237,86,90,0.15)',
+                  opacity: isFilled ? 1 - (i / Math.max(filledBars, 1)) * 0.25 : 1,
+                }}
+              />
+            );
+          })}
+        </div>
+        {/* Percentage */}
+        <span style={{ color: '#ed565a', fontSize: '28px', fontWeight: 700, lineHeight: 1, minWidth: '60px', textAlign: 'right' }}>
+          {Math.round(progress)}%
+        </span>
       </div>
 
       {/* Block details — visible on hover */}
       {showBlockDetails && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', animation: 'fadeIn 0.15s ease-in' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', animation: 'fadeIn 0.15s ease-in' }}>
           <div>
             <p style={{ color: 'rgba(237,86,90,0.4)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
               Current Blocktime
@@ -157,6 +183,67 @@ export const BlockClockDisplay = ({
               {formatBlockNumber(targetBlock)}
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Send Reminder */}
+      {onReminderSubmit && (
+        <div>
+          {reminderSubmitted ? (
+            <p style={{ color: '#ed565a', fontSize: '12px', textAlign: 'center', opacity: 0.7 }}>
+              ✓ Reminder set — we'll email you when signup opens
+            </p>
+          ) : !showReminderForm ? (
+            <button
+              onClick={() => setShowReminderForm(true)}
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: '1px solid rgba(237,86,90,0.3)',
+                backgroundColor: 'transparent',
+                color: '#ed565a',
+                fontSize: '13px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(237,86,90,0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              🔔 Send Reminder
+            </button>
+          ) : (
+            <div style={{ display: 'flex', gap: '8px', animation: 'fadeIn 0.15s ease-in' }}>
+              <Input
+                type="email"
+                placeholder="your@email.com"
+                value={reminderEmail}
+                onChange={(e) => setReminderEmail(e.target.value)}
+                className="h-9 rounded-lg text-sm flex-1"
+                style={{ borderColor: 'rgba(237,86,90,0.3)' }}
+                onKeyDown={(e) => e.key === 'Enter' && handleReminder()}
+              />
+              <Button
+                onClick={handleReminder}
+                disabled={!reminderEmail || submitting}
+                size="sm"
+                className="h-9 rounded-lg px-4"
+                style={{
+                  backgroundColor: '#ed565a',
+                  color: '#fff',
+                  border: 'none',
+                  fontSize: '13px',
+                }}
+              >
+                {submitting ? '...' : 'Send'}
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

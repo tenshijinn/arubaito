@@ -64,6 +64,22 @@ Deno.serve(async (req) => {
 
       config.is_unlocked = true
       config.unlocked_at = new Date().toISOString()
+
+      // Trigger reminder emails on state transition to "open"
+      try {
+        const fnUrl = `${supabaseUrl}/functions/v1/send-block-clock-reminders`
+        await fetch(fnUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${serviceRoleKey}`,
+          },
+          body: JSON.stringify({}),
+        })
+        console.log('Triggered send-block-clock-reminders')
+      } catch (e) {
+        console.error('Failed to trigger reminders:', e)
+      }
     }
 
     // Determine if signup window is still open

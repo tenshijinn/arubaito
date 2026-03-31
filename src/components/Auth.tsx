@@ -6,6 +6,9 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useBlockClock } from "@/hooks/useBlockClock";
+import { BlockClockDisplay } from "./BlockClockDisplay";
+import { BlockClockTimer } from "./BlockClockTimer";
 
 // Twitter OAuth callback handler - for root and arubaito paths
 if (typeof window !== "undefined") {

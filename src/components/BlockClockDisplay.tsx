@@ -99,34 +99,29 @@ export const BlockClockDisplay = ({
     <div>
       {/* Header */}
       <div style={{ marginBottom: '6px' }}>
-        <h3 className="text-2xl font-bold text-center mb-2 font-display" style={{ color: '#ed565a', margin: '0 0 2px 0' }}>
+        <h3 className="text-2xl font-bold text-center mb-2 font-display" style={{ color: '#ed565a', margin: '0 0 6px 0' }}>
           Non-Members Club Waitlist
         </h3>
-        <p className="text-sm text-center opacity-75" style={{ color: 'rgba(237,86,90,0.55)', margin: 0 }}>
-          Signup Opens after 1 Million Solana Blocks
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: '#ed565a',
+              fontSize: '11px',
+              padding: '3px 12px',
+              borderRadius: '999px',
+              border: '1px solid rgba(237,86,90,0.3)',
+            }}
+          >
+            ↝ {formatBlockNumber(blocksRemaining)} blocks remaining <span style={{ opacity: 0.4 }}>|</span> ≈ {formatTime(timeRemaining)}
+          </span>
+        </div>
       </div>
 
       {/* Divider */}
-      <div style={{ height: '1px', backgroundColor: 'rgba(237,86,90,0.2)', marginBottom: '10px' }} />
-
-      {/* Combined pill: blocks remaining | time remaining */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-            color: '#ed565a',
-            fontSize: '11px',
-            padding: '3px 12px',
-            borderRadius: '999px',
-            border: '1px solid rgba(237,86,90,0.3)',
-          }}
-        >
-          ↝ {formatBlockNumber(blocksRemaining)} blocks remaining <span style={{ opacity: 0.4 }}>|</span> ≈ {formatTime(timeRemaining)}
-        </span>
-      </div>
+      <div style={{ height: '1px', backgroundColor: 'rgba(237,86,90,0.2)', marginTop: '14px', marginBottom: '14px' }} />
 
       {/* Bar visualization + percentage in single row */}
       <div
@@ -134,7 +129,7 @@ export const BlockClockDisplay = ({
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          marginBottom: '12px',
+          marginBottom: '16px',
           cursor: 'pointer',
           position: 'relative',
         }}

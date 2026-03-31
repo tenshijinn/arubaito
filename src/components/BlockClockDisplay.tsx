@@ -161,7 +161,7 @@ export const BlockClockDisplay = ({
 
       {/* Block details — visible on hover */}
       {showBlockDetails && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', animation: 'fadeIn 0.15s ease-in' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', animation: 'fadeIn 0.15s ease-in' }}>
           <div>
             <p style={{ color: 'rgba(237,86,90,0.4)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
               Current Blocktime

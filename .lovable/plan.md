@@ -1,74 +1,89 @@
 
 
-## Plan: Rebrand /joinrei to Match Rei's Manga Dark Theme
+## Plan: Solana Block Clock Countdown & Gated Signup Window
 
-### What Changes
-The /joinrei landing page currently uses the old Arubaito style (coral red #ed565a, bold fonts, thick borders). The /rei page uses the refined "Manga Dark" theme (AMOLED black #0a0a0a, warm peach #e8c4b8, thin 0.5px borders, light-weight SF Pro Display headings, pill buttons). This plan aligns /joinrei with that aesthetic.
+### Overview
+Replace the static "Club Member Waitlist" countdown with a Solana blockchain-based "Block Clock" system. The countdown tracks remaining blocks until a target block is reached, then opens a 1-hour signup window. This affects the global WaitlistCountdown widget (used on 6 pages) and the Auth component on /arubaito.
 
-### Changes by File
+### Database Changes
 
-**1. `src/pages/JoinRei.tsx`**
-- Wrap the entire page in `rei-theme` class so all CSS variables and overrides apply automatically
-- Change background from `bg-background` to `bg-[#0a0a0a]`
+**New table: `block_clock_config`** (single-row config)
+- `id` (int, default 1, primary key)
+- `start_block` (bigint) — the Solana block when counting started
+- `target_blocks` (bigint, default 1000000) — number of blocks to count
+- `start_timestamp` (timestamptz) — UTC time when start_block was observed
+- `signup_window_minutes` (int, default 60)
+- `is_unlocked` (boolean, default false) — set true when target reached
+- `unlocked_at` (timestamptz, nullable) — when unlock was triggered
+- `created_at`, `updated_at`
 
-**2. `src/components/joinrei/JoinReiHero.tsx`**
-- Background: `#1a1a1a` → `#0a0a0a`
-- Headline font: remove `font-bold`, use `font-light` + `font-display` replaced with SF Pro style (handled by .rei-theme h1 override)
-- Accent color references: `text-primary` will now resolve to peach via rei-theme CSS vars
-- Button: swap to `btn-manga btn-manga-outline` pill style
-- Gradient overlay on mobile: update from `#1a1a1a` to `#0a0a0a`
-- "Learn More" text: use peach accent instead of cream
+RLS: SELECT for anon/authenticated, UPDATE/INSERT for admin only.
 
-**3. `src/components/joinrei/JoinReiValueProp.tsx`**
-- Background: `#1a1a1a` → `#0a0a0a`
-- Heading weight: `font-bold` → `font-light`
-- Border/card styles: use `rei-surface` class or 0.5px borders
-- Text colors: `text-cream` references stay (foreground maps correctly)
+**New table: `block_clock_reminders`**
+- `id` (uuid, primary key)
+- `email` (text, not null)
+- `created_at` (timestamptz)
+- `notified` (boolean, default false)
 
-**4. `src/components/joinrei/JoinReiAggregation.tsx`**
-- Background: `bg-background` (will inherit from rei-theme)
-- Heading weight: `font-bold` → `font-light`
+RLS: INSERT for anon/authenticated, SELECT/UPDATE for admin.
 
-**5. `src/components/joinrei/JoinReiHowItWorks.tsx`**
-- Cards: `border-2 border-primary/40 rounded-3xl` → `border-[0.5px] border-white/10 rounded-2xl` with `bg-[#141414]`
-- Heading weight: `font-bold` → `font-light`
+### Edge Function: `check-block-clock`
+- Calls Solana RPC (`getSlot`) to get current block height
+- Compares against `start_block + target_blocks` from config
+- If target reached and not yet unlocked: sets `is_unlocked = true`, `unlocked_at = now()`
+- Returns `{ currentBlock, targetBlock, isUnlocked, unlockedAt, startBlock, targetBlocks, startTimestamp }`
+- Called sparingly from client (on page load, then every 60s)
+- When unlock triggers, also sends reminder emails to `block_clock_reminders` entries
 
-**6. `src/components/joinrei/JoinReiDemoSection.tsx`**
-- Video borders: `border-primary/40` → `border-white/10 border-[0.5px]`
-- Title color: inherits peach from rei-theme primary
+### Frontend Changes
 
-**7. `src/components/joinrei/JoinReiChatDemo.tsx`**
-- Replace the custom terminal markup with `rei-terminal` CSS classes for consistency
-- Chat labels: use `btn-manga` pill styles
-- CTA button: pill-shaped, peach accent
+**1. New hook: `src/hooks/useBlockClock.ts`**
+- Fetches block clock state from `block_clock_config` table on mount
+- Calls `check-block-clock` edge function every 60s to get fresh Solana block
+- Calculates time remaining: `(targetBlock - currentBlock) * 0.4s`
+- Determines state: `"countdown"` | `"open"` | `"closed"`
+- During open window: tracks 1-hour countdown from `unlocked_at`
+- Exports: `{ state, timeRemaining, blocksRemaining, currentBlock, targetBlock, progress }`
 
-**8. `src/components/joinrei/JoinReiReferral.tsx`**
-- Background: `#1a1a1a` → `#0a0a0a`
-- Heading weight: light
+**2. `src/components/WaitlistCountdown.tsx` — Rewrite**
+- Rename label from "Club Member Waitlist" to "Club Waitlist"
+- Uses `useBlockClock` hook
+- **Countdown state**: Shows terminal-style progress bar with block count, label "Next club signup opens in:", time remaining
+- **Open state**: Shows terminal-style clock icon with "Club signup closes in:" and 1-hour countdown. For logged-out users: small "Signup" button linking to /arubaito
+- **Closed state**: Shows "Signup closed" static text
 
-**9. `src/components/joinrei/JoinReiPricing.tsx`**
-- Card borders: 2px → 0.5px, use `rei-surface` styling
-- Default tier accent: peach instead of coral red
-- Buttons: pill-shaped (`rounded-full` stays, but use peach bg)
-- Premium tier: amber stays as a differentiation
-- Heading weight: light
+**3. `src/components/Auth.tsx` — Block Clock Gate**
+- Import `useBlockClock`
+- When state is `"countdown"`: Replace signup form with Block Clock display showing blocks remaining, progress bar, and an email reminder input field ("Get notified when signup opens")
+- When state is `"open"`: Show current signup UI with visible 1-hour countdown timer at top
+- When state is `"closed"`: Show "Signup window closed" message
 
-### Visual Summary
-```text
-BEFORE (old style)              AFTER (Manga Dark)
-─────────────────               ──────────────────
-Background: #1a1a1a             Background: #0a0a0a
-Accent: #ed565a (coral)         Accent: #e8c4b8 (peach)
-Borders: 2px solid              Borders: 0.5px solid
-Font weight: 700 (bold)         Font weight: 300 (light)
-Font: Styrene A Trial           Font: SF Pro Display (headings)
-Border radius: 24px             Border radius: 14-20px
-```
+**4. `src/components/BlockClockDisplay.tsx` — New shared component**
+- Terminal-style block progress bar (ASCII-inspired, monospace)
+- Shows: current block / target block, estimated time, visual progress
+- Reused in both WaitlistCountdown and Auth
 
-### What Stays the Same
-- Snap-scroll section structure
-- All images and videos
-- Content/copy
-- ScrollFadeIn and ParallaxWrapper animations
-- Overall layout (split panels, grids)
+**5. `src/components/BlockClockTimer.tsx` — New component**
+- Terminal-style clock for the 1-hour open window
+- Monospace digits, blinking colon separator
+
+### Technical Details
+
+- **Solana block time**: ~400ms per block. 1,000,000 blocks ≈ 4d 15h
+- **Block calculation**: `remainingBlocks = (startBlock + targetBlocks) - currentBlock`. Time = `remainingBlocks * 0.4` seconds
+- **Approximate mode**: If edge function fails, fall back to `startTimestamp + (targetBlocks * 0.4s)` as a UTC target date
+- **Solana RPC**: Use public endpoint `https://api.mainnet-beta.solana.com` with `getSlot` method (free, no key needed)
+- **Polling strategy**: Check every 60s on client, edge function caches result for 30s to reduce RPC calls
+
+### Files to Create/Modify
+| File | Action |
+|------|--------|
+| Migration SQL | Create `block_clock_config` and `block_clock_reminders` tables |
+| `supabase/functions/check-block-clock/index.ts` | New edge function |
+| `src/hooks/useBlockClock.ts` | New hook |
+| `src/components/BlockClockDisplay.tsx` | New terminal-style progress component |
+| `src/components/BlockClockTimer.tsx` | New terminal-style clock component |
+| `src/components/WaitlistCountdown.tsx` | Rewrite with block clock |
+| `src/components/Auth.tsx` | Add block clock gating + email reminder |
+| `src/components/CountdownTimer.tsx` | Keep (used elsewhere), no changes |
 

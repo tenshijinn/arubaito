@@ -7,9 +7,10 @@ interface TextRotatorProps {
   delay?: number;
   color?: string;
   startIndex?: number;
+  pauseDuration?: number;
 }
 
-export const TextRotator = ({ words, isActive, className = "", delay = 0, color = '#faf6f4', startIndex = 0 }: TextRotatorProps) => {
+export const TextRotator = ({ words, isActive, className = "", delay = 0, color = '#faf6f4', startIndex = 0, pauseDuration = 2000 }: TextRotatorProps) => {
   const [currentIndex, setCurrentIndex] = useState(startIndex);
   const [displayText, setDisplayText] = useState("");
   const [isReady, setIsReady] = useState(delay === 0);
@@ -48,7 +49,7 @@ export const TextRotator = ({ words, isActive, className = "", delay = 0, color 
         // Pause for 1 second, then move to next word
         pauseTimeoutRef.current = setTimeout(() => {
           setCurrentIndex((prev) => (prev + 1) % words.length);
-        }, 2000);
+        }, pauseDuration);
       }
     }, 100); // Typing speed
 

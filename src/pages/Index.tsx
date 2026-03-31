@@ -181,6 +181,7 @@ const Index = () => {
                       delay={0}
                       color="#faf6f4"
                       startIndex={0}
+                      pauseDuration={10000}
                     />
                   </span>{" "}
                   <span

@@ -1,48 +1,62 @@
 
 
-## Plan: Integrate Block Clock into Sign-In Card
+## Plan: Block Clock UI Improvements + Reminder Email System
 
-### What Changes
+### Summary
 
-Currently the BlockClockDisplay and BlockClockTimer appear **above** the Members card as separate elements. This plan moves them **inside** the card, replacing the sign-in buttons during countdown, and integrating the 1-hour timer with the signup buttons when open.
+Three changes: (1) move the progress percentage to the right of the bar chart, (2) reclaim vertical space by tightening layout, (3) add a "Send Reminder" button with inline email form that also triggers automatic reminder emails when the signup window opens.
 
-### Countdown State (inside Members card)
+---
 
-The card replaces buttons with a redesigned BlockClockDisplay matching the screenshot reference:
-- **Header row**: "Club Waitlist" title (left) + large percentage number (right), separated by a vertical divider
-- **Subtitle**: "Signup Opens after 1 Million Solana Blocks"
-- **Pill badge**: blocks remaining count
-- **Time estimate**: "≈ Xd Xh Xm until unlock"
-- **Visual**: Vertical bar chart (CSS divs with gradient opacity, terminal aesthetic)
-- **Footer**: Two columns — "CURRENT BLOCKTIME" and "TARGET BLOCKTIME" with formatted numbers
-- Email reminder field stays **below** the card (unchanged)
-- "Not a member yet? Apply to Join" link remains at card bottom
+### 1. Move % to the right of the progress bar
 
-### Open State (inside Members card)
+**BlockClockDisplay.tsx** — Replace the separate percentage section and bar section with a single flex row:
+- Left: the 36 progress bars (flex: 1)
+- Right: the `{progress}%` number, fixed width (~60px to fit "100%"), vertically centered
 
-The card shows:
-- **Top section**: BlockClockTimer (1-hour countdown) integrated into the card header area, with label "Club signup closes in:"
-- **Below timer**: The normal sign-in buttons (Guest Listed Twitter, Member NFT) appear
-- "Not a member yet? Apply to Join" link remains
+Remove the standalone percentage `<div>` that currently sits above the bars. Move the combined pill (blocks remaining | time) up into the space freed.
 
-### Closed State (inside Members card)
+### 2. Tighten vertical spacing
 
-Card shows "Signup window has closed" message where buttons normally are.
+With the percentage no longer above the bars, shift the pill and other elements upward so spacing is even between: header → divider → pill → bar+% → reminder button.
 
-### Files to Modify
+### 3. "Send Reminder" button + dropdown
 
-**1. `src/components/BlockClockDisplay.tsx`** — Redesign full mode
-- Replace ASCII progress bar with the rich layout from the screenshot
-- Header: title + percentage with vertical divider
-- Vertical bar visualization (20-30 CSS bars)
-- Footer with current/target block numbers
-- Keep compact mode unchanged for WaitlistCountdown widget
+**BlockClockDisplay.tsx**:
+- Add a new prop `onReminderSubmit?: (email: string) => Promise<void>` and `reminderSubmitted?: boolean`
+- Below the bar chart, render a "Send Reminder" button styled in the coral theme
+- On click, toggle an inline dropdown (within the card) showing an email input + "Send" button
+- On submit, call `onReminderSubmit`
 
-**2. `src/components/Auth.tsx`** — Restructure
-- Remove the BlockClockDisplay/Timer/closed sections that currently sit **above** the card (lines 257-319)
-- Move block clock states **inside** the Members card (lines 332-370):
-  - Countdown: replace buttons div with BlockClockDisplay
-  - Open: add BlockClockTimer above buttons
-  - Closed: replace buttons with closed message
-- Same restructuring for the "apply" card
+**Auth.tsx**:
+- Pass `onReminderSubmit={handleReminderSubmit}` and `reminderSubmitted` to `BlockClockDisplay`
+- The existing `handleReminderSubmit` already inserts into `block_clock_reminders`
+
+### 4. Automatic reminder emails when signup opens
+
+**Database**: The `block_clock_reminders` table already has email + notified columns — no schema changes needed.
+
+**Edge function** `send-block-clock-reminders/index.ts`:
+- Query `block_clock_reminders` where `notified = false`
+- Cross-reference against `twitter_whitelist` (existing members) — skip any email that belongs to a member
+- For each non-member reminder, send an email via Resend (already configured) notifying them the signup window is open
+- Mark `notified = true` after sending
+- Called by the `check-block-clock` edge function when state transitions to "open"
+
+**Modify `check-block-clock/index.ts`**:
+- When the block clock state transitions to "open", invoke `send-block-clock-reminders` to trigger the batch notification
+
+---
+
+### Technical Details
+
+**Files to create:**
+- `supabase/functions/send-block-clock-reminders/index.ts`
+
+**Files to modify:**
+- `src/components/BlockClockDisplay.tsx` — layout restructure + reminder UI
+- `src/components/Auth.tsx` — pass reminder props
+- `supabase/functions/check-block-clock/index.ts` — trigger reminders on state change
+
+**No database migrations needed** — `block_clock_reminders` table with `notified` column already exists.
 

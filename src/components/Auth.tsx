@@ -282,7 +282,7 @@ export const Auth = () => {
                     variant="outline"
                     disabled={loading || returningUserLoading || bluechipLoading}
                   >
-                    {returningUserLoading ? "Authenticating..." : "Guest Listed Twitter"}
+                    {returningUserLoading ? "Authenticating..." : "Twitter Guest List"}
                   </Button>
 
                   <div className="wallet-button-wrapper w-full">

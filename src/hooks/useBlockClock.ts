@@ -18,6 +18,11 @@ const BLOCK_TIME_MS = 400;
 const POLL_INTERVAL_MS = 60_000;
 
 export const useBlockClock = (): BlockClockData => {
+  // Debug override via ?debugBlockClock=open|closed|countdown
+  const debugState = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('debugBlockClock') as BlockClockState | null
+    : null;
+
   const [data, setData] = useState<BlockClockData>({
     state: "countdown",
     timeRemaining: 0,

@@ -36,20 +36,39 @@ export const BlockClockDisplay = ({
   const [showBlockDetails, setShowBlockDetails] = useState(false);
 
   if (compact) {
-    const barWidth = 16;
-    const filled = Math.round((progress / 100) * barWidth);
-    const empty = barWidth - filled;
-    const progressBar = "█".repeat(filled) + "░".repeat(empty);
+    const compactBarCount = 20;
+    const compactFilled = Math.round((progress / 100) * compactBarCount);
 
     return (
-      <div className="font-mono text-[9px] leading-tight" style={{ color: '#ed565a' }}>
-        <div className="flex items-center gap-1">
-          <span className="opacity-60">BLK</span>
-          <span>[{progressBar}]</span>
-          <span>{progress.toFixed(1)}%</span>
+      <div style={{ color: '#ed565a' }}>
+        <div className="text-[10px] font-semibold mb-1" style={{ letterSpacing: '0.02em' }}>
+          Club Waitlist
         </div>
-        <div className="opacity-70 mt-0.5">
-          ≈ {formatTime(timeRemaining)}
+        {/* Mini progress bars */}
+        <div style={{ display: 'flex', gap: '2px', height: '12px', marginBottom: '4px' }}>
+          {Array.from({ length: compactBarCount }).map((_, i) => (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                borderRadius: '2px',
+                backgroundColor: i < compactFilled ? '#ed565a' : 'rgba(237,86,90,0.15)',
+              }}
+            />
+          ))}
+        </div>
+        {/* Combined pill */}
+        <div
+          className="text-[8px] inline-flex items-center gap-1"
+          style={{
+            padding: '1px 6px',
+            borderRadius: '999px',
+            border: '1px solid rgba(237,86,90,0.3)',
+          }}
+        >
+          <span>{Math.round(progress)}%</span>
+          <span style={{ opacity: 0.4 }}>|</span>
+          <span>≈ {formatTime(timeRemaining)}</span>
         </div>
       </div>
     );

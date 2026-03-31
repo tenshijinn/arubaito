@@ -25,14 +25,11 @@ export const WaitlistCountdown = () => {
 
   if (state === "closed") {
     return (
-      <div>
-        <h3
-          className="text-[8px] font-bold mb-0.5 tracking-wide"
-          style={{ color: '#ed565a', fontFamily: 'Consolas, monospace' }}
-        >
+      <div style={{ color: '#ed565a' }}>
+        <div className="text-[10px] font-semibold mb-1" style={{ letterSpacing: '0.02em' }}>
           Club Waitlist
-        </h3>
-        <div className="font-mono text-[9px] opacity-60" style={{ color: '#ed565a' }}>
+        </div>
+        <div className="text-[9px] opacity-60">
           Signup closed
         </div>
       </div>
@@ -41,20 +38,17 @@ export const WaitlistCountdown = () => {
 
   if (state === "open") {
     return (
-      <div>
-        <h3
-          className="text-[8px] font-bold mb-0.5 tracking-wide"
-          style={{ color: '#ed565a', fontFamily: 'Consolas, monospace' }}
-        >
-          Club signup closes in:
-        </h3>
+      <div style={{ color: '#ed565a' }}>
+        <div className="text-[10px] font-semibold mb-1" style={{ letterSpacing: '0.02em' }}>
+          Club Signup Open
+        </div>
         <BlockClockTimer secondsRemaining={signupWindowRemaining} compact />
         <button
           onClick={() => navigate("/arubaito")}
-          className="mt-1 font-mono text-[8px] font-bold px-2 py-0.5 rounded border transition-colors"
+          className="mt-1 text-[8px] font-bold px-2 py-0.5 rounded transition-colors"
           style={{
             color: '#ed565a',
-            borderColor: 'rgba(237, 86, 90, 0.5)',
+            border: '1px solid rgba(237, 86, 90, 0.5)',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = '#ed565a';
@@ -73,21 +67,13 @@ export const WaitlistCountdown = () => {
 
   // countdown state
   return (
-    <div>
-      <h3
-        className="text-[8px] font-bold mb-0.5 tracking-wide"
-        style={{ color: '#ed565a', fontFamily: 'Consolas, monospace' }}
-      >
-        Next club signup opens in:
-      </h3>
-      <BlockClockDisplay
-        currentBlock={currentBlock}
-        targetBlock={targetBlock}
-        progress={progress}
-        timeRemaining={timeRemaining}
-        blocksRemaining={blocksRemaining}
-        compact
-      />
-    </div>
+    <BlockClockDisplay
+      currentBlock={currentBlock}
+      targetBlock={targetBlock}
+      progress={progress}
+      timeRemaining={timeRemaining}
+      blocksRemaining={blocksRemaining}
+      compact
+    />
   );
 };

@@ -29,9 +29,23 @@ export const Auth = () => {
   const [password, setPassword] = useState("");
   const [returningUserLoading, setReturningUserLoading] = useState(false);
   const [bluechipLoading, setBluechipLoading] = useState(false);
+  const [reminderEmail, setReminderEmail] = useState("");
+  const [reminderSubmitted, setReminderSubmitted] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const twitterProcessingRef = useRef(false);
+  const blockClock = useBlockClock();
+
+  const handleReminderSubmit = async () => {
+    if (!reminderEmail) return;
+    try {
+      await supabase.from("block_clock_reminders" as any).insert({ email: reminderEmail } as any);
+      setReminderSubmitted(true);
+      toast({ title: "Reminder Set!", description: "We'll notify you when signup opens." });
+    } catch {
+      toast({ title: "Error", description: "Failed to save reminder", variant: "destructive" });
+    }
+  };
 
   // Handle Twitter OAuth callback
   useEffect(() => {

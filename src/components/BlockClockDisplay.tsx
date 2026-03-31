@@ -53,6 +53,8 @@ export const BlockClockDisplay = ({
 
   const filledBars = Math.round((progress / 100) * BAR_COUNT);
 
+  const [showBlockDetails, setShowBlockDetails] = useState(false);
+
   return (
     <div>
       {/* Header */}
@@ -73,13 +75,10 @@ export const BlockClockDisplay = ({
         <span style={{ color: '#ed565a', fontSize: '42px', fontWeight: 700, lineHeight: 1 }}>
           {Math.round(progress)}%
         </span>
-        <p style={{ color: '#ed565a', fontSize: '15px', fontWeight: 500, margin: '6px 0 0 0' }}>
-          ≈ {formatTime(timeRemaining)} until unlock
-        </p>
       </div>
 
-      {/* Percentage row with pill */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+      {/* Combined pill: blocks remaining | time remaining */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '6px' }}>
         <span
           style={{
             display: 'inline-flex',
@@ -92,13 +91,16 @@ export const BlockClockDisplay = ({
             border: '1px solid rgba(237,86,90,0.3)',
           }}
         >
-          ↝ {formatBlockNumber(blocksRemaining)} blocks remaining
+          ↝ {formatBlockNumber(blocksRemaining)} blocks remaining <span style={{ opacity: 0.4 }}>|</span> ≈ {formatTime(timeRemaining)}
         </span>
       </div>
 
-
-      {/* Bar visualization — equal height, thick, rounded */}
-      <div style={{ display: 'flex', alignItems: 'stretch', gap: '3px', height: '56px', marginBottom: '20px' }}>
+      {/* Bar visualization — hover to show block details */}
+      <div
+        style={{ display: 'flex', alignItems: 'stretch', gap: '3px', height: '56px', marginBottom: '12px', cursor: 'pointer', position: 'relative' }}
+        onMouseEnter={() => setShowBlockDetails(true)}
+        onMouseLeave={() => setShowBlockDetails(false)}
+      >
         {Array.from({ length: BAR_COUNT }).map((_, i) => {
           const isFilled = i < filledBars;
           return (
@@ -115,25 +117,27 @@ export const BlockClockDisplay = ({
         })}
       </div>
 
-      {/* Footer */}
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <p style={{ color: 'rgba(237,86,90,0.4)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
-            Current Blocktime
-          </p>
-          <p style={{ color: '#ed565a', fontSize: '18px', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
-            {formatBlockNumber(currentBlock)}
-          </p>
+      {/* Block details — visible on hover */}
+      {showBlockDetails && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', animation: 'fadeIn 0.15s ease-in' }}>
+          <div>
+            <p style={{ color: 'rgba(237,86,90,0.4)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
+              Current Blocktime
+            </p>
+            <p style={{ color: '#ed565a', fontSize: '18px', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
+              {formatBlockNumber(currentBlock)}
+            </p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <p style={{ color: 'rgba(237,86,90,0.4)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
+              Target Blocktime
+            </p>
+            <p style={{ color: '#ed565a', fontSize: '18px', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
+              {formatBlockNumber(targetBlock)}
+            </p>
+          </div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <p style={{ color: 'rgba(237,86,90,0.4)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
-            Target Blocktime
-          </p>
-          <p style={{ color: '#ed565a', fontSize: '18px', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
-            {formatBlockNumber(targetBlock)}
-          </p>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

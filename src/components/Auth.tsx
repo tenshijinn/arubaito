@@ -368,11 +368,6 @@ export const Auth = () => {
                       timeRemaining={blockClock.timeRemaining}
                       blocksRemaining={blockClock.blocksRemaining}
                     />
-                    <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(237, 86, 90, 0.15)' }}>
-                      <p className="font-mono text-[10px] text-muted-foreground">
-                        Applications open when the block clock unlocks
-                      </p>
-                    </div>
                   </>
                 ) : blockClock.state === "closed" && !blockClock.loading ? (
                   <div className="text-center py-4">

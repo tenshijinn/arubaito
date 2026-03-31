@@ -61,10 +61,10 @@ export const BlockClockDisplay = ({
     <div>
       {/* Header */}
       <div style={{ marginBottom: '6px' }}>
-        <h3 style={{ color: '#ed565a', fontSize: '20px', fontWeight: 600, letterSpacing: '0.02em', margin: '0 0 2px 0' }}>
-          Club Waitlist
+        <h3 className="text-2xl font-bold text-center mb-2 font-display" style={{ color: '#ed565a', margin: '0 0 2px 0' }}>
+          Non-Members Club Waitlist
         </h3>
-        <p style={{ color: 'rgba(237,86,90,0.55)', fontSize: '13px', fontWeight: 400, margin: 0 }}>
+        <p className="text-sm text-center" style={{ color: 'rgba(237,86,90,0.55)', margin: 0 }}>
           Signup Opens after 1 Million Solana Blocks
         </p>
       </div>

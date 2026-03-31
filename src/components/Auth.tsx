@@ -367,6 +367,11 @@ export const Auth = () => {
                       progress={blockClock.progress}
                       timeRemaining={blockClock.timeRemaining}
                       blocksRemaining={blockClock.blocksRemaining}
+                      onReminderSubmit={async (email) => {
+                        setReminderEmail(email);
+                        await handleReminderSubmit();
+                      }}
+                      reminderSubmitted={reminderSubmitted}
                     />
                   </>
                 ) : blockClock.state === "closed" && !blockClock.loading ? (

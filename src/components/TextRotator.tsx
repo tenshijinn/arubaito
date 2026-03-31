@@ -7,6 +7,7 @@ interface TextRotatorProps {
   delay?: number;
   color?: string;
   startIndex?: number;
+  pauseDuration?: number;
 }
 
 export const TextRotator = ({ words, isActive, className = "", delay = 0, color = '#faf6f4', startIndex = 0 }: TextRotatorProps) => {

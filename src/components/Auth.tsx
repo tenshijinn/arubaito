@@ -448,30 +448,61 @@ export const Auth = () => {
           ) : mode === "apply" ? (
             <div className="space-y-4">
               <Card className="p-8 bg-transparent border border-primary/40 rounded-xl">
-                <h2 className="text-2xl font-bold text-center mb-2 font-display text-primary">
-                  Apply for Membership
-                </h2>
-                <p className="text-sm text-center mb-6 text-muted-foreground">
-                  Choose how you'd like to apply
-                </p>
+                {blockClock.state === "countdown" && !blockClock.loading ? (
+                  <>
+                    <BlockClockDisplay
+                      currentBlock={blockClock.currentBlock}
+                      targetBlock={blockClock.targetBlock}
+                      progress={blockClock.progress}
+                      timeRemaining={blockClock.timeRemaining}
+                      blocksRemaining={blockClock.blocksRemaining}
+                    />
+                    <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(237, 86, 90, 0.15)' }}>
+                      <p className="font-mono text-[10px] text-muted-foreground">
+                        Applications open when the block clock unlocks
+                      </p>
+                    </div>
+                  </>
+                ) : blockClock.state === "closed" && !blockClock.loading ? (
+                  <div className="text-center py-4">
+                    <p className="font-mono text-sm" style={{ color: '#ed565a' }}>
+                      Application window has closed
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="text-2xl font-bold text-center mb-2 font-display text-primary">
+                      Apply for Membership
+                    </h2>
+                    <p className="text-sm text-center mb-6 text-muted-foreground">
+                      Choose how you'd like to apply
+                    </p>
 
-                <div className="space-y-3">
-                  <Button
-                    onClick={() => navigate("/guestlist")}
-                    className="w-full h-14 text-base md:text-lg font-medium rounded-xl cv-profile-button"
-                    variant="outline"
-                  >
-                    Twitter Guest List
-                  </Button>
+                    {blockClock.state === "open" && !blockClock.loading && (
+                      <div className="mb-4">
+                        <BlockClockTimer secondsRemaining={blockClock.signupWindowRemaining} compact />
+                      </div>
+                    )}
 
-                  <Button
-                    onClick={() => setMode("register")}
-                    className="w-full h-14 text-base md:text-lg font-medium rounded-xl cv-profile-button"
-                    variant="secondary"
-                  >
-                    CV Profile
-                  </Button>
-                </div>
+                    <div className="space-y-3">
+                      <Button
+                        onClick={() => navigate("/guestlist")}
+                        className="w-full h-14 text-base md:text-lg font-medium rounded-xl cv-profile-button"
+                        variant="outline"
+                      >
+                        Twitter Guest List
+                      </Button>
+
+                      <Button
+                        onClick={() => setMode("register")}
+                        className="w-full h-14 text-base md:text-lg font-medium rounded-xl cv-profile-button"
+                        variant="secondary"
+                      >
+                        CV Profile
+                      </Button>
+                    </div>
+                  </>
+                )}
 
                 <p className="text-sm text-center mt-6 text-muted-foreground">
                   Already a member?{" "}

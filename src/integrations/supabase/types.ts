@@ -50,6 +50,63 @@ export type Database = {
         }
         Relationships: []
       }
+      block_clock_config: {
+        Row: {
+          created_at: string
+          id: number
+          is_unlocked: boolean
+          signup_window_minutes: number
+          start_block: number
+          start_timestamp: string
+          target_blocks: number
+          unlocked_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          is_unlocked?: boolean
+          signup_window_minutes?: number
+          start_block?: number
+          start_timestamp?: string
+          target_blocks?: number
+          unlocked_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          is_unlocked?: boolean
+          signup_window_minutes?: number
+          start_block?: number
+          start_timestamp?: string
+          target_blocks?: number
+          unlocked_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      block_clock_reminders: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          notified: boolean
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          notified?: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          notified?: boolean
+        }
+        Relationships: []
+      }
       chat_conversations: {
         Row: {
           created_at: string | null

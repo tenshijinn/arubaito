@@ -369,8 +369,7 @@ export const Auth = () => {
                       timeRemaining={blockClock.timeRemaining}
                       blocksRemaining={blockClock.blocksRemaining}
                       onReminderSubmit={async (email) => {
-                        setReminderEmail(email);
-                        await handleReminderSubmit();
+                        await handleReminderSubmit(email);
                       }}
                       reminderSubmitted={reminderSubmitted}
                     />

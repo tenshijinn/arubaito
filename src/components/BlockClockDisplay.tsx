@@ -21,7 +21,7 @@ const formatBlockNumber = (n: number): string => {
   return n.toLocaleString();
 };
 
-const BAR_COUNT = 40;
+const BAR_COUNT = 36;
 
 export const BlockClockDisplay = ({
   currentBlock,
@@ -54,120 +54,60 @@ export const BlockClockDisplay = ({
   const filledBars = Math.round((progress / 100) * BAR_COUNT);
 
   return (
-    <div
-      style={{
-        backgroundColor: '#1a0a0b',
-        border: '1px solid #ed565a',
-        borderRadius: '20px',
-        padding: '32px',
-      }}
-    >
-      {/* Top section: two columns */}
-      <div style={{ display: 'flex', gap: '24px' }}>
-        {/* Left column: title + subtitle */}
-        <div style={{ flex: 1, borderRight: '1px solid rgba(237,86,90,0.25)', paddingRight: '24px' }}>
-          <h3
-            style={{
-              color: '#ed565a',
-              fontSize: '28px',
-              fontWeight: 700,
-              fontFamily: 'Georgia, "Times New Roman", serif',
-              fontStyle: 'italic',
-              margin: 0,
-              lineHeight: 1.2,
-            }}
-          >
-            Club Waitlist
-          </h3>
-          <p
-            style={{
-              color: 'rgba(237,86,90,0.6)',
-              fontSize: '14px',
-              fontFamily: 'Georgia, "Times New Roman", serif',
-              fontWeight: 600,
-              marginTop: '8px',
-              lineHeight: 1.4,
-            }}
-          >
-            Signup Opens after 1 Million Solana Blocks
-          </p>
-        </div>
-
-        {/* Right column: percentage + pill + time */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: '140px' }}>
-          <span
-            style={{
-              color: '#ed565a',
-              fontSize: '52px',
-              fontWeight: 700,
-              fontFamily: 'Georgia, "Times New Roman", serif',
-              fontStyle: 'italic',
-              lineHeight: 1,
-            }}
-          >
-            {Math.round(progress)}%
-          </span>
-
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              color: '#ed565a',
-              fontSize: '12px',
-              padding: '4px 14px',
-              borderRadius: '999px',
-              border: '1px solid rgba(237,86,90,0.35)',
-              backgroundColor: 'rgba(237,86,90,0.1)',
-              marginTop: '10px',
-            }}
-          >
-            ↝ {formatBlockNumber(blocksRemaining)} blocks remaining
-          </span>
-
-          <p
-            style={{
-              color: '#ed565a',
-              fontSize: '18px',
-              fontFamily: 'Georgia, "Times New Roman", serif',
-              fontStyle: 'italic',
-              fontWeight: 600,
-              marginTop: '10px',
-            }}
-          >
-            ≈ {formatTime(timeRemaining)} until unlock
-          </p>
-        </div>
+    <div>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+        <h3 style={{ color: '#ed565a', fontSize: '20px', fontWeight: 600, letterSpacing: '0.02em', margin: 0 }}>
+          Club Waitlist
+        </h3>
+        <span style={{ color: '#ed565a', fontSize: '42px', fontWeight: 700, lineHeight: 1 }}>
+          {Math.round(progress)}%
+        </span>
       </div>
 
-      {/* Bar visualization */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          gap: '3px',
-          height: '120px',
-          margin: '28px 0',
-        }}
-      >
+      {/* Divider */}
+      <div style={{ height: '1px', backgroundColor: 'rgba(237,86,90,0.2)', marginBottom: '12px' }} />
+
+      {/* Subtitle */}
+      <p style={{ color: 'rgba(237,86,90,0.55)', fontSize: '13px', fontWeight: 400, margin: '0 0 16px 0' }}>
+        Signup Opens after 1 Million Solana Blocks
+      </p>
+
+      {/* Percentage row with pill */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+            color: '#ed565a',
+            fontSize: '11px',
+            padding: '3px 12px',
+            borderRadius: '999px',
+            border: '1px solid rgba(237,86,90,0.3)',
+          }}
+        >
+          ↝ {formatBlockNumber(blocksRemaining)} blocks remaining
+        </span>
+      </div>
+
+      {/* Time estimate */}
+      <p style={{ color: '#ed565a', fontSize: '15px', fontWeight: 500, margin: '0 0 20px 0' }}>
+        ≈ {formatTime(timeRemaining)} until unlock
+      </p>
+
+      {/* Bar visualization — equal height, thick, rounded */}
+      <div style={{ display: 'flex', alignItems: 'stretch', gap: '3px', height: '56px', marginBottom: '20px' }}>
         {Array.from({ length: BAR_COUNT }).map((_, i) => {
           const isFilled = i < filledBars;
-          // Tall on left, short on right — descending curve
-          const heightPct = 95 - (i / (BAR_COUNT - 1)) * 55;
-
           return (
             <div
               key={i}
               style={{
                 flex: 1,
-                height: `${heightPct}%`,
                 borderRadius: '4px',
-                backgroundColor: isFilled
-                  ? '#ed565a'
-                  : 'rgba(237,86,90,0.18)',
-                opacity: isFilled
-                  ? 1 - (i / Math.max(filledBars, 1)) * 0.3
-                  : 1,
+                backgroundColor: isFilled ? '#ed565a' : 'rgba(237,86,90,0.15)',
+                opacity: isFilled ? 1 - (i / Math.max(filledBars, 1)) * 0.25 : 1,
               }}
             />
           );
@@ -175,59 +115,20 @@ export const BlockClockDisplay = ({
       </div>
 
       {/* Footer */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          paddingTop: '20px',
-          borderTop: '1px solid rgba(237,86,90,0.15)',
-        }}
-      >
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <div>
-          <p
-            style={{
-              color: 'rgba(237,86,90,0.45)',
-              fontSize: '10px',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              marginBottom: '6px',
-            }}
-          >
+          <p style={{ color: 'rgba(237,86,90,0.4)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
             Current Blocktime
           </p>
-          <p
-            style={{
-              color: '#ed565a',
-              fontSize: '22px',
-              fontFamily: 'Georgia, "Times New Roman", serif',
-              fontWeight: 600,
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
+          <p style={{ color: '#ed565a', fontSize: '18px', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
             {formatBlockNumber(currentBlock)}
           </p>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <p
-            style={{
-              color: 'rgba(237,86,90,0.45)',
-              fontSize: '10px',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              marginBottom: '6px',
-            }}
-          >
+          <p style={{ color: 'rgba(237,86,90,0.4)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
             Target Blocktime
           </p>
-          <p
-            style={{
-              color: '#ed565a',
-              fontSize: '22px',
-              fontFamily: 'Georgia, "Times New Roman", serif',
-              fontWeight: 600,
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
+          <p style={{ color: '#ed565a', fontSize: '18px', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
             {formatBlockNumber(targetBlock)}
           </p>
         </div>

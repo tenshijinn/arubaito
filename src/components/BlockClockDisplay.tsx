@@ -33,6 +33,8 @@ export const BlockClockDisplay = ({
   blocksRemaining,
   compact = false,
 }: BlockClockDisplayProps) => {
+  const [showBlockDetails, setShowBlockDetails] = useState(false);
+
   if (compact) {
     const barWidth = 16;
     const filled = Math.round((progress / 100) * barWidth);
@@ -54,8 +56,6 @@ export const BlockClockDisplay = ({
   }
 
   const filledBars = Math.round((progress / 100) * BAR_COUNT);
-
-  const [showBlockDetails, setShowBlockDetails] = useState(false);
 
   return (
     <div>

@@ -140,7 +140,7 @@ const Index = () => {
                   color: "#faf6f4",
                 }}
               >
-                Aggregates Web3{" "}
+                Aggregates{" "}
                 <span className="underline">
                   <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color="#ffa6ff" />
                 </span>{" "}

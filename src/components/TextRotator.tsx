@@ -48,9 +48,9 @@ export const TextRotator = ({ words, isActive, className = "", delay = 0, color 
         // Pause for 1 second, then move to next word
         pauseTimeoutRef.current = setTimeout(() => {
           setCurrentIndex((prev) => (prev + 1) % words.length);
-        }, 1000);
+        }, 2000);
       }
-    }, 50); // Faster typing speed
+    }, 100); // Typing speed
 
     return () => {
       if (typingIntervalRef.current) {

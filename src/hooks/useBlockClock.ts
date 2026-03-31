@@ -145,5 +145,15 @@ export const useBlockClock = (): BlockClockData => {
     return () => clearInterval(interval);
   }, [fetchBlockClock]);
 
+  if (debugState && ['countdown', 'open', 'closed'].includes(debugState)) {
+    return {
+      ...data,
+      state: debugState,
+      loading: false,
+      signupWindowRemaining: debugState === 'open' ? 3540 : 0,
+      progress: debugState === 'countdown' ? data.progress : 100,
+    };
+  }
+
   return data;
 };

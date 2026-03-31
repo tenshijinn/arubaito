@@ -10,7 +10,7 @@ interface TextRotatorProps {
   pauseDuration?: number;
 }
 
-export const TextRotator = ({ words, isActive, className = "", delay = 0, color = '#faf6f4', startIndex = 0 }: TextRotatorProps) => {
+export const TextRotator = ({ words, isActive, className = "", delay = 0, color = '#faf6f4', startIndex = 0, pauseDuration = 2000 }: TextRotatorProps) => {
   const [currentIndex, setCurrentIndex] = useState(startIndex);
   const [displayText, setDisplayText] = useState("");
   const [isReady, setIsReady] = useState(delay === 0);

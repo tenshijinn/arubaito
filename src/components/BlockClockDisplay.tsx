@@ -96,7 +96,6 @@ export const BlockClockDisplay = ({
         </span>
       </div>
 
-      </p>
 
       {/* Bar visualization — equal height, thick, rounded */}
       <div style={{ display: 'flex', alignItems: 'stretch', gap: '3px', height: '56px', marginBottom: '20px' }}>

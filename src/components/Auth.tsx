@@ -265,122 +265,33 @@ export const Auth = () => {
             <div className="space-y-4">
               {/* Members sign-in card */}
               <Card className="p-8 bg-transparent border border-primary/40 rounded-xl">
-                {blockClock.state === "countdown" && !blockClock.loading ? (
-                  <>
-                    <BlockClockDisplay
-                      currentBlock={blockClock.currentBlock}
-                      targetBlock={blockClock.targetBlock}
-                      progress={blockClock.progress}
-                      timeRemaining={blockClock.timeRemaining}
-                      blocksRemaining={blockClock.blocksRemaining}
-                    />
+                <h2 className="text-2xl font-bold text-center mb-2 font-display text-primary">
+                  Members
+                </h2>
+                <p className="text-sm text-center mb-6 text-muted-foreground">
+                  Sign in With
+                </p>
 
-                    {/* Email reminder */}
-                    <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(237, 86, 90, 0.15)' }}>
-                      <p className="font-mono text-[10px] opacity-60 tracking-widest uppercase mb-2" style={{ color: '#ed565a' }}>
-                        Get notified when signup opens
-                      </p>
-                      {!reminderSubmitted ? (
-                        <div className="flex gap-2">
-                          <Input
-                            type="email"
-                            placeholder="your@email.com"
-                            value={reminderEmail}
-                            onChange={(e) => setReminderEmail(e.target.value)}
-                            className="h-8 text-xs font-mono rounded"
-                            style={{ borderColor: 'rgba(237, 86, 90, 0.3)' }}
-                          />
-                          <Button
-                            onClick={handleReminderSubmit}
-                            size="sm"
-                            className="h-8 text-xs font-mono px-3 rounded"
-                            style={{ backgroundColor: '#ed565a', color: '#000' }}
-                          >
-                            Notify Me
-                          </Button>
-                        </div>
-                      ) : (
-                        <p className="font-mono text-[10px]" style={{ color: '#ed565a' }}>
-                          ✓ We'll email you when signup opens
-                        </p>
-                      )}
-                    </div>
-                  </>
-                ) : blockClock.state === "open" && !blockClock.loading ? (
-                  <>
-                    {/* 1-hour countdown timer integrated at top */}
-                    <div className="mb-5">
-                      <BlockClockTimer secondsRemaining={blockClock.signupWindowRemaining} />
-                    </div>
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => {
+                      sessionStorage.setItem("auth_intent", "returning_user");
+                      handleTwitterAuth("returning");
+                    }}
+                    className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
+                    variant="outline"
+                    disabled={loading || returningUserLoading || bluechipLoading}
+                  >
+                    {returningUserLoading ? "Authenticating..." : "Guest Listed Twitter"}
+                  </Button>
 
-                    <h2 className="text-2xl font-bold text-center mb-2 font-display text-primary">
-                      Members
-                    </h2>
-                    <p className="text-sm text-center mb-6 text-muted-foreground">
-                      Sign in With
-                    </p>
-
-                    <div className="space-y-3">
-                      <Button
-                        onClick={() => {
-                          sessionStorage.setItem("auth_intent", "returning_user");
-                          handleTwitterAuth("returning");
-                        }}
-                        className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
-                        variant="outline"
-                        disabled={loading || returningUserLoading || bluechipLoading}
-                      >
-                        {returningUserLoading ? "Authenticating..." : "Guest Listed Twitter"}
-                      </Button>
-
-                      <div className="wallet-button-wrapper w-full">
-                        <button disabled className="member-nft-button !h-14 !rounded-xl !font-medium !text-lg !w-full">
-                          <span className="default-text">Member NFT</span>
-                          <span className="hover-text">Free Mint Soon</span>
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                ) : blockClock.state === "closed" && !blockClock.loading ? (
-                  <div className="text-center py-4">
-                    <p className="font-mono text-sm" style={{ color: '#ed565a' }}>
-                      Signup window has closed
-                    </p>
-                    <p className="font-mono text-[10px] text-muted-foreground mt-2">
-                      The next signup period will be announced soon
-                    </p>
+                  <div className="wallet-button-wrapper w-full">
+                    <button disabled className="member-nft-button !h-14 !rounded-xl !font-medium !text-lg !w-full">
+                      <span className="default-text">Member NFT</span>
+                      <span className="hover-text">Free Mint Soon</span>
+                    </button>
                   </div>
-                ) : (
-                  <>
-                    <h2 className="text-2xl font-bold text-center mb-2 font-display text-primary">
-                      Members
-                    </h2>
-                    <p className="text-sm text-center mb-6 text-muted-foreground">
-                      Sign in With
-                    </p>
-
-                    <div className="space-y-3">
-                      <Button
-                        onClick={() => {
-                          sessionStorage.setItem("auth_intent", "returning_user");
-                          handleTwitterAuth("returning");
-                        }}
-                        className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
-                        variant="outline"
-                        disabled={loading || returningUserLoading || bluechipLoading}
-                      >
-                        {returningUserLoading ? "Authenticating..." : "Guest Listed Twitter"}
-                      </Button>
-
-                      <div className="wallet-button-wrapper w-full">
-                        <button disabled className="member-nft-button !h-14 !rounded-xl !font-medium !text-lg !w-full">
-                          <span className="default-text">Member NFT</span>
-                          <span className="hover-text">Free Mint Soon</span>
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
+                </div>
 
                 <p className="text-sm text-center mt-6 text-muted-foreground">
                   Not a member yet?{" "}

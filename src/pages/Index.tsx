@@ -142,7 +142,7 @@ const Index = () => {
               >
                 Aggregates{" "}
                 <span className="underline">
-                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color="#ffa6ff" />
+                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color="#ffa6ff" pauseDuration={5000} />
                 </span>{" "}
                 for{" "}
                 <span className="underline">

@@ -69,7 +69,7 @@ export const BlockClockDisplay = ({
       <div style={{ height: '1px', backgroundColor: 'rgba(237,86,90,0.2)', marginBottom: '12px' }} />
 
       {/* Percentage + time estimate row */}
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '6px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
         <p style={{ color: '#ed565a', fontSize: '15px', fontWeight: 500, margin: 0 }}>
           ≈ {formatTime(timeRemaining)} until unlock
         </p>

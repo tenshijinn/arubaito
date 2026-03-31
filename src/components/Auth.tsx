@@ -6,6 +6,9 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useBlockClock } from "@/hooks/useBlockClock";
+import { BlockClockDisplay } from "./BlockClockDisplay";
+import { BlockClockTimer } from "./BlockClockTimer";
 
 // Twitter OAuth callback handler - for root and arubaito paths
 if (typeof window !== "undefined") {
@@ -26,9 +29,23 @@ export const Auth = () => {
   const [password, setPassword] = useState("");
   const [returningUserLoading, setReturningUserLoading] = useState(false);
   const [bluechipLoading, setBluechipLoading] = useState(false);
+  const [reminderEmail, setReminderEmail] = useState("");
+  const [reminderSubmitted, setReminderSubmitted] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const twitterProcessingRef = useRef(false);
+  const blockClock = useBlockClock();
+
+  const handleReminderSubmit = async () => {
+    if (!reminderEmail) return;
+    try {
+      await supabase.from("block_clock_reminders" as any).insert({ email: reminderEmail } as any);
+      setReminderSubmitted(true);
+      toast({ title: "Reminder Set!", description: "We'll notify you when signup opens." });
+    } catch {
+      toast({ title: "Error", description: "Failed to save reminder", variant: "destructive" });
+    }
+  };
 
   // Handle Twitter OAuth callback
   useEffect(() => {
@@ -236,6 +253,71 @@ export const Auth = () => {
       {/* Left side — Auth content */}
       <div className="w-full lg:w-1/2 flex items-center justify-center px-6 md:px-16 py-12 lg:py-0">
         <div className="w-full max-w-md">
+          {/* Block Clock Gate - show countdown when signup is locked */}
+          {blockClock.state === "countdown" && !blockClock.loading && (mode === "main" || mode === "apply") && (
+            <div className="mb-6">
+              <BlockClockDisplay
+                currentBlock={blockClock.currentBlock}
+                targetBlock={blockClock.targetBlock}
+                progress={blockClock.progress}
+                timeRemaining={blockClock.timeRemaining}
+                blocksRemaining={blockClock.blocksRemaining}
+              />
+              <div className="mt-4 space-y-2">
+                <p className="font-mono text-[10px] opacity-60 tracking-widest uppercase" style={{ color: '#ed565a' }}>
+                  Get notified when signup opens
+                </p>
+                {!reminderSubmitted ? (
+                  <div className="flex gap-2">
+                    <Input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={reminderEmail}
+                      onChange={(e) => setReminderEmail(e.target.value)}
+                      className="h-8 text-xs font-mono rounded"
+                      style={{ borderColor: 'rgba(237, 86, 90, 0.3)' }}
+                    />
+                    <Button
+                      onClick={handleReminderSubmit}
+                      size="sm"
+                      className="h-8 text-xs font-mono px-3 rounded"
+                      style={{ backgroundColor: '#ed565a', color: '#000' }}
+                    >
+                      Notify Me
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="font-mono text-[10px]" style={{ color: '#ed565a' }}>
+                    ✓ We'll email you when signup opens
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Show signup window timer when open */}
+          {blockClock.state === "open" && !blockClock.loading && (
+            <div className="mb-6">
+              <BlockClockTimer secondsRemaining={blockClock.signupWindowRemaining} />
+            </div>
+          )}
+
+          {/* Closed state message */}
+          {blockClock.state === "closed" && !blockClock.loading && (mode === "main" || mode === "apply") && (
+            <div className="mb-6 text-center">
+              <div
+                className="font-mono text-sm p-4 rounded-lg border"
+                style={{
+                  color: '#ed565a',
+                  borderColor: 'rgba(237, 86, 90, 0.3)',
+                  backgroundColor: 'rgba(237, 86, 90, 0.05)',
+                }}
+              >
+                Signup window has closed
+              </div>
+            </div>
+          )}
+
           {/* Logo + tagline above card */}
           {(mode === "main" || mode === "apply") && (
             <div className="flex flex-col items-center mb-8">

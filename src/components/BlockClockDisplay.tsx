@@ -60,8 +60,8 @@ export const BlockClockDisplay = ({
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '6px' }}>
-        <h3 style={{ color: '#ed565a', fontSize: '20px', fontWeight: 600, letterSpacing: '0.02em', margin: 0 }}>
+      <div style={{ marginBottom: '6px' }}>
+        <h3 style={{ color: '#ed565a', fontSize: '20px', fontWeight: 600, letterSpacing: '0.02em', margin: '0 0 2px 0' }}>
           Club Waitlist
         </h3>
         <p style={{ color: 'rgba(237,86,90,0.55)', fontSize: '13px', fontWeight: 400, margin: 0 }}>

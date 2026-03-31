@@ -96,9 +96,6 @@ export const BlockClockDisplay = ({
         </span>
       </div>
 
-      {/* Time estimate */}
-      <p style={{ color: '#ed565a', fontSize: '15px', fontWeight: 500, margin: '0 0 20px 0' }}>
-        ≈ {formatTime(timeRemaining)} until unlock
       </p>
 
       {/* Bar visualization — equal height, thick, rounded */}

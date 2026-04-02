@@ -19,18 +19,14 @@ export const JoinReiHero = () => {
         <div className="pt-2">
           <h1 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-light text-primary leading-[1.15] tracking-tight">
             <TypewriterText 
-              text="Find Skilled Task Workers Who Care."
+              text={"Many TaskOn Users\nJust Farm and Leave.\nWe're Fixing That.\n"}
               speed={35}
               onComplete={() => setHeadlineComplete(true)}
             />
           </h1>
 
           <p className={`mt-6 text-base md:text-lg lg:text-xl text-primary/90 font-mono leading-relaxed transition-opacity duration-500 max-w-lg ${headlineComplete ? 'opacity-100' : 'opacity-0'}`}>
-            Rei{' '}
-            <span className="underline decoration-[0.5px] underline-offset-4">Promotes</span> and{' '}
-            <span className="underline decoration-[0.5px] underline-offset-4">Matches</span>{' '}
-            <span className="font-medium">Your Tasks</span> to Users with the{' '}
-            <span className="font-medium">Right Skills</span>
+            Rei Matches your tasks only to Twitter Verified Users who have declared their Skills
           </p>
         </div>
 

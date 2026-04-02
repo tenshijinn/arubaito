@@ -11,11 +11,11 @@ const JoinRei = () => {
   return (
     <div className="rei-theme h-screen overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-[#0a0a0a]">
       <JoinReiHero />
-      <JoinReiHowItWorks />
+      <JoinReiChatDemo />
       <JoinReiValueProp />
       <JoinReiAggregation />
       <JoinReiDemoSection />
-      <JoinReiChatDemo />
+      <JoinReiHowItWorks />
       <JoinReiReferral />
       <JoinReiPricing />
     </div>

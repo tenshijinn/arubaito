@@ -328,6 +328,29 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Section 0.3 - How it Works */}
+        <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden py-20" style={{ backgroundColor: '#0a0a0a' }}>
+          <div className="container mx-auto px-8 lg:px-16">
+            <h2 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] font-light text-center mb-16 font-mono" style={{ color: '#ed565a' }}>
+              How it works
+            </h2>
+            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              {[
+                { title: 'CV Profiles', subtitle: 'Verifying Talent with On-Chain Credentials' },
+                { title: 'Post Jobs', subtitle: 'Find Jobs from Web3\'s Bluechips' },
+                { title: 'Club Activities', subtitle: 'Events, Exclusive Partner Services.' },
+              ].map((step, index) => (
+                <div key={step.title} className="relative text-center flex flex-col items-center">
+                  <div className="p-8 border-[0.5px] border-white/10 rounded-2xl hover:bg-white/5 transition-colors w-full" style={{ backgroundColor: '#141414' }}>
+                    <h3 className="text-xl font-light font-mono mb-3" style={{ color: '#e8c4b8' }}>{step.title}</h3>
+                    <p className="text-sm font-mono opacity-60" style={{ color: '#e8c4b8' }}>{step.subtitle}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Section 0.5 - Club Members Slider */}
         <MemberSlider />
 

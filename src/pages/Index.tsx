@@ -342,8 +342,8 @@ const Index = () => {
               ].map((step, index) => (
                 <div key={step.title} className="relative text-center flex flex-col items-center">
                   <div className="p-8 border-[0.5px] border-white/10 rounded-2xl hover:bg-white/5 transition-colors w-full" style={{ backgroundColor: '#141414' }}>
-                    <h3 className="font-light font-mono mb-3 text-base text-primary" style={{ color: '#e8c4b8' }}>{step.title}</h3>
-                    <p className="text-sm font-mono opacity-60 text-secondary whitespace-pre-line" style={{ color: '#e8c4b8' }}>{step.subtitle}</p>
+                    <h3 className="font-light font-mono mb-3 text-base" style={{ color: '#ed565a' }}>{step.title}</h3>
+                    <p className="text-sm font-mono whitespace-pre-line" style={{ color: '#a33e41' }}>{step.subtitle}</p>
                   </div>
                 </div>
               ))}

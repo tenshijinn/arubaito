@@ -349,9 +349,9 @@ export const MemberSlider = () => {
         </div>
       </div>
 
-      {/* Title + Join button — right side, bottom-aligned with card */}
+      {/* Title + Join button — right side, vertically centered */}
       <div
-        className="hidden md:flex flex-col items-start gap-4"
+        className="hidden md:flex flex-col items-center justify-center gap-4"
       >
         <h2
           className="text-xl font-bold font-mono tracking-widest"

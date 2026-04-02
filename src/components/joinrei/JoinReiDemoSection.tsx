@@ -46,6 +46,17 @@ export const JoinReiDemoSection = () => {
             </ScrollFadeIn>
           ))}
         </div>
+
+        <ScrollFadeIn delay={500}>
+          <div className="flex justify-center mt-8">
+            <button 
+              className="btn-manga btn-manga-primary px-8 py-3"
+              onClick={() => window.location.href = '/rei'}
+            >
+              Promote Task
+            </button>
+          </div>
+        </ScrollFadeIn>
       </div>
     </section>
   );

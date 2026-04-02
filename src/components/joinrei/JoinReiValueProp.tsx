@@ -58,6 +58,15 @@ export const JoinReiValueProp = () => {
                 <span className="text-lg text-cream/80 font-mono">Matches Skills to Tasks</span>
               </div>
             </ScrollFadeIn>
+
+            <ScrollFadeIn delay={500}>
+              <button 
+                className="btn-manga btn-manga-primary px-8 py-3 mt-6"
+                onClick={() => window.location.href = '/rei'}
+              >
+                Promote Task
+              </button>
+            </ScrollFadeIn>
           </div>
         </div>
 

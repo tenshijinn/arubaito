@@ -22,6 +22,15 @@ export const JoinReiReferral = () => {
             className="h-40 w-auto object-contain"
           />
         </ScrollFadeIn>
+
+        <ScrollFadeIn delay={300}>
+          <button 
+            className="btn-manga btn-manga-primary px-8 py-3 mt-6"
+            onClick={() => window.location.href = '/rei'}
+          >
+            Promote Task
+          </button>
+        </ScrollFadeIn>
       </div>
 
       {/* Right Video Panel */}

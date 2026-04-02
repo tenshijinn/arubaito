@@ -28,8 +28,9 @@ export const JoinReiHero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const scrollToNext = () => {
-    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+  const scrollToHowToUse = () => {
+    const el = document.getElementById('how-to-use');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (

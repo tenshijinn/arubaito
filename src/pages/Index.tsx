@@ -336,14 +336,14 @@ const Index = () => {
             </h2>
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               {[
-                { title: 'CV Profiles', subtitle: 'Verifying Talent with On-Chain Credentials' },
+                { title: 'CV Profiles', subtitle: 'Verifying Credentials On-Chain' },
                 { title: 'Post Jobs', subtitle: 'Find Jobs from Web3\'s Bluechips' },
-                { title: 'Club Activities', subtitle: 'Events, Exclusive Partner Services.' },
+                { title: 'Club Activities', subtitle: 'Events, Partner Services.' },
               ].map((step, index) => (
                 <div key={step.title} className="relative text-center flex flex-col items-center">
                   <div className="p-8 border-[0.5px] border-white/10 rounded-2xl hover:bg-white/5 transition-colors w-full" style={{ backgroundColor: '#141414' }}>
-                    <h3 className="text-xl font-light font-mono mb-3" style={{ color: '#e8c4b8' }}>{step.title}</h3>
-                    <p className="text-sm font-mono opacity-60" style={{ color: '#e8c4b8' }}>{step.subtitle}</p>
+                    <h3 className="font-light font-mono mb-3 text-base" style={{ color: '#e8c4b8' }}>{step.title}</h3>
+                    <p className="text-sm font-mono opacity-60 text-primary" style={{ color: '#e8c4b8' }}>{step.subtitle}</p>
                   </div>
                 </div>
               ))}

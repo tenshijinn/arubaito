@@ -382,17 +382,17 @@ const Index = () => {
             >
               <div className="flex items-start gap-2">
                 <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Bluechip X Verification</span>
+                <span>Guest List</span>
               </div>
 
               <div className="flex items-start gap-2">
                 <img src={clubUspNft} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Buy a Member NFT</span>
+                <span>Membership NFT</span>
               </div>
 
               <div className="flex items-start gap-2">
                 <img src={clubUspCv} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>80+ Score on CV Profile</span>
+                <span>CV Profile Score 80+</span>
               </div>
             </div>
 

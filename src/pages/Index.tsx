@@ -298,7 +298,7 @@ const Index = () => {
         )}
         {/* Section 0 - Video Hero */}
         <VideoHeroSection
-          onScrollDown={() => document.getElementById("how-club-works")?.scrollIntoView({ behavior: "smooth" })}
+          onScrollDown={() => document.getElementById("manifesto-section")?.scrollIntoView({ behavior: "smooth" })}
         />
 
         {/* Section 0.25 - Manifesto */}

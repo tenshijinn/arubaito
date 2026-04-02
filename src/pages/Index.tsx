@@ -357,59 +357,51 @@ const Index = () => {
         {/* Section 1 - How the Club Works */}
         <div
           id="how-club-works"
-          className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
+          className="h-screen flex-shrink-0 relative flex flex-col items-center justify-center snap-start overflow-hidden"
         >
-          <h2 className="text-xl font-bold mb-8 font-mono tracking-widest" style={{ color: "#ed565a" }}>
-            How To Join The Club
-          </h2>
+          {/* Full-screen ASCII background */}
+          <iframe
+            src="/ascii/arubaito.html"
+            className="absolute inset-0 w-full h-full border-0"
+            style={{ backgroundColor: "transparent", zIndex: 0 }}
+            title="Arubaito ASCII Art"
+          />
 
-          <div className="max-w-md mx-auto">
-            {/* Arubaito ASCII Art Block */}
-            <iframe
-              src="/ascii/arubaito.html"
-              className="w-full aspect-square mb-6 border-0"
-              style={{
-                backgroundColor: "transparent",
-              }}
-              title="Arubaito ASCII Art"
-            />
+          {/* Content overlay */}
+          <div className="relative z-10 flex flex-col items-center justify-center px-8">
+            <h2 className="text-xl font-bold mb-8 font-mono tracking-widest" style={{ color: "#ed565a" }}>
+              How To Join The Club
+            </h2>
 
-            <div
-              className="grid grid-cols-2 gap-x-6 gap-y-3 font-mono text-left text-xs leading-tight mb-6"
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+              {[
+                { icon: reiUspX, label: 'Guest List' },
+                { icon: clubUspNft, label: 'Membership NFT' },
+                { icon: clubUspCv, label: 'CV Profile Score 80+' },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full font-mono text-xs"
+                  style={{ backgroundColor: '#181818', color: '#ed565a' }}
+                >
+                  <img src={item.icon} alt="" className="w-4 h-4 flex-shrink-0" />
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <Button
+              onClick={() => navigate("/arubaito")}
+              size="sm"
+              variant="outline"
+              className="font-mono text-xs bg-transparent border"
               style={{
+                borderColor: "#ed565a",
                 color: "#ed565a",
               }}
             >
-              <div className="flex items-start gap-2">
-                <img src={reiUspX} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Guest List</span>
-              </div>
-
-              <div className="flex items-start gap-2">
-                <img src={clubUspNft} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Membership NFT</span>
-              </div>
-
-              <div className="flex items-start gap-2">
-                <img src={clubUspCv} alt="" className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>CV Profile Score 80+</span>
-              </div>
-            </div>
-
-            <div className="flex justify-center">
-              <Button
-                onClick={() => navigate("/arubaito")}
-                size="sm"
-                variant="outline"
-                className="font-mono text-xs bg-transparent border"
-                style={{
-                  borderColor: "#ed565a",
-                  color: "#ed565a",
-                }}
-              >
-                Join Waitlist
-              </Button>
-            </div>
+              Join Waitlist
+            </Button>
           </div>
         </div>
 

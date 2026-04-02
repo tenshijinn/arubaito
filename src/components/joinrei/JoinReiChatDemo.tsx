@@ -5,7 +5,7 @@ const chatMessages = [
   { role: 'rei', text: 'Hey! I found a task that matches your skills. Interested?' },
   { role: 'talent', text: 'What is it?' },
   { role: 'rei', text: 'Community activation for a DAO. Short scope. Paid in SOL.' },
-  { role: 'talent', text: 'I'm in. Send me the details.' },
+  { role: 'talent', text: "I'm in. Send me the details." },
 ];
 
 export const JoinReiChatDemo = () => {

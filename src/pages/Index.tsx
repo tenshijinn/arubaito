@@ -306,36 +306,12 @@ const Index = () => {
           style={{ backgroundColor: '#181818' }}
         >
           <div className="max-w-lg" style={{ color: '#ed565a', textAlign: 'justify' }}>
-            <p className="font-mono text-xs md:text-sm leading-relaxed">
-              Arubaito is a private members network club.
+            <p className="font-mono text-xs leading-relaxed text-justify md:text-lg">
+              We've built an environment for teams to do meaningful work
+              <br />
+              ...because crypto is hope.
               <br /><br />
-              We've built an environment for teams to do <strong>meaning</strong>ful work
-              <br /><br />
-              ...because crypto is <strong>hope</strong>.
-              <br /><br />
-              On the outside crypto looks like preposterous perps,
-              <br /><br />
-              memes with misdemeanours, prediction market moguls and
-              <br /><br />
-              rehypothicated token yield that makes 2008's MBS wrappers
-              <br /><br />
-              look like chewing gum wrappers..
-              <br /><br />
-              But the truth is, all the madness are merely expressions of freedom
-              <br /><br />
-              thanks to an economy born out of open blockchain finance.
-              <br /><br />
-              The <strong>hope</strong> for the daughter of a farmer in a remote Filipino village
-              <br /><br />
-              can access the same yield as a Quant in a NYC skyscraper.
-              <br /><br />
-              Crypto's immutable rules means we can finally build societies
-              <br /><br />
-              on unshifting standards immune from regime shifts, insiders or majority holders.
-              <br /><br />
-              Helping builders in the crypto industry is what gives us <strong>meaning</strong>.
-              <br /><br />
-              We built Arubaito to support teams who are doing <strong>meaning</strong>ful work.
+              On the outside crypto looks like preposterous perps, memes with misdemeanours, prediction market moguls and rehypothicated token yield that makes 2008's MBS wrappers look like chewing gum wrappers. But the truth is, all the madness are merely expressions of freedom thanks to an economy born out of open blockchain finance. The hope for the daughter of a farmer in a remote Filipino village can access the same yield as a Quant in a NYC skyscraper. Crypto's immutable rules means we can finally build societies on unshifting standards immune from regime shifts, insiders or majority holders. Helping builders in the crypto industry is what gives us meaning. We built Arubaito to support teams who are doing meaningful work.
             </p>
           </div>
         </div>

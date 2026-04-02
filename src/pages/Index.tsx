@@ -23,6 +23,7 @@ import meaningfulBg from "@/assets/meaningful-bg-final.png";
 const Index = () => {
   const navigate = useNavigate();
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
+  const [showManifesto, setShowManifesto] = useState(false);
   const tasksWords = ["Tasks", "Gigs", "Bounties"];
   const humansWords = ["AI", "Humans"];
   const companies = [

@@ -1,62 +1,55 @@
 
 
-## Plan: Block Clock UI Improvements + Reminder Email System
+## Plan: Add Manifesto Parallax Section
 
-### Summary
+### What
+Add a new full-screen snap-scroll section in the 2nd position of the right column (between Video Hero and Club Members Slider), with a black `#181818` background and the manifesto text centered, justified, with 'hope' and 'meaning' bolded, all text in `#ed565a`.
 
-Three changes: (1) move the progress percentage to the right of the bar chart, (2) reclaim vertical space by tightening layout, (3) add a "Send Reminder" button with inline email form that also triggers automatic reminder emails when the signup window opens.
+### Changes
 
----
+**`src/pages/Index.tsx`** — Insert a new section between `VideoHeroSection` (line 299-301) and `MemberSlider` (line 304):
 
-### 1. Move % to the right of the progress bar
+```tsx
+{/* Section 0.25 - Manifesto */}
+<div
+  className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-16 lg:px-20 snap-start"
+  style={{ backgroundColor: '#181818' }}
+>
+  <div className="max-w-lg" style={{ color: '#ed565a', textAlign: 'justify' }}>
+    <p className="font-mono text-xs md:text-sm leading-relaxed">
+      Arubaito is a private members network club.
+      <br /><br />
+      We've built an environment for teams to do <strong>meaning</strong>ful work
+      <br /><br />
+      ...because crypto is <strong>hope</strong>.
+      <br /><br />
+      On the outside crypto looks like preposterous perps,
+      <br /><br />
+      memes with misdemeanours, prediction market moguls and
+      <br /><br />
+      rehypothicated token yield that makes 2008's MBS wrappers
+      <br /><br />
+      look like chewing gum wrappers..
+      <br /><br />
+      But the truth is, all the madness are merely expressions of freedom
+      <br /><br />
+      thanks to an economy born out of open blockchain finance.
+      <br /><br />
+      The <strong>hope</strong> for the daughter of a farmer in a remote Filipino village
+      <br /><br />
+      can access the same yield as a Quant in a NYC skyscraper.
+      <br /><br />
+      Crypto's immutable rules means we can finally build societies
+      <br /><br />
+      on unshifting standards immune from regime shifts, insiders or majority holders.
+      <br /><br />
+      Helping builders in the crypto industry is what gives us <strong>meaning</strong>.
+      <br /><br />
+      We built Arubaito to support teams who are doing <strong>meaning</strong>ful work.
+    </p>
+  </div>
+</div>
+```
 
-**BlockClockDisplay.tsx** — Replace the separate percentage section and bar section with a single flex row:
-- Left: the 36 progress bars (flex: 1)
-- Right: the `{progress}%` number, fixed width (~60px to fit "100%"), vertically centered
-
-Remove the standalone percentage `<div>` that currently sits above the bars. Move the combined pill (blocks remaining | time) up into the space freed.
-
-### 2. Tighten vertical spacing
-
-With the percentage no longer above the bars, shift the pill and other elements upward so spacing is even between: header → divider → pill → bar+% → reminder button.
-
-### 3. "Send Reminder" button + dropdown
-
-**BlockClockDisplay.tsx**:
-- Add a new prop `onReminderSubmit?: (email: string) => Promise<void>` and `reminderSubmitted?: boolean`
-- Below the bar chart, render a "Send Reminder" button styled in the coral theme
-- On click, toggle an inline dropdown (within the card) showing an email input + "Send" button
-- On submit, call `onReminderSubmit`
-
-**Auth.tsx**:
-- Pass `onReminderSubmit={handleReminderSubmit}` and `reminderSubmitted` to `BlockClockDisplay`
-- The existing `handleReminderSubmit` already inserts into `block_clock_reminders`
-
-### 4. Automatic reminder emails when signup opens
-
-**Database**: The `block_clock_reminders` table already has email + notified columns — no schema changes needed.
-
-**Edge function** `send-block-clock-reminders/index.ts`:
-- Query `block_clock_reminders` where `notified = false`
-- Cross-reference against `twitter_whitelist` (existing members) — skip any email that belongs to a member
-- For each non-member reminder, send an email via Resend (already configured) notifying them the signup window is open
-- Mark `notified = true` after sending
-- Called by the `check-block-clock` edge function when state transitions to "open"
-
-**Modify `check-block-clock/index.ts`**:
-- When the block clock state transitions to "open", invoke `send-block-clock-reminders` to trigger the batch notification
-
----
-
-### Technical Details
-
-**Files to create:**
-- `supabase/functions/send-block-clock-reminders/index.ts`
-
-**Files to modify:**
-- `src/components/BlockClockDisplay.tsx` — layout restructure + reminder UI
-- `src/components/Auth.tsx` — pass reminder props
-- `supabase/functions/check-block-clock/index.ts` — trigger reminders on state change
-
-**No database migrations needed** — `block_clock_reminders` table with `notified` column already exists.
+Single file change, no new components needed.
 

@@ -303,6 +303,7 @@ const Index = () => {
 
         {/* Section 0.25 - Manifesto */}
         <div
+          id="manifesto-section"
           className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-16 lg:px-20 snap-start"
           style={{ backgroundColor: '#181818' }}
         >

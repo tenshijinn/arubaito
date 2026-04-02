@@ -28,7 +28,7 @@ export const VideoHeroSection = ({ onScrollDown }: VideoHeroSectionProps) => {
                    animate-bounce flex flex-col items-center gap-1"
         aria-label="Scroll down"
       >
-        <span className="text-xs font-mono tracking-widest">How Arubaito Works</span>
+        <span className="text-xs font-mono tracking-widest">What is Arubaito</span>
         <ChevronDown className="w-8 h-8" />
       </button>
     </div>

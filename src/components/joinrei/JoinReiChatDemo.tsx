@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { ScrollFadeIn } from './ScrollFadeIn';
-import { Eye } from 'lucide-react';
 
 const chatMessages = [
-  { role: 'talent', text: 'Yes. A task matching your skills just opened.' },
-  { role: 'rei', text: 'Community activation for a DAO. Short scope. Paid in SOL.' },
+  { role: 'rei', text: 'Hey! I found a task that matches your skills. Interested?' },
   { role: 'talent', text: 'What is it?' },
-  { role: 'talent', text: 'Community activation for a DAO. Short scope. Paid in SOL.' },
+  { role: 'rei', text: 'Community activation for a DAO. Short scope. Paid in SOL.' },
+  { role: 'talent', text: 'I'm in. Send me the details.' },
 ];
 
 export const JoinReiChatDemo = () => {
@@ -76,14 +75,13 @@ export const JoinReiChatDemo = () => {
               </div>
             </div>
 
-            {/* Post Task CTA */}
+            {/* Promote Task CTA */}
             <div className="mt-8 flex justify-center">
               <button 
                 className="btn-manga btn-manga-primary flex items-center gap-3 px-8 py-3"
                 onClick={() => window.location.href = '/rei'}
               >
-                <Eye className="h-5 w-5" />
-                Post Task
+                Promote Task
               </button>
             </div>
           </div>

@@ -52,27 +52,26 @@ export const JoinReiHero = () => {
             <span>We're Fixing That.</span>
           </h1>
 
-          <p className={`mt-6 text-base md:text-lg lg:text-xl text-primary/90 font-mono leading-relaxed transition-opacity duration-500 max-w-lg ${headlineComplete ? 'opacity-100' : 'opacity-0'}`}>
-            Rei Matches your tasks only to Twitter Verified Users who have declared their Skills
+          <p className={`mt-6 text-sm md:text-base text-primary/90 font-mono leading-relaxed transition-opacity duration-500 max-w-lg ${headlineComplete ? 'opacity-100' : 'opacity-0'}`}>
+            Rei is a Chatbot & AI Agent that promotes your tasks to 'Twitter Verified' and 'Skill Verified' Users.
           </p>
         </div>
 
-        <div className={`space-y-6 transition-all duration-500 delay-300 ${headlineComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          <button 
-            onClick={scrollToNext}
-            className="flex items-center gap-2 text-primary/70 hover:text-primary font-mono text-sm underline underline-offset-4 transition-colors cursor-pointer"
-          >
-            <ChevronDown className="h-4 w-4" />
-            <span>Learn More</span>
-            <ChevronDown className="h-4 w-4" />
-          </button>
-
+        <div className={`transition-all duration-500 delay-300 ${headlineComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <div className="flex items-center gap-6 flex-wrap">
             <button 
               className="btn-manga btn-manga-outline"
               onClick={() => window.location.href = '/rei'}
             >
-              Post Now
+              Promote Task
+            </button>
+            <button 
+              onClick={scrollToNext}
+              className="flex items-center gap-2 text-primary/70 hover:text-primary font-mono text-sm underline underline-offset-4 transition-colors cursor-pointer"
+            >
+              <ChevronDown className="h-4 w-4" />
+              <span>Learn More</span>
+              <ChevronDown className="h-4 w-4" />
             </button>
           </div>
         </div>

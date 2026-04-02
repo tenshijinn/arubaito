@@ -99,7 +99,7 @@ export const MemberSlider = () => {
         }}
       />
 
-      <div className="flex items-end gap-10 z-10">
+      <div className="flex flex-col md:flex-row items-center gap-10 z-10">
       <div className="relative w-full max-w-[320px]">
 
         {/* Nav arrows */}
@@ -349,9 +349,9 @@ export const MemberSlider = () => {
         </div>
       </div>
 
-      {/* Title + Join button — right side, bottom-aligned with card */}
+      {/* Title + Join button — right side, vertically centered */}
       <div
-        className="hidden md:flex flex-col items-start gap-4"
+        className="hidden md:flex flex-col items-center justify-center gap-4"
       >
         <h2
           className="text-xl font-bold font-mono tracking-widest"

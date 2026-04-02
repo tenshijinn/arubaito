@@ -19,7 +19,7 @@ export const JoinReiHero = () => {
         <div className="pt-2">
           <h1 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-light text-primary leading-[1.15] tracking-tight whitespace-pre-line">
             <TypewriterText 
-              text={`Many TaskOn Users\nJust Farm and Leave.\nWe're Fixing That.\n`}
+              text={`Many TaskOn Users, Just Farm and Leave.\nWe're Fixing That.\n`}
               speed={35}
               onComplete={() => setHeadlineComplete(true)}
             />

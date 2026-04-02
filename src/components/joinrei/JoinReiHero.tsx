@@ -37,12 +37,19 @@ export const JoinReiHero = () => {
       {/* Left Content Panel */}
       <div className="w-full lg:w-[45%] h-full flex flex-col justify-between p-8 lg:p-12 xl:p-16 relative z-10">
         <div className="pt-2">
-          <h1 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-light text-primary leading-[1.15] tracking-tight whitespace-pre-line">
-            <TypewriterText 
-              text="Many TaskOn Users\nJust Farm and Leave\nWe're Fixing That."
-              speed={35}
-              onComplete={() => setHeadlineComplete(true)}
-            />
+          <h1 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-light text-primary leading-[1.15] tracking-tight">
+            <span>Many </span>
+            <span 
+              className={`inline-block transition-opacity duration-300 ${fade ? 'opacity-100' : 'opacity-0'}`}
+              style={{ minWidth: '4ch' }}
+            >
+              {platforms[platformIndex]}
+            </span>
+            <span> Users</span>
+            <br />
+            <span>Just Farm and Leave,</span>
+            <br />
+            <span>We're Fixing That.</span>
           </h1>
 
           <p className={`mt-6 text-base md:text-lg lg:text-xl text-primary/90 font-mono leading-relaxed transition-opacity duration-500 max-w-lg ${headlineComplete ? 'opacity-100' : 'opacity-0'}`}>

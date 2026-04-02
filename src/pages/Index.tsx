@@ -323,6 +323,7 @@ const Index = () => {
                   <span>{"On the outside crypto looks like preposterous perps, memes with misdemeanours, prediction market moguls and rehypothicated token yield that makes 2008's MBS wrappers look like chewing gum wrappers. But the truth is, all the madness are merely expressions of freedom thanks to an economy born out of open blockchain finance. The "}<strong>{"hope"}</strong>{" for the daughter of a farmer in a remote Filipino village can access the same yield as a Quant in a NYC skyscraper. Crypto's immutable rules means we can finally build societies on unshifting standards immune from regime shifts, insiders or majority holders. Helping builders in the crypto industry is what gives us "}<strong>{"meaning"}</strong>{". We built Arubaito to support teams who are doing "}<strong>{"meaning"}</strong>{"ful work."}</span>
                 </>
               )}
+            </div>
           </div>
         </div>
 

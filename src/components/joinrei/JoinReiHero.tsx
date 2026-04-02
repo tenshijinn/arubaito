@@ -28,8 +28,9 @@ export const JoinReiHero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const scrollToNext = () => {
-    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+  const scrollToHowToUse = () => {
+    const el = document.getElementById('how-to-use');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -66,7 +67,7 @@ export const JoinReiHero = () => {
               Promote Task
             </button>
             <button 
-              onClick={scrollToNext}
+              onClick={scrollToHowToUse}
               className="flex items-center gap-2 text-primary/70 hover:text-primary font-mono text-sm underline underline-offset-4 transition-colors cursor-pointer"
             >
               <ChevronDown className="h-4 w-4" />

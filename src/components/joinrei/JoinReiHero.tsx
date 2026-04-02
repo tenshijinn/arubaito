@@ -1,12 +1,32 @@
-import { useState } from 'react';
-import { TypewriterText } from './TypewriterText';
+import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import reiHero from '@/assets/joinrei/rei-hero.png';
 import ignyteAward from '@/assets/joinrei/awards2.png';
 import reiSpeechBubble from '@/assets/joinrei/rei-speech-bubble.gif';
 
+const platforms = ['Zealy', 'Layer3', 'QuestN', 'TaskOn', 'Crew3', 'Bounty0x', 'Dework', 'RabbitHole'];
+
 export const JoinReiHero = () => {
   const [headlineComplete, setHeadlineComplete] = useState(false);
+  const [platformIndex, setPlatformIndex] = useState(0);
+  const [fade, setFade] = useState(true);
+
+  useEffect(() => {
+    // Simulate typewriter completion after a short delay
+    const timer = setTimeout(() => setHeadlineComplete(true), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(false);
+      setTimeout(() => {
+        setPlatformIndex((prev) => (prev + 1) % platforms.length);
+        setFade(true);
+      }, 300);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const scrollToNext = () => {
     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });

@@ -360,7 +360,7 @@ const Index = () => {
           className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
         >
           <h2 className="text-xl font-bold mb-8 font-mono tracking-widest" style={{ color: "#ed565a" }}>
-            3 Ways to Join The Club
+            How To Join The Club
           </h2>
 
           <div className="max-w-md mx-auto">

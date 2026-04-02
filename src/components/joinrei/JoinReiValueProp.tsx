@@ -4,9 +4,9 @@ import reiCrossPlatform from '@/assets/joinrei/rei-cross-platform.png';
 export const JoinReiValueProp = () => {
   return (
     <section className="min-h-screen snap-start relative flex items-center overflow-hidden bg-[#0a0a0a]">
-      <div className="container mx-auto px-8 lg:px-16 grid lg:grid-cols-2 gap-12 items-center">
+      <div className="grid lg:grid-cols-2 gap-0 items-center w-full">
         {/* Left: Image */}
-        <div className="hidden lg:block order-1 relative h-[80vh]">
+        <div className="hidden lg:block order-1 relative h-screen">
           <img 
             src={reiCrossPlatform}
             alt="Rei cross-platform exposure"
@@ -15,7 +15,7 @@ export const JoinReiValueProp = () => {
         </div>
 
         {/* Right: Content */}
-        <div className="space-y-6 order-2">
+        <div className="space-y-6 order-2 px-8 lg:px-16">
           <ScrollFadeIn>
             <h2 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] font-light text-primary leading-[1.2]">
               Cross platform exposure.
@@ -23,13 +23,13 @@ export const JoinReiValueProp = () => {
           </ScrollFadeIn>
 
           <ScrollFadeIn delay={100}>
-            <p className="text-sm md:text-base font-mono text-cream/70 leading-relaxed">
+            <p className="text-sm md:text-base font-mono text-primary/70 leading-relaxed">
               Your tasks will get exposure to cross-platform traffic through Rei.
             </p>
           </ScrollFadeIn>
 
           <ScrollFadeIn delay={200}>
-            <blockquote className="text-xs md:text-sm font-mono text-cream/50 leading-relaxed border-l border-primary/30 pl-4 italic">
+            <blockquote className="text-xs md:text-sm font-mono text-primary/50 leading-relaxed border-l border-primary/30 pl-4 italic">
               "A user who only uses Zealy may be matched
               to your Task on QuestN, meaning your tasks
               and community is now exposed to the

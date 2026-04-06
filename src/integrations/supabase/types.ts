@@ -199,6 +199,42 @@ export type Database = {
         }
         Relationships: []
       }
+      club_verifications: {
+        Row: {
+          bluechip_verified: boolean | null
+          created_at: string | null
+          cv_score: number | null
+          display_name: string | null
+          id: string
+          updated_at: string | null
+          user_id: string | null
+          verified: boolean | null
+          wallet_address: string
+        }
+        Insert: {
+          bluechip_verified?: boolean | null
+          created_at?: string | null
+          cv_score?: number | null
+          display_name?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+          verified?: boolean | null
+          wallet_address: string
+        }
+        Update: {
+          bluechip_verified?: boolean | null
+          created_at?: string | null
+          cv_score?: number | null
+          display_name?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+          verified?: boolean | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       community_submissions: {
         Row: {
           compensation: string | null

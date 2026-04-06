@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
       currentBlock = config.start_block + Math.floor(elapsedMs / 400)
     }
 
-    const targetBlock = Number(config.start_block) + Number(config.target_blocks)
+    let targetBlock = Number(config.start_block) + Number(config.target_blocks)
     const isTargetReached = currentBlock >= targetBlock
 
     // If target reached and not yet unlocked, trigger unlock
@@ -88,6 +88,42 @@ Deno.serve(async (req) => {
       const unlockTime = new Date(config.unlocked_at).getTime()
       const windowEnd = unlockTime + config.signup_window_minutes * 60 * 1000
       isOpen = Date.now() < windowEnd
+    }
+
+    // Auto-reset: if unlocked but window has expired, start a new cycle
+    if (config.is_unlocked && !isOpen) {
+      console.log(`Window expired. Resetting block clock. New start_block: ${currentBlock}`)
+      await supabase
+        .from('block_clock_config')
+        .update({
+          is_unlocked: false,
+          unlocked_at: null,
+          start_block: currentBlock,
+          start_timestamp: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', 1)
+
+      // Recalculate with fresh values
+      targetBlock = currentBlock + Number(config.target_blocks)
+
+      return new Response(
+        JSON.stringify({
+          currentBlock,
+          targetBlock,
+          startBlock: currentBlock,
+          targetBlocks: Number(config.target_blocks),
+          startTimestamp: new Date().toISOString(),
+          isUnlocked: false,
+          unlockedAt: null,
+          signupWindowMinutes: config.signup_window_minutes,
+          isOpen: false,
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      )
     }
 
     return new Response(

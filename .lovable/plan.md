@@ -1,48 +1,71 @@
 
 
-## Periodic Block Clock Reset
+## Decouple Rei from Arubaito
 
-Confirmed: after the signup window closes, the system will snapshot the **current Solana slot** at that moment and count 1,000,000 blocks forward from there. Each cycle is fresh — no relation to the old start block.
+### Problem
+Arubaito code directly reads/writes to `rei_registry` in 4 places, creating tight coupling that must be broken before separation.
 
-### Flow
+### Coupling Points Found
 
-```text
-[Countdown from current block] → +1M blocks → [Open 1hr] → window expires →
-  reset start_block = current Solana slot → [Countdown +1M blocks] → ...
-```
+| File | What it does with `rei_registry` | Severity |
+|------|--------------------------------|----------|
+| `CVProfileDisplay.tsx` | Upserts into `rei_registry` when CV score ≥ 80 | **Critical** — Arubaito writing to Rei data |
+| `CVAnalysis.tsx` | Same upsert logic (duplicate) | **Critical** |
+| `Club.tsx` | Reads `rei_registry` for NFT holder check + profile data | **High** — Arubaito reading Rei data |
+| `AdminReiRegistrySection.tsx` | Full CRUD on `rei_registry` | **Medium** — Admin panel, will move with Rei |
 
-### Changes
+### Plan
 
-**1. Edge function `supabase/functions/check-block-clock/index.ts`**
+**1. Remove `rei_registry` writes from CV flow**
 
-After the existing block that checks `isOpen`, add auto-reset logic:
+In both `CVProfileDisplay.tsx` and `CVAnalysis.tsx`:
+- Remove the entire `rei_registry` upsert block
+- Keep the club qualification check but use a new Arubaito-owned table `club_verifications` instead
+- Create `club_verifications` table: `id, wallet_address (unique), user_id, display_name, verified, cv_score, bluechip_verified, created_at, updated_at`
+- Write to `club_verifications` instead of `rei_registry`
 
-- If `config.is_unlocked === true` AND `isOpen === false` (window expired):
-  - Update `block_clock_config` row:
-    - `start_block = currentBlock` (live Solana slot)
-    - `start_timestamp = now()`
-    - `is_unlocked = false`
-    - `unlocked_at = NULL`
-  - Recalculate `targetBlock = currentBlock + target_blocks`
-  - Return countdown state with fresh values
+**2. Decouple Club.tsx from `rei_registry`**
 
-**2. One-time data fix via insert tool**
+- Replace the NFT holder check (which queries `rei_registry`) with a check against `club_verifications`
+- For the twitter whitelist path, stop fetching supplementary data from `rei_registry` — use session metadata instead
+- Club membership becomes: twitter_whitelist OR club_verifications entry
 
-Reset the currently stuck config row so it immediately enters a new countdown cycle:
+**3. Create `club_verifications` migration**
 
 ```sql
-UPDATE block_clock_config
-SET is_unlocked = false,
-    unlocked_at = NULL,
-    start_block = 411442269,
-    start_timestamp = now(),
-    updated_at = now()
-WHERE id = 1;
+CREATE TABLE public.club_verifications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  wallet_address text UNIQUE NOT NULL,
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+  display_name text,
+  verified boolean DEFAULT true,
+  cv_score numeric,
+  bluechip_verified boolean DEFAULT false,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.club_verifications ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own verification" ON club_verifications
+  FOR SELECT TO authenticated USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own verification" ON club_verifications
+  FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Service role full access" ON club_verifications
+  FOR ALL USING (auth.role() = 'service_role');
 ```
 
-(Uses approximate current Solana slot; the edge function will correct it on next call.)
+**4. Identify Rei-only files** (no changes needed now, just catalogued for the physical move later)
 
-**3. No frontend changes needed**
+- Pages: `Rei.tsx`, `JoinRei.tsx`
+- Components: `ReiChatbot.tsx`, `PostToRei.tsx`, `ReiEarningsHub.tsx`, `ReiPointsCard.tsx`, `components/joinrei/*`
+- Admin: `AdminReiRegistrySection.tsx` (moves with Rei)
+- Edge functions: `rei-chat`, `submit-rei-registration`, `check-rei-registration`, `analyze-rei-profile`, `match-jobs-to-talent`, `match-talent-to-jobs`, `search-jobs`, `oracle-tweet-tracker`
+- Tables: `rei_registry`, `rei_treasury_wallet`, `chat_conversations`, `chat_messages`, `jobs`, `job_drafts`, `job_sources`, `tasks`, `task_drafts`, `talent_views`, `skill_categories`, `community_submissions`
 
-The `useBlockClock` hook already handles the countdown state correctly when the edge function returns `isUnlocked = false` with blocks remaining.
+### Summary
+
+3 files edited, 1 new table created, 0 Rei files touched. After this, Arubaito has zero references to `rei_registry` and the two apps are data-independent.
 

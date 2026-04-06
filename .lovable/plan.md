@@ -1,55 +1,48 @@
 
 
-## Plan: Add Manifesto Parallax Section
+## Periodic Block Clock Reset
 
-### What
-Add a new full-screen snap-scroll section in the 2nd position of the right column (between Video Hero and Club Members Slider), with a black `#181818` background and the manifesto text centered, justified, with 'hope' and 'meaning' bolded, all text in `#ed565a`.
+Confirmed: after the signup window closes, the system will snapshot the **current Solana slot** at that moment and count 1,000,000 blocks forward from there. Each cycle is fresh — no relation to the old start block.
+
+### Flow
+
+```text
+[Countdown from current block] → +1M blocks → [Open 1hr] → window expires →
+  reset start_block = current Solana slot → [Countdown +1M blocks] → ...
+```
 
 ### Changes
 
-**`src/pages/Index.tsx`** — Insert a new section between `VideoHeroSection` (line 299-301) and `MemberSlider` (line 304):
+**1. Edge function `supabase/functions/check-block-clock/index.ts`**
 
-```tsx
-{/* Section 0.25 - Manifesto */}
-<div
-  className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-16 lg:px-20 snap-start"
-  style={{ backgroundColor: '#181818' }}
->
-  <div className="max-w-lg" style={{ color: '#ed565a', textAlign: 'justify' }}>
-    <p className="font-mono text-xs md:text-sm leading-relaxed">
-      Arubaito is a private members network club.
-      <br /><br />
-      We've built an environment for teams to do <strong>meaning</strong>ful work
-      <br /><br />
-      ...because crypto is <strong>hope</strong>.
-      <br /><br />
-      On the outside crypto looks like preposterous perps,
-      <br /><br />
-      memes with misdemeanours, prediction market moguls and
-      <br /><br />
-      rehypothicated token yield that makes 2008's MBS wrappers
-      <br /><br />
-      look like chewing gum wrappers..
-      <br /><br />
-      But the truth is, all the madness are merely expressions of freedom
-      <br /><br />
-      thanks to an economy born out of open blockchain finance.
-      <br /><br />
-      The <strong>hope</strong> for the daughter of a farmer in a remote Filipino village
-      <br /><br />
-      can access the same yield as a Quant in a NYC skyscraper.
-      <br /><br />
-      Crypto's immutable rules means we can finally build societies
-      <br /><br />
-      on unshifting standards immune from regime shifts, insiders or majority holders.
-      <br /><br />
-      Helping builders in the crypto industry is what gives us <strong>meaning</strong>.
-      <br /><br />
-      We built Arubaito to support teams who are doing <strong>meaning</strong>ful work.
-    </p>
-  </div>
-</div>
+After the existing block that checks `isOpen`, add auto-reset logic:
+
+- If `config.is_unlocked === true` AND `isOpen === false` (window expired):
+  - Update `block_clock_config` row:
+    - `start_block = currentBlock` (live Solana slot)
+    - `start_timestamp = now()`
+    - `is_unlocked = false`
+    - `unlocked_at = NULL`
+  - Recalculate `targetBlock = currentBlock + target_blocks`
+  - Return countdown state with fresh values
+
+**2. One-time data fix via insert tool**
+
+Reset the currently stuck config row so it immediately enters a new countdown cycle:
+
+```sql
+UPDATE block_clock_config
+SET is_unlocked = false,
+    unlocked_at = NULL,
+    start_block = 411442269,
+    start_timestamp = now(),
+    updated_at = now()
+WHERE id = 1;
 ```
 
-Single file change, no new components needed.
+(Uses approximate current Solana slot; the edge function will correct it on next call.)
+
+**3. No frontend changes needed**
+
+The `useBlockClock` hook already handles the countdown state correctly when the edge function returns `isUnlocked = false` with blocks remaining.
 

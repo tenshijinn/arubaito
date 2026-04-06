@@ -80,15 +80,14 @@ export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
 
       if (qualifiesForClub && analysis.wallet_address) {
         try {
-          // Check if already verified
+          // Check if already verified in club_verifications
           const { data: existing } = await supabase
-            .from('rei_registry')
+            .from('club_verifications')
             .select('verified')
             .eq('wallet_address', analysis.wallet_address)
-            .single();
+            .maybeSingle();
 
           if (existing?.verified) {
-            // Already verified, just redirect
             toast.success("Welcome back! Redirecting to Club...");
             setTimeout(() => navigate('/club'), 2000);
             return;
@@ -96,17 +95,19 @@ export const CVAnalysis = ({ analysisId }: CVAnalysisProps) => {
 
           // Get current user
           const { data: { user } } = await supabase.auth.getUser();
-          const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Member';
+          if (!user) return;
+          const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Member';
 
-          // Update or insert verification
+          // Insert club verification (Arubaito-owned)
           const { error } = await supabase
-            .from('rei_registry')
+            .from('club_verifications')
             .upsert({
               wallet_address: analysis.wallet_address,
-              file_path: `/cv/${analysis.wallet_address}`,
-              verified: true,
+              user_id: user.id,
               display_name: displayName,
-              updated_at: new Date().toISOString(),
+              verified: true,
+              cv_score: analysis.overall_score,
+              bluechip_verified: analysis.bluechip_verified,
             }, {
               onConflict: 'wallet_address'
             });

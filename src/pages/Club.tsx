@@ -87,34 +87,26 @@ export default function Club() {
         if (whitelistData) {
           hasAccess = true;
           accessReason = "twitter_whitelist";
-
-          // Get additional data from rei_registry if exists
-          if (walletAddress) {
-            const { data: reiData } = await supabase
-              .from("rei_registry")
-              .select("*")
-              .eq("wallet_address", walletAddress)
-              .maybeSingle();
-
-            data = reiData || { wallet_address: walletAddress, handle: twitterHandle };
-          } else {
-            data = { handle: twitterHandle };
-          }
+          data = {
+            wallet_address: walletAddress,
+            handle: twitterHandle,
+            display_name: user?.user_metadata?.full_name || twitterHandle,
+          };
         }
       }
 
-      // Check 2: NFT Holder - check if wallet has member NFT
+      // Check 2: Club verification via CV score / bluechip
       if (!hasAccess && walletAddress) {
-        const { data: reiData } = await supabase
-          .from("rei_registry")
+        const { data: clubData } = await supabase
+          .from("club_verifications")
           .select("*")
           .eq("wallet_address", walletAddress)
           .maybeSingle();
 
-        if (reiData && (reiData.nft_minted || reiData.nft_mint_address)) {
+        if (clubData?.verified) {
           hasAccess = true;
-          accessReason = "nft_holder";
-          data = reiData;
+          accessReason = "club_verification";
+          data = clubData;
         }
       }
 

@@ -1,59 +1,80 @@
 
 
-## Reorder CV Flow: Wallet Scan Before CV Submission
+## Copy Rei Backend to Rei Project
 
-### Problem
+### What needs to happen
 
-Currently the flow is: Select Method → Upload/Form CV → (conditionally) Wallet Connect. Per the user's diagram, the correct flow is:
+The [Rei](/projects/8b5b53d8-b948-4884-8330-b2755ac1bf84) project has its frontend ready but its `supabase/` folder is empty — no edge functions, no database tables. We need to copy everything from this Arubaito project.
 
-1. **Select Wallet to Scan** (optional) — user connects wallet(s) before CV submission
-2. **Select CV Method** (upload / form / LinkedIn)
-3. **Submit** — CV + wallet data sent together to `analyze-cv`
-4. **Combined Score** — CV-derived score + wallet-derived score = final CV Score
+### Step 1: Create database tables via migration
 
-The wallet step should always appear first, not conditionally after analysis.
+A single migration in the Rei project to create all required tables:
 
-### Changes
+| Table | Purpose |
+|-------|---------|
+| `rei_registry` | Core contributor profiles |
+| `chat_conversations` | Rei chatbot conversations |
+| `chat_messages` | Chat message history |
+| `user_points` | Points/earnings tracking |
+| `payment_references` | Solana Pay references |
+| `jobs` | Job postings |
+| `tasks` | Task postings |
+| `rei_treasury_wallet` | Treasury config |
+| `talent_views` | Employer talent views |
 
-**1. `src/pages/Arubaito.tsx` — Reorder flow states**
+Plus the `contributor_role` enum, RLS policies, indexes, and the `increment_user_points` function. I'll consolidate the relevant parts from Arubaito's 19+ migrations into one clean migration.
 
-- Change `handleStartNewCV` to go to `"wallet"` instead of `"selecting"`
-- `handleWalletContinue` saves wallets then moves to `"selecting"` (not `null`)
-- `handleWalletSkip` moves to `"selecting"` (not `null`)
-- Remove the conditional wallet redirect from `handleAnalysisComplete` — analysis complete goes straight to showing profile (`setFlowState(null)`)
-- Remove the re-analysis logic from `handleWalletContinue` (wallet data is already sent with initial analysis)
-- Update flow type comment to reflect new order: `null → wallet → selecting → form|upload|linkedin`
+### Step 2: Copy 12 edge functions
 
-**2. `src/components/cv-profile/WalletConnectStep.tsx` — Rebrand as "Select Wallet to Scan"**
+These are the functions Rei's frontend actually calls:
 
-- Change heading from "Claim Your Membership" to "Select Wallet to Scan"
-- Update description to explain: "Optionally connect your Solana or EVM wallet. Your on-chain transaction history will be scanned and combined with your CV to produce a comprehensive CV Score."
-- Update benefits to focus on CV scoring (not NFT minting):
-  - "On-Chain Activity Score" — Transaction history across 15+ chains contributes to your CV Score
-  - "Cross-Chain Verification" — Solana + 14 EVM chains scanned for comprehensive credentials
-  - "Developer Proof" — Testnet/devnet activity recognized as builder credentials
-  - "Bluechip Detection" — Interactions with top protocols boost your score
-- Change "Verify & Claim Membership" button to "Continue with Wallet"
-- Change skip text to "Skip — continue without wallet scan"
-- Remove NFT mint messaging and sparkles badge
-- Remove membership-related copy entirely
+1. `rei-chat` — AI chatbot
+2. `check-rei-registration` — Check if user is registered
+3. `submit-rei-registration` — Submit/update registration
+4. `analyze-rei-profile` — AI profile analysis
+5. `twitter-oauth` — Twitter auth flow
+6. `verify-solana-pay` — Verify Solana payments
+7. `award-payment-points` — Award points after payment
+8. `x402-create-payment` — Create x402 payment tx
+9. `x402-verify-payment` — Verify x402 payment
+10. `generate-referral-code` — Generate referral codes
+11. `track-referral-click` — Track referral clicks
+12. `transcribe-video` — Audio/video transcription
 
-**3. No backend changes**
+I'll also copy the `_shared/` email templates folder if any functions reference it.
 
-The `analyze-cv` edge function already accepts `walletAddress` and `evmAddress` and performs on-chain analysis. The wallet data is already passed through from `CVUploader`, `ManualCVForm`, and `LinkedInImport`. We are only changing when the wallet gets connected in the UI flow.
+### Step 3: Create storage bucket
 
-### Resulting Flow
+Rei needs the `rei-contributor-files` storage bucket for audio uploads.
 
-```text
-User clicks "Upload New CV"
-  → Step 1: "Select Wallet to Scan" (optional, skip available)
-  → Step 2: Method selector (form / upload / LinkedIn)
-  → Step 3: CV submission (wallet addresses sent along)
-  → Result: Combined CV-derived + wallet-derived = CV Score
-```
+### Step 4: Configure secrets in Rei project
 
-### Files Modified
+Rei needs the same API keys. Since you confirmed using the same keys, I'll add these secrets to the Rei project:
 
-- `src/pages/Arubaito.tsx` — flow reorder, simplify handlers
-- `src/components/cv-profile/WalletConnectStep.tsx` — copy and UI updates
+- `TWITTER_CLIENT_ID` / `TWITTER_CLIENT_SECRET`
+- `OPENAI_API_KEY`
+- `HELIUS_API_KEY`
+- `COVALENT_API_KEY`
+- `MORALIS_API_KEY`
+- `SOCIALDATA_API_KEY`
+
+You'll be prompted to paste the same values.
+
+### Step 5: Prompt you to delete Rei files from Arubaito
+
+After confirming Rei's backend works, I'll list everything to remove from this project:
+- Edge functions: all 12 listed above
+- Tables: `rei_registry`, `chat_conversations`, `chat_messages`, etc.
+- Components: `ReiChatbot`, `PostToRei`, `ReiEarningsHub`, `AudioRecorder`, etc.
+- Pages: `Rei.tsx`, `ReferralRedirect.tsx`
+
+### Execution order
+
+**Message 1 (next):** Steps 1–4 in the Rei project — create migration, copy all edge functions, configure secrets.
+
+**Message 2 (after confirmation):** Step 5 — clean Arubaito of all Rei files.
+
+### Important note
+
+This work needs to happen **in the Rei project**, not here. I can copy the edge function files using cross-project tools, but the database migration and secret configuration must be done in the Rei project's context. I'll switch context to work there.
 

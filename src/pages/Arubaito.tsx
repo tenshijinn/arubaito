@@ -17,7 +17,7 @@ import { CVProfilesEmpty } from "@/components/CVProfilesEmpty";
 import { CVProfileCard } from "@/components/CVProfileCard";
 import { toast } from "@/hooks/use-toast";
 
-// Flow states: null (profiles list) -> 'selecting' -> 'form'|'upload'|'linkedin' -> 'wallet' (if qualified)
+// Flow states: null (profiles list) -> 'wallet' (scan wallet) -> 'selecting' -> 'form'|'upload'|'linkedin'
 type FlowState = "wallet" | "selecting" | "form" | "upload" | "linkedin" | null;
 
 const Index = () => {
@@ -130,26 +130,11 @@ const Index = () => {
   };
 
   const handleAnalysisComplete = async (analysisId: string) => {
-    // Fetch the completed analysis to check qualification
-    const { data: analysis } = await supabase
-      .from("cv_analyses")
-      .select("overall_score, bluechip_verified")
-      .eq("id", analysisId)
-      .single();
-
     if (user) {
       fetchRecentAnalyses(user.id);
     }
-
-    // If qualified (score >= 80 or bluechip verified), show wallet step
-    if (analysis && (analysis.overall_score >= 80 || analysis.bluechip_verified)) {
-      setCurrentAnalysisId(analysisId);
-      setFlowState("wallet");
-    } else {
-      // Show profile directly
-      setCurrentAnalysisId(analysisId);
-      setFlowState(null);
-    }
+    setCurrentAnalysisId(analysisId);
+    setFlowState(null);
   };
 
   const handleNewAnalysis = () => {
@@ -159,54 +144,17 @@ const Index = () => {
   };
 
   const handleStartNewCV = () => {
+    setFlowState("wallet");
+  };
+
+  const handleWalletContinue = (wallets: WalletAddresses) => {
+    setConnectedWallets(wallets);
     setFlowState("selecting");
   };
 
-  const handleWalletContinue = async (wallets: WalletAddresses) => {
-    setConnectedWallets(wallets);
-    // Trigger re-analysis with wallet data if we have a current analysis
-    if (currentAnalysisId && (wallets.solana || wallets.evm)) {
-      try {
-        const { data: analysis } = await supabase
-          .from("cv_analyses")
-          .select("file_path, file_name")
-          .eq("id", currentAnalysisId)
-          .single();
-        
-        if (analysis) {
-          toast({
-            title: "Re-analyzing with wallet data",
-            description: "Your on-chain activity is being verified to enrich your CV score...",
-          });
-          
-          const { data, error } = await supabase.functions.invoke("analyze-cv", {
-            body: {
-              filePath: analysis.file_path,
-              fileName: analysis.file_name,
-              userId: user?.id,
-              walletAddress: wallets.solana || wallets.evm,
-              evmAddress: wallets.evm,
-            },
-          });
-          
-          if (!error && data?.analysisId) {
-            setCurrentAnalysisId(data.analysisId);
-            if (user) fetchRecentAnalyses(user.id);
-            toast({
-              title: "Wallet verification complete",
-              description: "Your CV score has been updated with on-chain data.",
-            });
-          }
-        }
-      } catch (e) {
-        console.error("Re-analysis error:", e);
-      }
-    }
-    setFlowState(null);
-  };
-
   const handleWalletSkip = () => {
-    setFlowState(null);
+    setConnectedWallets({ solana: null, evm: null });
+    setFlowState("selecting");
   };
 
   const handleMethodSelect = (method: "form" | "upload" | "linkedin") => {
@@ -418,12 +366,12 @@ const Index = () => {
                 />
               )}
 
-              {/* Wallet Connection Step - shown after qualifying analysis */}
+              {/* Wallet Scan Step - shown before method selection */}
               {flowState === "wallet" && (
                 <div className="space-y-6">
-                  <Button variant="ghost" onClick={() => { setFlowState(null); }} className="mb-4">
+                  <Button variant="ghost" onClick={handleBackToProfiles} className="mb-4">
                     <ArrowLeft className="h-4 w-4 mr-2" />
-                    Skip for now
+                    Back to Profiles
                   </Button>
                   <WalletConnectStep onContinue={handleWalletContinue} onSkip={handleWalletSkip} />
                 </div>

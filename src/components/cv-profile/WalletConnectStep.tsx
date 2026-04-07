@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Wallet, Shield, CheckCircle2, ArrowRight, Link2, Sparkles, BadgeCheck, X, Trophy, Star } from "lucide-react";
+import { Wallet, Shield, CheckCircle2, ArrowRight, Link2, Search, Blocks, X, Activity, Gem } from "lucide-react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useAccount, useDisconnect } from "wagmi";
@@ -27,24 +26,24 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
 
   const benefits = [
     {
-      icon: Trophy,
-      title: "Free Member NFT",
-      description: "Mint your exclusive Arubaito Club membership NFT (coming soon)"
-    },
-    {
-      icon: Shield,
-      title: "On-Chain Verification",
-      description: "Boost your CV score with verified blockchain activity"
-    },
-    {
-      icon: Star,
-      title: "Membership Identity",
-      description: "Your wallet becomes your official club membership address"
+      icon: Activity,
+      title: "On-Chain Activity Score",
+      description: "Transaction history across 15+ chains contributes to your CV Score"
     },
     {
       icon: Link2,
-      title: "Cross-Chain Support",
-      description: "Solana + 14 EVM chains verified for comprehensive credentials"
+      title: "Cross-Chain Verification",
+      description: "Solana + 14 EVM chains scanned for comprehensive credentials"
+    },
+    {
+      icon: Blocks,
+      title: "Developer Proof",
+      description: "Testnet/devnet activity recognized as builder credentials"
+    },
+    {
+      icon: Gem,
+      title: "Bluechip Detection",
+      description: "Interactions with top protocols boost your score"
     }
   ];
 
@@ -53,20 +52,14 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
       <div className="text-center space-y-2">
         <div className="mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-4" 
              style={{ background: 'var(--gradient-primary)' }}>
-          <Wallet className="h-10 w-10 text-white" />
+          <Search className="h-10 w-10 text-white" />
         </div>
         <h2 className="text-2xl font-bold text-foreground">
-          🎉 Claim Your Membership
+          Select Wallet to Scan
         </h2>
-        <p className="text-muted-foreground">
-          You've qualified for Arubaito Club! Connect your wallet to verify on-chain credentials and receive your free Member NFT.
+        <p className="text-muted-foreground max-w-lg mx-auto">
+          Optionally connect your Solana or EVM wallet. Your on-chain transaction history will be scanned and combined with your CV to produce a comprehensive CV Score.
         </p>
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mt-2">
-          <Sparkles className="h-4 w-4" style={{ color: 'hsl(var(--primary))' }} />
-          <span className="text-sm font-medium" style={{ color: 'hsl(var(--primary))' }}>
-            Free NFT Mint Coming Soon
-          </span>
-        </div>
       </div>
 
       {/* Benefits Grid */}
@@ -181,16 +174,10 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
 
       {/* Continue Section */}
       {hasAnyWallet && (
-        <Card className="p-6">
-          <Alert className="mb-4">
-            <Shield className="h-4 w-4" />
-            <AlertDescription>
-              <p className="text-sm">
-                Your wallet will be re-analyzed to verify on-chain activity and boost your CV score. 
-                This wallet address will also be used for your <strong>free Member NFT mint</strong> when it launches.
-              </p>
-            </AlertDescription>
-          </Alert>
+        <Card className="p-6 text-center">
+          <p className="text-sm text-muted-foreground mb-4">
+            Your wallet activity will be scanned and combined with your CV data to produce your final CV Score.
+          </p>
           <Button 
             className="w-full" 
             size="lg"
@@ -199,20 +186,18 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
               evm: evmAddress || null
             })}
           >
-            Verify & Claim Membership
+            Continue with Wallet
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </Card>
       )}
 
       {/* Skip Option */}
-      {!hasAnyWallet && (
-        <div className="text-center">
-          <Button variant="ghost" onClick={onSkip} className="text-muted-foreground">
-            Skip for now — you can connect your wallet later from your profile
-          </Button>
-        </div>
-      )}
+      <div className="text-center">
+        <Button variant="ghost" onClick={onSkip} className="text-muted-foreground">
+          Skip — continue without wallet scan
+        </Button>
+      </div>
     </div>
   );
 };

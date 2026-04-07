@@ -1,71 +1,59 @@
 
 
-## Decouple Rei from Arubaito
+## Reorder CV Flow: Wallet Scan Before CV Submission
 
 ### Problem
-Arubaito code directly reads/writes to `rei_registry` in 4 places, creating tight coupling that must be broken before separation.
 
-### Coupling Points Found
+Currently the flow is: Select Method → Upload/Form CV → (conditionally) Wallet Connect. Per the user's diagram, the correct flow is:
 
-| File | What it does with `rei_registry` | Severity |
-|------|--------------------------------|----------|
-| `CVProfileDisplay.tsx` | Upserts into `rei_registry` when CV score ≥ 80 | **Critical** — Arubaito writing to Rei data |
-| `CVAnalysis.tsx` | Same upsert logic (duplicate) | **Critical** |
-| `Club.tsx` | Reads `rei_registry` for NFT holder check + profile data | **High** — Arubaito reading Rei data |
-| `AdminReiRegistrySection.tsx` | Full CRUD on `rei_registry` | **Medium** — Admin panel, will move with Rei |
+1. **Select Wallet to Scan** (optional) — user connects wallet(s) before CV submission
+2. **Select CV Method** (upload / form / LinkedIn)
+3. **Submit** — CV + wallet data sent together to `analyze-cv`
+4. **Combined Score** — CV-derived score + wallet-derived score = final CV Score
 
-### Plan
+The wallet step should always appear first, not conditionally after analysis.
 
-**1. Remove `rei_registry` writes from CV flow**
+### Changes
 
-In both `CVProfileDisplay.tsx` and `CVAnalysis.tsx`:
-- Remove the entire `rei_registry` upsert block
-- Keep the club qualification check but use a new Arubaito-owned table `club_verifications` instead
-- Create `club_verifications` table: `id, wallet_address (unique), user_id, display_name, verified, cv_score, bluechip_verified, created_at, updated_at`
-- Write to `club_verifications` instead of `rei_registry`
+**1. `src/pages/Arubaito.tsx` — Reorder flow states**
 
-**2. Decouple Club.tsx from `rei_registry`**
+- Change `handleStartNewCV` to go to `"wallet"` instead of `"selecting"`
+- `handleWalletContinue` saves wallets then moves to `"selecting"` (not `null`)
+- `handleWalletSkip` moves to `"selecting"` (not `null`)
+- Remove the conditional wallet redirect from `handleAnalysisComplete` — analysis complete goes straight to showing profile (`setFlowState(null)`)
+- Remove the re-analysis logic from `handleWalletContinue` (wallet data is already sent with initial analysis)
+- Update flow type comment to reflect new order: `null → wallet → selecting → form|upload|linkedin`
 
-- Replace the NFT holder check (which queries `rei_registry`) with a check against `club_verifications`
-- For the twitter whitelist path, stop fetching supplementary data from `rei_registry` — use session metadata instead
-- Club membership becomes: twitter_whitelist OR club_verifications entry
+**2. `src/components/cv-profile/WalletConnectStep.tsx` — Rebrand as "Select Wallet to Scan"**
 
-**3. Create `club_verifications` migration**
+- Change heading from "Claim Your Membership" to "Select Wallet to Scan"
+- Update description to explain: "Optionally connect your Solana or EVM wallet. Your on-chain transaction history will be scanned and combined with your CV to produce a comprehensive CV Score."
+- Update benefits to focus on CV scoring (not NFT minting):
+  - "On-Chain Activity Score" — Transaction history across 15+ chains contributes to your CV Score
+  - "Cross-Chain Verification" — Solana + 14 EVM chains scanned for comprehensive credentials
+  - "Developer Proof" — Testnet/devnet activity recognized as builder credentials
+  - "Bluechip Detection" — Interactions with top protocols boost your score
+- Change "Verify & Claim Membership" button to "Continue with Wallet"
+- Change skip text to "Skip — continue without wallet scan"
+- Remove NFT mint messaging and sparkles badge
+- Remove membership-related copy entirely
 
-```sql
-CREATE TABLE public.club_verifications (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  wallet_address text UNIQUE NOT NULL,
-  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
-  display_name text,
-  verified boolean DEFAULT true,
-  cv_score numeric,
-  bluechip_verified boolean DEFAULT false,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
+**3. No backend changes**
 
-ALTER TABLE public.club_verifications ENABLE ROW LEVEL SECURITY;
+The `analyze-cv` edge function already accepts `walletAddress` and `evmAddress` and performs on-chain analysis. The wallet data is already passed through from `CVUploader`, `ManualCVForm`, and `LinkedInImport`. We are only changing when the wallet gets connected in the UI flow.
 
-CREATE POLICY "Users can view own verification" ON club_verifications
-  FOR SELECT TO authenticated USING (auth.uid() = user_id);
+### Resulting Flow
 
-CREATE POLICY "Users can insert own verification" ON club_verifications
-  FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Service role full access" ON club_verifications
-  FOR ALL USING (auth.role() = 'service_role');
+```text
+User clicks "Upload New CV"
+  → Step 1: "Select Wallet to Scan" (optional, skip available)
+  → Step 2: Method selector (form / upload / LinkedIn)
+  → Step 3: CV submission (wallet addresses sent along)
+  → Result: Combined CV-derived + wallet-derived = CV Score
 ```
 
-**4. Identify Rei-only files** (no changes needed now, just catalogued for the physical move later)
+### Files Modified
 
-- Pages: `Rei.tsx`, `JoinRei.tsx`
-- Components: `ReiChatbot.tsx`, `PostToRei.tsx`, `ReiEarningsHub.tsx`, `ReiPointsCard.tsx`, `components/joinrei/*`
-- Admin: `AdminReiRegistrySection.tsx` (moves with Rei)
-- Edge functions: `rei-chat`, `submit-rei-registration`, `check-rei-registration`, `analyze-rei-profile`, `match-jobs-to-talent`, `match-talent-to-jobs`, `search-jobs`, `oracle-tweet-tracker`
-- Tables: `rei_registry`, `rei_treasury_wallet`, `chat_conversations`, `chat_messages`, `jobs`, `job_drafts`, `job_sources`, `tasks`, `task_drafts`, `talent_views`, `skill_categories`, `community_submissions`
-
-### Summary
-
-3 files edited, 1 new table created, 0 Rei files touched. After this, Arubaito has zero references to `rei_registry` and the two apps are data-independent.
+- `src/pages/Arubaito.tsx` — flow reorder, simplify handlers
+- `src/components/cv-profile/WalletConnectStep.tsx` — copy and UI updates
 

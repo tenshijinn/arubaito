@@ -7,8 +7,11 @@ import { WalletProvider } from "@/components/WalletProvider";
 import { EVMWalletProvider } from "@/components/EVMWalletProvider";
 import Index from "./pages/Index";
 import Arubaito from "./pages/Arubaito";
+import Rei from "./pages/Rei";
+import JoinRei from "./pages/JoinRei";
 import Club from "./pages/Club";
 import Admin from "./pages/Admin";
+import Community from "./pages/Community";
 import ReferralRedirect from "./pages/ReferralRedirect";
 import IkigaiCard from "./pages/IkigaiCard";
 import TelegramRedirect from "./pages/TelegramRedirect";
@@ -30,8 +33,11 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/arubaito" element={<Arubaito />} />
+              <Route path="/rei" element={<Rei />} />
+              <Route path="/joinrei" element={<JoinRei />} />
               <Route path="/club" element={<Club />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/community" element={<Community />} />
               <Route path="/r/:code" element={<ReferralRedirect />} />
               <Route path="/meaning" element={<Meaning />} />
               <Route path="/ikigai" element={<IkigaiCard />} />

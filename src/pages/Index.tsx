@@ -248,7 +248,7 @@ const Index = () => {
               Enter Club
             </Button>
             <Button
-              onClick={() => navigate("/rei")}
+              onClick={() => window.open("https://askrei.lovable.app", "_blank")}
               variant="outline"
               size="sm"
               className="flex-1 text-xs px-3 py-2 bg-transparent border font-mono transition-all duration-300"

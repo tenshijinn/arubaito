@@ -393,7 +393,7 @@ export const Auth = () => {
                       Choose how you'd like to apply
                     </p>
 
-                    {blockClock.state === "open" && !blockClock.loading && (
+                    {blockClock.state === "open" && (
                       <div className="mb-4">
                         <BlockClockTimer secondsRemaining={blockClock.signupWindowRemaining} compact />
                       </div>

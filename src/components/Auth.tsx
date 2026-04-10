@@ -360,7 +360,11 @@ export const Auth = () => {
           ) : mode === "apply" ? (
             <div className="space-y-4">
               <Card className="p-8 bg-transparent border border-primary/40 rounded-xl">
-                {blockClock.state === "countdown" && !blockClock.loading ? (
+              {blockClock.loading ? (
+                  <div className="text-center py-8">
+                    <div className="font-mono text-sm text-muted-foreground animate-pulse">Loading...</div>
+                  </div>
+                ) : blockClock.state === "countdown" ? (
                   <>
                     <BlockClockDisplay
                       currentBlock={blockClock.currentBlock}

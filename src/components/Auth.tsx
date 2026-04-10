@@ -360,7 +360,11 @@ export const Auth = () => {
           ) : mode === "apply" ? (
             <div className="space-y-4">
               <Card className="p-8 bg-transparent border border-primary/40 rounded-xl">
-                {blockClock.state === "countdown" && !blockClock.loading ? (
+              {blockClock.loading ? (
+                  <div className="text-center py-8">
+                    <div className="font-mono text-sm text-muted-foreground animate-pulse">Loading...</div>
+                  </div>
+                ) : blockClock.state === "countdown" ? (
                   <>
                     <BlockClockDisplay
                       currentBlock={blockClock.currentBlock}
@@ -374,7 +378,7 @@ export const Auth = () => {
                       reminderSubmitted={reminderSubmitted}
                     />
                   </>
-                ) : blockClock.state === "closed" && !blockClock.loading ? (
+                ) : blockClock.state === "closed" ? (
                   <div className="text-center py-4">
                     <p className="font-mono text-sm" style={{ color: '#ed565a' }}>
                       Application window has closed
@@ -389,7 +393,7 @@ export const Auth = () => {
                       Choose how you'd like to apply
                     </p>
 
-                    {blockClock.state === "open" && !blockClock.loading && (
+                    {blockClock.state === "open" && (
                       <div className="mb-4">
                         <BlockClockTimer secondsRemaining={blockClock.signupWindowRemaining} compact />
                       </div>

@@ -378,7 +378,7 @@ export const Auth = () => {
                       reminderSubmitted={reminderSubmitted}
                     />
                   </>
-                ) : blockClock.state === "closed" && !blockClock.loading ? (
+                ) : blockClock.state === "closed" ? (
                   <div className="text-center py-4">
                     <p className="font-mono text-sm" style={{ color: '#ed565a' }}>
                       Application window has closed

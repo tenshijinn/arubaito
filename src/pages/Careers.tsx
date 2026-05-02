@@ -170,27 +170,39 @@ const Careers = () => {
     <div className="min-h-screen px-4 py-8" style={{ backgroundColor: "#181818" }}>
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Top panel */}
-        <div className="grid grid-cols-3 gap-3 items-stretch">
-          {/* Logo (no box) */}
-          <Link to="/" className="flex flex-col items-start justify-center gap-1">
-            <img src={arubaitoLogo} alt="Arubaito" className="h-10 w-auto object-contain" />
+        <div className="relative flex gap-3 items-stretch">
+          {/* GitHub activity — wide rectangle extending all the way left */}
+          <div
+            className="flex-1 rounded-2xl border p-4 flex items-center justify-center"
+            style={{ borderColor: "#ed565a", backgroundColor: "transparent", minHeight: 180 }}
+          >
+            <div className="w-full h-full flex items-center justify-center">
+              <GitHubActivity />
+            </div>
+          </div>
+
+          {/* Treasury — square, dead center content */}
+          <div
+            className="rounded-2xl border flex items-center justify-center aspect-square"
+            style={{ borderColor: "#ed565a", backgroundColor: "transparent", minHeight: 180 }}
+          >
+            <TreasuryDisplay />
+          </div>
+
+          {/* Logo (no box) overlaid top-left */}
+          <Link
+            to="/"
+            className="absolute top-2 left-3 flex flex-col items-start gap-0.5 z-10"
+          >
+            <img src={arubaitoLogo} alt="Arubaito" className="h-8 w-auto object-contain" />
             <span
-              className="text-[10px] tracking-wider uppercase"
+              className="text-[9px] tracking-wider uppercase"
               style={{ color: "#faf1e1", fontFamily: "Consolas, monospace" }}
             >
               {"careers"}
             </span>
           </Link>
-
-          {/* GitHub activity — extends across logo column too */}
-          <div
-            className="col-start-1 row-start-1 col-span-2 rounded-2xl border p-3 flex items-center justify-center"
-            style={{ borderColor: "#ed565a", backgroundColor: "transparent", marginLeft: "120px" }}
-          >
-            <div className="w-full h-[140px] flex items-center justify-center">
-              <GitHubActivity />
-            </div>
-          </div>
+        </div>
 
           {/* Treasury — dead center */}
           <div

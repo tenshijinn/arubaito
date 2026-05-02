@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Twitter, Linkedin } from "lucide-react";
 import arubaitoLogo from "@/assets/arubaito-logo.png";
+import reiCareersImg from "@/assets/rei-careers.png";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { GitHubActivity } from "@/components/careers/GitHubActivity";
 import { Input } from "@/components/ui/input";
@@ -13,17 +14,22 @@ interface Job {
   pitch: string;
   role: string;
   image?: string;
+  twitter?: string;
+  linkedin?: string;
   applications: number;
 }
 
 const PLACEHOLDER_JOBS: Job[] = [
   {
     id: "biz-dev-sales",
-    title: "Business Development (Sales) for Web3 AI SaaS (Commission Only)",
+    title: "Business Development (Sales) for Role for 'Rei' (Commission Only)",
     pitch:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     role:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    image: reiCareersImg,
+    twitter: "https://twitter.com/askrei",
+    linkedin: "https://linkedin.com/company/arubaito",
     applications: 12,
   },
   {
@@ -58,7 +64,7 @@ const JobAccordion = ({
   return (
     <div
       className="border rounded-3xl overflow-hidden transition-all"
-      style={{ borderColor: "#ed565a", backgroundColor: "rgba(0,0,0,0.4)" }}
+      style={{ borderColor: "#ed565a", backgroundColor: "transparent" }}
     >
       <button
         onClick={onToggle}
@@ -73,17 +79,27 @@ const JobAccordion = ({
 
       {isOpen && (
         <div className="p-4 pt-0 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Image */}
           <div
             className="rounded-2xl overflow-hidden border min-h-[280px] md:min-h-[400px] bg-cover bg-center"
             style={{
               borderColor: "#ed565a",
-              backgroundImage: `url(https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=800&q=80)`,
+              backgroundImage: `url(${job.image || "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=800&q=80"})`,
             }}
           />
 
-          {/* Details + Apply form */}
           <div className="space-y-4" style={{ fontFamily: "IBM Plex Mono, monospace", color: "#ed565a" }}>
+            <div className="flex items-center gap-3">
+              {job.twitter && (
+                <a href={job.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                  <Twitter className="h-4 w-4" />
+                </a>
+              )}
+              {job.linkedin && (
+                <a href={job.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                  <Linkedin className="h-4 w-4" />
+                </a>
+              )}
+            </div>
             <div>
               <p className="text-xs font-bold mb-1">JOB PITCH</p>
               <p className="text-xs leading-relaxed opacity-90">{job.pitch}</p>
@@ -153,52 +169,44 @@ const Careers = () => {
   return (
     <div className="min-h-screen px-4 py-8" style={{ backgroundColor: "#181818" }}>
       <div className="max-w-3xl mx-auto space-y-6">
-        {/* Top sticky panel: 3 squares */}
-        <div className="grid grid-cols-3 gap-3">
-          {/* Logo */}
-          <Link
-            to="/"
-            className="aspect-square rounded-2xl border flex items-center justify-center p-4"
-            style={{ borderColor: "#ed565a", backgroundColor: "rgba(0,0,0,0.4)" }}
-          >
-            <img src={arubaitoLogo} alt="Arubaito" className="max-w-full max-h-full object-contain" />
-          </Link>
-
-          {/* GitHub activity */}
+        {/* Top panel */}
+        <div className="relative flex gap-3 items-stretch">
+          {/* GitHub activity — wide rectangle extending all the way left */}
           <div
-            className="aspect-square rounded-2xl border p-3"
-            style={{ borderColor: "#ed565a", backgroundColor: "rgba(0,0,0,0.4)" }}
+            className="flex-1 rounded-2xl border p-4 flex items-center justify-center"
+            style={{ borderColor: "#ed565a", backgroundColor: "transparent", minHeight: 180 }}
           >
-            <GitHubActivity />
+            <div className="w-full h-full flex items-center justify-center">
+              <GitHubActivity />
+            </div>
           </div>
 
-          {/* Treasury */}
+          {/* Treasury — square, dead center content */}
           <div
-            className="aspect-square rounded-2xl border p-4 flex items-end"
-            style={{ borderColor: "#ed565a", backgroundColor: "rgba(0,0,0,0.4)" }}
+            className="rounded-2xl border flex items-center justify-center aspect-square"
+            style={{ borderColor: "#ed565a", backgroundColor: "transparent", minHeight: 180 }}
           >
             <TreasuryDisplay />
           </div>
+
+          {/* Logo (no box) overlaid top-left */}
+          <Link
+            to="/"
+            className="absolute top-2 left-3 flex flex-col items-start gap-0.5 z-10"
+          >
+            <img src={arubaitoLogo} alt="Arubaito" className="h-8 w-auto object-contain" />
+            <span
+              className="text-[9px] tracking-wider uppercase"
+              style={{ color: "#faf1e1", fontFamily: "Consolas, monospace" }}
+            >
+              {"careers"}
+            </span>
+          </Link>
         </div>
 
-        {/* Heading */}
-        <div className="pt-2">
-          <h1
-            className="text-2xl md:text-3xl font-bold"
-            style={{ color: "#faf1e1", fontFamily: "Styrene A Trial, sans-serif" }}
-          >
-            Careers
-          </h1>
-          <p
-            className="text-xs opacity-70 mt-1"
-            style={{ color: "#faf1e1", fontFamily: "Consolas, monospace" }}
-          >
-            Join the Arubaito team — Private Members Network Club.
-          </p>
-        </div>
 
         {/* Job dropdowns */}
-        <div className="space-y-3">
+        <div className="space-y-3 pt-2">
           {PLACEHOLDER_JOBS.map((job) => (
             <JobAccordion
               key={job.id}

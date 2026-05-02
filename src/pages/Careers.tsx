@@ -204,14 +204,6 @@ const Careers = () => {
           </Link>
         </div>
 
-          {/* Treasury — dead center */}
-          <div
-            className="aspect-square rounded-2xl border flex items-center justify-center"
-            style={{ borderColor: "#ed565a", backgroundColor: "transparent" }}
-          >
-            <TreasuryDisplay />
-          </div>
-        </div>
 
         {/* Job dropdowns */}
         <div className="space-y-3 pt-2">

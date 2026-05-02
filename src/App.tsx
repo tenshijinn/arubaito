@@ -15,6 +15,7 @@ import TelegramRedirect from "./pages/TelegramRedirect";
 import Meaning from "./pages/Meaning";
 import NetworkSchool from "./pages/NetworkSchool";
 import GuestList from "./pages/GuestList";
+import Careers from "./pages/Careers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/ikigai/tg" element={<TelegramRedirect />} />
               <Route path="/ns" element={<NetworkSchool />} />
               <Route path="/guestlist" element={<GuestList />} />
+              <Route path="/careers" element={<Careers />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

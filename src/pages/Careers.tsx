@@ -265,19 +265,19 @@ const Careers = () => {
 
       <div className="max-w-3xl mx-auto space-y-6 pt-12">
         {/* Top panel */}
-        <div className="flex gap-3 items-stretch">
+        <div className="flex gap-3 items-stretch h-[160px]">
           <div
-            className="flex-1 rounded-2xl border p-3 flex items-center justify-center"
-            style={{ borderColor: "#ed565a", backgroundColor: "transparent", minHeight: 140 }}
+            className="flex-1 min-w-0 rounded-2xl border p-3 flex items-center justify-center overflow-hidden"
+            style={{ borderColor: "#ed565a", backgroundColor: "transparent" }}
           >
-            <div className="w-full max-w-[80%] h-[100px]">
+            <div className="w-full h-full">
               <GitHubActivity />
             </div>
           </div>
 
           <div
-            className="rounded-2xl border flex items-center justify-center aspect-square"
-            style={{ borderColor: "#ed565a", backgroundColor: "transparent", minHeight: 140 }}
+            className="rounded-2xl border flex items-center justify-center aspect-square h-full shrink-0"
+            style={{ borderColor: "#ed565a", backgroundColor: "transparent" }}
           >
             <TreasuryDisplay />
           </div>

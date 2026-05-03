@@ -140,7 +140,7 @@ const JobAccordion = ({
       {isOpen && (
         <div className="p-4 pt-0 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
-            className="rounded-2xl overflow-hidden border min-h-[280px] md:min-h-[400px] bg-cover bg-center"
+            className="rounded-2xl overflow-hidden border min-h-[280px] md:min-h-[400px] bg-cover bg-left"
             style={{
               borderColor: "#ed565a",
               backgroundImage: `url(${job.image || "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=800&q=80"})`,
@@ -265,19 +265,19 @@ const Careers = () => {
 
       <div className="max-w-3xl mx-auto space-y-6 pt-12">
         {/* Top panel */}
-        <div className="flex gap-3 items-stretch">
+        <div className="flex gap-3 items-stretch h-[160px]">
           <div
-            className="flex-1 rounded-2xl border p-3 flex items-center justify-center"
-            style={{ borderColor: "#ed565a", backgroundColor: "transparent", minHeight: 140 }}
+            className="flex-1 min-w-0 rounded-2xl border p-3 flex items-center justify-center overflow-hidden"
+            style={{ borderColor: "#ed565a", backgroundColor: "transparent" }}
           >
-            <div className="w-full max-w-[80%] h-[100px]">
+            <div className="w-full h-full">
               <GitHubActivity />
             </div>
           </div>
 
           <div
-            className="rounded-2xl border flex items-center justify-center aspect-square"
-            style={{ borderColor: "#ed565a", backgroundColor: "transparent", minHeight: 140 }}
+            className="rounded-2xl border flex items-center justify-center aspect-square h-full shrink-0"
+            style={{ borderColor: "#ed565a", backgroundColor: "transparent" }}
           >
             <TreasuryDisplay />
           </div>

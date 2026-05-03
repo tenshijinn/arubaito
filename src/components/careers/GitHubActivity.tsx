@@ -3,8 +3,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 const REPOS = [
   { name: "tenshijinn/arubaito", color: [237, 86, 90] as [number, number, number], label: "arubaito" },
-  { name: "tenshijinn/askrei", color: [255, 209, 220] as [number, number, number], label: "askrei" },
-  { name: "tenshijinn/zkprof", color: [250, 241, 225] as [number, number, number], label: "zkprof" },
+  { name: "tenshijinn/askrei", color: [255, 20, 147] as [number, number, number], label: "askrei" },
+  { name: "tenshijinn/zkprof", color: [0, 255, 65] as [number, number, number], label: "zkprof" },
 ];
 
 const DAYS = 91; // ~3 months

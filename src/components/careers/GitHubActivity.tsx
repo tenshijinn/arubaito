@@ -9,7 +9,7 @@ const REPOS = [
 ];
 
 const DAYS = 182; // ~6 months (26 weeks)
-const CELL = 11;
+const CELL = 10;
 const GAP = 2;
 
 type DayCell = {

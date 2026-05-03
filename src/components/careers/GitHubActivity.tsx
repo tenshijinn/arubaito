@@ -99,8 +99,9 @@ export const GitHubActivity = () => {
   return (
     <TooltipProvider delayDuration={50}>
       <div className="w-full h-full flex flex-col justify-between" style={{ color: "#181818" }}>
-        <div className="text-[8px] font-bold mb-1 tracking-wide" style={{ fontFamily: "Consolas, monospace" }}>
-          GitHub · 3mo
+        <div className="flex items-center gap-1 text-[8px] font-bold mb-1 tracking-wide" style={{ fontFamily: "Consolas, monospace" }}>
+          <Github className="h-3 w-3" />
+          <span>GitHub · 3mo</span>
         </div>
         <div className="flex gap-[2px] flex-1 items-center justify-center">
           <div className="flex gap-[2px]">

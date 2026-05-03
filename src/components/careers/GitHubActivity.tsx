@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Github } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { supabase } from "@/integrations/supabase/client";
 
 const REPOS = [
   { name: "tenshijinn/arubaito", color: [237, 86, 90] as [number, number, number], label: "arubaito" },
@@ -17,26 +18,6 @@ type DayCell = {
   counts: Record<string, number>;
   total: number;
 };
-
-async function fetchRepoCommits(repo: string, since: string): Promise<string[]> {
-  const dates: string[] = [];
-  // Use GitHub's commits API; paginate up to 5 pages of 100
-  for (let page = 1; page <= 5; page++) {
-    const res = await fetch(
-      `https://api.github.com/repos/${repo}/commits?since=${since}&per_page=100&page=${page}`,
-      { headers: { Accept: "application/vnd.github+json" } }
-    );
-    if (!res.ok) break;
-    const data = await res.json();
-    if (!Array.isArray(data) || data.length === 0) break;
-    for (const c of data) {
-      const d = c?.commit?.author?.date || c?.commit?.committer?.date;
-      if (d) dates.push(d.slice(0, 10));
-    }
-    if (data.length < 100) break;
-  }
-  return dates;
-}
 
 function buildGrid(allCommits: Record<string, string[]>): DayCell[] {
   const today = new Date();
@@ -77,19 +58,18 @@ function colorFor(cell: DayCell): string {
 
 export const GitHubActivity = () => {
   const { data: cells = [] } = useQuery({
-    queryKey: ["github-activity-3repos-6mo-v2"],
+    queryKey: ["github-activity-edge-6mo-v3"],
     queryFn: async () => {
-      const since = new Date();
-      since.setDate(since.getDate() - DAYS);
-      const sinceIso = since.toISOString();
-      const results = await Promise.all(
-        REPOS.map(async (r) => [r.name, await fetchRepoCommits(r.name, sinceIso)] as const)
-      );
-      const map: Record<string, string[]> = {};
-      for (const [name, dates] of results) map[name] = dates;
+      const { data, error } = await supabase.functions.invoke("get-github-activity");
+      if (error) {
+        console.error("github-activity invoke error", error);
+        return buildGrid({});
+      }
+      const map: Record<string, string[]> = (data?.data as Record<string, string[]>) || {};
       return buildGrid(map);
     },
-    staleTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
   });
 
   // Arrange into 7 rows x N cols

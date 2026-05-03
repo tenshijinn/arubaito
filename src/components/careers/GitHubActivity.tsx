@@ -57,7 +57,7 @@ function buildGrid(allCommits: Record<string, string[]>): DayCell[] {
 }
 
 function colorFor(cell: DayCell): string {
-  if (cell.total === 0) return "rgb(210, 208, 205)";
+  if (cell.total === 0) return "#dbd9d7";
   // Find repo with most commits that day
   let dominant = REPOS[0];
   let max = -1;

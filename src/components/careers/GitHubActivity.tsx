@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Github } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -10,7 +11,6 @@ const REPOS = [
 ];
 
 const DAYS = 182; // ~6 months (26 weeks)
-const CELL = 10;
 const GAP = 2;
 
 type DayCell = {
@@ -72,21 +72,39 @@ export const GitHubActivity = () => {
     refetchOnWindowFocus: false,
   });
 
-  // Arrange into 7 rows x N cols
+  // Arrange into cols of 7 (today on the right)
   const cols: DayCell[][] = [];
   for (let i = 0; i < cells.length; i += 7) {
     cols.push(cells.slice(i, i + 7));
   }
+  const numCols = cols.length || 26;
+
+  // Responsive cell sizing — measure container width
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [cellSize, setCellSize] = useState(8);
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const calc = () => {
+      const w = el.clientWidth;
+      const size = Math.max(3, Math.floor((w - GAP * (numCols - 1)) / numCols));
+      setCellSize(size);
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [numCols]);
 
   return (
     <TooltipProvider delayDuration={50}>
-      <div className="w-full h-full flex flex-col justify-between" style={{ color: "#181818" }}>
+      <div className="w-full h-full flex flex-col justify-between min-w-0" style={{ color: "#181818" }}>
         <div className="flex items-center gap-1 text-[8px] font-bold mb-1 tracking-wide" style={{ fontFamily: "Consolas, monospace" }}>
           <Github className="h-3 w-3" />
           <span>GitHub · 6mo</span>
         </div>
-        <div className="flex flex-1 items-center justify-center overflow-hidden">
-          <div className="flex" style={{ gap: GAP }}>
+        <div ref={gridRef} className="flex flex-1 items-center w-full overflow-hidden">
+          <div className="flex w-full justify-between" style={{ gap: GAP }}>
             {cols.map((col, ci) => (
               <div key={ci} className="flex flex-col" style={{ gap: GAP }}>
                 {col.map((cell) => (
@@ -94,7 +112,7 @@ export const GitHubActivity = () => {
                     <TooltipTrigger asChild>
                       <div
                         className="rounded-[2px]"
-                        style={{ backgroundColor: colorFor(cell), width: CELL, height: CELL }}
+                        style={{ backgroundColor: colorFor(cell), width: cellSize, height: cellSize }}
                       />
                     </TooltipTrigger>
                     <TooltipContent
@@ -116,7 +134,7 @@ export const GitHubActivity = () => {
             ))}
           </div>
         </div>
-        <div className="flex gap-2 mt-1 text-[7px]" style={{ fontFamily: "Consolas, monospace" }}>
+        <div className="flex gap-2 mt-1 text-[7px] flex-wrap" style={{ fontFamily: "Consolas, monospace" }}>
           {REPOS.map((r) => (
             <div key={r.name} className="flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-sm" style={{ backgroundColor: `rgb(${r.color.join(",")})` }} />

@@ -98,8 +98,9 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Arubaito Careers <onboarding@resend.dev>",
+        from: "Arubaito Careers <careers@notify.arubaito.app>",
         to: ["rei@arubaito.app"],
+        reply_to: "rei@arubaito.app",
         subject: `New Application: ${data.job_title}`,
         html,
         ...(attachments ? { attachments } : {}),
@@ -107,9 +108,12 @@ serve(async (req) => {
     });
 
     if (!res.ok) {
-      const errTxt = await res.text();
-      console.error("Resend error:", errTxt);
+      console.error("Resend send failed status", res.status);
+    } else {
+      const okJson = await res.clone().json().catch(() => null);
+      console.log("Resend send ok", okJson);
     }
+
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,

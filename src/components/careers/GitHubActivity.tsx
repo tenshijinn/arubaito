@@ -56,7 +56,7 @@ function buildGrid(allCommits: Record<string, string[]>): DayCell[] {
 }
 
 function colorFor(cell: DayCell): string {
-  if (cell.total === 0) return "rgb(38, 38, 38)";
+  if (cell.total === 0) return "rgb(210, 208, 205)";
   // Find repo with most commits that day
   let dominant = REPOS[0];
   let max = -1;
@@ -97,36 +97,38 @@ export const GitHubActivity = () => {
 
   return (
     <TooltipProvider delayDuration={50}>
-      <div className="w-full h-full flex flex-col justify-between">
-        <div className="text-[8px] font-bold mb-1 tracking-wide" style={{ color: "#ed565a", fontFamily: "IBM Plex Mono, monospace" }}>
+      <div className="w-full h-full flex flex-col justify-between" style={{ color: "#181818" }}>
+        <div className="text-[8px] font-bold mb-1 tracking-wide" style={{ fontFamily: "Consolas, monospace" }}>
           GitHub · 3mo
         </div>
-        <div className="flex gap-[2px] flex-1 items-end">
-          {cols.map((col, ci) => (
-            <div key={ci} className="flex flex-col gap-[2px] flex-1">
-              {col.map((cell) => (
-                <Tooltip key={cell.date}>
-                  <TooltipTrigger asChild>
-                    <div
-                      className="w-full aspect-square rounded-[2px]"
-                      style={{ backgroundColor: colorFor(cell), minHeight: 4, maxHeight: 12 }}
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="font-mono text-xs">
-                    <div className="font-bold">{cell.date}</div>
-                    <div>Total: {cell.total} commits</div>
-                    {REPOS.map((r) => (
-                      <div key={r.name} style={{ color: `rgb(${r.color.join(",")})` }}>
-                        {r.label}: {cell.counts[r.name] || 0}
-                      </div>
-                    ))}
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-            </div>
-          ))}
+        <div className="flex gap-[2px] flex-1 items-center justify-center">
+          <div className="flex gap-[2px]">
+            {cols.map((col, ci) => (
+              <div key={ci} className="flex flex-col gap-[2px]">
+                {col.map((cell) => (
+                  <Tooltip key={cell.date}>
+                    <TooltipTrigger asChild>
+                      <div
+                        className="rounded-[2px]"
+                        style={{ backgroundColor: colorFor(cell), width: 9, height: 9 }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="font-mono text-xs">
+                      <div className="font-bold">{cell.date}</div>
+                      <div>Total: {cell.total} commits</div>
+                      {REPOS.map((r) => (
+                        <div key={r.name} style={{ color: `rgb(${r.color.join(",")})` }}>
+                          {r.label}: {cell.counts[r.name] || 0}
+                        </div>
+                      ))}
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex gap-2 mt-1 text-[7px]" style={{ fontFamily: "IBM Plex Mono, monospace" }}>
+        <div className="flex gap-2 mt-1 text-[7px]" style={{ fontFamily: "Consolas, monospace" }}>
           {REPOS.map((r) => (
             <div key={r.name} className="flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-sm" style={{ backgroundColor: `rgb(${r.color.join(",")})` }} />

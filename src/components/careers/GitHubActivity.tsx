@@ -58,19 +58,18 @@ function colorFor(cell: DayCell): string {
 
 export const GitHubActivity = () => {
   const { data: cells = [] } = useQuery({
-    queryKey: ["github-activity-3repos-6mo-v2"],
+    queryKey: ["github-activity-edge-6mo-v3"],
     queryFn: async () => {
-      const since = new Date();
-      since.setDate(since.getDate() - DAYS);
-      const sinceIso = since.toISOString();
-      const results = await Promise.all(
-        REPOS.map(async (r) => [r.name, await fetchRepoCommits(r.name, sinceIso)] as const)
-      );
-      const map: Record<string, string[]> = {};
-      for (const [name, dates] of results) map[name] = dates;
+      const { data, error } = await supabase.functions.invoke("get-github-activity");
+      if (error) {
+        console.error("github-activity invoke error", error);
+        return buildGrid({});
+      }
+      const map: Record<string, string[]> = (data?.data as Record<string, string[]>) || {};
       return buildGrid(map);
     },
-    staleTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
   });
 
   // Arrange into 7 rows x N cols

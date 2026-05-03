@@ -77,7 +77,7 @@ function colorFor(cell: DayCell): string {
 
 export const GitHubActivity = () => {
   const { data: cells = [] } = useQuery({
-    queryKey: ["github-activity-3repos"],
+    queryKey: ["github-activity-3repos-6mo-v2"],
     queryFn: async () => {
       const since = new Date();
       since.setDate(since.getDate() - DAYS);

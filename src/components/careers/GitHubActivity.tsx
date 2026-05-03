@@ -8,7 +8,7 @@ const REPOS = [
   { name: "tenshijinn/zkprof", color: [0, 255, 65] as [number, number, number], label: "zkprof" },
 ];
 
-const DAYS = 91; // ~3 months
+const DAYS = 182; // ~6 months
 
 type DayCell = {
   date: string;

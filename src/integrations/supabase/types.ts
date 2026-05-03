@@ -107,6 +107,39 @@ export type Database = {
         }
         Relationships: []
       }
+      careers_applications: {
+        Row: {
+          created_at: string
+          cv_path: string | null
+          cv_url: string | null
+          id: string
+          job_id: string
+          job_title: string
+          telegram: string | null
+          twitter: string | null
+        }
+        Insert: {
+          created_at?: string
+          cv_path?: string | null
+          cv_url?: string | null
+          id?: string
+          job_id: string
+          job_title: string
+          telegram?: string | null
+          twitter?: string | null
+        }
+        Update: {
+          created_at?: string
+          cv_path?: string | null
+          cv_url?: string | null
+          id?: string
+          job_id?: string
+          job_title?: string
+          telegram?: string | null
+          twitter?: string | null
+        }
+        Relationships: []
+      }
       chat_conversations: {
         Row: {
           created_at: string | null

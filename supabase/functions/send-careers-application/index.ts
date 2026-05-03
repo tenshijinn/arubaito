@@ -114,10 +114,6 @@ serve(async (req) => {
       console.log("Resend send ok", okJson);
     }
 
-    if (!res.ok) {
-      const errTxt = await res.text();
-      console.error("Resend error:", errTxt);
-    }
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,

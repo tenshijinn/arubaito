@@ -44,7 +44,9 @@ async function fetchViaSocialData() {
   });
   if (!userRes.ok) throw new Error(`socialdata user ${userRes.status}`);
   const user = await userRes.json();
-  const tweetsRes = await fetch(`https://api.socialdata.tools/twitter/user/${user.id}/tweets`, {
+  const userId = user.id_str || user.id;
+  console.log("socialdata user", HANDLE, "id:", userId, "followers:", user.followers_count);
+  const tweetsRes = await fetch(`https://api.socialdata.tools/twitter/user/${userId}/tweets`, {
     headers: { Authorization: `Bearer ${SOCIALDATA_API_KEY}`, Accept: "application/json" },
   });
   let latest: any = null;

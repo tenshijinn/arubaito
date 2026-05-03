@@ -174,7 +174,7 @@ const JobAccordion = ({
             <div className="flex items-center gap-3">
               {job.twitter && (
                 <a href={job.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                  <Twitter className="h-4 w-4" />
+                  <XLogo className="h-4 w-4" />
                 </a>
               )}
               {job.linkedin && (

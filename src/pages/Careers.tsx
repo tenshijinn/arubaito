@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown, Twitter, Linkedin } from "lucide-react";
-import arubaitoLogo from "@/assets/arubaito-logo.png";
+import arubaitoLogo from "@/assets/arubaito-logo-black.png";
 import reiCareersImg from "@/assets/rei-careers.png";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { GitHubActivity } from "@/components/careers/GitHubActivity";
+import { TwitterPanel } from "@/components/careers/TwitterPanel";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,6 +60,26 @@ const PLACEHOLDER_JOBS: Job[] = [
     role: "Placeholder role description — to be updated.",
   },
 ];
+
+const linkify = (text: string) => {
+  const parts = text.split(/(https?:\/\/[^\s]+)/g);
+  return parts.map((part, i) =>
+    /^https?:\/\//.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline"
+        style={{ color: "#181818" }}
+      >
+        {part}
+      </a>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
+};
 
 const fileToBase64 = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -124,12 +145,12 @@ const JobAccordion = ({
   return (
     <div
       className="border rounded-3xl overflow-hidden transition-all"
-      style={{ borderColor: "#ed565a", backgroundColor: "transparent" }}
+      style={{ borderColor: "#181818", backgroundColor: "transparent" }}
     >
       <button
         onClick={onToggle}
         className="w-full flex items-center gap-3 p-4 text-left"
-        style={{ color: "#ed565a", fontFamily: "IBM Plex Mono, monospace" }}
+        style={{ color: "#181818", fontFamily: "Consolas, monospace" }}
       >
         <ChevronDown
           className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -142,12 +163,12 @@ const JobAccordion = ({
           <div
             className="rounded-2xl overflow-hidden border min-h-[280px] md:min-h-[400px] bg-cover bg-left"
             style={{
-              borderColor: "#ed565a",
+              borderColor: "#181818",
               backgroundImage: `url(${job.image || "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=800&q=80"})`,
             }}
           />
 
-          <div className="space-y-4" style={{ fontFamily: "IBM Plex Mono, monospace", color: "#ed565a" }}>
+          <div className="space-y-4" style={{ fontFamily: "Consolas, monospace", color: "#181818" }}>
             <div className="flex items-center gap-3">
               {job.twitter && (
                 <a href={job.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
@@ -162,11 +183,11 @@ const JobAccordion = ({
             </div>
             <div>
               <p className="text-xs font-bold mb-1">JOB PITCH</p>
-              <p className="text-xs leading-relaxed opacity-90 whitespace-pre-line">{job.pitch}</p>
+              <p className="text-xs leading-relaxed whitespace-pre-line">{linkify(job.pitch)}</p>
             </div>
             <div>
               <p className="text-xs font-bold mb-1">ROLE</p>
-              <p className="text-xs leading-relaxed opacity-90 whitespace-pre-line">{job.role}</p>
+              <p className="text-xs leading-relaxed whitespace-pre-line">{linkify(job.role)}</p>
             </div>
 
             <div className="space-y-2">
@@ -194,7 +215,7 @@ const JobAccordion = ({
                 <label className="block">
                   <span
                     className="flex items-center justify-center h-9 px-3 rounded-md text-xs cursor-pointer truncate"
-                    style={{ backgroundColor: "#ed565a", color: "#181818" }}
+                    style={{ backgroundColor: "#181818", color: "#faf1e1" }}
                   >
                     {cv ? cv.name : "Browse"}
                   </span>
@@ -211,7 +232,7 @@ const JobAccordion = ({
               <Button
                 onClick={handleApply}
                 disabled={submitting}
-                style={{ backgroundColor: "#faf1e1", color: "#181818", border: "none" }}
+                style={{ backgroundColor: "#ed565a", color: "#181818", border: "none" }}
                 className="rounded-full px-6 hover:opacity-90 border-0"
               >
                 {submitting ? "Submitting..." : "Apply"}
@@ -248,7 +269,7 @@ const Careers = () => {
   useEffect(() => { loadCounts(); }, []);
 
   return (
-    <div className="min-h-screen px-4 py-8" style={{ backgroundColor: "#181818" }}>
+    <div className="min-h-screen px-4 py-8" style={{ backgroundColor: "#ebe9e6" }}>
       {/* Logo + careers label, top-left of page */}
       <Link
         to="/"
@@ -257,18 +278,18 @@ const Careers = () => {
         <img src={arubaitoLogo} alt="Arubaito" className="h-8 w-auto object-contain" />
         <span
           className="text-[9px] tracking-wider uppercase"
-          style={{ color: "#faf1e1", fontFamily: "Consolas, monospace" }}
+          style={{ color: "#181818", fontFamily: "Consolas, monospace" }}
         >
           {"careers"}
         </span>
       </Link>
 
-      <div className="max-w-3xl mx-auto space-y-6 pt-12">
-        {/* Top panel */}
+      <div className="max-w-4xl mx-auto space-y-6 pt-12">
+        {/* Top panel — 3 boxes */}
         <div className="flex gap-3 items-stretch h-[160px]">
           <div
             className="flex-1 min-w-0 rounded-2xl border p-3 flex items-center justify-center overflow-hidden"
-            style={{ borderColor: "#ed565a", backgroundColor: "transparent" }}
+            style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
             <div className="w-full h-full">
               <GitHubActivity />
@@ -276,8 +297,15 @@ const Careers = () => {
           </div>
 
           <div
+            className="rounded-2xl border p-3 aspect-square h-full shrink-0 overflow-hidden"
+            style={{ borderColor: "#181818", backgroundColor: "transparent" }}
+          >
+            <TwitterPanel />
+          </div>
+
+          <div
             className="rounded-2xl border flex items-center justify-center aspect-square h-full shrink-0"
-            style={{ borderColor: "#ed565a", backgroundColor: "transparent" }}
+            style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
             <TreasuryDisplay />
           </div>

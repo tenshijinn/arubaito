@@ -189,6 +189,16 @@ const JobAccordion = ({
               <p className="text-xs font-bold mb-1">JOB PITCH</p>
               <p className="text-xs leading-relaxed whitespace-pre-line">{linkify(job.pitch)}</p>
             </div>
+            {job.id === "biz-dev-rei" && (
+              <div>
+                <p className="text-xs font-bold mb-2">ACHIEVEMENTS</p>
+                <img
+                  src={reiAchievementsImg}
+                  alt="Achievements"
+                  className="w-full h-auto"
+                />
+              </div>
+            )}
             <div>
               <p className="text-xs font-bold mb-1">ROLE</p>
               <p className="text-xs leading-relaxed whitespace-pre-line">{linkify(job.role)}</p>

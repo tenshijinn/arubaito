@@ -6,6 +6,7 @@ import reiCareersImg from "@/assets/rei-careers.png";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { GitHubActivity } from "@/components/careers/GitHubActivity";
 import { TwitterPanel } from "@/components/careers/TwitterPanel";
+import solanaLogo from "@/assets/solana-logo-careers.png";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";

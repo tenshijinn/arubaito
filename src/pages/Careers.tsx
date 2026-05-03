@@ -166,7 +166,8 @@ const JobAccordion = ({
             className="rounded-2xl overflow-hidden border min-h-[280px] md:min-h-[400px] bg-cover bg-left"
             style={{
               borderColor: "#181818",
-              backgroundImage: `url(${job.image || "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=800&q=80"})`,
+              backgroundColor: job.image ? undefined : "#181818",
+              backgroundImage: job.image ? `url(${job.image})` : undefined,
             }}
           />
 

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Github } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -10,7 +11,6 @@ const REPOS = [
 ];
 
 const DAYS = 182; // ~6 months (26 weeks)
-const CELL = 10;
 const GAP = 2;
 
 type DayCell = {

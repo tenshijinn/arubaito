@@ -8,7 +8,9 @@ const REPOS = [
   { name: "tenshijinn/zkprof", color: [0, 255, 65] as [number, number, number], label: "zkprof" },
 ];
 
-const DAYS = 182; // ~6 months
+const DAYS = 182; // ~6 months (26 weeks)
+const CELL = 10;
+const GAP = 2;
 
 type DayCell = {
   date: string;
@@ -75,7 +77,7 @@ function colorFor(cell: DayCell): string {
 
 export const GitHubActivity = () => {
   const { data: cells = [] } = useQuery({
-    queryKey: ["github-activity-3repos"],
+    queryKey: ["github-activity-3repos-6mo-v2"],
     queryFn: async () => {
       const since = new Date();
       since.setDate(since.getDate() - DAYS);
@@ -103,19 +105,23 @@ export const GitHubActivity = () => {
           <Github className="h-3 w-3" />
           <span>GitHub · 6mo</span>
         </div>
-        <div className="flex gap-[2px] flex-1 items-center justify-center">
-          <div className="flex gap-[2px]">
+        <div className="flex flex-1 items-center justify-center overflow-hidden">
+          <div className="flex" style={{ gap: GAP }}>
             {cols.map((col, ci) => (
-              <div key={ci} className="flex flex-col gap-[2px]">
+              <div key={ci} className="flex flex-col" style={{ gap: GAP }}>
                 {col.map((cell) => (
                   <Tooltip key={cell.date}>
                     <TooltipTrigger asChild>
                       <div
                         className="rounded-[2px]"
-                        style={{ backgroundColor: colorFor(cell), width: 9, height: 9 }}
+                        style={{ backgroundColor: colorFor(cell), width: CELL, height: CELL }}
                       />
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="font-mono text-xs">
+                    <TooltipContent
+                      side="top"
+                      className="font-mono text-xs rounded-lg border-0"
+                      style={{ backgroundColor: "#181818", color: "#faf1e1" }}
+                    >
                       <div className="font-bold">{cell.date}</div>
                       <div>Total: {cell.total} commits</div>
                       {REPOS.map((r) => (

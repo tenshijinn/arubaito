@@ -4,6 +4,7 @@ import { ChevronDown, Linkedin } from "lucide-react";
 import { XLogo } from "@/components/icons/XLogo";
 import arubaitoLogo from "@/assets/arubaito-logo-black.png";
 import reiCareersImg from "@/assets/rei-careers.png";
+import reiAchievementsImg from "@/assets/rei-achievements.png";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { GitHubActivity } from "@/components/careers/GitHubActivity";
 import { TwitterPanel } from "@/components/careers/TwitterPanel";
@@ -188,6 +189,16 @@ const JobAccordion = ({
               <p className="text-xs font-bold mb-1">JOB PITCH</p>
               <p className="text-xs leading-relaxed whitespace-pre-line">{linkify(job.pitch)}</p>
             </div>
+            {job.id === "biz-dev-rei" && (
+              <div>
+                <p className="text-xs font-bold mb-2">ACHIEVEMENTS</p>
+                <img
+                  src={reiAchievementsImg}
+                  alt="Achievements"
+                  className="w-full h-auto"
+                />
+              </div>
+            )}
             <div>
               <p className="text-xs font-bold mb-1">ROLE</p>
               <p className="text-xs leading-relaxed whitespace-pre-line">{linkify(job.role)}</p>

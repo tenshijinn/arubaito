@@ -198,7 +198,8 @@ const JobAccordion = ({
                 value={telegram}
                 onChange={(e) => setTelegram(e.target.value)}
                 placeholder="@username"
-                className="font-mono text-xs h-9"
+                className="font-mono text-xs h-9 bg-transparent border rounded-md placeholder:text-[#181818]/50"
+                style={{ borderColor: "#181818", color: "#181818" }}
               />
             </div>
 
@@ -209,7 +210,8 @@ const JobAccordion = ({
                   value={twitter}
                   onChange={(e) => setTwitter(e.target.value)}
                   placeholder="@username"
-                  className="font-mono text-xs h-9"
+                  className="font-mono text-xs h-9 bg-transparent border rounded-md placeholder:text-[#181818]/50"
+                  style={{ borderColor: "#181818", color: "#181818" }}
                 />
               </div>
               <div className="space-y-2">

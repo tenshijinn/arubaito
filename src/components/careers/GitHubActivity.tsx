@@ -109,7 +109,7 @@ export const GitHubActivity = () => {
                   <TooltipTrigger asChild>
                     <div
                       className="w-full aspect-square rounded-[2px]"
-                      style={{ backgroundColor: colorFor(cell), minHeight: 6 }}
+                      style={{ backgroundColor: colorFor(cell), minHeight: 4, maxHeight: 12 }}
                     />
                   </TooltipTrigger>
                   <TooltipContent side="top" className="font-mono text-xs">

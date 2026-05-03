@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Twitter } from "lucide-react";
+import { XLogo } from "@/components/icons/XLogo";
 import { supabase } from "@/integrations/supabase/client";
 
 export const TwitterPanel = () => {

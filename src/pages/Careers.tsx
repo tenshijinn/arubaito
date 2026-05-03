@@ -4,6 +4,7 @@ import { ChevronDown, Linkedin } from "lucide-react";
 import { XLogo } from "@/components/icons/XLogo";
 import arubaitoLogo from "@/assets/arubaito-logo-black.png";
 import reiCareersImg from "@/assets/rei-careers.png";
+import reiAchievementsImg from "@/assets/rei-achievements.png";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { GitHubActivity } from "@/components/careers/GitHubActivity";
 import { TwitterPanel } from "@/components/careers/TwitterPanel";

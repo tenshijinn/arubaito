@@ -140,7 +140,7 @@ const JobAccordion = ({
       {isOpen && (
         <div className="p-4 pt-0 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
-            className="rounded-2xl overflow-hidden border min-h-[280px] md:min-h-[400px] bg-cover bg-center"
+            className="rounded-2xl overflow-hidden border min-h-[280px] md:min-h-[400px] bg-cover bg-left"
             style={{
               borderColor: "#ed565a",
               backgroundImage: `url(${job.image || "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=800&q=80"})`,

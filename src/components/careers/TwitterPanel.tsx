@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Twitter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const TwitterPanel = () => {
@@ -23,7 +24,10 @@ export const TwitterPanel = () => {
 
   return (
     <div className="w-full h-full flex flex-col justify-between text-[#181818]" style={{ fontFamily: "Consolas, monospace" }}>
-      <div className="text-[8px] font-bold tracking-wide mb-1">@arubaito_app</div>
+      <div className="flex items-center gap-1 text-[8px] font-bold tracking-wide mb-1">
+        <Twitter className="h-3 w-3" />
+        <span>@arubaito_app</span>
+      </div>
       <a
         href={tweetUrl}
         target="_blank"

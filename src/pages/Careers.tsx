@@ -6,6 +6,7 @@ import reiCareersImg from "@/assets/rei-careers.png";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { GitHubActivity } from "@/components/careers/GitHubActivity";
 import { TwitterPanel } from "@/components/careers/TwitterPanel";
+import solanaLogo from "@/assets/solana-logo-careers.png";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -297,16 +298,21 @@ const Careers = () => {
           </div>
 
           <div
-            className="rounded-2xl border p-3 aspect-square h-full shrink-0 overflow-hidden"
+            className="flex-1 min-w-0 rounded-2xl border p-3 overflow-hidden"
             style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
             <TwitterPanel />
           </div>
 
           <div
-            className="rounded-2xl border flex items-center justify-center aspect-square h-full shrink-0"
+            className="rounded-2xl border aspect-square h-full shrink-0 relative p-3 flex items-center justify-center"
             style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
+            <img
+              src={solanaLogo}
+              alt="Solana"
+              className="absolute top-2 left-2 h-3 w-3 object-contain"
+            />
             <TreasuryDisplay />
           </div>
         </div>

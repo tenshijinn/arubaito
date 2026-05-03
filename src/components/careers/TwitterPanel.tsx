@@ -23,22 +23,22 @@ export const TwitterPanel = () => {
   const tweetUrl = tweet ? `https://twitter.com/${data?.handle}/status/${tweet.id}` : `https://twitter.com/arubaito_app`;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between text-[#181818]" style={{ fontFamily: "Consolas, monospace" }}>
-      <div className="flex items-center gap-1 text-[8px] font-bold tracking-wide mb-1">
-        <XLogo className="h-3 w-3" />
-        <span>@arubaito_app</span>
+    <div className="w-full h-full flex flex-col text-[#181818] min-w-0" style={{ fontFamily: "Consolas, monospace" }}>
+      <div className="flex items-center gap-1 text-[8px] font-bold tracking-wide mb-1 min-w-0">
+        <XLogo className="h-3 w-3 shrink-0" />
+        <span className="truncate">@arubaito_app</span>
       </div>
       <a
         href={tweetUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex-1 text-[10px] leading-snug overflow-hidden line-clamp-5 hover:underline"
+        className="flex-1 min-h-0 overflow-y-auto text-[9px] md:text-[10px] leading-snug hover:underline pr-1 break-words"
       >
         {tweet ? tweet.text : "Loading latest tweet…"}
       </a>
-      <div className="flex justify-between text-[8px] font-bold mt-1 pt-1 border-t" style={{ borderColor: "#181818" }}>
-        <span>{data?.followers ?? "—"} Followers</span>
-        <span>{data?.tweet_count ?? "—"} Posts</span>
+      <div className="flex justify-between gap-1 text-[7px] md:text-[8px] font-bold mt-1 pt-1 border-t" style={{ borderColor: "#181818" }}>
+        <span className="truncate">{data?.followers ?? "—"} Flwrs</span>
+        <span className="truncate">{data?.tweet_count ?? "—"} Posts</span>
       </div>
     </div>
   );

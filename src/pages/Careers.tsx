@@ -277,7 +277,7 @@ const Careers = () => {
         to="/"
         className="fixed top-4 left-4 flex flex-col items-start gap-0.5 z-50"
       >
-        <img src={arubaitoLogo} alt="Arubaito" className="h-8 w-auto object-contain" />
+        <img src={arubaitoLogo} alt="Arubaito" className="h-14 w-auto object-contain" />
         <span
           className="text-[9px] tracking-wider uppercase"
           style={{ color: "#181818", fontFamily: "Consolas, monospace" }}

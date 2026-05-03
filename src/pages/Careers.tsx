@@ -317,22 +317,22 @@ const Careers = () => {
       {/* Logo + careers label, top-left of page */}
       <Link
         to="/"
-        className="fixed top-4 left-4 flex flex-col items-start gap-0.5 z-50"
+        className="fixed top-4 left-4 flex flex-row items-center gap-2 z-50"
       >
         <img src={arubaitoLogo} alt="Arubaito" className="h-14 w-auto object-contain" />
         <span
-          className="text-[9px] tracking-wider uppercase"
+          className="text-sm md:text-base tracking-wider uppercase font-bold"
           style={{ color: "#181818", fontFamily: "Consolas, monospace" }}
         >
           {"careers"}
         </span>
       </Link>
 
-      <div className="max-w-4xl mx-auto space-y-6 pt-12">
-        {/* Top panel — 3 boxes */}
-        <div className="flex gap-3 items-stretch h-[160px]">
+      <div className="max-w-4xl mx-auto space-y-6 pt-20 md:pt-12">
+        {/* Top panel — 3 equal boxes */}
+        <div className="grid grid-cols-3 gap-3 items-stretch">
           <div
-            className="flex-1 min-w-0 rounded-2xl border p-3 flex items-center justify-center overflow-hidden"
+            className="aspect-square rounded-2xl border p-2 md:p-3 flex items-center justify-center overflow-hidden"
             style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
             <div className="w-full h-full">
@@ -341,14 +341,14 @@ const Careers = () => {
           </div>
 
           <div
-            className="flex-1 min-w-0 rounded-2xl border p-3 overflow-hidden"
+            className="aspect-square rounded-2xl border p-2 md:p-3 overflow-hidden"
             style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
             <TwitterPanel />
           </div>
 
           <div
-            className="rounded-2xl border aspect-square h-full shrink-0 relative p-3 flex items-center justify-center"
+            className="aspect-square rounded-2xl border relative p-2 md:p-3 flex items-center justify-center"
             style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
             <img

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, Twitter, Linkedin } from "lucide-react";
+import { ChevronDown, Linkedin } from "lucide-react";
+import { XLogo } from "@/components/icons/XLogo";
 import arubaitoLogo from "@/assets/arubaito-logo-black.png";
 import reiCareersImg from "@/assets/rei-careers.png";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";

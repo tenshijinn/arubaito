@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, Twitter, Linkedin } from "lucide-react";
+import { ChevronDown, Linkedin } from "lucide-react";
+import { XLogo } from "@/components/icons/XLogo";
 import arubaitoLogo from "@/assets/arubaito-logo-black.png";
 import reiCareersImg from "@/assets/rei-careers.png";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
@@ -165,7 +166,8 @@ const JobAccordion = ({
             className="rounded-2xl overflow-hidden border min-h-[280px] md:min-h-[400px] bg-cover bg-left"
             style={{
               borderColor: "#181818",
-              backgroundImage: `url(${job.image || "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=800&q=80"})`,
+              backgroundColor: job.image ? undefined : "#181818",
+              backgroundImage: job.image ? `url(${job.image})` : undefined,
             }}
           />
 
@@ -173,7 +175,7 @@ const JobAccordion = ({
             <div className="flex items-center gap-3">
               {job.twitter && (
                 <a href={job.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                  <Twitter className="h-4 w-4" />
+                  <XLogo className="h-4 w-4" />
                 </a>
               )}
               {job.linkedin && (
@@ -197,7 +199,8 @@ const JobAccordion = ({
                 value={telegram}
                 onChange={(e) => setTelegram(e.target.value)}
                 placeholder="@username"
-                className="font-mono text-xs h-9"
+                className="font-mono text-xs h-9 bg-transparent border rounded-md placeholder:text-[#181818]/50"
+                style={{ borderColor: "#181818", color: "#181818" }}
               />
             </div>
 
@@ -208,7 +211,8 @@ const JobAccordion = ({
                   value={twitter}
                   onChange={(e) => setTwitter(e.target.value)}
                   placeholder="@username"
-                  className="font-mono text-xs h-9"
+                  className="font-mono text-xs h-9 bg-transparent border rounded-md placeholder:text-[#181818]/50"
+                  style={{ borderColor: "#181818", color: "#181818" }}
                 />
               </div>
               <div className="space-y-2">
@@ -276,7 +280,7 @@ const Careers = () => {
         to="/"
         className="fixed top-4 left-4 flex flex-col items-start gap-0.5 z-50"
       >
-        <img src={arubaitoLogo} alt="Arubaito" className="h-8 w-auto object-contain" />
+        <img src={arubaitoLogo} alt="Arubaito" className="h-14 w-auto object-contain" />
         <span
           className="text-[9px] tracking-wider uppercase"
           style={{ color: "#181818", fontFamily: "Consolas, monospace" }}

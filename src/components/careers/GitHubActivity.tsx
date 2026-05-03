@@ -8,7 +8,7 @@ const REPOS = [
   { name: "tenshijinn/zkprof", color: [0, 255, 65] as [number, number, number], label: "zkprof" },
 ];
 
-const DAYS = 91; // ~3 months
+const DAYS = 182; // ~6 months
 
 type DayCell = {
   date: string;
@@ -57,7 +57,7 @@ function buildGrid(allCommits: Record<string, string[]>): DayCell[] {
 }
 
 function colorFor(cell: DayCell): string {
-  if (cell.total === 0) return "rgb(210, 208, 205)";
+  if (cell.total === 0) return "#dbd9d7";
   // Find repo with most commits that day
   let dominant = REPOS[0];
   let max = -1;
@@ -101,7 +101,7 @@ export const GitHubActivity = () => {
       <div className="w-full h-full flex flex-col justify-between" style={{ color: "#181818" }}>
         <div className="flex items-center gap-1 text-[8px] font-bold mb-1 tracking-wide" style={{ fontFamily: "Consolas, monospace" }}>
           <Github className="h-3 w-3" />
-          <span>GitHub · 3mo</span>
+          <span>GitHub · 6mo</span>
         </div>
         <div className="flex gap-[2px] flex-1 items-center justify-center">
           <div className="flex gap-[2px]">

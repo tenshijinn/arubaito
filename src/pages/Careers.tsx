@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { ChevronDown, Linkedin } from "lucide-react";
 import { XLogo } from "@/components/icons/XLogo";
 import arubaitoLogo from "@/assets/arubaito-logo-black.png";
-import reiCareersImg from "@/assets/rei-careers.png";
+import reiCareersImg from "@/assets/rei-real.jpeg";
+import reiLogoSquare from "@/assets/rei-logo-square.png";
 import reiAchievementsImg from "@/assets/rei-achievements.png";
 import { TreasuryDisplay } from "@/components/TreasuryDisplay";
 import { GitHubActivity } from "@/components/careers/GitHubActivity";
@@ -173,15 +174,42 @@ const JobAccordion = ({
           />
 
           <div className="space-y-4" style={{ fontFamily: "Consolas, monospace", color: "#181818" }}>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              {job.id === "biz-dev-rei" && (
+                <a href="https://rei.chat" target="_blank" rel="noopener noreferrer" aria-label="Rei">
+                  <img src={reiLogoSquare} alt="Rei" className="h-4 w-4 object-contain rounded-sm" />
+                </a>
+              )}
               {job.twitter && (
-                <a href={job.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                <a href={job.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="flex items-center gap-1">
                   <XLogo className="h-4 w-4" />
                 </a>
               )}
+              {job.id === "biz-dev-rei" && (
+                <a
+                  href="https://canva.link/yf07yh595jztqkj"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs underline"
+                  style={{ color: "#181818" }}
+                >
+                  {"Rei Deck"}
+                </a>
+              )}
               {job.linkedin && (
-                <a href={job.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                <a href={job.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="flex items-center gap-1">
                   <Linkedin className="h-4 w-4" />
+                </a>
+              )}
+              {job.id === "biz-dev-rei" && (
+                <a
+                  href="https://canva.link/olq20ck86uyyv4v"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs underline"
+                  style={{ color: "#181818" }}
+                >
+                  {"Arubaito Deck"}
                 </a>
               )}
             </div>

@@ -44,11 +44,21 @@ async function fetchViaSocialData() {
   });
   if (!userRes.ok) throw new Error(`socialdata user ${userRes.status}`);
   const user = await userRes.json();
-  const tweetsRes = await fetch(`https://api.socialdata.tools/twitter/user/${user.id}/tweets`, {
+  const userId = user.id_str || user.id;
+  console.log("socialdata user", HANDLE, "id:", userId, "followers:", user.followers_count);
+  const tweetsRes = await fetch(`https://api.socialdata.tools/twitter/user/${userId}/tweets`, {
     headers: { Authorization: `Bearer ${SOCIALDATA_API_KEY}`, Accept: "application/json" },
   });
-  const tweetsJson = tweetsRes.ok ? await tweetsRes.json() : { tweets: [] };
-  const latest = (tweetsJson.tweets || [])[0];
+  let latest: any = null;
+  if (tweetsRes.ok) {
+    const tweetsJson = await tweetsRes.json();
+    const arr = tweetsJson.tweets || tweetsJson.statuses || tweetsJson.data || (Array.isArray(tweetsJson) ? tweetsJson : []);
+    // skip retweets/replies
+    latest = arr.find((t: any) => !t.retweeted_status && !t.in_reply_to_status_id_str && !t.in_reply_to_user_id_str) || arr[0] || null;
+    console.log("socialdata tweets count:", arr.length, "latest id:", latest?.id_str || latest?.id);
+  } else {
+    console.error("socialdata tweets failed", tweetsRes.status, await tweetsRes.text());
+  }
   return {
     handle: HANDLE,
     followers: user.followers_count ?? 0,
@@ -90,7 +100,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    if (cache && Date.now() - cache.ts < TTL_MS) {
+    const url = new URL(req.url);
+    const fresh = url.searchParams.get("fresh") === "1";
+    if (!fresh && cache && Date.now() - cache.ts < TTL_MS && cache.data?.latest_tweet) {
       return new Response(JSON.stringify(cache.data), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

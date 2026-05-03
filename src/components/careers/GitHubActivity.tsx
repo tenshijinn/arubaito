@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Github } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const REPOS = [

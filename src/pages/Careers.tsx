@@ -121,8 +121,23 @@ const JobAccordion = ({
     }
     setSubmitting(true);
     try {
-      let cv_base64: string | undefined;
-      if (cv) cv_base64 = await fileToBase64(cv);
+      let cv_path: string | undefined;
+      let cv_filename: string | undefined;
+      let cv_content_type: string | undefined;
+      if (cv) {
+        const safe = cv.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `${job.id}/${Date.now()}-${safe}`;
+        const { error: upErr } = await supabase.storage
+          .from("rei-contributor-files")
+          .upload(path, cv, {
+            contentType: cv.type || "application/octet-stream",
+            upsert: false,
+          });
+        if (upErr) throw new Error(`CV upload failed: ${upErr.message}`);
+        cv_path = path;
+        cv_filename = cv.name;
+        cv_content_type = cv.type;
+      }
 
       const { error } = await supabase.functions.invoke("send-careers-application", {
         body: {
@@ -130,9 +145,9 @@ const JobAccordion = ({
           job_title: job.title,
           telegram,
           twitter,
-          cv_base64,
-          cv_filename: cv?.name,
-          cv_content_type: cv?.type,
+          cv_path,
+          cv_filename,
+          cv_content_type,
         },
       });
       if (error) throw error;

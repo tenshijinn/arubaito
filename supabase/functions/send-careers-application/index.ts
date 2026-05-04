@@ -15,9 +15,11 @@ interface Payload {
   job_title: string;
   telegram?: string;
   twitter?: string;
-  cv_base64?: string;
+  cv_path?: string;
   cv_filename?: string;
   cv_content_type?: string;
+  // legacy
+  cv_base64?: string;
 }
 
 serve(async (req) => {
@@ -34,10 +36,11 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    let cv_path: string | null = null;
+    let cv_path: string | null = data.cv_path ?? null;
     let cv_url: string | null = null;
 
-    if (data.cv_base64 && data.cv_filename) {
+    // Legacy base64 fallback
+    if (!cv_path && data.cv_base64 && data.cv_filename) {
       const bin = atob(data.cv_base64);
       const arr = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
@@ -51,12 +54,16 @@ serve(async (req) => {
         });
       if (upErr) {
         console.error("Upload error:", upErr);
-      } else {
-        const { data: signed } = await supabase.storage
-          .from("rei-contributor-files")
-          .createSignedUrl(cv_path, 60 * 60 * 24 * 30);
-        cv_url = signed?.signedUrl ?? null;
+        cv_path = null;
       }
+    }
+
+    if (cv_path) {
+      const { data: signed, error: signErr } = await supabase.storage
+        .from("rei-contributor-files")
+        .createSignedUrl(cv_path, 60 * 60 * 24 * 30);
+      if (signErr) console.error("Sign URL error:", signErr);
+      cv_url = signed?.signedUrl ?? null;
     }
 
     const submissionId = crypto.randomUUID();

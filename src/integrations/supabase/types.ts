@@ -1305,6 +1305,45 @@ export type Database = {
         }
         Relationships: []
       }
+      twitter_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          expires_at: string
+          fetched_at: string
+          followers: number
+          handle: string
+          latest_tweet: Json | null
+          source: string | null
+          tweet_count: number
+          updated_at: string
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          expires_at: string
+          fetched_at?: string
+          followers?: number
+          handle: string
+          latest_tweet?: Json | null
+          source?: string | null
+          tweet_count?: number
+          updated_at?: string
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          expires_at?: string
+          fetched_at?: string
+          followers?: number
+          handle?: string
+          latest_tweet?: Json | null
+          source?: string | null
+          tweet_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       twitter_whitelist: {
         Row: {
           created_at: string | null

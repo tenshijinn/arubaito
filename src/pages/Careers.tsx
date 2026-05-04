@@ -334,25 +334,28 @@ const Careers = () => {
 
       <div className="max-w-4xl mx-auto space-y-6 pt-20 md:pt-12">
         {/* Top panel — 3 equal boxes */}
-        <div className="grid grid-cols-3 gap-3 items-stretch">
+        <div
+          className="grid items-stretch gap-2 md:gap-3"
+          style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}
+        >
           <div
-            className="min-w-0 aspect-square rounded-2xl border p-2 md:p-3 flex items-center justify-center overflow-hidden"
+            className="min-w-0 h-[106px] md:h-auto md:aspect-square rounded-2xl border p-2 md:p-3 flex items-center justify-center overflow-hidden"
             style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
-            <div className="w-full h-full min-w-0">
+            <div className="w-full h-full min-w-0 overflow-hidden">
               <GitHubActivity />
             </div>
           </div>
 
           <div
-            className="min-w-0 aspect-square rounded-2xl border p-2 md:p-3 overflow-hidden"
+            className="min-w-0 h-[106px] md:h-auto md:aspect-square rounded-2xl border p-2 md:p-3 overflow-hidden"
             style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
             <TwitterPanel />
           </div>
 
           <div
-            className="min-w-0 aspect-square rounded-2xl border relative p-2 md:p-3 flex items-center justify-center overflow-hidden"
+            className="min-w-0 h-[106px] md:h-auto md:aspect-square rounded-2xl border relative p-2 md:p-3 flex items-center justify-center overflow-hidden"
             style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
             <img

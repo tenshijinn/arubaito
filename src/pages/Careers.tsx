@@ -85,17 +85,6 @@ const linkify = (text: string) => {
   );
 };
 
-const fileToBase64 = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const r = reader.result as string;
-      resolve(r.split(",")[1] || "");
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-
 const JobAccordion = ({
   job,
   isOpen,

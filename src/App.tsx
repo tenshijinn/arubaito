@@ -16,6 +16,7 @@ import Meaning from "./pages/Meaning";
 import NetworkSchool from "./pages/NetworkSchool";
 import GuestList from "./pages/GuestList";
 import Careers from "./pages/Careers";
+import Unsubscribe from "./pages/Unsubscribe";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,7 +41,7 @@ const App = () => (
               <Route path="/ns" element={<NetworkSchool />} />
               <Route path="/guestlist" element={<GuestList />} />
               <Route path="/careers" element={<Careers />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

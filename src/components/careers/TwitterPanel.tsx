@@ -13,10 +13,14 @@ export const TwitterPanel = () => {
         followers: number;
         tweet_count: number;
         latest_tweet: { id: string; text: string; created_at: string } | null;
+        fetched_at?: string;
       };
     },
-    staleTime: 1000 * 60 * 60 * 12,
+    staleTime: 1000 * 60 * 60 * 24,
+    gcTime: 1000 * 60 * 60 * 24,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 1,
   });
 
   const tweet = data?.latest_tweet;
@@ -34,7 +38,7 @@ export const TwitterPanel = () => {
         rel="noopener noreferrer"
         className="flex-1 min-h-0 overflow-y-auto text-[9px] md:text-[10px] leading-snug hover:underline pr-1 break-words"
       >
-        {tweet ? tweet.text : "Loading latest tweet…"}
+        {tweet ? tweet.text : "Latest post unavailable"}
       </a>
       <div className="flex justify-between gap-1 text-[7px] md:text-[8px] font-bold mt-1 pt-1 border-t" style={{ borderColor: "#181818" }}>
         <span className="truncate">{data?.followers ?? "—"} Flwrs</span>

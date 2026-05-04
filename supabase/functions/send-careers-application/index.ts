@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -37,13 +36,11 @@ serve(async (req) => {
 
     let cv_path: string | null = null;
     let cv_url: string | null = null;
-    let cv_bytes: Uint8Array | null = null;
 
     if (data.cv_base64 && data.cv_filename) {
       const bin = atob(data.cv_base64);
       const arr = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-      cv_bytes = arr;
       const safe = data.cv_filename.replace(/[^a-zA-Z0-9._-]/g, "_");
       cv_path = `${data.job_id}/${Date.now()}-${safe}`;
       const { error: upErr } = await supabase.storage
@@ -62,9 +59,13 @@ serve(async (req) => {
       }
     }
 
+    const submissionId = crypto.randomUUID();
+    const submittedAt = new Date().toISOString();
+
     const { error: insErr } = await supabase
       .from("careers_applications")
       .insert({
+        id: submissionId,
         job_id: data.job_id,
         job_title: data.job_title,
         telegram: data.telegram || null,
@@ -78,44 +79,31 @@ serve(async (req) => {
       throw new Error(insErr.message);
     }
 
-    const html = `
-      <h2>New Careers Application</h2>
-      <p><strong>Role:</strong> ${data.job_title}</p>
-      <p><strong>Telegram:</strong> ${data.telegram || "—"}</p>
-      <p><strong>Twitter:</strong> ${data.twitter || "—"}</p>
-      <p><strong>CV:</strong> ${cv_url ? `<a href="${cv_url}">Download CV</a>` : "Not provided"}</p>
-      <p><strong>Submitted:</strong> ${new Date().toISOString()}</p>
-    `;
-
-    const attachments = cv_bytes && data.cv_filename
-      ? [{ filename: data.cv_filename, content: data.cv_base64 }]
-      : undefined;
-
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
+    const { error: emailError, data: emailData } = await supabase.functions.invoke("send-transactional-email", {
+      body: {
+        templateName: "careers-application-notification",
+        idempotencyKey: `careers-application-${submissionId}`,
+        templateData: {
+          jobTitle: data.job_title,
+          telegram: data.telegram || null,
+          twitter: data.twitter || null,
+          cvUrl: cv_url,
+          submittedAt,
+        },
       },
-      body: JSON.stringify({
-        from: "Arubaito Careers <careers@notify.arubaito.app>",
-        to: ["rei@arubaito.app"],
-        reply_to: "rei@arubaito.app",
-        subject: `New Application: ${data.job_title}`,
-        html,
-        ...(attachments ? { attachments } : {}),
-      }),
     });
 
-    if (!res.ok) {
-      console.error("Resend send failed status", res.status);
-    } else {
-      const okJson = await res.clone().json().catch(() => null);
-      console.log("Resend send ok", okJson);
+    if (emailError) {
+      console.error("App email invoke failed", emailError);
+      throw new Error(emailError.message || "Failed to queue application email");
     }
 
+    if (!emailData?.success) {
+      console.error("App email response unsuccessful", emailData);
+      throw new Error("Failed to queue application email");
+    }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, queued: true }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

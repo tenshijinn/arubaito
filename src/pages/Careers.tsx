@@ -332,23 +332,23 @@ const Careers = () => {
         {/* Top panel — 3 equal boxes */}
         <div className="grid grid-cols-3 gap-3 items-stretch">
           <div
-            className="aspect-square rounded-2xl border p-2 md:p-3 flex items-center justify-center overflow-hidden"
+            className="min-w-0 aspect-square rounded-2xl border p-2 md:p-3 flex items-center justify-center overflow-hidden"
             style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
-            <div className="w-full h-full">
+            <div className="w-full h-full min-w-0">
               <GitHubActivity />
             </div>
           </div>
 
           <div
-            className="aspect-square rounded-2xl border p-2 md:p-3 overflow-hidden"
+            className="min-w-0 aspect-square rounded-2xl border p-2 md:p-3 overflow-hidden"
             style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
             <TwitterPanel />
           </div>
 
           <div
-            className="aspect-square rounded-2xl border relative p-2 md:p-3 flex items-center justify-center"
+            className="min-w-0 aspect-square rounded-2xl border relative p-2 md:p-3 flex items-center justify-center overflow-hidden"
             style={{ borderColor: "#181818", backgroundColor: "transparent" }}
           >
             <img

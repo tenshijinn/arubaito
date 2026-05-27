@@ -14,6 +14,7 @@ import zkprofButton from "@/assets/zkprof-button.png";
 import ubiButton from "@/assets/ubi-button.png";
 import perksButton from "@/assets/perks-button.png";
 import ikigaiSample from "@/assets/ikigai-card-sample.png";
+import reiDigital from "@/assets/rei-digital.png";
 
 // ── Aesthetics theme tokens (mirrored from /aesthetics) ───────────────────
 const CREAM = "#faf1e1";
@@ -68,6 +69,7 @@ const Index = () => {
   const [showManifesto, setShowManifesto] = useState(false);
   const tasksWords = ["Tasks", "Gigs", "Bounties"];
   const humansWords = ["AI", "Humans"];
+  const zkpfpWords = ["Jobs", "Gigs", "Tasks", "Contracts"];
   const companies = [
     "Binance","Coinbase","ConsenSys","Chainlink","Uniswap","Aave","Jupiter","Magic Eden","Phantom","Marinade Finance","Polygon","Avalanche","Near Protocol","Arbitrum","Optimism","StarkWare","Circle","Ledger","OpenSea","Animoca Brands","Messari","The Graph","dYdX","Helium","Drift Protocol","Mad Lads","Tensor","Saga Phone","Bonk","Myro","Pudgy Penguins","Azuki","Book of Meme","Pepe","Doodles",
   ];
@@ -108,26 +110,19 @@ const Index = () => {
         {/* Bottom-left text + buttons */}
         <div className="absolute bottom-8 left-8 flex flex-col gap-4 z-10 w-full max-w-md px-0">
           <div className="w-full text-left">
-            {hoveredButton === "rei" ? (
+            {hoveredButton === "zkpfp" ? (
               <p
                 className="text-sm md:text-base leading-relaxed"
                 style={{ fontFamily: SANS, color: INK }}
               >
-                <span>{"Aggregates "}</span>
+                <span>{"Apply to "}</span>
                 <span className="underline">
-                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color={ACCENT} pauseDuration={5000} />
+                  <TextRotator key="zkpfp-rotator" words={zkpfpWords} isActive={true} color={ACCENT} pauseDuration={2500} />
                 </span>
-                <span>{" for "}</span>
-                <span className="underline">
-                  <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} color={ACCENT} />
-                </span>
-                <span>{" hiring "}</span>
-                <span className="underline">
-                  <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} color={ACCENT} />
-                </span>
+                <span>{" Private"}</span>
                 <br />
                 <span className="text-xs mt-2 block" style={{ color: MUTED }}>
-                  {"Rei will find you anything from Zealy Tasks to C-Level Roles. [ALaaAA]"}
+                  {"Dox Yourself Privately with Zero Knowledge Profile Picture."}
                 </span>
               </p>
             ) : (
@@ -136,28 +131,28 @@ const Index = () => {
                   className="text-sm md:text-base leading-relaxed"
                   style={{ fontFamily: SANS, color: INK }}
                 >
-                  <span style={{ color: ACCENT }}>{"Connecting"}</span>{" "}
+                  <span style={{ color: INK }}>{"Connecting"}</span>{" "}
                   <span className="underline">
                     <TextRotator
                       key="default-companies-1"
                       words={companies}
                       isActive={true}
                       delay={0}
-                      color={INK}
+                      color={ACCENT}
                       startIndex={0}
                       pauseDuration={10000}
                     />
                   </span>{" "}
-                  <span style={{ color: ACCENT }}>{"to"}</span>
+                  <span style={{ color: INK }}>{"to"}</span>
                   <br />
-                  <span style={{ color: ACCENT }}>{"Ex-"}</span>
+                  <span style={{ color: INK }}>{"Ex-"}</span>
                   <span className="underline">
                     <TextRotator
                       key="default-companies-2"
                       words={companies}
                       isActive={true}
                       delay={800}
-                      color={INK}
+                      color={ACCENT}
                       startIndex={10}
                       pauseDuration={10000}
                     />
@@ -184,8 +179,8 @@ const Index = () => {
               Enter Club
             </button>
             <button
-              onClick={() => window.open("https://rei.chat", "_blank")}
-              onMouseEnter={() => setHoveredButton("rei")}
+              onClick={() => window.open("https://zkprof.xyz", "_blank")}
+              onMouseEnter={() => setHoveredButton("zkpfp")}
               onMouseLeave={() => setHoveredButton(null)}
               className="flex-1 px-5 py-2.5 rounded-full text-sm transition-colors"
               style={{
@@ -195,7 +190,7 @@ const Index = () => {
                 fontFamily: SANS,
               }}
             >
-              @AskRei
+              Mint zkPFP
             </button>
           </div>
         </div>
@@ -474,6 +469,46 @@ const Index = () => {
               )}
             </div>
           </Card>
+        </div>
+
+        {/* Section 3 - Earn Crypto from Bounties */}
+        <div
+          className="h-screen flex-shrink-0 relative snap-start overflow-hidden flex flex-col items-center justify-center px-8"
+          style={{
+            backgroundImage: `url(${reiDigital})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundColor: "#0a0a0a",
+          }}
+        >
+          <div className="absolute inset-0" style={{ background: "rgba(10,10,10,0.45)" }} />
+          <div className="relative z-10 flex flex-col items-center text-center">
+            <h2
+              style={{
+                fontFamily: DISPLAY,
+                fontSize: 44,
+                letterSpacing: "-0.03em",
+                color: CREAM,
+                fontWeight: 500,
+                lineHeight: 1.05,
+              }}
+            >
+              Earn Crypto from Bounties
+            </h2>
+            <span
+              className="uppercase tracking-[0.18em] mt-8"
+              style={{ fontFamily: MONO, fontSize: 11, color: "rgba(250,241,225,0.65)" }}
+            >
+              A Thousand Unicorn Bounties in Your Chat
+            </span>
+            <button
+              onClick={() => window.open("https://rei.chat", "_blank")}
+              className="mt-3 px-6 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
+              style={{ background: ACCENT, color: PAPER, fontFamily: SANS }}
+            >
+              @AskRei
+            </button>
+          </div>
         </div>
       </div>
 

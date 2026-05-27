@@ -393,7 +393,8 @@ const StreakCard = () => {
             <div
               className="h-9 w-9 rounded-full flex items-center justify-center"
               style={{
-                background: completed[i] ? ACCENT : CONCRETE,
+                background: completed[i] ? ACCENT : "transparent",
+                border: completed[i] ? "none" : `1.5px solid ${BORDER}`,
               }}
             >
               {completed[i] && <Check size={14} strokeWidth={2} color={PAPER} />}

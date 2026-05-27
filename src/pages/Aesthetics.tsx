@@ -341,58 +341,58 @@ const RadialIndicator = () => {
 // ── Section: ASCII Bar Chart (Treasury) ────────────────────────────────────
 
 const LineGraph = () => {
-  const months = ["Apr", "May", "Jun", "Jul", "Aug", "Sep"];
-  const values = [4, 6, 3, 8, 5, 9];
-  const maxBarHeight = 10;
+  // Sales-growth style: dense vertical lines spanning the card width
+  const barCount = 56;
+  // smooth-ish upward trend with subtle noise
+  const values = Array.from({ length: barCount }, (_, i) => {
+    const base = Math.pow(i / (barCount - 1), 1.8); // 0 → 1, eased
+    const noise = (Math.sin(i * 1.3) + Math.sin(i * 0.7)) * 0.04;
+    return Math.max(0.02, base + noise);
+  });
   const max = Math.max(...values);
+  const chartHeight = 80;
+  const minH = 2;
   return (
     <Card>
       <div className="flex items-center justify-between mb-2">
         <Label>Treasury Balance</Label>
         <Label>30d</Label>
       </div>
-      <div className="flex items-baseline gap-2 mb-4">
+      <div className="flex items-baseline gap-2 mb-5">
         <span style={{ fontFamily: DISPLAY, fontSize: 38, color: INK, letterSpacing: "-0.04em", fontWeight: 500 }}>
           12.84
         </span>
         <span style={{ fontFamily: SANS, fontSize: 13, color: MUTED }}>SOL / +1.6%</span>
       </div>
-      <div style={{ fontFamily: MONO, fontSize: 13, lineHeight: 1.1, color: INK }}>
-        {Array.from({ length: maxBarHeight }).map((_, rowIdx) => {
-          const rowLevel = maxBarHeight - rowIdx;
+      <div
+        className="flex items-end justify-between w-full"
+        style={{ height: chartHeight, gap: 2 }}
+      >
+        {values.map((v, i) => {
+          const h = Math.max(minH, (v / max) * chartHeight);
+          const isLast = i === values.length - 1;
           return (
-            <div key={rowIdx} className="flex justify-between">
-              {values.map((v, i) => {
-                const h = Math.round((v / max) * maxBarHeight);
-                const isLast = i === values.length - 1;
-                const filled = h >= rowLevel;
-                const isTop = h === rowLevel;
-                const char = filled ? (isTop ? "▄" : "█") : "·";
-                return (
-                  <span
-                    key={i}
-                    style={{
-                      color: filled ? (isLast ? ACCENT : INK) : BORDER,
-                      flex: 1,
-                      textAlign: "center",
-                    }}
-                  >
-                    {char}
-                  </span>
-                );
-              })}
-            </div>
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                height: h,
+                background: isLast ? ACCENT : INK,
+                borderRadius: 1,
+              }}
+            />
           );
         })}
-        <div className="flex justify-between mt-3">
-          {months.map((m) => (
-            <span key={m} style={{ flex: 1, textAlign: "center", fontSize: 10, color: MUTED }}>{m}</span>
-          ))}
-        </div>
+      </div>
+      <div className="flex justify-between mt-3" style={{ fontFamily: MONO, fontSize: 10, color: MUTED }}>
+        {["Apr", "May", "Jun", "Jul", "Aug", "Sep"].map((m) => (
+          <span key={m}>{m}</span>
+        ))}
       </div>
     </Card>
   );
 };
+
 
 // ── Section: Streak (week-streak inspiration) ──────────────────────────────
 

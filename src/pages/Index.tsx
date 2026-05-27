@@ -8,17 +8,57 @@ import { VideoHeroSection } from "@/components/VideoHeroSection";
 import { MemberSlider } from "@/components/MemberSlider";
 import arubaitoLogo from "@/assets/arubaito-logo.png";
 import reiLogoEye from "@/assets/rei-logo-eye.png";
-import reiUspAi from "@/assets/rei-usp-ai.png";
-import reiUspMatch from "@/assets/rei-usp-match.png";
-import reiUspX from "@/assets/rei-usp-x.png";
-import reiUspSolana from "@/assets/rei-usp-solana.png";
-import clubUspNft from "@/assets/club-usp-nft.png";
-import clubUspCv from "@/assets/club-usp-cv.png";
 import reiButton from "@/assets/rei-button.png";
 import zkprofButton from "@/assets/zkprof-button.png";
 import ubiButton from "@/assets/ubi-button.png";
 import perksButton from "@/assets/perks-button.png";
-import meaningfulBg from "@/assets/meaningful-bg-final.png";
+
+// ── Aesthetics theme tokens (mirrored from /aesthetics) ───────────────────
+const CREAM = "#faf1e1";
+const PAPER = "#f5ead7";
+const SURFACE = "#efe2c9";
+const CONCRETE = "#e3d4b6";
+const INK = "#181818";
+const GRAPHITE = "#2a2a2a";
+const MUTED = "rgba(24,24,24,0.55)";
+const BORDER = "rgba(24,24,24,0.18)";
+const ACCENT = "#ed565a";
+
+const SANS = "'Consolas', 'IBM Plex Mono', monospace";
+const DISPLAY = "'Styrene A Trial', 'Consolas', monospace";
+const MONO = "'Consolas', 'IBM Plex Mono', monospace";
+
+const Label = ({ children }: { children: React.ReactNode }) => (
+  <span
+    className="uppercase tracking-[0.18em]"
+    style={{ fontFamily: MONO, fontSize: 10, color: MUTED }}
+  >
+    {children}
+  </span>
+);
+
+const Card = ({
+  children,
+  className = "",
+  padded = true,
+  inverted = false,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  padded?: boolean;
+  inverted?: boolean;
+}) => (
+  <div
+    className={`rounded-[20px] ${className}`}
+    style={{
+      background: inverted ? INK : "transparent",
+      border: `1.5px solid ${inverted ? "rgba(239,226,201,0.18)" : BORDER}`,
+      padding: padded ? 24 : 0,
+    }}
+  >
+    {children}
+  </div>
+);
 
 const Index = () => {
   const navigate = useNavigate();
@@ -27,89 +67,22 @@ const Index = () => {
   const tasksWords = ["Tasks", "Gigs", "Bounties"];
   const humansWords = ["AI", "Humans"];
   const companies = [
-    "Binance",
-    "Coinbase",
-    "ConsenSys",
-    "Chainlink",
-    "Uniswap",
-    "Aave",
-    "Jupiter",
-    "Magic Eden",
-    "Phantom",
-    "Marinade Finance",
-    "Polygon",
-    "Avalanche",
-    "Near Protocol",
-    "Arbitrum",
-    "Optimism",
-    "StarkWare",
-    "Circle",
-    "Ledger",
-    "OpenSea",
-    "Animoca Brands",
-    "Messari",
-    "The Graph",
-    "dYdX",
-    "Helium",
-    "Drift Protocol",
-    "Mad Lads",
-    "Tensor",
-    "Saga Phone",
-    "Bonk",
-    "Myro",
-    "Pudgy Penguins",
-    "Azuki",
-    "Book of Meme",
-    "Pepe",
-    "Doodles",
+    "Binance","Coinbase","ConsenSys","Chainlink","Uniswap","Aave","Jupiter","Magic Eden","Phantom","Marinade Finance","Polygon","Avalanche","Near Protocol","Arbitrum","Optimism","StarkWare","Circle","Ledger","OpenSea","Animoca Brands","Messari","The Graph","dYdX","Helium","Drift Protocol","Mad Lads","Tensor","Saga Phone","Bonk","Myro","Pudgy Penguins","Azuki","Book of Meme","Pepe","Doodles",
   ];
   const jobTitles = [
-    "Smart Contract Developers",
-    "Blockchain Engineers",
-    "Frontend Developers",
-    "Backend Developers",
-    "Full Stack Developers",
-    "Solidity Developers",
-    "Rust Developers",
-    "Protocol Engineers",
-    "Security Auditors",
-    "DevOps Engineers",
-    "Product Managers",
-    "Community Managers",
-    "Partnerships Managers",
-    "Growth Leads",
-    "Marketing Managers",
-    "UI/UX Designers",
-    "Governance Leads",
-    "DAO Coordinators",
-    "Research Analysts",
-    "Content Creators",
+    "Smart Contract Developers","Blockchain Engineers","Frontend Developers","Backend Developers","Full Stack Developers","Solidity Developers","Rust Developers","Protocol Engineers","Security Auditors","DevOps Engineers","Product Managers","Community Managers","Partnerships Managers","Growth Leads","Marketing Managers","UI/UX Designers","Governance Leads","DAO Coordinators","Research Analysts","Content Creators",
   ];
-  const getBackgroundStyle = () => {
-    if (hoveredButton === "rei") {
-      return {
-        backgroundColor: "hsl(var(--landing-bg))",
-        backgroundImage: "url(/rei-hover.png)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        transition: "background-image 0.3s ease",
-      };
-    }
-    return {
-      backgroundColor: "hsl(var(--landing-bg))",
-      transition: "background-image 0.3s ease",
-    };
-  };
+
   return (
     <div
-      className="min-h-screen flex flex-col lg:flex-row font-mono"
-      style={{
-        backgroundColor: "hsl(var(--landing-bg))",
-      }}
+      className="min-h-screen flex flex-col lg:flex-row"
+      style={{ backgroundColor: PAPER, color: INK, fontFamily: SANS }}
     >
       {/* LEFT COLUMN - Static */}
-      <div className="w-full lg:w-1/2 min-h-screen lg:h-screen lg:sticky lg:top-0 relative flex items-center justify-center overflow-hidden">
-
+      <div
+        className="w-full lg:w-1/2 min-h-screen lg:h-screen lg:sticky lg:top-0 relative flex items-center justify-center overflow-hidden"
+        style={{ backgroundColor: PAPER }}
+      >
         {/* Treasury - top left corner */}
         <div className="absolute top-4 left-4 z-50 hidden lg:block">
           <TreasuryDisplay />
@@ -120,158 +93,108 @@ const Index = () => {
           <WaitlistCountdown />
         </div>
 
-        {/* Logo - dead center of left panel */}
+        {/* Logo - dead center */}
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
           <img
             src={hoveredButton === "rei" ? reiLogoEye : arubaitoLogo}
             alt={hoveredButton === "rei" ? "Rei" : "Arubaito"}
             className="h-24 md:h-32 w-auto transition-all duration-300"
+            style={{ filter: "invert(1)" }}
           />
         </div>
 
-        {/* Text and buttons - bottom left corner */}
+        {/* Bottom-left text + buttons */}
         <div className="absolute bottom-8 left-8 flex flex-col gap-4 z-10 w-full max-w-md px-0">
-          {/* Left aligned text with rotating words */}
           <div className="w-full text-left">
             {hoveredButton === "rei" ? (
               <p
-                className="text-sm md:text-base font-mono leading-relaxed"
-                style={{
-                  fontFamily: "Consolas, monospace",
-                  color: "#faf6f4",
-                }}
+                className="text-sm md:text-base leading-relaxed"
+                style={{ fontFamily: SANS, color: INK }}
               >
-                Aggregates{" "}
+                <span>{"Aggregates "}</span>
                 <span className="underline">
-                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color="#ffa6ff" pauseDuration={5000} />
-                </span>{" "}
-                for{" "}
+                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color={ACCENT} pauseDuration={5000} />
+                </span>
+                <span>{" for "}</span>
                 <span className="underline">
-                  <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} color="#ffa6ff" />
-                </span>{" "}
-                hiring{" "}
+                  <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} color={ACCENT} />
+                </span>
+                <span>{" hiring "}</span>
                 <span className="underline">
-                  <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} color="#ffa6ff" />
+                  <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} color={ACCENT} />
                 </span>
                 <br />
-                <span className="text-xs mt-2 block">
-                  Rei will find you anything from Zealy Tasks to C-Level Roles. [ALaaAA]
+                <span className="text-xs mt-2 block" style={{ color: MUTED }}>
+                  {"Rei will find you anything from Zealy Tasks to C-Level Roles. [ALaaAA]"}
                 </span>
               </p>
             ) : (
               hoveredButton === null && (
                 <p
-                  className="text-sm md:text-base font-mono leading-relaxed"
-                  style={{
-                    fontFamily: "Consolas, monospace",
-                    color: "#faf6f4",
-                  }}
+                  className="text-sm md:text-base leading-relaxed"
+                  style={{ fontFamily: SANS, color: INK }}
                 >
-                  <span
-                    style={{
-                      color: "#ed565a",
-                    }}
-                  >
-                    Connecting
-                  </span>{" "}
+                  <span style={{ color: ACCENT }}>{"Connecting"}</span>{" "}
                   <span className="underline">
                     <TextRotator
                       key="default-companies-1"
                       words={companies}
                       isActive={true}
                       delay={0}
-                      color="#faf6f4"
+                      color={INK}
                       startIndex={0}
                       pauseDuration={10000}
                     />
                   </span>{" "}
-                  <span
-                    style={{
-                      color: "#ed565a",
-                    }}
-                  >
-                    to
-                  </span>
+                  <span style={{ color: ACCENT }}>{"to"}</span>
                   <br />
-                  <span
-                    style={{
-                      color: "#ed565a",
-                    }}
-                  >
-                    Ex-
-                  </span>
+                  <span style={{ color: ACCENT }}>{"Ex-"}</span>
                   <span className="underline">
                     <TextRotator
                       key="default-companies-2"
                       words={companies}
                       isActive={true}
                       delay={800}
-                      color="#faf6f4"
+                      color={INK}
                       startIndex={10}
                       pauseDuration={10000}
                     />
                   </span>{" "}
                   <span className="underline">
-                    <TextRotator key="default-jobs" words={jobTitles} isActive={true} delay={1600} color="#ed565a" />
+                    <TextRotator key="default-jobs" words={jobTitles} isActive={true} delay={1600} color={ACCENT} />
                   </span>
                   <br />
-                  <span className="text-xs mt-2 block">Private Members Network Club</span>
+                  <span className="text-xs mt-2 block" style={{ color: MUTED }}>
+                    {"Private Members Network Club"}
+                  </span>
                 </p>
               )
             )}
           </div>
 
-          {/* Buttons side by side */}
+          {/* Buttons — aesthetics pill style */}
           <div className="flex gap-3 w-full max-w-xs">
-            <Button
+            <button
               onClick={() => navigate("/arubaito")}
-              variant="outline"
-              size="sm"
-              className="flex-1 text-xs px-3 py-2 border font-mono transition-all duration-300"
-              style={{
-                backgroundColor: "#ed565a",
-                borderColor: "#ed565a",
-                color: "#181818",
-                fontFamily: "Consolas, monospace",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "#ed565a";
-                e.currentTarget.style.borderColor = "#ed565a";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#ed565a";
-                e.currentTarget.style.color = "#181818";
-                e.currentTarget.style.borderColor = "#ed565a";
-              }}
+              className="flex-1 px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
+              style={{ background: INK, color: CREAM, fontFamily: SANS }}
             >
               Enter Club
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={() => window.open("https://rei.chat", "_blank")}
-              variant="outline"
-              size="sm"
-              className="flex-1 text-xs px-3 py-2 bg-transparent border font-mono transition-all duration-300"
+              onMouseEnter={() => setHoveredButton("rei")}
+              onMouseLeave={() => setHoveredButton(null)}
+              className="flex-1 px-5 py-2.5 rounded-full text-sm transition-colors"
               style={{
-                borderColor: "hsl(var(--landing-border))",
-                color: "hsl(var(--landing-border))",
-                fontFamily: "Consolas, monospace",
-              }}
-              onMouseEnter={(e) => {
-                setHoveredButton("rei");
-                e.currentTarget.style.backgroundColor = "#ed565a";
-                e.currentTarget.style.color = "#ffffff";
-                e.currentTarget.style.borderColor = "#ed565a";
-              }}
-              onMouseLeave={(e) => {
-                setHoveredButton(null);
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "hsl(var(--landing-border))";
-                e.currentTarget.style.borderColor = "hsl(var(--landing-border))";
+                background: "transparent",
+                color: INK,
+                border: `1.5px solid ${INK}`,
+                fontFamily: SANS,
               }}
             >
               @AskRei
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -280,40 +203,39 @@ const Index = () => {
       <div
         className="w-full lg:w-1/2 h-screen overflow-y-scroll snap-y snap-mandatory relative"
         style={{
-          backgroundColor: "#181818",
+          backgroundColor: PAPER,
           scrollSnapType: "y mandatory",
           scrollSnapStop: "always",
         }}
       >
-        {/* Hover overlay from @AskRei button */}
-        {hoveredButton === "rei" && (
-          <div
-            className="absolute inset-0 z-50 pointer-events-none"
-            style={{
-              backgroundImage: "url(/rei-hover.png)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-        )}
-        {/* Section 0 - Video Hero */}
+        {/* Section 0 - Video Hero (kept) */}
         <VideoHeroSection
-          onScrollDown={() => document.getElementById("manifesto-section")?.scrollIntoView({ behavior: "smooth" })}
+          onScrollDown={() =>
+            document.getElementById("manifesto-section")?.scrollIntoView({ behavior: "smooth" })
+          }
         />
 
         {/* Section 0.25 - Manifesto */}
         <div
           id="manifesto-section"
           className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-16 lg:px-20 snap-start"
-          style={{ backgroundColor: '#181818' }}
+          style={{ backgroundColor: PAPER }}
         >
-          <div className="max-w-lg" style={{ color: '#ed565a', textAlign: 'justify' }}>
-            <div className="font-mono text-xs leading-relaxed text-justify md:text-lg">
-              <span>{"We've built an environment for teams to do meaningful work, because crypto is "}<strong>{"hope"}</strong>{"."}</span>
+          <Card className="max-w-lg">
+            <Label>Manifesto</Label>
+            <div
+              className="mt-4 text-justify"
+              style={{ fontFamily: SANS, color: INK, fontSize: 14, lineHeight: 1.6 }}
+            >
+              <span>
+                {"We've built an environment for teams to do meaningful work, because crypto is "}
+                <strong style={{ color: ACCENT }}>{"hope"}</strong>{"."}
+              </span>
               {!showManifesto && (
                 <span
                   onClick={() => setShowManifesto(true)}
-                  className="ml-2 cursor-pointer underline opacity-60 hover:opacity-100 transition-opacity"
+                  className="ml-2 cursor-pointer underline transition-opacity hover:opacity-100"
+                  style={{ color: MUTED }}
                 >
                   {"more"}
                 </span>
@@ -321,92 +243,145 @@ const Index = () => {
               {showManifesto && (
                 <>
                   <br /><br />
-                  <span>{"On the outside crypto looks like preposterous perps, memes with misdemeanours, prediction market moguls and rehypothicated token yield that makes 2008's MBS wrappers look like chewing gum wrappers. But the truth is, all the madness are merely expressions of freedom thanks to an economy born out of open blockchain finance. The "}<strong>{"hope"}</strong>{" for the daughter of a farmer in a remote Filipino village can access the same yield as a Quant in a NYC skyscraper. Crypto's immutable rules means we can finally build societies on unshifting standards immune from regime shifts, insiders or majority holders. Helping builders in the crypto industry is what gives us "}<strong>{"meaning"}</strong>{". We built Arubaito to support teams who are doing "}<strong>{"meaning"}</strong>{"ful work."}</span>
+                  <span>
+                    {"On the outside crypto looks like preposterous perps, memes with misdemeanours, prediction market moguls and rehypothicated token yield that makes 2008's MBS wrappers look like chewing gum wrappers. But the truth is, all the madness are merely expressions of freedom thanks to an economy born out of open blockchain finance. The "}
+                    <strong style={{ color: ACCENT }}>{"hope"}</strong>
+                    {" for the daughter of a farmer in a remote Filipino village can access the same yield as a Quant in a NYC skyscraper. Crypto's immutable rules means we can finally build societies on unshifting standards immune from regime shifts, insiders or majority holders. Helping builders in the crypto industry is what gives us "}
+                    <strong style={{ color: ACCENT }}>{"meaning"}</strong>
+                    {". We built Arubaito to support teams who are doing "}
+                    <strong style={{ color: ACCENT }}>{"meaning"}</strong>
+                    {"ful work."}
+                  </span>
                 </>
               )}
             </div>
-          </div>
+          </Card>
         </div>
 
-        {/* Section 0.3 - How it Works */}
-        <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden py-20" style={{ backgroundColor: '#0a0a0a' }}>
+        {/* Section 0.3 - Features */}
+        <section
+          className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden py-20"
+          style={{ backgroundColor: PAPER }}
+        >
           <div className="container mx-auto px-8 lg:px-16">
-            <h2 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] font-light text-center mb-16 font-mono" style={{ color: '#ed565a' }}>
-              Features
-            </h2>
-            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="flex items-center justify-between mb-10 max-w-4xl mx-auto">
+              <Label>01 / Features</Label>
+              <Label>Platform</Label>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
               {[
-                { title: 'CV Profile', subtitle: 'Verified\nOn-Chain' },
-                { title: 'Web3 Jobs', subtitle: 'Bluechip  Crypto Jobs' },
-                { title: 'Club', subtitle: 'Events and Services' },
-              ].map((step, index) => (
-                <div key={step.title} className="relative text-center flex flex-col items-center">
-                  <div className="p-8 border-[0.5px] border-white/10 rounded-2xl hover:bg-white/5 transition-colors w-full" style={{ backgroundColor: '#141414' }}>
-                    <h3 className="font-light font-mono mb-3 text-base" style={{ color: '#ed565a' }}>{step.title}</h3>
-                    <p className="text-sm font-mono whitespace-pre-line" style={{ color: '#a33e41' }}>{step.subtitle}</p>
+                { title: "CV Profile", subtitle: "Verified On-Chain" },
+                { title: "Web3 Jobs", subtitle: "Bluechip Crypto Jobs" },
+                { title: "Club", subtitle: "Events and Services" },
+              ].map((step) => (
+                <Card key={step.title}>
+                  <Label>{step.title}</Label>
+                  <div
+                    className="mt-4"
+                    style={{
+                      fontFamily: DISPLAY,
+                      fontSize: 28,
+                      letterSpacing: "-0.03em",
+                      color: INK,
+                      lineHeight: 1.05,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {step.subtitle}
                   </div>
-                </div>
+                  <div className="mt-4 flex items-center gap-1.5">
+                    <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: ACCENT }} />
+                    <span style={{ fontFamily: MONO, fontSize: 11, color: MUTED }}>Live</span>
+                  </div>
+                </Card>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Section 0.5 - Club Members Slider */}
+        {/* Section 0.5 - Club Members Slider (kept, framed as inverted feature) */}
         <MemberSlider />
 
-        {/* Section 1 - How the Club Works */}
+        {/* Section 1 - How To Join The Club */}
         <div
           id="how-club-works"
-          className="h-screen flex-shrink-0 relative flex flex-col items-center justify-center snap-start overflow-hidden"
+          className="h-screen flex-shrink-0 relative flex flex-col items-center justify-center snap-start overflow-hidden px-8"
+          style={{ backgroundColor: PAPER }}
         >
-          {/* Full-screen ASCII background */}
+          {/* Subtle ASCII background, low opacity so cream reads through */}
           <iframe
             src="/ascii/arubaito.html"
             className="absolute inset-0 w-full h-full border-0"
-            style={{ backgroundColor: "transparent", zIndex: 0 }}
+            style={{ backgroundColor: "transparent", opacity: 0.15, zIndex: 0 }}
             title="Arubaito ASCII Art"
           />
 
-          {/* Content overlay */}
-          <div className="relative z-10 flex flex-col items-center justify-center px-8">
-            <h2 className="text-xl font-bold mb-8 font-mono tracking-widest" style={{ color: "#ed565a" }}>
-              How To Join The Club
-            </h2>
+          <Card className="relative z-10 max-w-md w-full" inverted>
+            <div className="flex items-center justify-between mb-6">
+              <span
+                className="uppercase tracking-[0.18em]"
+                style={{ fontFamily: MONO, fontSize: 10, color: "rgba(239,226,201,0.55)" }}
+              >
+                02 / Membership
+              </span>
+              <span
+                className="uppercase tracking-[0.18em]"
+                style={{ fontFamily: MONO, fontSize: 10, color: "rgba(239,226,201,0.55)" }}
+              >
+                How To Join
+              </span>
+            </div>
 
-            <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <div
+              style={{
+                fontFamily: DISPLAY,
+                fontSize: 32,
+                letterSpacing: "-0.03em",
+                color: SURFACE,
+                lineHeight: 1.05,
+                fontWeight: 500,
+              }}
+            >
+              Three steps to the Club.
+            </div>
+
+            <div className="mt-6 flex flex-col gap-0" style={{ borderTop: `1.5px solid rgba(239,226,201,0.18)` }}>
               {[
-                { icon: reiUspX, label: 'Guest List' },
-                { icon: clubUspNft, label: 'Membership NFT' },
-                { icon: clubUspCv, label: 'CV Profile Score 80+' },
+                { n: "01", label: "Guest List" },
+                { n: "02", label: "Membership NFT" },
+                { n: "03", label: "CV Profile Score 80+" },
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full font-mono text-xs"
-                  style={{ backgroundColor: '#181818', color: '#ed565a' }}
+                  className="flex items-center justify-between py-4"
+                  style={{ borderBottom: `1.5px solid rgba(239,226,201,0.18)` }}
                 >
-                  <img src={item.icon} alt="" className="w-4 h-4 flex-shrink-0" />
-                  <span>{item.label}</span>
+                  <div className="flex items-center gap-4">
+                    <span style={{ fontFamily: MONO, fontSize: 11, color: "rgba(239,226,201,0.55)" }}>
+                      {item.n}
+                    </span>
+                    <span style={{ fontFamily: SANS, fontSize: 14, color: SURFACE }}>{item.label}</span>
+                  </div>
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: ACCENT }} />
                 </div>
               ))}
             </div>
 
-            <Button
+            <button
               onClick={() => navigate("/arubaito")}
-              size="sm"
-              variant="outline"
-              className="font-mono text-xs bg-transparent border"
-              style={{
-                borderColor: "#ed565a",
-                color: "#ed565a",
-              }}
+              className="mt-6 px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
+              style={{ background: ACCENT, color: PAPER, fontFamily: SANS }}
             >
               Join Waitlist
-            </Button>
-          </div>
+            </button>
+          </Card>
         </div>
 
-        {/* Section 1.5 - Find Meaningful Work */}
-        <div className="h-screen flex-shrink-0 relative snap-start overflow-hidden cursor-pointer" onClick={() => navigate("/meaning")}>
+        {/* Section 1.5 - Find Meaningful Work (video kept) */}
+        <div
+          className="h-screen flex-shrink-0 relative snap-start overflow-hidden cursor-pointer"
+          onClick={() => navigate("/meaning")}
+        >
           <video
             autoPlay
             loop
@@ -417,26 +392,30 @@ const Index = () => {
           >
             <source src="/ikigai-bg.mp4" type="video/mp4" />
           </video>
-          {/* Text overlay - positioned above the person's head */}
           <div className="absolute inset-0 flex flex-col items-center pt-[30%] md:pt-[28%]">
-            <h2 className="font-mono font-normal text-xs md:text-base lg:text-xl tracking-wide">
-              <span className="bg-[#181818] px-3 py-1" style={{ color: '#fff6d0' }}>
-                find meaning<span className="line-through">ful</span> work
-              </span>
-            </h2>
-            <Button
-              onClick={(e) => { e.stopPropagation(); navigate("/meaning"); }}
-              size="sm"
-              variant="outline"
-              className="font-mono text-xs border mt-4"
+            <h2
               style={{
-                borderColor: "#fff6d0",
-                backgroundColor: "#fff6d0",
-                color: "#181818",
+                fontFamily: DISPLAY,
+                fontSize: 24,
+                letterSpacing: "-0.02em",
+                color: INK,
+                background: CREAM,
+                padding: "6px 14px",
+                borderRadius: 999,
+                fontWeight: 500,
               }}
             >
+              <span>{"find meaning"}</span>
+              <span className="line-through">{"ful"}</span>
+              <span>{" work"}</span>
+            </h2>
+            <button
+              onClick={(e) => { e.stopPropagation(); navigate("/meaning"); }}
+              className="mt-4 px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
+              style={{ background: CREAM, color: INK, fontFamily: SANS }}
+            >
               Find It
-            </Button>
+            </button>
           </div>
         </div>
 
@@ -444,73 +423,71 @@ const Index = () => {
         <div
           id="arubaito-apps"
           className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
+          style={{ backgroundColor: PAPER }}
         >
-          <h2 className="text-xl font-bold mb-8 font-mono tracking-widest" style={{ color: "#ed565a" }}>
-            ARUBAITO APPS
-          </h2>
-
-          <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-md mx-auto">
-            {/* REI Button - Active */}
-            <a
-              href="https://arubaito.app/rei"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative cursor-pointer transition-all duration-300"
-              onMouseEnter={() => setHoveredButton("rei-app")}
-              onMouseLeave={() => setHoveredButton(null)}
-            >
-              <img
-                src={reiButton}
-                alt="REI"
-                className={`w-full h-auto rounded-2xl transition-opacity duration-300 ${hoveredButton === "rei-app" ? "opacity-50" : "opacity-100"}`}
-              />
-            </a>
-
-            {/* zkPROF Button - Active */}
-            <a
-              href="https://zkprof.xyz"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative cursor-pointer transition-all duration-300"
-              onMouseEnter={() => setHoveredButton("zkprof-app")}
-              onMouseLeave={() => setHoveredButton(null)}
-            >
-              <img
-                src={zkprofButton}
-                alt="zkPROF"
-                className={`w-full h-auto rounded-2xl transition-opacity duration-300 ${hoveredButton === "zkprof-app" ? "opacity-50" : "opacity-100"}`}
-              />
-            </a>
-
-            {/* UBI Button - Inactive */}
-            <div className="relative cursor-not-allowed">
-              <img src={ubiButton} alt="UBI" className="w-full h-auto rounded-2xl opacity-60" />
-            </div>
-
-            {/* PERKS PRTCL Button - Inactive */}
-            <div className="relative cursor-not-allowed">
-              <img src={perksButton} alt="PERKS PRTCL" className="w-full h-auto rounded-2xl opacity-60" />
-            </div>
+          <div className="flex items-center justify-between mb-8 w-full max-w-md">
+            <Label>03 / Suite</Label>
+            <Label>Arubaito Apps</Label>
           </div>
 
-          {/* Hover explainer text */}
-          <div className="h-16 mt-6 flex items-center justify-center">
-            {hoveredButton === "rei-app" && (
-              <p className="text-sm font-mono text-center max-w-md px-4" style={{ color: "#ed565a" }}>
-                AI Agent Rei makes it easy to earn crypto by matching tasks & bounties to your skills.
-              </p>
-            )}
-            {hoveredButton === "zkprof-app" && (
-              <p className="text-sm font-mono text-center max-w-md px-4" style={{ color: "#ed565a" }}>
-                Dox Yourself Privately with zkProf. Uses ZK-Snarks inspired by ZCash built on Solana x402.
-              </p>
-            )}
-          </div>
+          <Card className="w-full max-w-md">
+            <div className="grid grid-cols-2 gap-4">
+              <a
+                href="https://arubaito.app/rei"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative cursor-pointer transition-all duration-300"
+                onMouseEnter={() => setHoveredButton("rei-app")}
+                onMouseLeave={() => setHoveredButton(null)}
+              >
+                <img
+                  src={reiButton}
+                  alt="REI"
+                  className={`w-full h-auto rounded-2xl transition-opacity duration-300 ${hoveredButton === "rei-app" ? "opacity-50" : "opacity-100"}`}
+                />
+              </a>
+
+              <a
+                href="https://zkprof.xyz"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative cursor-pointer transition-all duration-300"
+                onMouseEnter={() => setHoveredButton("zkprof-app")}
+                onMouseLeave={() => setHoveredButton(null)}
+              >
+                <img
+                  src={zkprofButton}
+                  alt="zkPROF"
+                  className={`w-full h-auto rounded-2xl transition-opacity duration-300 ${hoveredButton === "zkprof-app" ? "opacity-50" : "opacity-100"}`}
+                />
+              </a>
+
+              <div className="relative cursor-not-allowed">
+                <img src={ubiButton} alt="UBI" className="w-full h-auto rounded-2xl opacity-50" />
+              </div>
+
+              <div className="relative cursor-not-allowed">
+                <img src={perksButton} alt="PERKS PRTCL" className="w-full h-auto rounded-2xl opacity-50" />
+              </div>
+            </div>
+
+            <div className="h-12 mt-4 flex items-center justify-center">
+              {hoveredButton === "rei-app" && (
+                <p className="text-xs text-center" style={{ color: MUTED, fontFamily: SANS }}>
+                  AI Agent Rei makes it easy to earn crypto by matching tasks &amp; bounties to your skills.
+                </p>
+              )}
+              {hoveredButton === "zkprof-app" && (
+                <p className="text-xs text-center" style={{ color: MUTED, fontFamily: SANS }}>
+                  Dox Yourself Privately with zkProf. ZK-Snarks inspired by ZCash, built on Solana x402.
+                </p>
+              )}
+            </div>
+          </Card>
         </div>
-
       </div>
 
-      {/* Mobile: Show Treasury and Waitlist at top on mobile */}
+      {/* Mobile: Show Treasury and Waitlist at top */}
       <div className="lg:hidden">
         <div className="fixed top-4 left-4 md:left-6 z-40">
           <TreasuryDisplay />
@@ -522,4 +499,5 @@ const Index = () => {
     </div>
   );
 };
+
 export default Index;

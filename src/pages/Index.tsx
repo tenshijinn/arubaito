@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { Twitter, Image as ImageIcon, FileText } from "lucide-react";
 import { useState } from "react";
 import { TextRotator } from "@/components/TextRotator";
 import { WaitlistCountdownAesthetic as WaitlistCountdown } from "@/components/home/WaitlistCountdownAesthetic";

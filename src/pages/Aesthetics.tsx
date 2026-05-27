@@ -681,7 +681,7 @@ export default function Aesthetics() {
                 Aa Bb Cc
               </div>
               <div className="mt-2" style={{ fontFamily: MONO, fontSize: 11, color: MUTED }}>
-                Inter / Suisse · 500 · tight tracking
+                Styrene A Trial · Display · tight tracking
               </div>
             </div>
             <div>

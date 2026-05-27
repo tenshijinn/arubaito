@@ -280,7 +280,7 @@ const JobAccordion = ({
               <Button
                 onClick={handleApply}
                 disabled={submitting}
-                style={{ backgroundColor: "#ed565a", color: "#181818", border: "none" }}
+                style={{ backgroundColor: "#ed565a", color: "#faf1e1", border: "none" }}
                 className="rounded-full px-6 hover:opacity-90 border-0"
               >
                 {submitting ? "Submitting..." : "Apply"}
@@ -317,7 +317,7 @@ const Careers = () => {
   useEffect(() => { loadCounts(); }, []);
 
   return (
-    <div className="min-h-screen px-4 py-8" style={{ backgroundColor: "#ebe9e6" }}>
+    <div className="min-h-screen px-4 py-8" style={{ backgroundColor: "#f5ead7" }}>
       {/* Logo + careers label, top-left of page */}
       <Link
         to="/"

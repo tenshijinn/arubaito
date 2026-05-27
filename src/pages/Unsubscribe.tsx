@@ -74,7 +74,7 @@ const Unsubscribe = () => {
   }[state];
 
   return (
-    <div className="min-h-screen px-4 py-8" style={{ backgroundColor: "#ebe9e6" }}>
+    <div className="min-h-screen px-4 py-8" style={{ backgroundColor: "#f5ead7" }}>
       <Link to="/" className="fixed top-4 left-4 flex items-center gap-2 z-50">
         <img src={arubaitoLogo} alt="Arubaito" className="h-14 w-auto object-contain" />
       </Link>
@@ -90,7 +90,7 @@ const Unsubscribe = () => {
             <Button
               onClick={handleConfirm}
               className="rounded-full px-6 border-0 hover:opacity-90"
-              style={{ backgroundColor: "#ed565a", color: "#181818" }}
+              style={{ backgroundColor: "#ed565a", color: "#faf1e1" }}
             >
               Confirm unsubscribe
             </Button>

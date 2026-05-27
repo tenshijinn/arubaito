@@ -203,7 +203,7 @@ const Toggle = ({ defaultOn = true }: { defaultOn?: boolean }) => {
       onClick={() => setOn(!on)}
       className="relative h-7 w-12 rounded-full transition-colors"
       style={{
-        background: on ? INK : CONCRETE,
+        background: on ? INK : "transparent",
         border: `1.5px solid ${BORDER}`,
       }}
     >

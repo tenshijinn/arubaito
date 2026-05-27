@@ -100,7 +100,7 @@ const Index = () => {
             src={hoveredButton === "rei" ? reiLogoEye : arubaitoLogo}
             alt={hoveredButton === "rei" ? "Rei" : "Arubaito"}
             className="h-24 md:h-32 w-auto transition-all duration-300"
-            style={{ filter: "invert(1)" }}
+            style={hoveredButton === "rei" ? { filter: "invert(1)" } : undefined}
           />
         </div>
 

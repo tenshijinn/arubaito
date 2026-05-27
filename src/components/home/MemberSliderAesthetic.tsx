@@ -87,7 +87,7 @@ export const MemberSliderAesthetic = () => {
   return (
     <div
       className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
-      style={{ backgroundColor: PAPER }}
+      style={{ backgroundColor: CONCRETE }}
       onMouseEnter={stopAuto}
       onMouseLeave={startAuto}
     >

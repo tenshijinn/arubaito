@@ -17,6 +17,7 @@ import NetworkSchool from "./pages/NetworkSchool";
 import GuestList from "./pages/GuestList";
 import Careers from "./pages/Careers";
 import Unsubscribe from "./pages/Unsubscribe";
+import Aesthetics from "./pages/Aesthetics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,8 @@ const App = () => (
               <Route path="/ns" element={<NetworkSchool />} />
               <Route path="/guestlist" element={<GuestList />} />
               <Route path="/careers" element={<Careers />} />
+              <Route path="/aesthetics" element={<Aesthetics />} />
+              <Route path="/aethetics" element={<Aesthetics />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

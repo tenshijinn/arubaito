@@ -46,7 +46,7 @@ const Card = ({
     className={`rounded-[20px] ${className}`}
     style={{
       background: "transparent",
-      border: `1px solid ${BORDER}`,
+      border: `1.5px solid ${BORDER}`,
       padding: padded ? 24 : 0,
     }}
   >
@@ -78,7 +78,7 @@ const ButtonsSection = () => (
         style={{
           background: "transparent",
           color: INK,
-          border: `1px solid ${INK}`,
+          border: `1.5px solid ${INK}`,
           fontFamily: SANS,
         }}
       >
@@ -92,20 +92,20 @@ const ButtonsSection = () => (
       </button>
       <button
         className="px-4 py-2 rounded-full text-xs uppercase tracking-wider"
-        style={{ background: "transparent", color: GRAPHITE, border: `1px solid ${BORDER}`, fontFamily: MONO }}
+        style={{ background: "transparent", color: GRAPHITE, border: `1.5px solid ${BORDER}`, fontFamily: MONO }}
       >
         ← Back
       </button>
       <button
         className="h-10 w-10 rounded-full flex items-center justify-center transition-colors hover:bg-black/5"
-        style={{ border: `1px solid ${BORDER}` }}
+        style={{ border: `1.5px solid ${BORDER}` }}
         aria-label="Add"
       >
         <Plus size={16} strokeWidth={1.5} color={INK} />
       </button>
       <button
         className="h-10 w-10 rounded-full flex items-center justify-center transition-colors hover:bg-black/5"
-        style={{ border: `1px solid ${BORDER}` }}
+        style={{ border: `1.5px solid ${BORDER}` }}
         aria-label="Settings"
       >
         <Settings2 size={16} strokeWidth={1.5} color={INK} />
@@ -116,7 +116,7 @@ const ButtonsSection = () => (
       <Label>Segmented control</Label>
       <div
         className="inline-flex mt-3 p-1 rounded-full"
-        style={{ background: SURFACE, border: `1px solid ${BORDER}` }}
+        style={{ background: SURFACE, border: `1.5px solid ${BORDER}` }}
       >
         {["Overview", "On-chain", "Network", "Logs"].map((t, i) => (
           <button
@@ -126,7 +126,7 @@ const ButtonsSection = () => (
               background: i === 0 ? PAPER : "transparent",
               color: i === 0 ? INK : MUTED,
               fontFamily: SANS,
-              border: i === 0 ? `1px solid ${BORDER}` : "1px solid transparent",
+              border: i === 0 ? `1.5px solid ${BORDER}` : "1.5px solid transparent",
             }}
           >
             {t}
@@ -150,7 +150,7 @@ const InputsSection = () => (
         <Label>Handle</Label>
         <div
           className="mt-2 flex items-center gap-2 px-4 py-3 rounded-full"
-          style={{ background: SURFACE, border: `1px solid ${BORDER}` }}
+          style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
         >
           <Search size={14} strokeWidth={1.5} color={MUTED} />
           <input
@@ -164,29 +164,29 @@ const InputsSection = () => (
         <Label>Temperature</Label>
         <div
           className="mt-2 flex items-center justify-between px-4 py-3 rounded-full"
-          style={{ background: SURFACE, border: `1px solid ${BORDER}` }}
+          style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
         >
-          <button className="h-6 w-6 rounded-full flex items-center justify-center" style={{ border: `1px solid ${BORDER}` }}>
+          <button className="h-6 w-6 rounded-full flex items-center justify-center" style={{ border: `1.5px solid ${BORDER}` }}>
             <Minus size={12} strokeWidth={1.5} color={INK} />
           </button>
           <span style={{ fontFamily: DISPLAY, fontSize: 22, color: INK, letterSpacing: "-0.02em" }}>
             19.0°C
           </span>
-          <button className="h-6 w-6 rounded-full flex items-center justify-center" style={{ border: `1px solid ${BORDER}` }}>
+          <button className="h-6 w-6 rounded-full flex items-center justify-center" style={{ border: `1.5px solid ${BORDER}` }}>
             <Plus size={12} strokeWidth={1.5} color={INK} />
           </button>
         </div>
       </div>
     </div>
 
-    <div className="mt-6 flex items-center justify-between py-4" style={{ borderTop: `1px solid ${BORDER}` }}>
+    <div className="mt-6 flex items-center justify-between py-4" style={{ borderTop: `1.5px solid ${BORDER}` }}>
       <div>
         <div style={{ fontFamily: SANS, fontSize: 14, color: INK }}>Auto-sync on-chain activity</div>
         <Label>Refresh every 24h</Label>
       </div>
       <Toggle />
     </div>
-    <div className="flex items-center justify-between py-4" style={{ borderTop: `1px solid ${BORDER}` }}>
+    <div className="flex items-center justify-between py-4" style={{ borderTop: `1.5px solid ${BORDER}` }}>
       <div>
         <div style={{ fontFamily: SANS, fontSize: 14, color: INK }}>Public profile</div>
         <Label>Visible to recruiters</Label>
@@ -204,7 +204,7 @@ const Toggle = ({ defaultOn = true }: { defaultOn?: boolean }) => {
       className="relative h-7 w-12 rounded-full transition-colors"
       style={{
         background: on ? INK : CONCRETE,
-        border: `1px solid ${BORDER}`,
+        border: `1.5px solid ${BORDER}`,
       }}
     >
       <div
@@ -393,7 +393,8 @@ const StreakCard = () => {
             <div
               className="h-9 w-9 rounded-full flex items-center justify-center"
               style={{
-                background: completed[i] ? ACCENT : CONCRETE,
+                background: completed[i] ? ACCENT : "transparent",
+                border: completed[i] ? "none" : `1.5px solid ${BORDER}`,
               }}
             >
               {completed[i] && <Check size={14} strokeWidth={2} color={PAPER} />}
@@ -417,7 +418,7 @@ const ProfileCard = () => (
       <Label>Member 0142</Label>
       <span
         className="px-2 py-1 rounded-full text-[10px] uppercase tracking-wider"
-        style={{ border: `1px solid ${BORDER}`, color: INK, fontFamily: MONO }}
+        style={{ border: `1.5px solid ${BORDER}`, color: INK, fontFamily: MONO }}
       >
         OG Verified
       </span>
@@ -425,7 +426,7 @@ const ProfileCard = () => (
     <div className="flex items-start gap-4">
       <div
         className="h-16 w-16 rounded-full shrink-0"
-        style={{ background: CONCRETE, border: `1px solid ${BORDER}` }}
+        style={{ background: CONCRETE, border: `1.5px solid ${BORDER}` }}
       />
       <div className="flex-1 min-w-0">
         <div style={{ fontFamily: DISPLAY, fontSize: 22, color: INK, letterSpacing: "-0.02em", fontWeight: 500 }}>
@@ -436,7 +437,7 @@ const ProfileCard = () => (
         </div>
       </div>
     </div>
-    <div className="grid grid-cols-3 mt-6" style={{ borderTop: `1px solid ${BORDER}` }}>
+    <div className="grid grid-cols-3 mt-6" style={{ borderTop: `1.5px solid ${BORDER}` }}>
       {[
         { l: "On-chain", v: "14" },
         { l: "Endorsed", v: "37" },
@@ -445,7 +446,7 @@ const ProfileCard = () => (
         <div
           key={m.l}
           className="py-4 flex flex-col items-start"
-          style={{ borderLeft: i === 0 ? "none" : `1px solid ${BORDER}`, paddingLeft: i === 0 ? 0 : 16 }}
+          style={{ borderLeft: i === 0 ? "none" : `1.5px solid ${BORDER}`, paddingLeft: i === 0 ? 0 : 16 }}
         >
           <Label>{m.l}</Label>
           <span
@@ -523,7 +524,7 @@ const ChipsSection = () => (
           style={{
             background: c.bg,
             color: c.color,
-            border: c.border ? `1px solid ${BORDER}` : "none",
+            border: c.border ? `1.5px solid ${BORDER}` : "none",
             fontFamily: SANS,
           }}
         >
@@ -586,7 +587,7 @@ const HeroHeader = () => (
           </button>
           <button
             className="inline-flex items-center gap-1 px-5 py-2.5 rounded-full text-sm"
-            style={{ border: `1px solid ${INK}`, color: INK, fontFamily: SANS }}
+            style={{ border: `1.5px solid ${INK}`, color: INK, fontFamily: SANS }}
           >
             Iterate <ArrowUpRight size={14} strokeWidth={1.5} />
           </button>
@@ -661,7 +662,7 @@ export default function Aesthetics() {
               <div key={s.name}>
                 <div
                   className="h-20 rounded-[14px]"
-                  style={{ background: s.hex, border: `1px solid ${BORDER}` }}
+                  style={{ background: s.hex, border: `1.5px solid ${BORDER}` }}
                 />
                 <div className="mt-2 flex justify-between">
                   <span style={{ fontFamily: SANS, fontSize: 12, color: INK }}>{s.name}</span>

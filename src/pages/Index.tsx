@@ -164,7 +164,7 @@ const Index = () => {
                   className="text-sm md:text-base font-mono leading-relaxed"
                   style={{
                     fontFamily: "Consolas, monospace",
-                    color: "#faf6f4",
+                    color: "#181818",
                   }}
                 >
                   <span
@@ -180,7 +180,7 @@ const Index = () => {
                       words={companies}
                       isActive={true}
                       delay={0}
-                      color="#faf6f4"
+                      color="#181818"
                       startIndex={0}
                       pauseDuration={10000}
                     />
@@ -206,7 +206,7 @@ const Index = () => {
                       words={companies}
                       isActive={true}
                       delay={800}
-                      color="#faf6f4"
+                      color="#181818"
                       startIndex={10}
                       pauseDuration={10000}
                     />

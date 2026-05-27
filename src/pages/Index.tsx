@@ -343,7 +343,7 @@ const Index = () => {
                 fontWeight: 500,
               }}
             >
-              Three steps to the Club.
+              How to Signup
             </div>
 
             <div className="mt-6 flex flex-col gap-0" style={{ borderTop: `1.5px solid rgba(239,226,201,0.18)` }}>

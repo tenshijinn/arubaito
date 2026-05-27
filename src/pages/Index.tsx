@@ -308,7 +308,7 @@ const Index = () => {
         <div
           id="how-club-works"
           className="h-screen flex-shrink-0 relative flex flex-col items-center justify-center snap-start overflow-hidden px-8"
-          style={{ backgroundColor: CONCRETE }}
+          style={{ backgroundColor: "#181818" }}
         >
           {/* Subtle ASCII background, low opacity so cream reads through */}
           <iframe

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 const Meaning: React.FC = () => {
 
   return (
-    <div className="min-h-screen bg-[#181818] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#f5ead7] flex flex-col lg:flex-row">
       {/* Left side — Text content */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 py-12 lg:py-0">
         <p

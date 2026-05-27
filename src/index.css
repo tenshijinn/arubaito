@@ -8,77 +8,77 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 350 20% 18%;
-    --foreground: 358 79% 64%;
+    /* Aesthetics theme — paper / ink / accent */
+    --background: 40 65% 90%;        /* PAPER  #f5ead7 */
+    --foreground: 0 0% 9%;           /* INK    #181818 */
 
-    --card: 350 18% 16%;
-    --card-foreground: 358 79% 64%;
+    --card: 38 60% 86%;              /* SURFACE #efe2c9 */
+    --card-foreground: 0 0% 9%;
 
-    --popover: 350 18% 16%;
-    --popover-foreground: 358 79% 64%;
+    --popover: 39 78% 93%;           /* CREAM   #faf1e1 */
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 358 79% 64%;
-    --primary-foreground: 350 20% 18%;
+    --primary: 0 0% 9%;              /* INK on cream pills */
+    --primary-foreground: 39 78% 93%;
 
-    --secondary: 350 15% 22%;
-    --secondary-foreground: 358 79% 64%;
+    --secondary: 38 47% 80%;         /* CONCRETE #e3d4b6 */
+    --secondary-foreground: 0 0% 9%;
 
-    --accent: 358 79% 64%;
-    --accent-foreground: 350 20% 18%;
+    --accent: 358 79% 64%;           /* ACCENT  #ed565a */
+    --accent-foreground: 39 78% 93%;
 
-    --muted: 350 15% 22%;
-    --muted-foreground: 358 60% 55%;
+    --muted: 38 47% 80%;             /* CONCRETE */
+    --muted-foreground: 0 0% 9% / 0.55;
 
     --destructive: 358 79% 64%;
-    --destructive-foreground: 350 20% 18%;
+    --destructive-foreground: 39 78% 93%;
 
-    --border: 358 79% 64%;
-    --input: 350 15% 22%;
+    --border: 0 0% 9% / 0.18;
+    --input: 38 60% 86%;
     --ring: 358 79% 64%;
 
-    --radius: 0.125rem;
+    --radius: 1.25rem;
 
     --gradient-primary: linear-gradient(135deg, hsl(358, 79%, 64%), hsl(358, 79%, 70%));
-    
-    --shadow-elegant: 0 2px 8px -2px hsl(358 79% 64% / 0.15);
-    --shadow-glow: 0 0 16px hsl(358 79% 64% / 0.2);
+
+    --shadow-elegant: 0 2px 8px -2px hsl(0 0% 9% / 0.08);
+    --shadow-glow: 0 0 16px hsl(358 79% 64% / 0.15);
 
     --transition-smooth: all 0.15s ease-out;
   }
 
   .dark {
-    --background: 350 20% 18%;
-    --foreground: 358 79% 64%;
+    --background: 40 65% 90%;
+    --foreground: 0 0% 9%;
 
-    --card: 350 18% 16%;
-    --card-foreground: 358 79% 64%;
+    --card: 38 60% 86%;
+    --card-foreground: 0 0% 9%;
 
-    --popover: 350 18% 16%;
-    --popover-foreground: 358 79% 64%;
+    --popover: 39 78% 93%;
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 358 79% 64%;
-    --primary-foreground: 350 20% 18%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 39 78% 93%;
 
-    --secondary: 350 15% 22%;
-    --secondary-foreground: 358 79% 64%;
+    --secondary: 38 47% 80%;
+    --secondary-foreground: 0 0% 9%;
 
     --accent: 358 79% 64%;
-    --accent-foreground: 350 20% 18%;
+    --accent-foreground: 39 78% 93%;
 
-    --muted: 350 15% 22%;
-    --muted-foreground: 358 60% 55%;
+    --muted: 38 47% 80%;
+    --muted-foreground: 0 0% 9% / 0.55;
 
     --destructive: 358 79% 64%;
-    --destructive-foreground: 350 20% 18%;
+    --destructive-foreground: 39 78% 93%;
 
-    --border: 358 79% 64%;
-    --input: 350 15% 22%;
+    --border: 0 0% 9% / 0.18;
+    --input: 38 60% 86%;
     --ring: 358 79% 64%;
 
     --gradient-primary: linear-gradient(135deg, hsl(358, 79%, 64%), hsl(358, 79%, 70%));
-    
-    --shadow-elegant: 0 2px 8px -2px hsl(358 79% 64% / 0.15);
-    --shadow-glow: 0 0 16px hsl(358 79% 64% / 0.2);
+    --shadow-elegant: 0 2px 8px -2px hsl(0 0% 9% / 0.08);
+    --shadow-glow: 0 0 16px hsl(358 79% 64% / 0.15);
   }
 }
 
@@ -122,8 +122,8 @@ All colors MUST be HSL.
       0deg,
       transparent,
       transparent 2px,
-      hsl(350 20% 12% / 0.8) 2px,
-      hsl(350 20% 12% / 0.8) 4px
+      hsl(0 0% 9% / 0.04) 2px,
+      hsl(0 0% 9% / 0.04) 4px
     );
     pointer-events: none;
     z-index: 1;

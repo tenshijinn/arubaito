@@ -4,9 +4,6 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 import { Navigation } from "@/components/Navigation";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Shield, Loader2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -192,12 +189,24 @@ export default function Club() {
     }
   };
 
+  const MONO = "'Consolas', 'IBM Plex Mono', monospace";
+  const DISPLAY = "'Styrene A Trial', 'Consolas', monospace";
+  const INK = "#181818";
+  const CREAM = "#faf1e1";
+  const MUTED = "rgba(24,24,24,0.55)";
+  const BORDER = "rgba(24,24,24,0.18)";
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#faf1e1" }}>
         <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground font-mono">VERIFYING ACCESS...</p>
+          <Loader2 className="h-8 w-8 animate-spin mx-auto" style={{ color: INK }} />
+          <p
+            className="uppercase"
+            style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.18em", color: MUTED }}
+          >
+            Verifying access...
+          </p>
         </div>
       </div>
     );
@@ -205,18 +214,48 @@ export default function Club() {
 
   if (!isVerified) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="max-w-md w-full p-8 text-center space-y-6 bg-transparent">
-          <div className="mx-auto h-16 w-16 rounded-sm bg-destructive/10 flex items-center justify-center">
-            <Shield className="h-8 w-8 text-destructive" />
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "#faf1e1" }}>
+        <div
+          className="max-w-md w-full p-8 text-center space-y-6 rounded-[20px]"
+          style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
+        >
+          <div className="flex items-center justify-between">
+            <span
+              className="uppercase"
+              style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+            >
+              {"00 / Access"}
+            </span>
+            <span
+              className="uppercase"
+              style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+            >
+              {"Restricted"}
+            </span>
           </div>
-          <div className="space-y-2">
+          <div
+            className="mx-auto h-14 w-14 rounded-full flex items-center justify-center"
+            style={{ border: `1.5px solid ${BORDER}` }}
+          >
+            <Shield className="h-6 w-6" style={{ color: INK }} strokeWidth={1.5} />
+          </div>
+          <div className="space-y-3">
             <div className="flex items-center justify-center gap-2">
-              <h1 className="text-2xl font-bold text-foreground font-mono">ACCESS DENIED</h1>
+              <h1
+                style={{
+                  fontFamily: DISPLAY,
+                  fontSize: 28,
+                  letterSpacing: "-0.03em",
+                  color: INK,
+                  fontWeight: 500,
+                }}
+              >
+                {"Access denied"}
+              </h1>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="h-5 w-5 text-muted-foreground cursor-help" />
+                    <Info className="h-4 w-4 cursor-help" style={{ color: MUTED }} />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
                     <p>
@@ -230,17 +269,30 @@ export default function Club() {
               </TooltipProvider>
             </div>
           </div>
-          <div className="pt-4 space-y-3">
+          <div className="pt-2 space-y-3">
             {user && (
-              <Button onClick={handleWhitelistSubmission} className="w-full font-mono" variant="outline" size="lg">
-                Review my Twitter for Whitelist
-              </Button>
+              <button
+                onClick={handleWhitelistSubmission}
+                className="w-full px-5 py-2.5 rounded-full text-sm transition-colors hover:bg-black/5"
+                style={{
+                  background: "transparent",
+                  color: INK,
+                  border: `1.5px solid ${INK}`,
+                  fontFamily: MONO,
+                }}
+              >
+                {"Review my Twitter for whitelist"}
+              </button>
             )}
-            <Button onClick={() => navigate("/arubaito")} className="w-full font-mono" variant="default" size="lg">
-              Try another sign in method
-            </Button>
+            <button
+              onClick={() => navigate("/arubaito")}
+              className="w-full px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
+              style={{ background: INK, color: CREAM, fontFamily: MONO }}
+            >
+              {"Try another sign in method"}
+            </button>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -255,94 +307,192 @@ export default function Club() {
     memberData?.handle;
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-screen pt-20" style={{ background: "#faf1e1" }}>
       <Navigation userName={userName} />
 
       {/* Header */}
-      <header className="border-b border-border bg-card">
+      <header style={{ borderBottom: `1.5px solid ${BORDER}` }}>
         <div className="container mx-auto px-6 py-8">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold text-foreground font-mono">THE CLUB</h1>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-6 w-6 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-sm">
-                    <p>
-                      Exclusive member area for verified Web3 contributors. Access your timeline, manage your profile,
-                      create job pitches, and view the member spotlight.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <p className="text-sm text-muted-foreground font-mono">{memberData?.display_name || memberData?.handle}</p>
+          <div className="flex items-center justify-between mb-3">
+            <span
+              className="uppercase"
+              style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+            >
+              {"00 / Members"}
+            </span>
+            <span
+              className="uppercase"
+              style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+            >
+              {"The Club"}
+            </span>
           </div>
+          <div className="flex items-center gap-2">
+            <h1
+              style={{
+                fontFamily: DISPLAY,
+                fontSize: 36,
+                letterSpacing: "-0.04em",
+                color: INK,
+                fontWeight: 500,
+              }}
+            >
+              {"The Club"}
+            </h1>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-5 w-5 cursor-help" style={{ color: MUTED }} />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm">
+                  <p>
+                    Exclusive member area for verified Web3 contributors. Access your timeline, manage your profile,
+                    create job pitches, and view the member spotlight.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          {(memberData?.display_name || memberData?.handle) && (
+            <p
+              className="mt-1"
+              style={{ fontFamily: MONO, fontSize: 13, color: MUTED }}
+            >
+              {memberData?.display_name || memberData?.handle}
+            </p>
+          )}
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-6 py-10">
         <div className="grid gap-6 max-w-4xl mx-auto md:grid-cols-2">
           {/* Club Opens Soon Card */}
-          <Card className="p-8 bg-transparent border border-border">
-            <div className="space-y-8 text-center">
+          <div
+            className="rounded-[20px] p-8"
+            style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <span
+                className="uppercase"
+                style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+              >
+                {"01 / Launch"}
+              </span>
+              <span
+                className="uppercase"
+                style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+              >
+                {"Dec 8"}
+              </span>
+            </div>
+            <div className="space-y-6">
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-foreground font-mono">CLUB OPENS SOON</h2>
-                <p className="text-sm text-muted-foreground font-mono">EXCLUSIVE MEMBER FEATURES COMING DECEMBER 8TH</p>
+                <h2
+                  style={{
+                    fontFamily: DISPLAY,
+                    fontSize: 24,
+                    letterSpacing: "-0.03em",
+                    color: INK,
+                    fontWeight: 500,
+                  }}
+                >
+                  {"Club opens soon"}
+                </h2>
+                <p style={{ fontFamily: MONO, fontSize: 12, color: MUTED }}>
+                  {"Exclusive member features coming December 8th"}
+                </p>
               </div>
 
               <CountdownTimer targetDate={new Date("2025-12-08T00:00:00")} />
 
-              <div className="pt-4 space-y-3">
-                <p className="text-xs text-muted-foreground font-mono leading-relaxed">UPCOMING FEATURES:</p>
-                <ul className="text-xs font-mono text-foreground space-y-1">
-                  <li>• MEMBER TIMELINE & ACTIVITY FEED</li>
-                  <li>• PROFILE BUILDER & CV MANAGEMENT</li>
-                  <li>• JOB PITCH CREATION</li>
-                  <li>• MEMBER SPOTLIGHT & SHOWCASE</li>
+              <div className="pt-4 space-y-3" style={{ borderTop: `1.5px solid ${BORDER}` }}>
+                <p
+                  className="uppercase mt-4"
+                  style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+                >
+                  {"Upcoming features"}
+                </p>
+                <ul style={{ fontFamily: MONO, fontSize: 12, color: INK, lineHeight: 1.8 }}>
+                  <li>{"— Member timeline & activity feed"}</li>
+                  <li>{"— Profile builder & CV management"}</li>
+                  <li>{"— Job pitch creation"}</li>
+                  <li>{"— Member spotlight & showcase"}</li>
                 </ul>
               </div>
             </div>
-          </Card>
+          </div>
 
           {/* Cypherpunk Supperclub Card */}
-          <Card className="p-6 bg-transparent border border-border">
-            <div className="space-y-4">
+          <div
+            className="rounded-[20px] p-8"
+            style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <span
+                className="uppercase"
+                style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+              >
+                {"02 / Supperclub"}
+              </span>
+              <span
+                className="uppercase"
+                style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+              >
+                {"Interest"}
+              </span>
+            </div>
+            <div className="space-y-5">
               <div className="space-y-1">
-                <h3 className="text-lg font-bold text-foreground font-mono">Cypherpunk Supperclub</h3>
-                <p className="text-sm text-muted-foreground font-mono">dine+network w/ bluechips & changemakers</p>
+                <h3
+                  style={{
+                    fontFamily: DISPLAY,
+                    fontSize: 22,
+                    letterSpacing: "-0.02em",
+                    color: INK,
+                    fontWeight: 500,
+                  }}
+                >
+                  {"Cypherpunk Supperclub"}
+                </h3>
+                <p style={{ fontFamily: MONO, fontSize: 12, color: MUTED }}>
+                  {"Dine + network with OGs and changemakers"}
+                </p>
               </div>
 
               <form onSubmit={handleSupperclubSubmit} className="space-y-3">
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={supperclubEmail}
-                  onChange={(e) => setSupperclubEmail(e.target.value)}
-                  className="font-mono text-sm"
+                <div
+                  className="flex items-center px-4 py-3 rounded-full"
+                  style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
+                >
+                  <input
+                    type="email"
+                    placeholder="you@domain.com"
+                    value={supperclubEmail}
+                    onChange={(e) => setSupperclubEmail(e.target.value)}
+                    disabled={isSubmittingSupperclub}
+                    className="bg-transparent outline-none flex-1 text-sm"
+                    style={{ color: INK, fontFamily: MONO }}
+                  />
+                </div>
+                <button
+                  type="submit"
                   disabled={isSubmittingSupperclub}
-                />
-                <Button 
-                  type="submit" 
-                  className="w-full font-mono" 
-                  variant="outline"
-                  disabled={isSubmittingSupperclub}
+                  className="w-full px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80 disabled:opacity-60 flex items-center justify-center gap-2"
+                  style={{ background: INK, color: CREAM, fontFamily: MONO }}
                 >
                   {isSubmittingSupperclub ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Submitting...
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {"Submitting..."}
                     </>
                   ) : (
-                    "Register Interest"
+                    "Register interest"
                   )}
-                </Button>
+                </button>
               </form>
             </div>
-          </Card>
+          </div>
         </div>
       </main>
 

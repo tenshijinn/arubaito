@@ -99,7 +99,7 @@ export const BlockClockDisplay = ({
     <div>
       {/* Header */}
       <div style={{ marginBottom: '6px' }}>
-        <h3 className="text-2xl font-bold text-center mb-2 font-display" style={{ color: '#ed565a', margin: '0 0 6px 0' }}>
+        <h3 className="text-2xl font-bold text-center mb-2 font-display tracking-tight" style={{ color: '#faf1e1', margin: '0 0 6px 0' }}>
           Non-Members Club Waitlist
         </h3>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -108,11 +108,11 @@ export const BlockClockDisplay = ({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '4px',
-              color: '#ed565a',
+              color: 'rgba(239,226,201,0.7)',
               fontSize: '11px',
               padding: '3px 12px',
               borderRadius: '999px',
-              border: '1px solid rgba(237,86,90,0.3)',
+              border: '1px solid rgba(239,226,201,0.18)',
             }}
           >
             ↝ {formatBlockNumber(blocksRemaining)} blocks remaining <span style={{ opacity: 0.4 }}>|</span> ≈ {formatTime(timeRemaining)}
@@ -121,7 +121,7 @@ export const BlockClockDisplay = ({
       </div>
 
       {/* Divider */}
-      <div style={{ height: '1px', backgroundColor: 'rgba(237,86,90,0.2)', marginTop: '14px', marginBottom: '14px' }} />
+      <div style={{ height: '1px', backgroundColor: 'rgba(239,226,201,0.18)', marginTop: '14px', marginBottom: '14px' }} />
 
       {/* Bar visualization + percentage in single row */}
       <div
@@ -146,7 +146,7 @@ export const BlockClockDisplay = ({
                 style={{
                   flex: 1,
                   borderRadius: '4px',
-                  backgroundColor: isFilled ? '#ed565a' : 'rgba(237,86,90,0.15)',
+                  backgroundColor: isFilled ? '#ed565a' : 'rgba(239,226,201,0.15)',
                   opacity: isFilled ? 1 - (i / Math.max(filledBars, 1)) * 0.25 : 1,
                 }}
               />
@@ -154,7 +154,7 @@ export const BlockClockDisplay = ({
           })}
         </div>
         {/* Percentage */}
-        <span style={{ color: '#ed565a', fontSize: '28px', fontWeight: 700, lineHeight: 1, minWidth: '60px', textAlign: 'right' }}>
+        <span style={{ color: '#faf1e1', fontSize: '28px', fontWeight: 700, lineHeight: 1, minWidth: '60px', textAlign: 'right' }}>
           {Math.round(progress)}%
         </span>
       </div>
@@ -163,18 +163,18 @@ export const BlockClockDisplay = ({
       {showBlockDetails && (
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', animation: 'fadeIn 0.15s ease-in' }}>
           <div>
-            <p style={{ color: 'rgba(237,86,90,0.4)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
+            <p style={{ color: 'rgba(239,226,201,0.55)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
               Current Blocktime
             </p>
-            <p style={{ color: '#ed565a', fontSize: '18px', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
+            <p style={{ color: '#faf1e1', fontSize: '18px', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
               {formatBlockNumber(currentBlock)}
             </p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <p style={{ color: 'rgba(237,86,90,0.4)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
+            <p style={{ color: 'rgba(239,226,201,0.55)', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 4px 0' }}>
               Target Blocktime
             </p>
-            <p style={{ color: '#ed565a', fontSize: '18px', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
+            <p style={{ color: '#faf1e1', fontSize: '18px', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
               {formatBlockNumber(targetBlock)}
             </p>
           </div>
@@ -185,7 +185,7 @@ export const BlockClockDisplay = ({
       {onReminderSubmit && (
         <div>
           {reminderSubmitted ? (
-            <p style={{ color: '#ed565a', fontSize: '12px', textAlign: 'center', opacity: 0.7 }}>
+            <p style={{ color: 'rgba(239,226,201,0.7)', fontSize: '12px', textAlign: 'center' }}>
               ✓ Reminder set — we'll email you when signup opens
             </p>
           ) : !showReminderForm ? (
@@ -193,21 +193,23 @@ export const BlockClockDisplay = ({
               onClick={() => setShowReminderForm(true)}
               style={{
                 width: '100%',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: '1px solid rgba(237,86,90,0.3)',
+                padding: '10px 16px',
+                borderRadius: '999px',
+                border: '1.5px solid rgba(239,226,201,0.18)',
                 backgroundColor: 'transparent',
-                color: '#ed565a',
+                color: '#faf1e1',
                 fontSize: '13px',
                 fontWeight: 500,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(237,86,90,0.1)';
+                e.currentTarget.style.backgroundColor = '#faf1e1';
+                e.currentTarget.style.color = '#181818';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#faf1e1';
               }}
             >
               🔔 Send Reminder
@@ -219,18 +221,18 @@ export const BlockClockDisplay = ({
                 placeholder="your@email.com"
                 value={reminderEmail}
                 onChange={(e) => setReminderEmail(e.target.value)}
-                className="h-9 rounded-lg text-sm flex-1"
-                style={{ borderColor: 'rgba(237,86,90,0.3)' }}
+                className="h-9 rounded-full text-sm flex-1"
+                style={{ borderColor: 'rgba(239,226,201,0.18)', backgroundColor: 'transparent', color: '#faf1e1' }}
                 onKeyDown={(e) => e.key === 'Enter' && handleReminder()}
               />
               <Button
                 onClick={handleReminder}
                 disabled={!reminderEmail || submitting}
                 size="sm"
-                className="h-9 rounded-lg px-4"
+                className="h-9 rounded-full px-4"
                 style={{
                   backgroundColor: '#ed565a',
-                  color: '#fff',
+                  color: '#faf1e1',
                   border: 'none',
                   fontSize: '13px',
                 }}

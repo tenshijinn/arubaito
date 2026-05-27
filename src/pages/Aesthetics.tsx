@@ -6,22 +6,21 @@ import { ArrowUpRight, Check, Circle, Plus, Minus, Search, Settings2 } from "luc
 // Palette: warm off-white surfaces, graphite text, sparse muted accents
 // Inspirations: Braun, Teenage Engineering, Nothing OS, MUJI, Swiss editorial
 
-const STONE = "#ECE8E1";
-const PAPER = "#F1EFE8";
-const CONCRETE = "#D9D8CF";
-const SURFACE = "#E7E5DD";
-const INK = "#181818";
-const GRAPHITE = "#3a3a38";
-const MUTED = "#8a8880";
-const BORDER = "rgba(24,24,24,0.14)";
-const ACCENT_ORANGE = "#C8623A";
-const ACCENT_OLIVE = "#7d8a5c";
-const ACCENT_RED = "#a84a3e";
-const ACCENT_CREAM = "#E8DCC2";
+// Palette — platform tokens only
+const CREAM = "#faf1e1";        // primary surface (warm cream)
+const PAPER = "#f5ead7";        // slightly deeper card surface
+const SURFACE = "#efe2c9";      // sunken / input surface
+const CONCRETE = "#e3d4b6";     // muted fill
+const INK = "#181818";          // primary text / dark surfaces
+const GRAPHITE = "#2a2a2a";
+const MUTED = "rgba(24,24,24,0.55)";
+const BORDER = "rgba(24,24,24,0.18)";
+const ACCENT = "#ed565a";       // sole accent
 
-const SANS = "'Inter', 'Suisse', 'Neue Haas Grotesk', 'SF Pro', system-ui, sans-serif";
-const DISPLAY = "'Inter', 'Suisse', system-ui, sans-serif";
-const MONO = "'JetBrains Mono', 'IBM Plex Mono', Consolas, monospace";
+// Typography — keep terminal-esk feel
+const SANS = "'Consolas', 'IBM Plex Mono', monospace";
+const DISPLAY = "'Styrene A Trial', 'Consolas', monospace";
+const MONO = "'Consolas', 'IBM Plex Mono', monospace";
 
 // ── Primitives ──────────────────────────────────────────────────────────────
 

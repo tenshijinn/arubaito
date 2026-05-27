@@ -88,7 +88,7 @@ const Index = () => {
   const getBackgroundStyle = () => {
     if (hoveredButton === "rei") {
       return {
-        backgroundColor: "#faf1e1",
+        backgroundColor: "hsl(var(--landing-bg))",
         backgroundImage: "url(/rei-hover.png)",
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -96,7 +96,7 @@ const Index = () => {
       };
     }
     return {
-      backgroundColor: "#faf1e1",
+      backgroundColor: "hsl(var(--landing-bg))",
       transition: "background-image 0.3s ease",
     };
   };
@@ -104,7 +104,7 @@ const Index = () => {
     <div
       className="min-h-screen flex flex-col lg:flex-row font-mono"
       style={{
-        backgroundColor: "#faf1e1",
+        backgroundColor: "hsl(var(--landing-bg))",
       }}
     >
       {/* LEFT COLUMN - Static */}
@@ -138,20 +138,20 @@ const Index = () => {
                 className="text-sm md:text-base font-mono leading-relaxed"
                 style={{
                   fontFamily: "Consolas, monospace",
-                  color: "#181818",
+                  color: "#faf6f4",
                 }}
               >
                 Aggregates{" "}
                 <span className="underline">
-                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color="#ed565a" pauseDuration={5000} />
+                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color="#ffa6ff" pauseDuration={5000} />
                 </span>{" "}
                 for{" "}
                 <span className="underline">
-                  <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} color="#ed565a" />
+                  <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} color="#ffa6ff" />
                 </span>{" "}
                 hiring{" "}
                 <span className="underline">
-                  <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} color="#ed565a" />
+                  <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} color="#ffa6ff" />
                 </span>
                 <br />
                 <span className="text-xs mt-2 block">
@@ -164,7 +164,7 @@ const Index = () => {
                   className="text-sm md:text-base font-mono leading-relaxed"
                   style={{
                     fontFamily: "Consolas, monospace",
-                    color: "#181818",
+                    color: "#faf6f4",
                   }}
                 >
                   <span
@@ -180,7 +180,7 @@ const Index = () => {
                       words={companies}
                       isActive={true}
                       delay={0}
-                      color="#181818"
+                      color="#faf6f4"
                       startIndex={0}
                       pauseDuration={10000}
                     />
@@ -206,7 +206,7 @@ const Index = () => {
                       words={companies}
                       isActive={true}
                       delay={800}
-                      color="#181818"
+                      color="#faf6f4"
                       startIndex={10}
                       pauseDuration={10000}
                     />
@@ -253,21 +253,21 @@ const Index = () => {
               size="sm"
               className="flex-1 text-xs px-3 py-2 bg-transparent border font-mono transition-all duration-300"
               style={{
-                borderColor: "#181818",
-                color: "#181818",
+                borderColor: "hsl(var(--landing-border))",
+                color: "hsl(var(--landing-border))",
                 fontFamily: "Consolas, monospace",
               }}
               onMouseEnter={(e) => {
                 setHoveredButton("rei");
                 e.currentTarget.style.backgroundColor = "#ed565a";
-                e.currentTarget.style.color = "#faf1e1";
+                e.currentTarget.style.color = "#ffffff";
                 e.currentTarget.style.borderColor = "#ed565a";
               }}
               onMouseLeave={(e) => {
                 setHoveredButton(null);
                 e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "#181818";
-                e.currentTarget.style.borderColor = "#181818";
+                e.currentTarget.style.color = "hsl(var(--landing-border))";
+                e.currentTarget.style.borderColor = "hsl(var(--landing-border))";
               }}
             >
               @AskRei
@@ -280,7 +280,7 @@ const Index = () => {
       <div
         className="w-full lg:w-1/2 h-screen overflow-y-scroll snap-y snap-mandatory relative"
         style={{
-          backgroundColor: "#faf1e1",
+          backgroundColor: "#181818",
           scrollSnapType: "y mandatory",
           scrollSnapStop: "always",
         }}
@@ -305,7 +305,7 @@ const Index = () => {
         <div
           id="manifesto-section"
           className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-16 lg:px-20 snap-start"
-          style={{ backgroundColor: '#faf1e1' }}
+          style={{ backgroundColor: '#181818' }}
         >
           <div className="max-w-lg" style={{ color: '#ed565a', textAlign: 'justify' }}>
             <div className="font-mono text-xs leading-relaxed text-justify md:text-lg">
@@ -329,7 +329,7 @@ const Index = () => {
         </div>
 
         {/* Section 0.3 - How it Works */}
-        <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden py-20" style={{ backgroundColor: '#f5ead7' }}>
+        <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden py-20" style={{ backgroundColor: '#0a0a0a' }}>
           <div className="container mx-auto px-8 lg:px-16">
             <h2 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] font-light text-center mb-16 font-mono" style={{ color: '#ed565a' }}>
               Features
@@ -341,9 +341,9 @@ const Index = () => {
                 { title: 'Club', subtitle: 'Events and Services' },
               ].map((step, index) => (
                 <div key={step.title} className="relative text-center flex flex-col items-center">
-                  <div className="p-8 rounded-2xl transition-colors w-full" style={{ backgroundColor: '#efe2c9', border: '1.5px solid rgba(24,24,24,0.18)' }}>
+                  <div className="p-8 border-[0.5px] border-white/10 rounded-2xl hover:bg-white/5 transition-colors w-full" style={{ backgroundColor: '#141414' }}>
                     <h3 className="font-light font-mono mb-3 text-base" style={{ color: '#ed565a' }}>{step.title}</h3>
-                    <p className="text-sm font-mono whitespace-pre-line" style={{ color: 'rgba(24,24,24,0.55)' }}>{step.subtitle}</p>
+                    <p className="text-sm font-mono whitespace-pre-line" style={{ color: '#a33e41' }}>{step.subtitle}</p>
                   </div>
                 </div>
               ))}
@@ -382,7 +382,7 @@ const Index = () => {
                 <div
                   key={item.label}
                   className="flex items-center gap-2 px-4 py-2 rounded-full font-mono text-xs"
-                  style={{ backgroundColor: '#efe2c9', color: '#ed565a', border: '1.5px solid rgba(24,24,24,0.18)' }}
+                  style={{ backgroundColor: '#181818', color: '#ed565a' }}
                 >
                   <img src={item.icon} alt="" className="w-4 h-4 flex-shrink-0" />
                   <span>{item.label}</span>

@@ -18,6 +18,11 @@ interface ClubMember {
 const INK = "#181818";
 const PAPER = "#f5ead7";
 const CREAM = "#faf1e1";
+const CONCRETE = "#e3d4b6";
+const FEATURE_TEXT = "#efe2c9";
+const FEATURE_SUB = "#f5ead7";
+const FEATURE_MUTED = "rgba(239,226,201,0.55)";
+const FEATURE_BORDER = "rgba(239,226,201,0.18)";
 const MUTED = "rgba(24,24,24,0.55)";
 const BORDER = "rgba(24,24,24,0.18)";
 const ACCENT = "#ed565a";

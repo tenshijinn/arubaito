@@ -14,6 +14,7 @@ import zkprofButton from "@/assets/zkprof-button.png";
 import ubiButton from "@/assets/ubi-button.png";
 import perksButton from "@/assets/perks-button.png";
 import ikigaiSample from "@/assets/ikigai-card-sample.png";
+import reiDigital from "@/assets/rei-digital.png";
 
 // ── Aesthetics theme tokens (mirrored from /aesthetics) ───────────────────
 const CREAM = "#faf1e1";

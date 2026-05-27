@@ -382,7 +382,7 @@ const Index = () => {
                 <div
                   key={item.label}
                   className="flex items-center gap-2 px-4 py-2 rounded-full font-mono text-xs"
-                  style={{ backgroundColor: '#181818', color: '#ed565a' }}
+                  style={{ backgroundColor: '#efe2c9', color: '#ed565a', border: '1.5px solid rgba(24,24,24,0.18)' }}
                 >
                   <img src={item.icon} alt="" className="w-4 h-4 flex-shrink-0" />
                   <span>{item.label}</span>

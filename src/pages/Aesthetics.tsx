@@ -24,10 +24,10 @@ const MONO = "'Consolas', 'IBM Plex Mono', monospace";
 
 // ── Primitives ──────────────────────────────────────────────────────────────
 
-const Label = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+const Label = ({ children, className = "", inverted = false }: { children: React.ReactNode; className?: string; inverted?: boolean }) => (
   <span
     className={`uppercase tracking-[0.18em] ${className}`}
-    style={{ fontFamily: MONO, fontSize: 10, color: MUTED }}
+    style={{ fontFamily: MONO, fontSize: 10, color: inverted ? "rgba(239,226,201,0.55)" : MUTED }}
   >
     {children}
   </span>
@@ -37,16 +37,18 @@ const Card = ({
   children,
   className = "",
   padded = true,
+  inverted = false,
 }: {
   children: React.ReactNode;
   className?: string;
   padded?: boolean;
+  inverted?: boolean;
 }) => (
   <div
     className={`rounded-[20px] ${className}`}
     style={{
-      background: "transparent",
-      border: `1.5px solid ${BORDER}`,
+      background: inverted ? INK : "transparent",
+      border: `1.5px solid ${inverted ? "rgba(239,226,201,0.18)" : BORDER}`,
       padding: padded ? 24 : 0,
     }}
   >

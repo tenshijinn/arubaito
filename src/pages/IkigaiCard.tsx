@@ -140,7 +140,7 @@ const IkigaiCard: React.FC = () => {
     }
   };
 
-  const bgColor = isDarkMode ? 'bg-[#181818]' : 'bg-[#ebe9e6]';
+  const bgColor = isDarkMode ? 'bg-[#181818]' : 'bg-[#f5ead7]';
   const textColor = isDarkMode ? 'text-white' : 'text-[#181818]';
 
   return (
@@ -222,7 +222,7 @@ const IkigaiCard: React.FC = () => {
                   <div className="space-y-2">
                     <Button
                       onClick={handleDownload}
-                      className="w-full gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3"
+                      className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3"
                       style={{ fontFamily: 'Consolas, monospace' }}
                     >
                       <Download className="w-4 h-4" />
@@ -318,7 +318,7 @@ const IkigaiCard: React.FC = () => {
                 <div className="space-y-2">
                   <Button
                     onClick={handleDownload}
-                    className="gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3"
+                    className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3"
                     style={{ fontFamily: 'Consolas, monospace' }}
                   >
                     <Download className="w-4 h-4" />

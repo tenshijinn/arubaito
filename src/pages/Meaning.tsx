@@ -17,10 +17,10 @@ const Meaning: React.FC = () => {
 
         <h1
           className="text-3xl md:text-4xl lg:text-5xl leading-tight mb-6"
-          style={{ fontFamily: 'Styrene A Trial, sans-serif', color: '#ebe9e6' }}
+          style={{ fontFamily: 'Styrene A Trial, sans-serif', color: '#181818' }}
         >
           Find work that<br />
-          <span className="text-primary">actually matters</span><br />
+          <span style={{ color: '#ed565a' }}>actually matters</span><br />
           to you
         </h1>
 
@@ -53,7 +53,7 @@ const Meaning: React.FC = () => {
         </p>
         <p
           className="text-sm mb-10 max-w-md"
-          style={{ fontFamily: 'Consolas, monospace', color: '#ebe9e6' }}
+          style={{ fontFamily: 'Consolas, monospace', color: '#181818' }}
         >
           Your purpose in 3 mins. A shareable Ikigai Card. Clarity on where you belong.
         </p>
@@ -61,8 +61,8 @@ const Meaning: React.FC = () => {
         {/* CTA */}
         <Link to="/ikigai">
           <Button
-            className="bg-primary hover:bg-primary/90 text-white px-10 py-3 text-base w-fit"
-            style={{ fontFamily: 'Consolas, monospace' }}
+            className="px-10 py-3 text-base w-fit hover:opacity-90"
+            style={{ fontFamily: 'Consolas, monospace', backgroundColor: '#ed565a', color: '#faf1e1', border: 'none' }}
           >
             Start Ikigai Test
           </Button>

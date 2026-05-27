@@ -88,7 +88,7 @@ const Index = () => {
   const getBackgroundStyle = () => {
     if (hoveredButton === "rei") {
       return {
-        backgroundColor: "hsl(var(--landing-bg))",
+        backgroundColor: "#faf1e1",
         backgroundImage: "url(/rei-hover.png)",
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -96,7 +96,7 @@ const Index = () => {
       };
     }
     return {
-      backgroundColor: "hsl(var(--landing-bg))",
+      backgroundColor: "#faf1e1",
       transition: "background-image 0.3s ease",
     };
   };
@@ -104,7 +104,7 @@ const Index = () => {
     <div
       className="min-h-screen flex flex-col lg:flex-row font-mono"
       style={{
-        backgroundColor: "hsl(var(--landing-bg))",
+        backgroundColor: "#faf1e1",
       }}
     >
       {/* LEFT COLUMN - Static */}

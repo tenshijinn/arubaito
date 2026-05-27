@@ -46,7 +46,28 @@ export const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
 
 const TimeUnit = ({ value, label }: { value: number; label: string }) => (
   <div className="flex flex-col items-center">
-    <div className="text-base md:text-xl font-bold text-primary">{value.toString().padStart(2, '0')}</div>
-    <div className="text-[10px] md:text-xs text-muted-foreground">{label}</div>
+    <div
+      style={{
+        fontFamily: "'Styrene A Trial', 'Consolas', monospace",
+        fontSize: 36,
+        letterSpacing: "-0.04em",
+        color: "#181818",
+        lineHeight: 1,
+        fontWeight: 500,
+      }}
+    >
+      {value.toString().padStart(2, '0')}
+    </div>
+    <div
+      className="uppercase mt-2"
+      style={{
+        fontFamily: "'Consolas', 'IBM Plex Mono', monospace",
+        fontSize: 10,
+        letterSpacing: "0.18em",
+        color: "rgba(24,24,24,0.55)",
+      }}
+    >
+      {label}
+    </div>
   </div>
 );

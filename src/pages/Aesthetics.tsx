@@ -212,7 +212,8 @@ const Toggle = ({ defaultOn = true, inverted = false }: { defaultOn?: boolean; i
       <div
         className="absolute top-0.5 h-5 w-5 rounded-full transition-all"
         style={{
-          background: inverted ? INK : PAPER,
+          background: on ? (inverted ? INK : PAPER) : (inverted ? "transparent" : PAPER),
+          border: !on && inverted ? "1.5px solid rgba(239,226,201,0.55)" : "none",
           left: on ? 22 : 2,
           boxShadow: "0 1px 2px rgba(0,0,0,0.15)",
         }}

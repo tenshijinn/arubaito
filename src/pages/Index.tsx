@@ -378,46 +378,37 @@ const Index = () => {
           </Card>
         </div>
 
-        {/* Section 1.5 - Find Meaningful Work (video kept) */}
+        {/* Section 1.5 - Find Meaningful Work */}
         <div
-          className="h-screen flex-shrink-0 relative snap-start overflow-hidden cursor-pointer"
-          onClick={() => navigate("/meaning")}
+          className="h-screen flex-shrink-0 relative snap-start overflow-hidden flex flex-col items-center justify-center px-8 py-12"
+          style={{ backgroundColor: CONCRETE }}
         >
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            className="absolute inset-0 w-full h-full object-cover"
+          <h2
+            className="text-center mb-6 max-w-md"
+            style={{
+              fontFamily: DISPLAY,
+              fontSize: 24,
+              letterSpacing: "-0.02em",
+              color: INK,
+              fontWeight: 500,
+              lineHeight: 1.2,
+            }}
           >
-            <source src="/ikigai-bg.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 flex flex-col items-center pt-[30%] md:pt-[28%]">
-            <h2
-              style={{
-                fontFamily: DISPLAY,
-                fontSize: 24,
-                letterSpacing: "-0.02em",
-                color: INK,
-                background: CREAM,
-                padding: "6px 14px",
-                borderRadius: 999,
-                fontWeight: 500,
-              }}
-            >
-              <span>{"find meaning"}</span>
-              <span className="line-through">{"ful"}</span>
-              <span>{" work"}</span>
-            </h2>
-            <button
-              onClick={(e) => { e.stopPropagation(); navigate("/meaning"); }}
-              className="mt-4 px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
-              style={{ background: CREAM, color: INK, fontFamily: SANS }}
-            >
-              Find It
-            </button>
-          </div>
+            Find meaning, so that you can find meaningful work.
+          </h2>
+          <img
+            src={ikigaiSample}
+            alt="Ikigai Card"
+            className="max-h-[55vh] w-auto object-contain rounded-2xl"
+            style={{ border: `1.5px solid ${BORDER}` }}
+          />
+          <button
+            onClick={() => navigate("/meaning")}
+            className="mt-6 px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
+            style={{ background: INK, color: CREAM, fontFamily: SANS }}
+          >
+            Find It
+          </button>
         </div>
 
         {/* Section 2 - Arubaito Apps Grid */}

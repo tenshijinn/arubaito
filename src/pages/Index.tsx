@@ -349,22 +349,19 @@ const Index = () => {
 
             <div className="mt-6 flex flex-col gap-0" style={{ borderTop: `1.5px solid rgba(239,226,201,0.18)` }}>
               {[
-                { n: "01", label: "Guest List" },
-                { n: "02", label: "Membership NFT" },
-                { n: "03", label: "CV Profile Score 80+" },
+                { Icon: Twitter, label: "Guest List" },
+                { Icon: ImageIcon, label: "Membership NFT" },
+                { Icon: FileText, label: "CV Profile Score 80+" },
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center justify-between py-4"
+                  className="flex items-center py-4"
                   style={{ borderBottom: `1.5px solid rgba(239,226,201,0.18)` }}
                 >
                   <div className="flex items-center gap-4">
-                    <span style={{ fontFamily: MONO, fontSize: 11, color: "rgba(239,226,201,0.55)" }}>
-                      {item.n}
-                    </span>
+                    <item.Icon size={16} style={{ color: "rgba(239,226,201,0.55)" }} strokeWidth={1.75} />
                     <span style={{ fontFamily: SANS, fontSize: 14, color: SURFACE }}>{item.label}</span>
                   </div>
-                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: ACCENT }} />
                 </div>
               ))}
             </div>

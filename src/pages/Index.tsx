@@ -305,7 +305,7 @@ const Index = () => {
         <div
           id="manifesto-section"
           className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-16 lg:px-20 snap-start"
-          style={{ backgroundColor: '#181818' }}
+          style={{ backgroundColor: '#faf1e1' }}
         >
           <div className="max-w-lg" style={{ color: '#ed565a', textAlign: 'justify' }}>
             <div className="font-mono text-xs leading-relaxed text-justify md:text-lg">

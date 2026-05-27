@@ -6,22 +6,21 @@ import { ArrowUpRight, Check, Circle, Plus, Minus, Search, Settings2 } from "luc
 // Palette: warm off-white surfaces, graphite text, sparse muted accents
 // Inspirations: Braun, Teenage Engineering, Nothing OS, MUJI, Swiss editorial
 
-const STONE = "#ECE8E1";
-const PAPER = "#F1EFE8";
-const CONCRETE = "#D9D8CF";
-const SURFACE = "#E7E5DD";
-const INK = "#181818";
-const GRAPHITE = "#3a3a38";
-const MUTED = "#8a8880";
-const BORDER = "rgba(24,24,24,0.14)";
-const ACCENT_ORANGE = "#C8623A";
-const ACCENT_OLIVE = "#7d8a5c";
-const ACCENT_RED = "#a84a3e";
-const ACCENT_CREAM = "#E8DCC2";
+// Palette — platform tokens only
+const CREAM = "#faf1e1";        // primary surface (warm cream)
+const PAPER = "#f5ead7";        // slightly deeper card surface
+const SURFACE = "#efe2c9";      // sunken / input surface
+const CONCRETE = "#e3d4b6";     // muted fill
+const INK = "#181818";          // primary text / dark surfaces
+const GRAPHITE = "#2a2a2a";
+const MUTED = "rgba(24,24,24,0.55)";
+const BORDER = "rgba(24,24,24,0.18)";
+const ACCENT = "#ed565a";       // sole accent
 
-const SANS = "'Inter', 'Suisse', 'Neue Haas Grotesk', 'SF Pro', system-ui, sans-serif";
-const DISPLAY = "'Inter', 'Suisse', system-ui, sans-serif";
-const MONO = "'JetBrains Mono', 'IBM Plex Mono', Consolas, monospace";
+// Typography — keep terminal-esk feel
+const SANS = "'Consolas', 'IBM Plex Mono', monospace";
+const DISPLAY = "'Styrene A Trial', 'Consolas', monospace";
+const MONO = "'Consolas', 'IBM Plex Mono', monospace";
 
 // ── Primitives ──────────────────────────────────────────────────────────────
 
@@ -70,7 +69,7 @@ const ButtonsSection = () => (
     <div className="flex flex-wrap gap-3 items-center">
       <button
         className="px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
-        style={{ background: INK, color: STONE, fontFamily: SANS }}
+        style={{ background: INK, color: CREAM, fontFamily: SANS }}
       >
         Apply now
       </button>
@@ -87,7 +86,7 @@ const ButtonsSection = () => (
       </button>
       <button
         className="px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
-        style={{ background: ACCENT_ORANGE, color: PAPER, fontFamily: SANS }}
+        style={{ background: ACCENT, color: PAPER, fontFamily: SANS }}
       >
         Submit
       </button>
@@ -297,7 +296,7 @@ const RadialIndicator = () => {
                   y1={y1}
                   x2={x2}
                   y2={y2}
-                  stroke={filled ? ACCENT_ORANGE : "rgba(24,24,24,0.18)"}
+                  stroke={filled ? ACCENT : "rgba(24,24,24,0.18)"}
                   strokeWidth={1.5}
                   strokeLinecap="round"
                 />
@@ -350,7 +349,7 @@ const LineGraph = () => (
         strokeLinecap="square"
         strokeLinejoin="miter"
       />
-      <circle cx="300" cy="45" r="3.5" fill={ACCENT_ORANGE} />
+      <circle cx="300" cy="45" r="3.5" fill={ACCENT} />
     </svg>
     <div className="flex justify-between mt-3">
       {["Apr", "May", "Jun", "Jul", "Aug", "Sep"].map((m) => (
@@ -394,7 +393,7 @@ const StreakCard = () => {
             <div
               className="h-9 w-9 rounded-full flex items-center justify-center"
               style={{
-                background: completed[i] ? ACCENT_ORANGE : CONCRETE,
+                background: completed[i] ? ACCENT : CONCRETE,
               }}
             >
               {completed[i] && <Check size={14} strokeWidth={2} color={PAPER} />}
@@ -483,7 +482,7 @@ const ListRows = () => {
             <div className="flex items-center gap-4 min-w-0">
               <span
                 className="h-1.5 w-1.5 rounded-full shrink-0"
-                style={{ background: r.active ? ACCENT_ORANGE : CONCRETE }}
+                style={{ background: r.active ? ACCENT : CONCRETE }}
               />
               <span style={{ fontFamily: SANS, fontSize: 14, color: INK }} className="truncate">
                 {r.label}
@@ -513,10 +512,10 @@ const ChipsSection = () => (
       {[
         { l: "OG Verified", color: INK, bg: "transparent", border: true },
         { l: "Network School", color: PAPER, bg: INK },
-        { l: "Whitelisted", color: INK, bg: ACCENT_CREAM },
-        { l: "Pending Review", color: INK, bg: "transparent", border: true, dot: ACCENT_ORANGE },
-        { l: "Builder", color: PAPER, bg: ACCENT_OLIVE },
-        { l: "Recruiter", color: PAPER, bg: ACCENT_RED },
+        { l: "Whitelisted", color: INK, bg: CONCRETE },
+        { l: "Pending Review", color: INK, bg: "transparent", border: true, dot: ACCENT },
+        { l: "Builder", color: PAPER, bg: ACCENT },
+        { l: "Recruiter", color: PAPER, bg: ACCENT },
       ].map((c: any) => (
         <span
           key={c.l}
@@ -542,7 +541,7 @@ const HeroHeader = () => (
   <div className="px-6 md:px-12 pt-12 md:pt-20 pb-12">
     <div className="flex items-center justify-between mb-12">
       <div className="flex items-center gap-3">
-        <div className="h-2 w-2 rounded-full" style={{ background: ACCENT_ORANGE }} />
+        <div className="h-2 w-2 rounded-full" style={{ background: ACCENT }} />
         <Label>Arubaito / Aesthetics Lab</Label>
       </div>
       <div className="flex items-center gap-6">
@@ -581,7 +580,7 @@ const HeroHeader = () => (
         <div className="mt-6 flex items-center gap-3">
           <button
             className="px-5 py-2.5 rounded-full text-sm"
-            style={{ background: INK, color: STONE, fontFamily: SANS }}
+            style={{ background: INK, color: CREAM, fontFamily: SANS }}
           >
             Approve direction
           </button>
@@ -603,16 +602,16 @@ export default function Aesthetics() {
   return (
     <div
       className="min-h-screen w-full"
-      style={{ background: STONE, color: INK, fontFamily: SANS }}
+      style={{ background: CREAM, color: INK, fontFamily: SANS }}
     >
       <HeroHeader />
 
       <div className="px-6 md:px-12 pb-24">
         {/* Metric strip */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          <MetricTile label="Members" value="142" meta="+12 this week" accent={ACCENT_ORANGE} />
-          <MetricTile label="Open Roles" value="07" meta="3 commission" accent={ACCENT_OLIVE} />
-          <MetricTile label="Treasury" value="12.8" unit="SOL" meta="+1.6% / 30d" accent={ACCENT_ORANGE} />
+          <MetricTile label="Members" value="142" meta="+12 this week" accent={ACCENT} />
+          <MetricTile label="Open Roles" value="07" meta="3 commission" accent={ACCENT} />
+          <MetricTile label="Treasury" value="12.8" unit="SOL" meta="+1.6% / 30d" accent={ACCENT} />
           <MetricTile label="Vetting Queue" value="23" meta="Avg 2.4 days" accent={MUTED} />
         </div>
 
@@ -650,14 +649,14 @@ export default function Aesthetics() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { name: "Stone", hex: STONE },
+              { name: "Cream", hex: CREAM },
               { name: "Paper", hex: PAPER },
               { name: "Surface", hex: SURFACE },
               { name: "Concrete", hex: CONCRETE },
               { name: "Ink", hex: INK },
-              { name: "Orange", hex: ACCENT_ORANGE },
-              { name: "Olive", hex: ACCENT_OLIVE },
-              { name: "Cream", hex: ACCENT_CREAM },
+              { name: "Graphite", hex: GRAPHITE },
+              { name: "Accent", hex: ACCENT },
+              { name: "Border", hex: "#181818" },
             ].map((s) => (
               <div key={s.name}>
                 <div
@@ -682,7 +681,7 @@ export default function Aesthetics() {
                 Aa Bb Cc
               </div>
               <div className="mt-2" style={{ fontFamily: MONO, fontSize: 11, color: MUTED }}>
-                Inter / Suisse · 500 · tight tracking
+                Styrene A Trial · Display · tight tracking
               </div>
             </div>
             <div>

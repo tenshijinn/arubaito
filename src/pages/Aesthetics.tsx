@@ -150,7 +150,7 @@ const InputsSection = () => (
         <Label>Handle</Label>
         <div
           className="mt-2 flex items-center gap-2 px-4 py-3 rounded-full"
-          style={{ background: SURFACE, border: `1.5px solid ${BORDER}` }}
+          style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
         >
           <Search size={14} strokeWidth={1.5} color={MUTED} />
           <input

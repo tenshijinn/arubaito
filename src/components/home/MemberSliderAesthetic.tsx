@@ -18,6 +18,11 @@ interface ClubMember {
 const INK = "#181818";
 const PAPER = "#f5ead7";
 const CREAM = "#faf1e1";
+const CONCRETE = "#e3d4b6";
+const FEATURE_TEXT = "#efe2c9";
+const FEATURE_SUB = "#f5ead7";
+const FEATURE_MUTED = "rgba(239,226,201,0.55)";
+const FEATURE_BORDER = "rgba(239,226,201,0.18)";
 const MUTED = "rgba(24,24,24,0.55)";
 const BORDER = "rgba(24,24,24,0.18)";
 const ACCENT = "#ed565a";
@@ -82,7 +87,7 @@ export const MemberSliderAesthetic = () => {
   return (
     <div
       className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-12 lg:px-16 snap-start relative"
-      style={{ backgroundColor: PAPER }}
+      style={{ backgroundColor: CONCRETE }}
       onMouseEnter={stopAuto}
       onMouseLeave={startAuto}
     >
@@ -118,14 +123,14 @@ export const MemberSliderAesthetic = () => {
                       style={{
                         padding: "10px 10px 13px",
                         gap: 16,
-                        border: `1.5px solid ${BORDER}`,
+                        border: `1.5px solid ${FEATURE_BORDER}`,
                         borderRadius: 32,
-                        background: CREAM,
+                        background: INK,
                       }}
                     >
                       <div
                         className="w-full aspect-square overflow-hidden"
-                        style={{ border: `1.5px solid ${BORDER}`, borderRadius: 28 }}
+                        style={{ border: `1.5px solid ${FEATURE_BORDER}`, borderRadius: 28 }}
                       >
                         {member.profile_image_url ? (
                           <img
@@ -136,7 +141,7 @@ export const MemberSliderAesthetic = () => {
                         ) : (
                           <div
                             className="w-full h-full flex items-center justify-center text-4xl"
-                            style={{ background: PAPER, color: INK, fontFamily: MONO }}
+                            style={{ background: INK, color: FEATURE_TEXT, fontFamily: MONO }}
                           >
                             {member.twitter_handle.charAt(0).toUpperCase()}
                           </div>
@@ -147,7 +152,7 @@ export const MemberSliderAesthetic = () => {
                         <div className="flex items-center gap-1.5">
                           {hasNS && <NSIcon size={26} />}
                           {hasGuestlist && <GoldenCheckmark size={21} />}
-                          <span style={{ color: INK, fontFamily: MONO, fontSize: 18, lineHeight: "26px" }}>
+                          <span style={{ color: FEATURE_TEXT, fontFamily: MONO, fontSize: 18, lineHeight: "26px" }}>
                             {member.job_title
                               ? member.twitter_handle.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (c) => c.toUpperCase())
                               : `@${member.twitter_handle}`}
@@ -162,22 +167,22 @@ export const MemberSliderAesthetic = () => {
                         >
                           <div
                             className="flex items-center justify-center w-7 h-7"
-                            style={{ border: `1.5px solid ${BORDER}`, borderRadius: 10 }}
+                            style={{ border: `1.5px solid ${FEATURE_BORDER}`, borderRadius: 10 }}
                           >
                             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                               <path
                                 d="M8.33 5.93L13.53 0H12.3L7.78 5.15L4.17 0H0L5.45 7.78L0 14H1.23L5.99 8.56L9.83 14H14L8.33 5.93ZM6.62 7.85L6.07 7.08L1.68 0.91H3.58L7.11 5.89L7.66 6.66L12.3 13.13H10.4L6.62 7.85Z"
-                                fill={INK}
+                                fill={FEATURE_TEXT}
                               />
                             </svg>
                           </div>
-                          <span style={{ color: INK, fontFamily: MONO, fontSize: 13 }}>
+                          <span style={{ color: FEATURE_TEXT, fontFamily: MONO, fontSize: 13 }}>
                             @{member.twitter_handle}
                           </span>
                         </a>
 
                         {member.job_title && (
-                          <p style={{ color: MUTED, fontFamily: MONO, fontSize: 13, lineHeight: "22px" }}>
+                          <p style={{ color: FEATURE_SUB, fontFamily: MONO, fontSize: 13, lineHeight: "22px" }}>
                             {member.job_title}
                           </p>
                         )}
@@ -187,7 +192,7 @@ export const MemberSliderAesthetic = () => {
                             <div className="flex flex-col gap-3">
                               <span
                                 className="uppercase tracking-[0.18em]"
-                                style={{ color: MUTED, fontFamily: MONO, fontSize: 10 }}
+                                style={{ color: FEATURE_MUTED, fontFamily: MONO, fontSize: 10 }}
                               >
                                 Proof of Talent
                               </span>
@@ -207,12 +212,12 @@ export const MemberSliderAesthetic = () => {
                                         style={{
                                           width: 44,
                                           height: 44,
-                                          border: `1.5px solid ${isHovered ? ACCENT : BORDER}`,
+                                          border: `1.5px solid ${isHovered ? ACCENT : FEATURE_BORDER}`,
                                           borderRadius: 14,
-                                          background: isHovered ? "rgba(237,86,90,0.08)" : "transparent",
+                                          background: isHovered ? "rgba(237,86,90,0.12)" : "transparent",
                                         }}
                                       >
-                                        <Icon className="w-5 h-5" style={{ color: INK }} strokeWidth={1.67} />
+                                        <Icon className="w-5 h-5" style={{ color: FEATURE_TEXT }} strokeWidth={1.67} />
                                       </div>
                                       {isHovered && (
                                         <div
@@ -222,18 +227,18 @@ export const MemberSliderAesthetic = () => {
                                             minWidth: 180,
                                             maxWidth: 220,
                                             padding: "10px 12px",
-                                            background: CREAM,
-                                            border: `1.5px solid ${BORDER}`,
+                                            background: INK,
+                                            border: `1.5px solid ${FEATURE_BORDER}`,
                                             borderRadius: 12,
                                           }}
                                         >
                                           <div className="flex items-center gap-2 mb-1">
-                                            <Icon className="w-4 h-4 shrink-0" style={{ color: INK }} strokeWidth={1.67} />
-                                            <span style={{ color: INK, fontFamily: MONO, fontSize: 11, fontWeight: 700 }}>
+                                            <Icon className="w-4 h-4 shrink-0" style={{ color: FEATURE_TEXT }} strokeWidth={1.67} />
+                                            <span style={{ color: FEATURE_TEXT, fontFamily: MONO, fontSize: 11, fontWeight: 700 }}>
                                               {proofLabels[i % proofLabels.length]}
                                             </span>
                                           </div>
-                                          <p style={{ color: MUTED, fontFamily: MONO, fontSize: 11, lineHeight: "16px" }}>
+                                          <p style={{ color: FEATURE_SUB, fontFamily: MONO, fontSize: 11, lineHeight: "16px" }}>
                                             {activity.description ||
                                               `${activity.chain ? `Experience on ${activity.chain}` : "Verified on-chain activity"}`}
                                           </p>
@@ -250,7 +255,7 @@ export const MemberSliderAesthetic = () => {
                             <div className="flex flex-col items-end shrink-0">
                               <span
                                 className="uppercase tracking-[0.12em]"
-                                style={{ color: MUTED, fontFamily: MONO, fontSize: 9 }}
+                                style={{ color: FEATURE_MUTED, fontFamily: MONO, fontSize: 9 }}
                               >
                                 CV Score
                               </span>
@@ -258,7 +263,7 @@ export const MemberSliderAesthetic = () => {
                                 <span style={{ color: ACCENT, fontFamily: MONO, fontWeight: 700, fontSize: 30, lineHeight: "36px" }}>
                                   {Math.round(member.cv_score)}
                                 </span>
-                                <span style={{ color: MUTED, fontFamily: MONO, fontSize: 16 }}>
+                                <span style={{ color: FEATURE_MUTED, fontFamily: MONO, fontSize: 16 }}>
                                   /100
                                 </span>
                               </div>

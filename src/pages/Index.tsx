@@ -6,12 +6,13 @@ import { WaitlistCountdownAesthetic as WaitlistCountdown } from "@/components/ho
 import { TreasuryDisplayAesthetic as TreasuryDisplay } from "@/components/home/TreasuryDisplayAesthetic";
 import { VideoHeroAesthetic as VideoHeroSection } from "@/components/home/VideoHeroAesthetic";
 import { MemberSliderAesthetic as MemberSlider } from "@/components/home/MemberSliderAesthetic";
-import arubaitoLogo from "@/assets/arubaito-logo.png";
+import arubaitoLogo from "@/assets/arubaito-logo-black.png";
 import reiLogoEye from "@/assets/rei-logo-eye.png";
 import reiButton from "@/assets/rei-button.png";
 import zkprofButton from "@/assets/zkprof-button.png";
 import ubiButton from "@/assets/ubi-button.png";
 import perksButton from "@/assets/perks-button.png";
+import ikigaiSample from "@/assets/ikigai-card-sample.png";
 
 // ── Aesthetics theme tokens (mirrored from /aesthetics) ───────────────────
 const CREAM = "#faf1e1";
@@ -99,7 +100,7 @@ const Index = () => {
             src={hoveredButton === "rei" ? reiLogoEye : arubaitoLogo}
             alt={hoveredButton === "rei" ? "Rei" : "Arubaito"}
             className="h-24 md:h-32 w-auto transition-all duration-300"
-            style={{ filter: "invert(1)" }}
+            style={hoveredButton === "rei" ? { filter: "invert(1)" } : undefined}
           />
         </div>
 
@@ -203,7 +204,7 @@ const Index = () => {
       <div
         className="w-full lg:w-1/2 h-screen overflow-y-scroll snap-y snap-mandatory relative"
         style={{
-          backgroundColor: PAPER,
+          backgroundColor: CONCRETE,
           scrollSnapType: "y mandatory",
           scrollSnapStop: "always",
         }}
@@ -219,7 +220,7 @@ const Index = () => {
         <div
           id="manifesto-section"
           className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-16 lg:px-20 snap-start"
-          style={{ backgroundColor: PAPER }}
+          style={{ backgroundColor: CONCRETE }}
         >
           <Card className="max-w-lg">
             <Label>Manifesto</Label>
@@ -261,7 +262,7 @@ const Index = () => {
         {/* Section 0.3 - Features */}
         <section
           className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden py-20"
-          style={{ backgroundColor: PAPER }}
+          style={{ backgroundColor: CONCRETE }}
         >
           <div className="container mx-auto px-8 lg:px-16">
             <div className="flex items-center justify-between mb-10 max-w-4xl mx-auto">
@@ -306,7 +307,7 @@ const Index = () => {
         <div
           id="how-club-works"
           className="h-screen flex-shrink-0 relative flex flex-col items-center justify-center snap-start overflow-hidden px-8"
-          style={{ backgroundColor: PAPER }}
+          style={{ backgroundColor: CONCRETE }}
         >
           {/* Subtle ASCII background, low opacity so cream reads through */}
           <iframe
@@ -342,7 +343,7 @@ const Index = () => {
                 fontWeight: 500,
               }}
             >
-              Three steps to the Club.
+              How to Signup
             </div>
 
             <div className="mt-6 flex flex-col gap-0" style={{ borderTop: `1.5px solid rgba(239,226,201,0.18)` }}>
@@ -377,53 +378,44 @@ const Index = () => {
           </Card>
         </div>
 
-        {/* Section 1.5 - Find Meaningful Work (video kept) */}
+        {/* Section 1.5 - Find Meaningful Work */}
         <div
-          className="h-screen flex-shrink-0 relative snap-start overflow-hidden cursor-pointer"
-          onClick={() => navigate("/meaning")}
+          className="h-screen flex-shrink-0 relative snap-start overflow-hidden flex flex-col items-center justify-center px-8 py-12"
+          style={{ backgroundColor: CONCRETE }}
         >
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            className="absolute inset-0 w-full h-full object-cover"
+          <h2
+            className="text-center mb-6 max-w-md"
+            style={{
+              fontFamily: DISPLAY,
+              fontSize: 24,
+              letterSpacing: "-0.02em",
+              color: INK,
+              fontWeight: 500,
+              lineHeight: 1.2,
+            }}
           >
-            <source src="/ikigai-bg.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 flex flex-col items-center pt-[30%] md:pt-[28%]">
-            <h2
-              style={{
-                fontFamily: DISPLAY,
-                fontSize: 24,
-                letterSpacing: "-0.02em",
-                color: INK,
-                background: CREAM,
-                padding: "6px 14px",
-                borderRadius: 999,
-                fontWeight: 500,
-              }}
-            >
-              <span>{"find meaning"}</span>
-              <span className="line-through">{"ful"}</span>
-              <span>{" work"}</span>
-            </h2>
-            <button
-              onClick={(e) => { e.stopPropagation(); navigate("/meaning"); }}
-              className="mt-4 px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
-              style={{ background: CREAM, color: INK, fontFamily: SANS }}
-            >
-              Find It
-            </button>
-          </div>
+            Find meaning, so that you can find meaningful work.
+          </h2>
+          <img
+            src={ikigaiSample}
+            alt="Ikigai Card"
+            className="max-h-[55vh] w-auto object-contain rounded-2xl"
+            style={{ border: `1.5px solid ${BORDER}` }}
+          />
+          <button
+            onClick={() => navigate("/meaning")}
+            className="mt-6 px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
+            style={{ background: INK, color: CREAM, fontFamily: SANS }}
+          >
+            Find It
+          </button>
         </div>
 
         {/* Section 2 - Arubaito Apps Grid */}
         <div
           id="arubaito-apps"
           className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
-          style={{ backgroundColor: PAPER }}
+          style={{ backgroundColor: CONCRETE }}
         >
           <div className="flex items-center justify-between mb-8 w-full max-w-md">
             <Label>03 / Suite</Label>

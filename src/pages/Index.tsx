@@ -138,20 +138,20 @@ const Index = () => {
                 className="text-sm md:text-base font-mono leading-relaxed"
                 style={{
                   fontFamily: "Consolas, monospace",
-                  color: "#faf6f4",
+                  color: "#181818",
                 }}
               >
                 Aggregates{" "}
                 <span className="underline">
-                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color="#ffa6ff" pauseDuration={5000} />
+                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color="#ed565a" pauseDuration={5000} />
                 </span>{" "}
                 for{" "}
                 <span className="underline">
-                  <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} color="#ffa6ff" />
+                  <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} color="#ed565a" />
                 </span>{" "}
                 hiring{" "}
                 <span className="underline">
-                  <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} color="#ffa6ff" />
+                  <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} color="#ed565a" />
                 </span>
                 <br />
                 <span className="text-xs mt-2 block">

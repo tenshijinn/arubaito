@@ -270,7 +270,15 @@ const MetricTile = ({
 // ── Section: Radial Indicator (HRV/Respiratory style) ──────────────────────
 
 const RadialIndicator = () => {
-  const dots = 48;
+  const score = 82;
+  const total = 100;
+  const size = 200;
+  const stroke = 1.5;
+  const radius = 88;
+  const cx = size / 2;
+  const cy = size / 2;
+  const circumference = 2 * Math.PI * radius;
+  const filled = (score / total) * circumference;
   return (
     <Card>
       <div className="flex items-center justify-between mb-4">
@@ -278,30 +286,36 @@ const RadialIndicator = () => {
         <Label>Live</Label>
       </div>
       <div className="flex items-center justify-center py-6">
-        <div className="relative" style={{ width: 200, height: 200 }}>
-          <svg width="200" height="200" viewBox="0 0 200 200">
-            {Array.from({ length: dots }).map((_, i) => {
-              const angle = (i / dots) * Math.PI * 2 - Math.PI / 2;
-              const r1 = 70;
-              const r2 = i % 3 === 0 ? 92 : 84;
-              const x1 = 100 + Math.cos(angle) * r1;
-              const y1 = 100 + Math.sin(angle) * r1;
-              const x2 = 100 + Math.cos(angle) * r2;
-              const y2 = 100 + Math.sin(angle) * r2;
-              const filled = i < 34;
+        <div className="relative" style={{ width: size, height: size }}>
+          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+            {Array.from({ length: 60 }).map((_, i) => {
+              const angle = (i / 60) * Math.PI * 2 - Math.PI / 2;
+              const r1 = radius - 6;
+              const r2 = radius - 2;
               return (
                 <line
                   key={i}
-                  x1={x1}
-                  y1={y1}
-                  x2={x2}
-                  y2={y2}
-                  stroke={filled ? ACCENT : "rgba(24,24,24,0.18)"}
-                  strokeWidth={1.5}
-                  strokeLinecap="round"
+                  x1={cx + Math.cos(angle) * r1}
+                  y1={cy + Math.sin(angle) * r1}
+                  x2={cx + Math.cos(angle) * r2}
+                  y2={cy + Math.sin(angle) * r2}
+                  stroke={BORDER}
+                  strokeWidth={0.75}
                 />
               );
             })}
+            <circle cx={cx} cy={cy} r={radius} fill="none" stroke={BORDER} strokeWidth={stroke} />
+            <circle
+              cx={cx}
+              cy={cy}
+              r={radius}
+              fill="none"
+              stroke={ACCENT}
+              strokeWidth={stroke}
+              strokeLinecap="butt"
+              strokeDasharray={`${filled} ${circumference - filled}`}
+              transform={`rotate(-90 ${cx} ${cy})`}
+            />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span
@@ -314,10 +328,10 @@ const RadialIndicator = () => {
                 fontWeight: 500,
               }}
             >
-              82
+              {score}
             </span>
-            <span style={{ fontFamily: SANS, fontSize: 12, color: MUTED, marginTop: 4 }}>
-              Verified
+            <span style={{ fontFamily: MONO, fontSize: 11, color: MUTED, marginTop: 4, letterSpacing: "0.1em" }}>
+              {score}/{total}
             </span>
           </div>
         </div>
@@ -326,38 +340,61 @@ const RadialIndicator = () => {
   );
 };
 
-// ── Section: Line Graph (HRV style) ────────────────────────────────────────
+// ── Section: ASCII Bar Chart (Treasury) ────────────────────────────────────
 
-const LineGraph = () => (
-  <Card>
-    <div className="flex items-center justify-between mb-2">
-      <Label>Treasury Balance</Label>
-      <Label>30d</Label>
-    </div>
-    <div className="flex items-baseline gap-2 mb-4">
-      <span style={{ fontFamily: DISPLAY, fontSize: 38, color: INK, letterSpacing: "-0.04em", fontWeight: 500 }}>
-        12.84
-      </span>
-      <span style={{ fontFamily: SANS, fontSize: 13, color: MUTED }}>SOL / +1.6%</span>
-    </div>
-    <svg viewBox="0 0 300 100" className="w-full" style={{ height: 100 }}>
-      <polyline
-        points="0,70 30,70 30,55 60,55 60,75 90,75 90,40 120,40 120,60 150,60 150,30 180,30 180,50 210,50 210,35 240,35 240,55 270,55 270,45 300,45"
-        fill="none"
-        stroke={INK}
-        strokeWidth={1.25}
-        strokeLinecap="square"
-        strokeLinejoin="miter"
-      />
-      <circle cx="300" cy="45" r="3.5" fill={ACCENT} />
-    </svg>
-    <div className="flex justify-between mt-3">
-      {["Apr", "May", "Jun", "Jul", "Aug", "Sep"].map((m) => (
-        <span key={m} style={{ fontFamily: MONO, fontSize: 10, color: MUTED }}>{m}</span>
-      ))}
-    </div>
-  </Card>
-);
+const LineGraph = () => {
+  const months = ["Apr", "May", "Jun", "Jul", "Aug", "Sep"];
+  const values = [4, 6, 3, 8, 5, 9];
+  const maxBarHeight = 10;
+  const max = Math.max(...values);
+  return (
+    <Card>
+      <div className="flex items-center justify-between mb-2">
+        <Label>Treasury Balance</Label>
+        <Label>30d</Label>
+      </div>
+      <div className="flex items-baseline gap-2 mb-4">
+        <span style={{ fontFamily: DISPLAY, fontSize: 38, color: INK, letterSpacing: "-0.04em", fontWeight: 500 }}>
+          12.84
+        </span>
+        <span style={{ fontFamily: SANS, fontSize: 13, color: MUTED }}>SOL / +1.6%</span>
+      </div>
+      <div style={{ fontFamily: MONO, fontSize: 13, lineHeight: 1.1, color: INK }}>
+        {Array.from({ length: maxBarHeight }).map((_, rowIdx) => {
+          const rowLevel = maxBarHeight - rowIdx;
+          return (
+            <div key={rowIdx} className="flex justify-between">
+              {values.map((v, i) => {
+                const h = Math.round((v / max) * maxBarHeight);
+                const isLast = i === values.length - 1;
+                const filled = h >= rowLevel;
+                const isTop = h === rowLevel;
+                const char = filled ? (isTop ? "▄" : "█") : "·";
+                return (
+                  <span
+                    key={i}
+                    style={{
+                      color: filled ? (isLast ? ACCENT : INK) : BORDER,
+                      flex: 1,
+                      textAlign: "center",
+                    }}
+                  >
+                    {char}
+                  </span>
+                );
+              })}
+            </div>
+          );
+        })}
+        <div className="flex justify-between mt-3">
+          {months.map((m) => (
+            <span key={m} style={{ flex: 1, textAlign: "center", fontSize: 10, color: MUTED }}>{m}</span>
+          ))}
+        </div>
+      </div>
+    </Card>
+  );
+};
 
 // ── Section: Streak (week-streak inspiration) ──────────────────────────────
 

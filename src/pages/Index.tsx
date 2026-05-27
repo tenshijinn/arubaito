@@ -253,21 +253,21 @@ const Index = () => {
               size="sm"
               className="flex-1 text-xs px-3 py-2 bg-transparent border font-mono transition-all duration-300"
               style={{
-                borderColor: "hsl(var(--landing-border))",
-                color: "hsl(var(--landing-border))",
+                borderColor: "#181818",
+                color: "#181818",
                 fontFamily: "Consolas, monospace",
               }}
               onMouseEnter={(e) => {
                 setHoveredButton("rei");
                 e.currentTarget.style.backgroundColor = "#ed565a";
-                e.currentTarget.style.color = "#ffffff";
+                e.currentTarget.style.color = "#faf1e1";
                 e.currentTarget.style.borderColor = "#ed565a";
               }}
               onMouseLeave={(e) => {
                 setHoveredButton(null);
                 e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "hsl(var(--landing-border))";
-                e.currentTarget.style.borderColor = "hsl(var(--landing-border))";
+                e.currentTarget.style.color = "#181818";
+                e.currentTarget.style.borderColor = "#181818";
               }}
             >
               @AskRei

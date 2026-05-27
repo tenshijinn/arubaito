@@ -6,12 +6,13 @@ import { WaitlistCountdownAesthetic as WaitlistCountdown } from "@/components/ho
 import { TreasuryDisplayAesthetic as TreasuryDisplay } from "@/components/home/TreasuryDisplayAesthetic";
 import { VideoHeroAesthetic as VideoHeroSection } from "@/components/home/VideoHeroAesthetic";
 import { MemberSliderAesthetic as MemberSlider } from "@/components/home/MemberSliderAesthetic";
-import arubaitoLogo from "@/assets/arubaito-logo.png";
+import arubaitoLogo from "@/assets/arubaito-logo-black.png";
 import reiLogoEye from "@/assets/rei-logo-eye.png";
 import reiButton from "@/assets/rei-button.png";
 import zkprofButton from "@/assets/zkprof-button.png";
 import ubiButton from "@/assets/ubi-button.png";
 import perksButton from "@/assets/perks-button.png";
+import ikigaiSample from "@/assets/ikigai-card-sample.png";
 
 // ── Aesthetics theme tokens (mirrored from /aesthetics) ───────────────────
 const CREAM = "#faf1e1";

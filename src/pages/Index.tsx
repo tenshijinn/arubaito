@@ -69,6 +69,7 @@ const Index = () => {
   const [showManifesto, setShowManifesto] = useState(false);
   const tasksWords = ["Tasks", "Gigs", "Bounties"];
   const humansWords = ["AI", "Humans"];
+  const zkpfpWords = ["Jobs", "Gigs", "Tasks", "Contracts"];
   const companies = [
     "Binance","Coinbase","ConsenSys","Chainlink","Uniswap","Aave","Jupiter","Magic Eden","Phantom","Marinade Finance","Polygon","Avalanche","Near Protocol","Arbitrum","Optimism","StarkWare","Circle","Ledger","OpenSea","Animoca Brands","Messari","The Graph","dYdX","Helium","Drift Protocol","Mad Lads","Tensor","Saga Phone","Bonk","Myro","Pudgy Penguins","Azuki","Book of Meme","Pepe","Doodles",
   ];

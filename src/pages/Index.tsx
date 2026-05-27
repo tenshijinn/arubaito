@@ -404,73 +404,6 @@ const Index = () => {
           </button>
         </div>
 
-        {/* Section 2 - Arubaito Apps Grid */}
-        <div
-          id="arubaito-apps"
-          className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
-          style={{ backgroundColor: CONCRETE }}
-        >
-          <div className="flex items-center justify-between mb-8 w-full max-w-md">
-            <Label>03 / Suite</Label>
-            <Label>Arubaito Apps</Label>
-          </div>
-
-          <Card className="w-full max-w-md">
-            <div className="grid grid-cols-2 gap-4">
-              <a
-                href="https://arubaito.app/rei"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative cursor-pointer transition-all duration-300"
-                onMouseEnter={() => setHoveredButton("rei-app")}
-                onMouseLeave={() => setHoveredButton(null)}
-              >
-                <img
-                  src={reiButton}
-                  alt="REI"
-                  className={`w-full h-auto rounded-2xl transition-opacity duration-300 ${hoveredButton === "rei-app" ? "opacity-50" : "opacity-100"}`}
-                />
-              </a>
-
-              <a
-                href="https://zkprof.xyz"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative cursor-pointer transition-all duration-300"
-                onMouseEnter={() => setHoveredButton("zkprof-app")}
-                onMouseLeave={() => setHoveredButton(null)}
-              >
-                <img
-                  src={zkprofButton}
-                  alt="zkPROF"
-                  className={`w-full h-auto rounded-2xl transition-opacity duration-300 ${hoveredButton === "zkprof-app" ? "opacity-50" : "opacity-100"}`}
-                />
-              </a>
-
-              <div className="relative cursor-not-allowed">
-                <img src={ubiButton} alt="UBI" className="w-full h-auto rounded-2xl opacity-50" />
-              </div>
-
-              <div className="relative cursor-not-allowed">
-                <img src={perksButton} alt="PERKS PRTCL" className="w-full h-auto rounded-2xl opacity-50" />
-              </div>
-            </div>
-
-            <div className="h-12 mt-4 flex items-center justify-center">
-              {hoveredButton === "rei-app" && (
-                <p className="text-xs text-center" style={{ color: MUTED, fontFamily: SANS }}>
-                  AI Agent Rei makes it easy to earn crypto by matching tasks &amp; bounties to your skills.
-                </p>
-              )}
-              {hoveredButton === "zkprof-app" && (
-                <p className="text-xs text-center" style={{ color: MUTED, fontFamily: SANS }}>
-                  Dox Yourself Privately with zkProf. ZK-Snarks inspired by ZCash, built on Solana x402.
-                </p>
-              )}
-            </div>
-          </Card>
-        </div>
-
         {/* Section 3 - Earn Crypto from Bounties */}
         <div
           className="h-screen flex-shrink-0 relative snap-start overflow-hidden flex flex-col items-center justify-center px-8"
@@ -508,6 +441,26 @@ const Index = () => {
             >
               @AskRei
             </button>
+          </div>
+
+          {/* Rei attribution - bottom left */}
+          <div className="absolute bottom-6 left-6 z-10 flex items-center gap-2">
+            <img
+              src={reiLogoEye}
+              alt="Rei"
+              className="h-7 w-7 object-cover"
+              style={{ borderRadius: 8 }}
+            />
+            <span
+              style={{
+                fontFamily: MONO,
+                fontSize: 11,
+                color: "rgba(250,241,225,0.75)",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Rei AI — Built by Arubaito Labs
+            </span>
           </div>
         </div>
       </div>

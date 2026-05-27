@@ -603,7 +603,7 @@ export default function Aesthetics() {
   return (
     <div
       className="min-h-screen w-full"
-      style={{ background: CREAM, color: INK, fontFamily: SANS }}
+      style={{ background: PAPER, color: INK, fontFamily: SANS }}
     >
       <HeroHeader />
 

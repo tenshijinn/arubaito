@@ -329,7 +329,7 @@ const Index = () => {
         </div>
 
         {/* Section 0.3 - How it Works */}
-        <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden py-20" style={{ backgroundColor: '#0a0a0a' }}>
+        <section className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden py-20" style={{ backgroundColor: '#f5ead7' }}>
           <div className="container mx-auto px-8 lg:px-16">
             <h2 className="text-[2rem] md:text-[2.25rem] lg:text-[2.5rem] font-light text-center mb-16 font-mono" style={{ color: '#ed565a' }}>
               Features
@@ -341,9 +341,9 @@ const Index = () => {
                 { title: 'Club', subtitle: 'Events and Services' },
               ].map((step, index) => (
                 <div key={step.title} className="relative text-center flex flex-col items-center">
-                  <div className="p-8 border-[0.5px] border-white/10 rounded-2xl hover:bg-white/5 transition-colors w-full" style={{ backgroundColor: '#141414' }}>
+                  <div className="p-8 rounded-2xl transition-colors w-full" style={{ backgroundColor: '#efe2c9', border: '1.5px solid rgba(24,24,24,0.18)' }}>
                     <h3 className="font-light font-mono mb-3 text-base" style={{ color: '#ed565a' }}>{step.title}</h3>
-                    <p className="text-sm font-mono whitespace-pre-line" style={{ color: '#a33e41' }}>{step.subtitle}</p>
+                    <p className="text-sm font-mono whitespace-pre-line" style={{ color: 'rgba(24,24,24,0.55)' }}>{step.subtitle}</p>
                   </div>
                 </div>
               ))}

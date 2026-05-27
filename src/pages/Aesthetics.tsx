@@ -45,7 +45,7 @@ const Card = ({
   <div
     className={`rounded-[20px] ${className}`}
     style={{
-      background: PAPER,
+      background: "transparent",
       border: `1px solid ${BORDER}`,
       padding: padded ? 24 : 0,
     }}

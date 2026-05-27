@@ -122,8 +122,8 @@ All colors MUST be HSL.
       0deg,
       transparent,
       transparent 2px,
-      hsl(350 20% 12% / 0.8) 2px,
-      hsl(350 20% 12% / 0.8) 4px
+      hsl(0 0% 9% / 0.04) 2px,
+      hsl(0 0% 9% / 0.04) 4px
     );
     pointer-events: none;
     z-index: 1;

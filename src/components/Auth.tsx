@@ -264,12 +264,12 @@ export const Auth = () => {
 
           {mode === "main" ? (
             <div className="space-y-4">
-              {/* Members sign-in card */}
-              <Card className="p-8 bg-transparent rounded-[20px] border-[1.5px] border-foreground/20 shadow-none">
-                <h2 className="text-2xl font-bold text-center mb-2 font-display text-foreground tracking-tight">
+              {/* Members sign-in card — inverted feature card */}
+              <Card className="feature-card-dark p-8 rounded-[20px] shadow-none">
+                <h2 className="text-2xl font-bold text-center mb-2 font-display tracking-tight" style={{ color: "#faf1e1" }}>
                   Members
                 </h2>
-                <p className="text-xs uppercase tracking-[0.18em] text-center mb-6 text-muted-foreground">
+                <p className="text-xs uppercase tracking-[0.18em] text-center mb-6" style={{ color: "rgba(239,226,201,0.55)" }}>
                   Sign in With
                 </p>
 
@@ -294,77 +294,25 @@ export const Auth = () => {
                   </div>
                 </div>
 
-                <p className="text-sm text-center mt-6 text-muted-foreground">
+                <p className="text-sm text-center mt-6" style={{ color: "rgba(239,226,201,0.55)" }}>
                   Not a member yet?{" "}
                   <button
                     onClick={() => setMode("apply")}
-                    className="font-bold text-accent hover:underline"
+                    className="font-bold hover:underline"
+                    style={{ color: "#ed565a" }}
                   >
                     Apply to Join
                   </button>
                 </p>
               </Card>
-
-              <style>{`
-                .wallet-button-wrapper {
-                  width: 100% !important;
-                  display: block !important;
-                }
-                .wallet-button-wrapper > * {
-                  width: 100% !important;
-                }
-                .member-nft-button {
-                  height: 3.5rem !important;
-                  border-radius: 9999px !important;
-                  font-size: 1rem !important;
-                  font-weight: 500 !important;
-                  width: 100% !important;
-                  min-width: 100% !important;
-                  max-width: 100% !important;
-                  background-color: transparent !important;
-                  color: hsl(var(--muted-foreground)) !important;
-                  border: 1.5px solid hsl(var(--foreground) / 0.2) !important;
-                  display: flex !important;
-                  align-items: center !important;
-                  justify-content: center !important;
-                  gap: 0.5rem !important;
-                  transition: all 0.2s ease !important;
-                  cursor: not-allowed !important;
-                  opacity: 0.7 !important;
-                }
-                .member-nft-button .hover-text {
-                  display: none !important;
-                }
-                .member-nft-button:hover .default-text {
-                  display: none !important;
-                }
-                .member-nft-button:hover .hover-text {
-                  display: inline !important;
-                }
-                .member-nft-button:hover {
-                  border-color: hsl(var(--foreground)) !important;
-                  color: hsl(var(--foreground)) !important;
-                }
-                .cv-profile-button {
-                  color: hsl(var(--foreground)) !important;
-                  border: 1.5px solid hsl(var(--foreground) / 0.2) !important;
-                  background-color: transparent !important;
-                  border-radius: 9999px !important;
-                }
-                .cv-profile-button:hover {
-                  background-color: hsl(var(--foreground)) !important;
-                  color: hsl(var(--popover)) !important;
-                  border-color: hsl(var(--foreground)) !important;
-                }
-              `}</style>
             </div>
 
           ) : mode === "apply" ? (
             <div className="space-y-4">
-              <Card className="p-8 bg-transparent rounded-[20px] border-[1.5px] border-foreground/20 shadow-none">
+              <Card className="feature-card-dark p-8 rounded-[20px] shadow-none">
               {blockClock.loading ? (
                   <div className="text-center py-8">
-                    <div className="font-mono text-sm text-muted-foreground animate-pulse">Loading...</div>
+                    <div className="font-mono text-sm animate-pulse" style={{ color: "rgba(239,226,201,0.55)" }}>Loading...</div>
                   </div>
                 ) : blockClock.state === "countdown" ? (
                   <>
@@ -388,10 +336,10 @@ export const Auth = () => {
                   </div>
                 ) : (
                   <>
-                    <h2 className="text-2xl font-bold text-center mb-2 font-display text-foreground tracking-tight">
+                    <h2 className="text-2xl font-bold text-center mb-2 font-display tracking-tight" style={{ color: "#faf1e1" }}>
                       Apply for Membership
                     </h2>
-                    <p className="text-xs uppercase tracking-[0.18em] text-center mb-6 text-muted-foreground">
+                    <p className="text-xs uppercase tracking-[0.18em] text-center mb-6" style={{ color: "rgba(239,226,201,0.55)" }}>
                       Choose how you'd like to apply
                     </p>
 
@@ -421,45 +369,32 @@ export const Auth = () => {
                   </>
                 )}
 
-                <p className="text-sm text-center mt-6 text-muted-foreground">
+                <p className="text-sm text-center mt-6" style={{ color: "rgba(239,226,201,0.55)" }}>
                   Already a member?{" "}
                   <button
                     onClick={() => setMode("main")}
-                    className="font-bold text-accent hover:underline"
+                    className="font-bold hover:underline"
+                    style={{ color: "#ed565a" }}
                   >
                     Sign in
                   </button>
                 </p>
               </Card>
-
-              <style>{`
-                .cv-profile-button {
-                  color: hsl(var(--foreground)) !important;
-                  border: 1.5px solid hsl(var(--foreground) / 0.2) !important;
-                  background-color: transparent !important;
-                  border-radius: 9999px !important;
-                }
-                .cv-profile-button:hover {
-                  background-color: hsl(var(--foreground)) !important;
-                  color: hsl(var(--popover)) !important;
-                  border-color: hsl(var(--foreground)) !important;
-                }
-              `}</style>
             </div>
           ) : mode === "register" ? (
             <div className="space-y-4">
-              <Card className="p-8 bg-transparent rounded-[20px] border-[1.5px] border-foreground/20 shadow-none">
-                <h2 className="text-xl font-bold text-center mb-2 font-display text-foreground tracking-tight">
+              <Card className="feature-card-dark p-8 rounded-[20px] shadow-none">
+                <h2 className="text-xl font-bold text-center mb-2 font-display tracking-tight" style={{ color: "#faf1e1" }}>
                   Sign up with Twitter
                 </h2>
-                <p className="text-xs uppercase tracking-[0.18em] text-center mb-6 text-muted-foreground">
+                <p className="text-xs uppercase tracking-[0.18em] text-center mb-6" style={{ color: "rgba(239,226,201,0.55)" }}>
                   to continue
                 </p>
 
                 <div className="space-y-3 mb-6">
-                  <p className="text-sm font-medium text-foreground">Apply for Arubaito Club membership</p>
-                  <p className="text-sm text-muted-foreground">Sign up with your X account to:</p>
-                  <ul className="text-sm text-muted-foreground space-y-1 ml-4">
+                  <p className="text-sm font-medium" style={{ color: "#faf1e1" }}>Apply for Arubaito Club membership</p>
+                  <p className="text-sm" style={{ color: "rgba(239,226,201,0.55)" }}>Sign up with your X account to:</p>
+                  <ul className="text-sm space-y-1 ml-4" style={{ color: "rgba(239,226,201,0.55)" }}>
                     <li>• Create your Web3 CV Profile</li>
                     <li>• Get AI-powered CV analysis & scoring</li>
                     <li>• Qualify for club membership (score 80+)</li>
@@ -483,7 +418,8 @@ export const Auth = () => {
                   type="button"
                   variant="ghost"
                   onClick={() => setMode("apply")}
-                  className="w-full mt-2 rounded-full text-muted-foreground hover:text-foreground"
+                  className="w-full mt-2 rounded-full hover:bg-transparent"
+                  style={{ color: "rgba(239,226,201,0.55)" }}
                   disabled={loading}
                 >
                   Back
@@ -492,20 +428,20 @@ export const Auth = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              <Card className="p-8 bg-transparent rounded-[20px] border-[1.5px] border-foreground/20 shadow-none">
+              <Card className="feature-card-dark p-8 rounded-[20px] shadow-none">
                 <form onSubmit={handleEmailSubmit} className="space-y-4">
-                  <h2 className="text-2xl font-bold text-center mb-2 font-display text-foreground tracking-tight">
+                  <h2 className="text-2xl font-bold text-center mb-2 font-display tracking-tight" style={{ color: "#faf1e1" }}>
                     Sign in with Email
                   </h2>
-                  <p className="text-xs uppercase tracking-[0.18em] text-center mb-6 text-muted-foreground">
+                  <p className="text-xs uppercase tracking-[0.18em] text-center mb-6" style={{ color: "rgba(239,226,201,0.55)" }}>
                     Members only
                   </p>
 
-                  <Input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="h-12 rounded-full bg-transparent border-[1.5px] border-foreground/20" required />
-                  <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="h-12 rounded-full bg-transparent border-[1.5px] border-foreground/20" required minLength={6} />
+                  <Input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="h-12 rounded-full feature-card-input" required />
+                  <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="h-12 rounded-full feature-card-input" required minLength={6} />
 
                   <div className="flex gap-2 pt-2">
-                    <Button type="button" onClick={() => { setMode("main"); setEmail(""); setPassword(""); }} variant="outline" className="flex-1 h-12 rounded-full border-[1.5px] border-foreground/20 bg-transparent">
+                    <Button type="button" onClick={() => { setMode("main"); setEmail(""); setPassword(""); }} variant="outline" className="flex-1 h-12 rounded-full cv-profile-button">
                       Back
                     </Button>
                     <Button
@@ -521,6 +457,68 @@ export const Auth = () => {
               </Card>
             </div>
           )}
+
+          {/* Shared inverted feature card styles */}
+          <style>{`
+            .feature-card-dark {
+              background-color: #181818 !important;
+              border: 1.5px solid rgba(239,226,201,0.18) !important;
+            }
+            .wallet-button-wrapper {
+              width: 100% !important;
+              display: block !important;
+            }
+            .wallet-button-wrapper > * {
+              width: 100% !important;
+            }
+            .member-nft-button {
+              height: 3.5rem !important;
+              border-radius: 9999px !important;
+              font-size: 1rem !important;
+              font-weight: 500 !important;
+              width: 100% !important;
+              min-width: 100% !important;
+              max-width: 100% !important;
+              background-color: transparent !important;
+              color: rgba(239,226,201,0.55) !important;
+              border: 1.5px solid rgba(239,226,201,0.18) !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              gap: 0.5rem !important;
+              transition: all 0.2s ease !important;
+              cursor: not-allowed !important;
+              opacity: 0.7 !important;
+            }
+            .member-nft-button .hover-text { display: none !important; }
+            .member-nft-button:hover .default-text { display: none !important; }
+            .member-nft-button:hover .hover-text { display: inline !important; }
+            .member-nft-button:hover {
+              border-color: #faf1e1 !important;
+              color: #faf1e1 !important;
+            }
+            .cv-profile-button {
+              color: #faf1e1 !important;
+              border: 1.5px solid rgba(239,226,201,0.18) !important;
+              background-color: transparent !important;
+              border-radius: 9999px !important;
+            }
+            .cv-profile-button:hover {
+              background-color: #faf1e1 !important;
+              color: #181818 !important;
+              border-color: #faf1e1 !important;
+            }
+            .feature-card-input {
+              background-color: transparent !important;
+              border: 1.5px solid rgba(239,226,201,0.18) !important;
+              color: #faf1e1 !important;
+            }
+            .feature-card-input::placeholder {
+              color: rgba(239,226,201,0.4) !important;
+            }
+          `}</style>
+
+
 
         </div>
       </div>

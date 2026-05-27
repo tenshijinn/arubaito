@@ -307,8 +307,8 @@ const RadialIndicator = () => {
                     height={rectH}
                     rx={2.5}
                     ry={2.5}
-                    fill="none"
-                    stroke={isFilled ? ACCENT : BORDER}
+                    fill={isFilled ? ACCENT : INK}
+                    stroke={isFilled ? ACCENT : INK}
                     strokeWidth={1.5}
                     transform={`rotate(${stepDeg / 2 - gapDeg / 2} ${cx} ${cy})`}
                   />

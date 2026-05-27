@@ -164,7 +164,7 @@ const InputsSection = () => (
         <Label>Temperature</Label>
         <div
           className="mt-2 flex items-center justify-between px-4 py-3 rounded-full"
-          style={{ background: SURFACE, border: `1.5px solid ${BORDER}` }}
+          style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
         >
           <button className="h-6 w-6 rounded-full flex items-center justify-center" style={{ border: `1.5px solid ${BORDER}` }}>
             <Minus size={12} strokeWidth={1.5} color={INK} />

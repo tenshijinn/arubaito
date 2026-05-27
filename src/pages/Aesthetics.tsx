@@ -649,14 +649,14 @@ export default function Aesthetics() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { name: "Stone", hex: CREAM },
+              { name: "Cream", hex: CREAM },
               { name: "Paper", hex: PAPER },
               { name: "Surface", hex: SURFACE },
               { name: "Concrete", hex: CONCRETE },
               { name: "Ink", hex: INK },
-              { name: "Orange", hex: ACCENT },
-              { name: "Olive", hex: ACCENT },
-              { name: "Cream", hex: CONCRETE },
+              { name: "Graphite", hex: GRAPHITE },
+              { name: "Accent", hex: ACCENT },
+              { name: "Border", hex: "#181818" },
             ].map((s) => (
               <div key={s.name}>
                 <div

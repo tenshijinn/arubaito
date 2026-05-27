@@ -273,12 +273,14 @@ const RadialIndicator = () => {
   const score = 82;
   const total = 100;
   const size = 200;
-  const stroke = 1.5;
-  const radius = 88;
   const cx = size / 2;
   const cy = size / 2;
-  const circumference = 2 * Math.PI * radius;
-  const filled = (score / total) * circumference;
+  const segments = 24;
+  const filledSegments = Math.round((score / total) * segments);
+  const segOuter = 92;
+  const segInner = 64;
+  const segWidth = 9;
+  const gapDeg = 3;
   return (
     <Card>
       <div className="flex items-center justify-between mb-4">
@@ -288,40 +290,34 @@ const RadialIndicator = () => {
       <div className="flex items-center justify-center py-6">
         <div className="relative" style={{ width: size, height: size }}>
           <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-            {Array.from({ length: 60 }).map((_, i) => {
-              const angle = (i / 60) * Math.PI * 2 - Math.PI / 2;
-              const r1 = radius - 6;
-              const r2 = radius - 2;
+            {Array.from({ length: segments }).map((_, i) => {
+              const stepDeg = 360 / segments;
+              const angle = i * stepDeg - 90 + gapDeg / 2;
+              const isFilled = i < filledSegments;
+              const rectH = segOuter - segInner;
               return (
-                <line
-                  key={i}
-                  x1={cx + Math.cos(angle) * r1}
-                  y1={cy + Math.sin(angle) * r1}
-                  x2={cx + Math.cos(angle) * r2}
-                  y2={cy + Math.sin(angle) * r2}
-                  stroke={BORDER}
-                  strokeWidth={0.75}
-                />
+                <g key={i} transform={`rotate(${angle} ${cx} ${cy})`}>
+                  <rect
+                    x={cx - segWidth / 2}
+                    y={cy - segOuter}
+                    width={segWidth}
+                    height={rectH}
+                    rx={2.5}
+                    ry={2.5}
+                    fill="none"
+                    stroke={isFilled ? ACCENT : BORDER}
+                    strokeWidth={1.5}
+                    transform={`rotate(${stepDeg / 2 - gapDeg / 2} ${cx} ${cy})`}
+                  />
+                </g>
               );
             })}
-            <circle cx={cx} cy={cy} r={radius} fill="none" stroke={BORDER} strokeWidth={stroke} />
-            <circle
-              cx={cx}
-              cy={cy}
-              r={radius}
-              fill="none"
-              stroke={ACCENT}
-              strokeWidth={stroke}
-              strokeLinecap="butt"
-              strokeDasharray={`${filled} ${circumference - filled}`}
-              transform={`rotate(-90 ${cx} ${cy})`}
-            />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span
               style={{
                 fontFamily: DISPLAY,
-                fontSize: 56,
+                fontSize: 48,
                 color: INK,
                 letterSpacing: "-0.04em",
                 lineHeight: 1,
@@ -329,8 +325,9 @@ const RadialIndicator = () => {
               }}
             >
               {score}
+              <span style={{ fontFamily: MONO, fontSize: 16, color: MUTED, marginLeft: 2 }}>%</span>
             </span>
-            <span style={{ fontFamily: MONO, fontSize: 11, color: MUTED, marginTop: 4, letterSpacing: "0.1em" }}>
+            <span style={{ fontFamily: MONO, fontSize: 10, color: MUTED, marginTop: 6, letterSpacing: "0.15em" }}>
               {score}/{total}
             </span>
           </div>
@@ -339,6 +336,7 @@ const RadialIndicator = () => {
     </Card>
   );
 };
+
 
 // ── Section: ASCII Bar Chart (Treasury) ────────────────────────────────────
 

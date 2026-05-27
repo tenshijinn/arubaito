@@ -265,11 +265,11 @@ export const Auth = () => {
           {mode === "main" ? (
             <div className="space-y-4">
               {/* Members sign-in card */}
-              <Card className="p-8 bg-transparent border border-primary/40 rounded-xl">
-                <h2 className="text-2xl font-bold text-center mb-2 font-display text-primary">
+              <Card className="p-8 bg-transparent rounded-[20px] border-[1.5px] border-foreground/20 shadow-none">
+                <h2 className="text-2xl font-bold text-center mb-2 font-display text-foreground tracking-tight">
                   Members
                 </h2>
-                <p className="text-sm text-center mb-6 text-muted-foreground">
+                <p className="text-xs uppercase tracking-[0.18em] text-center mb-6 text-muted-foreground">
                   Sign in With
                 </p>
 
@@ -279,7 +279,7 @@ export const Auth = () => {
                       sessionStorage.setItem("auth_intent", "returning_user");
                       handleTwitterAuth("returning");
                     }}
-                    className="w-full h-14 text-lg font-medium rounded-xl cv-profile-button"
+                    className="w-full h-14 text-base font-medium rounded-full cv-profile-button"
                     variant="outline"
                     disabled={loading || returningUserLoading || bluechipLoading}
                   >
@@ -287,7 +287,7 @@ export const Auth = () => {
                   </Button>
 
                   <div className="wallet-button-wrapper w-full">
-                    <button disabled className="member-nft-button !h-14 !rounded-xl !font-medium !text-lg !w-full">
+                    <button disabled className="member-nft-button !h-14 !rounded-full !font-medium !text-base !w-full">
                       <span className="default-text">Member NFT</span>
                       <span className="hover-text">Free Mint Soon</span>
                     </button>
@@ -298,7 +298,7 @@ export const Auth = () => {
                   Not a member yet?{" "}
                   <button
                     onClick={() => setMode("apply")}
-                    className="font-bold text-primary hover:underline"
+                    className="font-bold text-accent hover:underline"
                   >
                     Apply to Join
                   </button>
@@ -315,15 +315,15 @@ export const Auth = () => {
                 }
                 .member-nft-button {
                   height: 3.5rem !important;
-                  border-radius: 0.75rem !important;
-                  font-size: 1.125rem !important;
+                  border-radius: 9999px !important;
+                  font-size: 1rem !important;
                   font-weight: 500 !important;
                   width: 100% !important;
                   min-width: 100% !important;
                   max-width: 100% !important;
                   background-color: transparent !important;
                   color: hsl(var(--muted-foreground)) !important;
-                  border: 1px solid hsl(var(--foreground)) !important;
+                  border: 1.5px solid hsl(var(--foreground) / 0.2) !important;
                   display: flex !important;
                   align-items: center !important;
                   justify-content: center !important;
@@ -342,24 +342,26 @@ export const Auth = () => {
                   display: inline !important;
                 }
                 .member-nft-button:hover {
-                  border-color: hsl(var(--primary)) !important;
-                  color: hsl(var(--primary)) !important;
+                  border-color: hsl(var(--foreground)) !important;
+                  color: hsl(var(--foreground)) !important;
                 }
                 .cv-profile-button {
                   color: hsl(var(--foreground)) !important;
-                  border: 1px solid hsl(var(--foreground)) !important;
+                  border: 1.5px solid hsl(var(--foreground) / 0.2) !important;
                   background-color: transparent !important;
+                  border-radius: 9999px !important;
                 }
                 .cv-profile-button:hover {
-                  background-color: hsl(var(--primary)) !important;
-                  color: hsl(var(--background)) !important;
-                  border-color: hsl(var(--primary)) !important;
+                  background-color: hsl(var(--foreground)) !important;
+                  color: hsl(var(--popover)) !important;
+                  border-color: hsl(var(--foreground)) !important;
                 }
               `}</style>
             </div>
+
           ) : mode === "apply" ? (
             <div className="space-y-4">
-              <Card className="p-8 bg-transparent border border-primary/40 rounded-xl">
+              <Card className="p-8 bg-transparent rounded-[20px] border-[1.5px] border-foreground/20 shadow-none">
               {blockClock.loading ? (
                   <div className="text-center py-8">
                     <div className="font-mono text-sm text-muted-foreground animate-pulse">Loading...</div>
@@ -386,10 +388,10 @@ export const Auth = () => {
                   </div>
                 ) : (
                   <>
-                    <h2 className="text-2xl font-bold text-center mb-2 font-display text-primary">
+                    <h2 className="text-2xl font-bold text-center mb-2 font-display text-foreground tracking-tight">
                       Apply for Membership
                     </h2>
-                    <p className="text-sm text-center mb-6 text-muted-foreground">
+                    <p className="text-xs uppercase tracking-[0.18em] text-center mb-6 text-muted-foreground">
                       Choose how you'd like to apply
                     </p>
 
@@ -402,7 +404,7 @@ export const Auth = () => {
                     <div className="space-y-3">
                       <Button
                         onClick={() => navigate("/guestlist")}
-                        className="w-full h-14 text-base md:text-lg font-medium rounded-xl cv-profile-button"
+                        className="w-full h-14 text-base font-medium rounded-full cv-profile-button"
                         variant="outline"
                       >
                         Twitter Guest List
@@ -410,7 +412,7 @@ export const Auth = () => {
 
                       <Button
                         onClick={() => setMode("register")}
-                        className="w-full h-14 text-base md:text-lg font-medium rounded-xl cv-profile-button"
+                        className="w-full h-14 text-base font-medium rounded-full cv-profile-button"
                         variant="secondary"
                       >
                         CV Profile
@@ -423,7 +425,7 @@ export const Auth = () => {
                   Already a member?{" "}
                   <button
                     onClick={() => setMode("main")}
-                    className="font-bold text-primary hover:underline"
+                    className="font-bold text-accent hover:underline"
                   >
                     Sign in
                   </button>
@@ -433,68 +435,93 @@ export const Auth = () => {
               <style>{`
                 .cv-profile-button {
                   color: hsl(var(--foreground)) !important;
-                  border: 1px solid hsl(var(--foreground)) !important;
+                  border: 1.5px solid hsl(var(--foreground) / 0.2) !important;
                   background-color: transparent !important;
+                  border-radius: 9999px !important;
                 }
                 .cv-profile-button:hover {
-                  background-color: hsl(var(--primary)) !important;
-                  color: hsl(var(--background)) !important;
-                  border-color: hsl(var(--primary)) !important;
+                  background-color: hsl(var(--foreground)) !important;
+                  color: hsl(var(--popover)) !important;
+                  border-color: hsl(var(--foreground)) !important;
                 }
               `}</style>
             </div>
           ) : mode === "register" ? (
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold mb-4 text-foreground">
-                Sign up with Twitter to Continue
-              </h2>
+              <Card className="p-8 bg-transparent rounded-[20px] border-[1.5px] border-foreground/20 shadow-none">
+                <h2 className="text-xl font-bold text-center mb-2 font-display text-foreground tracking-tight">
+                  Sign up with Twitter
+                </h2>
+                <p className="text-xs uppercase tracking-[0.18em] text-center mb-6 text-muted-foreground">
+                  to continue
+                </p>
 
-              <div className="space-y-3 mb-6 p-4">
-                <p className="text-sm font-medium text-foreground">Apply for Arubaito Club membership</p>
-                <p className="text-sm text-muted-foreground">Sign up with your X account to:</p>
-                <ul className="text-sm text-muted-foreground space-y-1 ml-4">
-                  <li>• Create your Web3 CV Profile</li>
-                  <li>• Get AI-powered CV analysis & scoring</li>
-                  <li>• Qualify for club membership (score 80+)</li>
-                  <li>• Unlock free Member NFT mint (coming soon)</li>
-                </ul>
-              </div>
+                <div className="space-y-3 mb-6">
+                  <p className="text-sm font-medium text-foreground">Apply for Arubaito Club membership</p>
+                  <p className="text-sm text-muted-foreground">Sign up with your X account to:</p>
+                  <ul className="text-sm text-muted-foreground space-y-1 ml-4">
+                    <li>• Create your Web3 CV Profile</li>
+                    <li>• Get AI-powered CV analysis & scoring</li>
+                    <li>• Qualify for club membership (score 80+)</li>
+                    <li>• Unlock free Member NFT mint (coming soon)</li>
+                  </ul>
+                </div>
 
-              <Button
-                onClick={() => {
-                  sessionStorage.setItem("auth_intent", "cv_profile");
-                  handleTwitterAuth("bluechip");
-                }}
-                className="w-full h-14 text-lg font-medium rounded-xl"
-                variant="default"
-                disabled={loading || returningUserLoading || bluechipLoading}
-              >
-                {bluechipLoading ? "Authenticating..." : "Continue with Twitter"}
-              </Button>
+                <Button
+                  onClick={() => {
+                    sessionStorage.setItem("auth_intent", "cv_profile");
+                    handleTwitterAuth("bluechip");
+                  }}
+                  className="w-full h-14 text-base font-medium rounded-full hover:opacity-90"
+                  style={{ backgroundColor: "#ed565a", color: "#faf1e1", border: "none" }}
+                  disabled={loading || returningUserLoading || bluechipLoading}
+                >
+                  {bluechipLoading ? "Authenticating..." : "Continue with Twitter"}
+                </Button>
 
-              <Button type="button" variant="ghost" onClick={() => setMode("main")} className="w-full" disabled={loading}>
-                Back
-              </Button>
-            </div>
-          ) : (
-            <form onSubmit={handleEmailSubmit} className="space-y-4">
-              <h2 className="text-xl font-semibold mb-4 text-foreground">
-                Sign in with Email
-              </h2>
-
-              <Input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="h-12 rounded-xl" required />
-              <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="h-12 rounded-xl" required minLength={6} />
-
-              <div className="flex gap-2">
-                <Button type="button" onClick={() => { setMode("main"); setEmail(""); setPassword(""); }} variant="outline" className="flex-1 h-12 rounded-xl">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setMode("apply")}
+                  className="w-full mt-2 rounded-full text-muted-foreground hover:text-foreground"
+                  disabled={loading}
+                >
                   Back
                 </Button>
-                <Button type="submit" className="flex-1 h-12 rounded-xl" disabled={loading}>
-                  {loading ? "Loading..." : "Sign in"}
-                </Button>
-              </div>
-            </form>
+              </Card>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <Card className="p-8 bg-transparent rounded-[20px] border-[1.5px] border-foreground/20 shadow-none">
+                <form onSubmit={handleEmailSubmit} className="space-y-4">
+                  <h2 className="text-2xl font-bold text-center mb-2 font-display text-foreground tracking-tight">
+                    Sign in with Email
+                  </h2>
+                  <p className="text-xs uppercase tracking-[0.18em] text-center mb-6 text-muted-foreground">
+                    Members only
+                  </p>
+
+                  <Input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="h-12 rounded-full bg-transparent border-[1.5px] border-foreground/20" required />
+                  <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="h-12 rounded-full bg-transparent border-[1.5px] border-foreground/20" required minLength={6} />
+
+                  <div className="flex gap-2 pt-2">
+                    <Button type="button" onClick={() => { setMode("main"); setEmail(""); setPassword(""); }} variant="outline" className="flex-1 h-12 rounded-full border-[1.5px] border-foreground/20 bg-transparent">
+                      Back
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="flex-1 h-12 rounded-full hover:opacity-90"
+                      style={{ backgroundColor: "#ed565a", color: "#faf1e1", border: "none" }}
+                      disabled={loading}
+                    >
+                      {loading ? "Loading..." : "Sign in"}
+                    </Button>
+                  </div>
+                </form>
+              </Card>
+            </div>
           )}
+
         </div>
       </div>
 

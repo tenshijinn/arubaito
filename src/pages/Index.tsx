@@ -110,26 +110,19 @@ const Index = () => {
         {/* Bottom-left text + buttons */}
         <div className="absolute bottom-8 left-8 flex flex-col gap-4 z-10 w-full max-w-md px-0">
           <div className="w-full text-left">
-            {hoveredButton === "rei" ? (
+            {hoveredButton === "zkpfp" ? (
               <p
                 className="text-sm md:text-base leading-relaxed"
                 style={{ fontFamily: SANS, color: INK }}
               >
-                <span>{"Aggregates "}</span>
+                <span>{"Apply to "}</span>
                 <span className="underline">
-                  <TextRotator key="rei-tasks" words={tasksWords} isActive={true} color={ACCENT} pauseDuration={5000} />
+                  <TextRotator key="zkpfp-rotator" words={zkpfpWords} isActive={true} color={ACCENT} pauseDuration={2500} />
                 </span>
-                <span>{" for "}</span>
-                <span className="underline">
-                  <TextRotator key="rei-humans-1" words={humansWords} isActive={true} delay={0} color={ACCENT} />
-                </span>
-                <span>{" hiring "}</span>
-                <span className="underline">
-                  <TextRotator key="rei-humans-2" words={humansWords} isActive={true} delay={1300} color={ACCENT} />
-                </span>
+                <span>{" Private"}</span>
                 <br />
                 <span className="text-xs mt-2 block" style={{ color: MUTED }}>
-                  {"Rei will find you anything from Zealy Tasks to C-Level Roles. [ALaaAA]"}
+                  {"Dox Yourself Privately with Zero Knowledge Profile Picture."}
                 </span>
               </p>
             ) : (
@@ -138,28 +131,28 @@ const Index = () => {
                   className="text-sm md:text-base leading-relaxed"
                   style={{ fontFamily: SANS, color: INK }}
                 >
-                  <span style={{ color: ACCENT }}>{"Connecting"}</span>{" "}
+                  <span style={{ color: INK }}>{"Connecting"}</span>{" "}
                   <span className="underline">
                     <TextRotator
                       key="default-companies-1"
                       words={companies}
                       isActive={true}
                       delay={0}
-                      color={INK}
+                      color={ACCENT}
                       startIndex={0}
                       pauseDuration={10000}
                     />
                   </span>{" "}
-                  <span style={{ color: ACCENT }}>{"to"}</span>
+                  <span style={{ color: INK }}>{"to"}</span>
                   <br />
-                  <span style={{ color: ACCENT }}>{"Ex-"}</span>
+                  <span style={{ color: INK }}>{"Ex-"}</span>
                   <span className="underline">
                     <TextRotator
                       key="default-companies-2"
                       words={companies}
                       isActive={true}
                       delay={800}
-                      color={INK}
+                      color={ACCENT}
                       startIndex={10}
                       pauseDuration={10000}
                     />
@@ -186,8 +179,8 @@ const Index = () => {
               Enter Club
             </button>
             <button
-              onClick={() => window.open("https://rei.chat", "_blank")}
-              onMouseEnter={() => setHoveredButton("rei")}
+              onClick={() => window.open("https://zkprof.xyz", "_blank")}
+              onMouseEnter={() => setHoveredButton("zkpfp")}
               onMouseLeave={() => setHoveredButton(null)}
               className="flex-1 px-5 py-2.5 rounded-full text-sm transition-colors"
               style={{
@@ -197,7 +190,7 @@ const Index = () => {
                 fontFamily: SANS,
               }}
             >
-              @AskRei
+              Mint zkPFP
             </button>
           </div>
         </div>

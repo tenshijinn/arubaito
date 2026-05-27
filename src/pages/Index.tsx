@@ -470,6 +470,46 @@ const Index = () => {
             </div>
           </Card>
         </div>
+
+        {/* Section 3 - Earn Crypto from Bounties */}
+        <div
+          className="h-screen flex-shrink-0 relative snap-start overflow-hidden flex flex-col items-center justify-center px-8"
+          style={{
+            backgroundImage: `url(${reiDigital})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundColor: "#0a0a0a",
+          }}
+        >
+          <div className="absolute inset-0" style={{ background: "rgba(10,10,10,0.45)" }} />
+          <div className="relative z-10 flex flex-col items-center text-center">
+            <h2
+              style={{
+                fontFamily: DISPLAY,
+                fontSize: 44,
+                letterSpacing: "-0.03em",
+                color: CREAM,
+                fontWeight: 500,
+                lineHeight: 1.05,
+              }}
+            >
+              Earn Crypto from Bounties
+            </h2>
+            <span
+              className="uppercase tracking-[0.18em] mt-8"
+              style={{ fontFamily: MONO, fontSize: 11, color: "rgba(250,241,225,0.65)" }}
+            >
+              A Thousand Unicorn Bounties in Your Chat
+            </span>
+            <button
+              onClick={() => window.open("https://rei.chat", "_blank")}
+              className="mt-3 px-6 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80"
+              style={{ background: ACCENT, color: PAPER, fontFamily: SANS }}
+            >
+              @AskRei
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Mobile: Show Treasury and Waitlist at top */}

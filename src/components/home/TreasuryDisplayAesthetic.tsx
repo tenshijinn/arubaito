@@ -92,8 +92,8 @@ export const TreasuryDisplayAesthetic = () => {
       <HoverCardContent
         side="bottom"
         align="start"
-        className="w-[calc(100vw-2rem)] md:w-[420px] p-0 rounded-[20px]"
-        style={{ background: PAPER, border: `1.5px solid ${BORDER}` }}
+        className="w-[calc(100vw-2rem)] md:w-[420px] p-0 rounded-[20px] shadow-none"
+        style={{ background: PAPER, border: `1.5px solid ${BORDER}`, boxShadow: "none" }}
       >
         <div className="p-5">
           <div className="flex flex-col md:flex-row md:justify-between items-start mb-4 gap-3">

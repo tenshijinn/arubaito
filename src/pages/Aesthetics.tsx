@@ -24,10 +24,10 @@ const MONO = "'Consolas', 'IBM Plex Mono', monospace";
 
 // ── Primitives ──────────────────────────────────────────────────────────────
 
-const Label = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+const Label = ({ children, className = "", inverted = false }: { children: React.ReactNode; className?: string; inverted?: boolean }) => (
   <span
     className={`uppercase tracking-[0.18em] ${className}`}
-    style={{ fontFamily: MONO, fontSize: 10, color: MUTED }}
+    style={{ fontFamily: MONO, fontSize: 10, color: inverted ? "rgba(239,226,201,0.55)" : MUTED }}
   >
     {children}
   </span>
@@ -37,16 +37,18 @@ const Card = ({
   children,
   className = "",
   padded = true,
+  inverted = false,
 }: {
   children: React.ReactNode;
   className?: string;
   padded?: boolean;
+  inverted?: boolean;
 }) => (
   <div
     className={`rounded-[20px] ${className}`}
     style={{
-      background: "transparent",
-      border: `1.5px solid ${BORDER}`,
+      background: inverted ? INK : "transparent",
+      border: `1.5px solid ${inverted ? "rgba(239,226,201,0.18)" : BORDER}`,
       padding: padded ? 24 : 0,
     }}
   >
@@ -140,77 +142,77 @@ const ButtonsSection = () => (
 // ── Section: Inputs ─────────────────────────────────────────────────────────
 
 const InputsSection = () => (
-  <Card>
+  <Card inverted>
     <div className="flex items-center justify-between mb-6">
-      <Label>02 / Inputs</Label>
-      <Label>Appliance controls</Label>
+      <Label inverted>02 / Inputs</Label>
+      <Label inverted>Appliance controls</Label>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <Label>Handle</Label>
+        <Label inverted>Handle</Label>
         <div
           className="mt-2 flex items-center gap-2 px-4 py-3 rounded-full"
-          style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
+          style={{ background: "transparent", border: `1.5px solid rgba(239,226,201,0.18)` }}
         >
-          <Search size={14} strokeWidth={1.5} color={MUTED} />
+          <Search size={14} strokeWidth={1.5} color="rgba(239,226,201,0.55)" />
           <input
             placeholder="@arubaito_app"
             className="bg-transparent outline-none flex-1 text-sm"
-            style={{ color: INK, fontFamily: SANS }}
+            style={{ color: SURFACE, fontFamily: SANS }}
           />
         </div>
       </div>
       <div>
-        <Label>Temperature</Label>
+        <Label inverted>Temperature</Label>
         <div
           className="mt-2 flex items-center justify-between px-4 py-3 rounded-full"
-          style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
+          style={{ background: "transparent", border: `1.5px solid rgba(239,226,201,0.18)` }}
         >
-          <button className="h-6 w-6 rounded-full flex items-center justify-center" style={{ border: `1.5px solid ${BORDER}` }}>
-            <Minus size={12} strokeWidth={1.5} color={INK} />
+          <button className="h-6 w-6 rounded-full flex items-center justify-center" style={{ border: `1.5px solid rgba(239,226,201,0.18)` }}>
+            <Minus size={12} strokeWidth={1.5} color={SURFACE} />
           </button>
-          <span style={{ fontFamily: DISPLAY, fontSize: 22, color: INK, letterSpacing: "-0.02em" }}>
+          <span style={{ fontFamily: DISPLAY, fontSize: 22, color: SURFACE, letterSpacing: "-0.02em" }}>
             19.0°C
           </span>
-          <button className="h-6 w-6 rounded-full flex items-center justify-center" style={{ border: `1.5px solid ${BORDER}` }}>
-            <Plus size={12} strokeWidth={1.5} color={INK} />
+          <button className="h-6 w-6 rounded-full flex items-center justify-center" style={{ border: `1.5px solid rgba(239,226,201,0.18)` }}>
+            <Plus size={12} strokeWidth={1.5} color={SURFACE} />
           </button>
         </div>
       </div>
     </div>
 
-    <div className="mt-6 flex items-center justify-between py-4" style={{ borderTop: `1.5px solid ${BORDER}` }}>
+    <div className="mt-6 flex items-center justify-between py-4" style={{ borderTop: `1.5px solid rgba(239,226,201,0.18)` }}>
       <div>
-        <div style={{ fontFamily: SANS, fontSize: 14, color: INK }}>Auto-sync on-chain activity</div>
-        <Label>Refresh every 24h</Label>
+        <div style={{ fontFamily: SANS, fontSize: 14, color: SURFACE }}>Auto-sync on-chain activity</div>
+        <Label inverted>Refresh every 24h</Label>
       </div>
-      <Toggle />
+      <Toggle inverted />
     </div>
-    <div className="flex items-center justify-between py-4" style={{ borderTop: `1.5px solid ${BORDER}` }}>
+    <div className="flex items-center justify-between py-4" style={{ borderTop: `1.5px solid rgba(239,226,201,0.18)` }}>
       <div>
-        <div style={{ fontFamily: SANS, fontSize: 14, color: INK }}>Public profile</div>
-        <Label>Visible to recruiters</Label>
+        <div style={{ fontFamily: SANS, fontSize: 14, color: SURFACE }}>Public profile</div>
+        <Label inverted>Visible to recruiters</Label>
       </div>
-      <Toggle defaultOn={false} />
+      <Toggle inverted defaultOn={false} />
     </div>
   </Card>
 );
 
-const Toggle = ({ defaultOn = true }: { defaultOn?: boolean }) => {
+const Toggle = ({ defaultOn = true, inverted = false }: { defaultOn?: boolean; inverted?: boolean }) => {
   const [on, setOn] = useState(defaultOn);
   return (
     <button
       onClick={() => setOn(!on)}
       className="relative h-7 w-12 rounded-full transition-colors"
       style={{
-        background: on ? INK : "transparent",
-        border: `1.5px solid ${BORDER}`,
+        background: on ? (inverted ? SURFACE : INK) : "transparent",
+        border: `1.5px solid ${inverted ? "rgba(239,226,201,0.18)" : BORDER}`,
       }}
     >
       <div
         className="absolute top-0.5 h-5 w-5 rounded-full transition-all"
         style={{
-          background: PAPER,
+          background: inverted ? INK : PAPER,
           left: on ? 22 : 2,
           boxShadow: "0 1px 2px rgba(0,0,0,0.15)",
         }}

@@ -82,7 +82,7 @@ const Index = () => {
       {/* LEFT COLUMN - Static */}
       <div
         className="w-full lg:w-1/2 min-h-screen lg:h-screen lg:sticky lg:top-0 relative flex items-center justify-center overflow-hidden"
-        style={{ backgroundColor: PAPER }}
+        style={{ backgroundColor: CONCRETE }}
       >
         {/* Treasury - top left corner */}
         <div className="absolute top-4 left-4 z-50 hidden lg:block">
@@ -204,7 +204,7 @@ const Index = () => {
       <div
         className="w-full lg:w-1/2 h-screen overflow-y-scroll snap-y snap-mandatory relative"
         style={{
-          backgroundColor: PAPER,
+          backgroundColor: CONCRETE,
           scrollSnapType: "y mandatory",
           scrollSnapStop: "always",
         }}
@@ -220,7 +220,7 @@ const Index = () => {
         <div
           id="manifesto-section"
           className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-16 lg:px-20 snap-start"
-          style={{ backgroundColor: PAPER }}
+          style={{ backgroundColor: CONCRETE }}
         >
           <Card className="max-w-lg">
             <Label>Manifesto</Label>
@@ -262,7 +262,7 @@ const Index = () => {
         {/* Section 0.3 - Features */}
         <section
           className="min-h-screen snap-start relative flex items-center justify-center overflow-hidden py-20"
-          style={{ backgroundColor: PAPER }}
+          style={{ backgroundColor: CONCRETE }}
         >
           <div className="container mx-auto px-8 lg:px-16">
             <div className="flex items-center justify-between mb-10 max-w-4xl mx-auto">
@@ -307,7 +307,7 @@ const Index = () => {
         <div
           id="how-club-works"
           className="h-screen flex-shrink-0 relative flex flex-col items-center justify-center snap-start overflow-hidden px-8"
-          style={{ backgroundColor: PAPER }}
+          style={{ backgroundColor: CONCRETE }}
         >
           {/* Subtle ASCII background, low opacity so cream reads through */}
           <iframe
@@ -424,7 +424,7 @@ const Index = () => {
         <div
           id="arubaito-apps"
           className="h-screen flex-shrink-0 flex flex-col items-center justify-center px-8 md:px-12 lg:px-16 py-16 snap-start"
-          style={{ backgroundColor: PAPER }}
+          style={{ backgroundColor: CONCRETE }}
         >
           <div className="flex items-center justify-between mb-8 w-full max-w-md">
             <Label>03 / Suite</Label>

@@ -116,14 +116,14 @@ const ButtonsSection = () => (
       <Label>Segmented control</Label>
       <div
         className="inline-flex mt-3 p-1 rounded-full"
-        style={{ background: SURFACE, border: `1.5px solid ${BORDER}` }}
+        style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
       >
         {["Overview", "On-chain", "Network", "Logs"].map((t, i) => (
           <button
             key={t}
             className="px-4 py-1.5 rounded-full text-xs transition-colors"
             style={{
-              background: i === 0 ? PAPER : "transparent",
+              background: i === 0 ? "transparent" : "transparent",
               color: i === 0 ? INK : MUTED,
               fontFamily: SANS,
               border: i === 0 ? `1.5px solid ${BORDER}` : "1.5px solid transparent",
@@ -203,7 +203,7 @@ const Toggle = ({ defaultOn = true }: { defaultOn?: boolean }) => {
       onClick={() => setOn(!on)}
       className="relative h-7 w-12 rounded-full transition-colors"
       style={{
-        background: on ? INK : CONCRETE,
+        background: on ? INK : "transparent",
         border: `1.5px solid ${BORDER}`,
       }}
     >

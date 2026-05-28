@@ -150,7 +150,3 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
     </div>
   );
 };
-
-    </div>
-  );
-};

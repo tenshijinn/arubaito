@@ -382,9 +382,6 @@ const Index = () => {
               {/* Wallet Scan Step - shown before method selection */}
               {flowState === "wallet" && (
                 <div className="space-y-6">
-                  <Button variant="ghost" onClick={handleBackToProfiles} className="mb-4">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Profiles
                   <button
                     onClick={handleBackToProfiles}
                     className="mb-2 px-4 py-2 rounded-full text-xs inline-flex items-center gap-1.5 transition-colors"
@@ -392,6 +389,9 @@ const Index = () => {
                   >
                     <ArrowLeft className="h-3.5 w-3.5" /> Back to Profiles
                   </button>
+                  <WalletConnectStep onContinue={handleWalletContinue} onSkip={handleWalletSkip} />
+                </div>
+              )}
             </div>
           )}
         </div>

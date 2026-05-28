@@ -8,6 +8,8 @@ import { CVProfileMethodSelector } from "@/components/CVProfileMethodSelector";
 import { ManualCVForm } from "@/components/ManualCVForm";
 import { LinkedInImport } from "@/components/LinkedInImport";
 import { WalletConnectStep, WalletAddresses } from "@/components/cv-profile/WalletConnectStep";
+import { OnboardingShell } from "@/components/cv-profile/OnboardingShell";
+
 import { supabase } from "@/integrations/supabase/client";
 import { FileCheck, LogOut, Plus, Info, ArrowLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";

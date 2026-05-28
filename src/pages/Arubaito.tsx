@@ -8,6 +8,8 @@ import { CVProfileMethodSelector } from "@/components/CVProfileMethodSelector";
 import { ManualCVForm } from "@/components/ManualCVForm";
 import { LinkedInImport } from "@/components/LinkedInImport";
 import { WalletConnectStep, WalletAddresses } from "@/components/cv-profile/WalletConnectStep";
+import { OnboardingShell } from "@/components/cv-profile/OnboardingShell";
+
 import { supabase } from "@/integrations/supabase/client";
 import { FileCheck, LogOut, Plus, Info, ArrowLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -332,66 +334,81 @@ const Index = () => {
                   )}
                 </div>
               )}
-
               {/* Method Selector */}
               {flowState === "selecting" && (
-                <div className="space-y-6">
-                  <button
-                    onClick={handleBackToProfiles}
-                    className="mb-2 px-4 py-2 rounded-full text-xs inline-flex items-center gap-1.5 transition-colors"
-                    style={{ background: "transparent", color: "rgba(24,24,24,0.55)", border: "1.5px solid rgba(24,24,24,0.18)", fontFamily: "'Consolas', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}
-                  >
-                    <ArrowLeft className="h-3.5 w-3.5" /> Back to Profiles
-                  </button>
-                  <CVProfileMethodSelector
-                    onMethodSelect={handleMethodSelect}
+                <div className="space-y-4">
+                  <div className="max-w-4xl mx-auto">
+                    <button
+                      onClick={handleBackToProfiles}
+                      className="px-4 py-2 rounded-full text-xs inline-flex items-center gap-1.5 transition-colors"
+                      style={{ background: "transparent", color: "rgba(24,24,24,0.55)", border: "1.5px solid rgba(24,24,24,0.18)", fontFamily: "'Consolas', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5" /> Back to Profiles
+                    </button>
+                  </div>
+                  <OnboardingShell step={2} title="Credentials">
+                    <CVProfileMethodSelector
+                      onMethodSelect={handleMethodSelect}
+                      walletAddress={primaryWallet}
+                      walletAddresses={connectedWallets}
+                    />
+                  </OnboardingShell>
+                </div>
+              )}
+
+              {/* Upload Forms — Step 3 */}
+              {flowState === "form" && (
+                <OnboardingShell step={3} title="Submit">
+                  <ManualCVForm
+                    onBack={handleBackToMethodSelector}
+                    onComplete={handleAnalysisComplete}
                     walletAddress={primaryWallet}
                     walletAddresses={connectedWallets}
                   />
-                </div>
-              )}
-
-              {/* Upload Forms */}
-              {flowState === "form" && (
-                <ManualCVForm
-                  onBack={handleBackToMethodSelector}
-                  onComplete={handleAnalysisComplete}
-                  walletAddress={primaryWallet}
-                  walletAddresses={connectedWallets}
-                />
+                </OnboardingShell>
               )}
 
               {flowState === "linkedin" && (
-                <LinkedInImport
-                  onBack={handleBackToMethodSelector}
-                  onComplete={handleAnalysisComplete}
-                  walletAddress={primaryWallet}
-                  walletAddresses={connectedWallets}
-                />
+                <OnboardingShell step={3} title="Submit">
+                  <LinkedInImport
+                    onBack={handleBackToMethodSelector}
+                    onComplete={handleAnalysisComplete}
+                    walletAddress={primaryWallet}
+                    walletAddresses={connectedWallets}
+                  />
+                </OnboardingShell>
               )}
 
               {flowState === "upload" && (
-                <CVUploader
-                  onAnalysisComplete={handleAnalysisComplete}
-                  walletAddress={primaryWallet}
-                  walletAddresses={connectedWallets}
-                  onBack={handleBackToMethodSelector}
-                />
+                <OnboardingShell step={3} title="Submit">
+                  <CVUploader
+                    onAnalysisComplete={handleAnalysisComplete}
+                    walletAddress={primaryWallet}
+                    walletAddresses={connectedWallets}
+                    onBack={handleBackToMethodSelector}
+                  />
+                </OnboardingShell>
               )}
 
-              {/* Wallet Scan Step - shown before method selection */}
+              {/* Wallet Scan Step — Step 1 */}
               {flowState === "wallet" && (
-                <div className="space-y-6">
-                  <button
-                    onClick={handleBackToProfiles}
-                    className="mb-2 px-4 py-2 rounded-full text-xs inline-flex items-center gap-1.5 transition-colors"
-                    style={{ background: "transparent", color: "rgba(24,24,24,0.55)", border: "1.5px solid rgba(24,24,24,0.18)", fontFamily: "'Consolas', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}
-                  >
-                    <ArrowLeft className="h-3.5 w-3.5" /> Back to Profiles
-                  </button>
-                  <WalletConnectStep onContinue={handleWalletContinue} onSkip={handleWalletSkip} />
+                <div className="space-y-4">
+                  <div className="max-w-4xl mx-auto">
+                    <button
+                      onClick={handleBackToProfiles}
+                      className="px-4 py-2 rounded-full text-xs inline-flex items-center gap-1.5 transition-colors"
+                      style={{ background: "transparent", color: "rgba(24,24,24,0.55)", border: "1.5px solid rgba(24,24,24,0.18)", fontFamily: "'Consolas', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5" /> Back to Profiles
+                    </button>
+                  </div>
+                  <OnboardingShell step={1} title="Proof of Talent">
+                    <WalletConnectStep onContinue={handleWalletContinue} onSkip={handleWalletSkip} />
+                  </OnboardingShell>
                 </div>
               )}
+
+
             </div>
           )}
         </div>

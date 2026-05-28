@@ -150,19 +150,21 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
               bluechip_verified: analysis.bluechip_verified,
             }, {
               onConflict: 'wallet_address'
-            });
+  if (loading) {
+    return (
+      <div className="text-center py-12" style={{ fontFamily: "'Consolas', monospace", fontSize: 12, color: "rgba(24,24,24,0.55)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+        Loading profile...
+      </div>
+    );
+  }
 
-          if (!error) {
-            toast.success("🎉 Congratulations! You've been verified. Redirecting to Club...");
-            setTimeout(() => navigate('/club'), 3000);
-          }
-        } catch (error) {
-          console.error('Error verifying user:', error);
-        }
-      }
-    };
-
-    checkAndVerify();
+  if (!analysis) {
+    return (
+      <div className="text-center py-12" style={{ fontFamily: "'Consolas', monospace", fontSize: 12, color: "rgba(24,24,24,0.55)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+        Profile not found
+      </div>
+    );
+  }
   }, [analysis, navigate]);
 
   if (loading) {

@@ -336,10 +336,13 @@ const Index = () => {
               {/* Method Selector */}
               {flowState === "selecting" && (
                 <div className="space-y-6">
-                  <Button variant="ghost" onClick={handleBackToProfiles} className="mb-4">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Profiles
-                  </Button>
+                  <button
+                    onClick={handleBackToProfiles}
+                    className="mb-2 px-4 py-2 rounded-full text-xs inline-flex items-center gap-1.5 transition-colors"
+                    style={{ background: "transparent", color: "rgba(24,24,24,0.55)", border: "1.5px solid rgba(24,24,24,0.18)", fontFamily: "'Consolas', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" /> Back to Profiles
+                  </button>
                   <CVProfileMethodSelector
                     onMethodSelect={handleMethodSelect}
                     walletAddress={primaryWallet}
@@ -382,10 +385,13 @@ const Index = () => {
                   <Button variant="ghost" onClick={handleBackToProfiles} className="mb-4">
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Profiles
-                  </Button>
-                  <WalletConnectStep onContinue={handleWalletContinue} onSkip={handleWalletSkip} />
-                </div>
-              )}
+                  <button
+                    onClick={handleBackToProfiles}
+                    className="mb-2 px-4 py-2 rounded-full text-xs inline-flex items-center gap-1.5 transition-colors"
+                    style={{ background: "transparent", color: "rgba(24,24,24,0.55)", border: "1.5px solid rgba(24,24,24,0.18)", fontFamily: "'Consolas', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" /> Back to Profiles
+                  </button>
             </div>
           )}
         </div>

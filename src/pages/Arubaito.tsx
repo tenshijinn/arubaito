@@ -209,8 +209,10 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#f5ead7" }}>
+        <div style={{ fontFamily: "'Consolas', monospace", fontSize: 12, color: "rgba(24,24,24,0.55)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+          Loading...
+        </div>
       </div>
     );
   }
@@ -231,48 +233,53 @@ const Index = () => {
   const primaryWallet = connectedWallets.solana || connectedWallets.evm || undefined;
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-screen pt-20" style={{ background: "#f5ead7" }}>
       <Navigation userName={userName} />
 
       {/* Header */}
-      <header className="border-b">
+      <header style={{ borderBottom: "1.5px solid rgba(24,24,24,0.18)" }}>
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg" style={{ background: "var(--gradient-primary)" }}>
-                <FileCheck className="h-6 w-6 text-white" />
+              <div className="p-2 rounded-full" style={{ border: "1.5px solid rgba(24,24,24,0.18)" }}>
+                <FileCheck className="h-5 w-5" style={{ color: "#181818" }} />
               </div>
               <div className="flex items-center gap-2">
-                <div>
-                  <h1 className="text-xl font-bold text-foreground">
-                    {currentAnalysisId ? "CV Analysis" : "CV Profile Manager"}
-                  </h1>
-                </div>
+                <h1 style={{ fontFamily: "'Styrene A Trial', 'Consolas', monospace", fontSize: 20, color: "#181818" }}>
+                  {currentAnalysisId ? "CV Analysis" : "CV Profile Manager"}
+                </h1>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-5 w-5 text-muted-foreground cursor-help" />
+                      <Info className="h-4 w-4 cursor-help" style={{ color: "rgba(24,24,24,0.55)" }} />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-sm">
                       <p>
                         Manage your CV profiles and get AI-powered analysis. Upload multiple CVs to track improvements
-                        over time. Optional: Add wallet address for Bluechip Talent verification.
+                        over time. Optional: Add wallet address for OG verification.
                       </p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {currentAnalysisId && (
-                <Button variant="outline" onClick={handleNewAnalysis}>
+                <button
+                  onClick={handleNewAnalysis}
+                  className="px-4 py-2 rounded-full text-xs transition-colors"
+                  style={{ background: "transparent", color: "#181818", border: "1.5px solid #181818", fontFamily: "'Consolas', monospace" }}
+                >
                   New Analysis
-                </Button>
+                </button>
               )}
-              <Button variant="ghost" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
+              <button
+                onClick={handleSignOut}
+                className="px-4 py-2 rounded-full text-xs transition-colors inline-flex items-center gap-1.5"
+                style={{ background: "transparent", color: "rgba(24,24,24,0.55)", border: "1.5px solid rgba(24,24,24,0.18)", fontFamily: "'Consolas', monospace" }}
+              >
+                <LogOut className="h-3.5 w-3.5" /> Sign Out
+              </button>
             </div>
           </div>
         </div>
@@ -290,15 +297,18 @@ const Index = () => {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-2xl font-bold text-foreground">Your CV Profiles</h2>
-                      <p className="text-muted-foreground mt-1">
-                        Manage your Web3 CV Profiles | Create New | Edit Previous |
+                      <h2 style={{ fontFamily: "'Styrene A Trial', 'Consolas', monospace", fontSize: 28, color: "#181818" }}>Your CV Profiles</h2>
+                      <p style={{ fontFamily: "'Consolas', monospace", fontSize: 12, color: "rgba(24,24,24,0.55)", marginTop: 4 }}>
+                        Manage your Web3 CV Profiles | Create New | Edit Previous
                       </p>
                     </div>
-                    <Button size="lg" onClick={handleStartNewCV}>
-                      <Plus className="h-5 w-5 mr-2" />
-                      Upload New CV
-                    </Button>
+                    <button
+                      onClick={handleStartNewCV}
+                      className="px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-80 inline-flex items-center gap-2"
+                      style={{ background: "#181818", color: "#faf1e1", fontFamily: "'Consolas', monospace" }}
+                    >
+                      <Plus className="h-4 w-4" /> Upload New CV
+                    </button>
                   </div>
 
                   {/* CV Profiles Grid or Empty State */}
@@ -326,10 +336,13 @@ const Index = () => {
               {/* Method Selector */}
               {flowState === "selecting" && (
                 <div className="space-y-6">
-                  <Button variant="ghost" onClick={handleBackToProfiles} className="mb-4">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Profiles
-                  </Button>
+                  <button
+                    onClick={handleBackToProfiles}
+                    className="mb-2 px-4 py-2 rounded-full text-xs inline-flex items-center gap-1.5 transition-colors"
+                    style={{ background: "transparent", color: "rgba(24,24,24,0.55)", border: "1.5px solid rgba(24,24,24,0.18)", fontFamily: "'Consolas', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" /> Back to Profiles
+                  </button>
                   <CVProfileMethodSelector
                     onMethodSelect={handleMethodSelect}
                     walletAddress={primaryWallet}
@@ -369,10 +382,13 @@ const Index = () => {
               {/* Wallet Scan Step - shown before method selection */}
               {flowState === "wallet" && (
                 <div className="space-y-6">
-                  <Button variant="ghost" onClick={handleBackToProfiles} className="mb-4">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Profiles
-                  </Button>
+                  <button
+                    onClick={handleBackToProfiles}
+                    className="mb-2 px-4 py-2 rounded-full text-xs inline-flex items-center gap-1.5 transition-colors"
+                    style={{ background: "transparent", color: "rgba(24,24,24,0.55)", border: "1.5px solid rgba(24,24,24,0.18)", fontFamily: "'Consolas', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" /> Back to Profiles
+                  </button>
                   <WalletConnectStep onContinue={handleWalletContinue} onSkip={handleWalletSkip} />
                 </div>
               )}

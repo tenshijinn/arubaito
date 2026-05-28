@@ -167,7 +167,7 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
+      <div className="text-center py-12" style={{ fontFamily: "'Consolas', monospace", fontSize: 12, color: "rgba(24,24,24,0.55)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
         Loading profile...
       </div>
     );
@@ -175,7 +175,7 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
 
   if (!analysis) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
+      <div className="text-center py-12" style={{ fontFamily: "'Consolas', monospace", fontSize: 12, color: "rgba(24,24,24,0.55)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
         Profile not found
       </div>
     );

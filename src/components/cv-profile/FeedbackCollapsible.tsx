@@ -1,20 +1,9 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp, Lock, Award, Target, MessageSquare } from "lucide-react";
+import { INK, CREAM, ACCENT, MUTED, BORDER, DISPLAY, MONO, cardStyle, labelStyle } from "@/lib/aesthetics";
 
-interface Category {
-  id: string;
-  name: string;
-  reason: string;
-  final_score: number;
-  weight: number;
-}
+interface Category { id: string; name: string; reason: string; final_score: number; weight: number }
 
 interface FeedbackCollapsibleProps {
   topStrengths: string[];
@@ -23,106 +12,82 @@ interface FeedbackCollapsibleProps {
   generalFeedback?: string;
 }
 
-export const FeedbackCollapsible = ({
-  topStrengths,
-  recommendedImprovements,
-  categories,
-  generalFeedback,
-}: FeedbackCollapsibleProps) => {
+export const FeedbackCollapsible = ({ topStrengths, recommendedImprovements, categories, generalFeedback }: FeedbackCollapsibleProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Card className="bg-transparent border-border/30 backdrop-blur-sm border-dashed">
+    <div style={{ ...cardStyle(), borderStyle: "dashed" }}>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger className="w-full p-4 flex items-center justify-between hover:bg-muted/20 transition-colors rounded-t-card">
+        <CollapsibleTrigger className="w-full p-4 flex items-center justify-between hover:opacity-80 transition-opacity">
           <div className="flex items-center gap-3">
-            <Lock className="h-4 w-4 text-muted-foreground" />
-            <span className="font-semibold text-sm">
-              Improvement Recommendations
-            </span>
-            <Badge variant="outline" className="text-xs">
-              Private
-            </Badge>
+            <Lock className="h-3.5 w-3.5" style={{ color: MUTED }} />
+            <span style={{ fontFamily: DISPLAY, fontSize: 14, color: INK }}>Improvement Recommendations</span>
+            <span className="px-2 py-0.5 rounded-full" style={{ border: `1px solid ${BORDER}`, fontFamily: MONO, fontSize: 10, color: MUTED }}>Private</span>
           </div>
-          {isOpen ? (
-            <ChevronUp className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          )}
+          {isOpen ? <ChevronUp className="h-4 w-4" style={{ color: MUTED }} /> : <ChevronDown className="h-4 w-4" style={{ color: MUTED }} />}
         </CollapsibleTrigger>
 
-        <CollapsibleContent className="border-t border-border/50">
+        <CollapsibleContent style={{ borderTop: `1px solid ${BORDER}` }}>
           <div className="p-6 space-y-6">
-            {/* Top Strengths */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-green-500" />
-                <h4 className="font-semibold text-sm">Top Strengths</h4>
+                <Award className="h-4 w-4" style={{ color: INK }} />
+                <span style={labelStyle()}>Top Strengths</span>
               </div>
               <ul className="space-y-2">
-                {topStrengths.map((strength, i) => (
-                  <li key={i} className="flex gap-3 text-sm">
-                    <span className="text-green-500 font-bold">{i + 1}.</span>
-                    <span className="text-muted-foreground">{strength}</span>
+                {topStrengths.map((s, i) => (
+                  <li key={i} className="flex gap-3" style={{ fontFamily: MONO, fontSize: 12 }}>
+                    <span style={{ color: INK, fontFamily: DISPLAY }}>{i + 1}.</span>
+                    <span style={{ color: MUTED }}>{s}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Recommended Improvements */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-yellow-500" />
-                <h4 className="font-semibold text-sm">Areas to Improve</h4>
+                <Target className="h-4 w-4" style={{ color: ACCENT }} />
+                <span style={labelStyle()}>Areas to Improve</span>
               </div>
               <ul className="space-y-2">
-                {recommendedImprovements.map((improvement, i) => (
-                  <li key={i} className="flex gap-3 text-sm">
-                    <span className="text-yellow-500 font-bold">{i + 1}.</span>
-                    <span className="text-muted-foreground">{improvement}</span>
+                {recommendedImprovements.map((s, i) => (
+                  <li key={i} className="flex gap-3" style={{ fontFamily: MONO, fontSize: 12 }}>
+                    <span style={{ color: ACCENT, fontFamily: DISPLAY }}>{i + 1}.</span>
+                    <span style={{ color: MUTED }}>{s}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Category-Specific Feedback */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-primary" />
-                <h4 className="font-semibold text-sm">Category Feedback</h4>
+                <MessageSquare className="h-4 w-4" style={{ color: INK }} />
+                <span style={labelStyle()}>Category Feedback</span>
               </div>
-              <div className="space-y-4">
-                {categories.map((category) => (
-                  <div 
-                    key={category.id} 
-                    className="p-3 bg-muted/30 rounded border border-border/50"
-                  >
+              <div className="space-y-3">
+                {categories.map((c) => (
+                  <div key={c.id} className="p-3 rounded-[12px]" style={{ border: `1px solid ${BORDER}` }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-xs">{category.name}</span>
-                      <Badge variant="outline" className="text-xs font-mono">
-                        {category.final_score.toFixed(1)}/{category.weight}
-                      </Badge>
+                      <span style={{ fontFamily: MONO, fontSize: 12, color: INK }}>{c.name}</span>
+                      <span className="px-2 py-0.5 rounded-full" style={{ border: `1px solid ${BORDER}`, fontFamily: MONO, fontSize: 10, color: MUTED }}>
+                        {c.final_score.toFixed(1)}/{c.weight}
+                      </span>
                     </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {category.reason}
-                    </p>
+                    <p style={{ fontFamily: MONO, fontSize: 11, color: MUTED, lineHeight: 1.6 }}>{c.reason}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* General Feedback */}
             {generalFeedback && (
-              <div className="p-4 bg-secondary/50 rounded border border-border/50">
-                <h4 className="font-semibold text-sm mb-2">General Feedback</h4>
-                <p className="text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                  {generalFeedback}
-                </p>
+              <div className="p-4 rounded-[12px]" style={{ background: INK, border: `1.5px solid ${INK}` }}>
+                <p style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(239,226,201,0.55)", marginBottom: 8 }}>General Feedback</p>
+                <p style={{ fontFamily: MONO, fontSize: 12, color: CREAM, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{generalFeedback}</p>
               </div>
             )}
           </div>
         </CollapsibleContent>
       </Collapsible>
-    </Card>
+    </div>
   );
 };

@@ -1,7 +1,5 @@
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { BarChart3 } from "lucide-react";
+import { INK, ACCENT, MUTED, BORDER, DISPLAY, MONO, cardStyle, labelStyle } from "@/lib/aesthetics";
 
 interface Category {
   id: string;
@@ -14,62 +12,45 @@ interface Category {
   examples_found?: string[];
 }
 
-interface ScoreBreakdownProps {
-  categories: Category[];
-}
+interface ScoreBreakdownProps { categories: Category[] }
 
 export const ScoreBreakdown = ({ categories }: ScoreBreakdownProps) => {
-  const getScoreColor = (score: number, weight: number) => {
-    const percentage = (score / weight) * 100;
-    if (percentage >= 85) return "bg-green-500";
-    if (percentage >= 70) return "bg-blue-500";
-    if (percentage >= 50) return "bg-yellow-500";
-    return "bg-destructive";
-  };
-
-  const getPercentage = (score: number, weight: number) => {
-    return Math.round((score / weight) * 100);
-  };
+  const getPercentage = (score: number, weight: number) => Math.round((score / weight) * 100);
 
   return (
-    <Card className="p-6 bg-transparent border-border/30 backdrop-blur-sm">
+    <div style={cardStyle()} className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <span style={labelStyle()}>{"03 / Breakdown"}</span>
+        <span style={labelStyle()}>{"Categories"}</span>
+      </div>
+
       <div className="flex items-center gap-2 mb-6">
-        <BarChart3 className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-bold">Score Breakdown</h3>
+        <BarChart3 className="h-4 w-4" style={{ color: INK }} />
+        <h3 style={{ fontFamily: DISPLAY, fontSize: 16, color: INK }}>Score Breakdown</h3>
       </div>
 
       <div className="space-y-5">
         {categories.map((category) => {
           const percentage = getPercentage(category.final_score, category.weight);
-          
           return (
             <div key={category.id} className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-medium text-sm">{category.name}</span>
-                <Badge variant="outline" className="font-mono text-xs">
+                <span style={{ fontFamily: MONO, fontSize: 12, color: INK }}>{category.name}</span>
+                <span className="px-2 py-0.5 rounded-full" style={{ border: `1px solid ${BORDER}`, fontFamily: MONO, fontSize: 10, color: MUTED }}>
                   {category.final_score.toFixed(1)} / {category.weight}
-                </Badge>
+                </span>
               </div>
-              
-              <div className="relative">
-                <Progress 
-                  value={percentage} 
-                  className="h-3"
-                />
-                <div 
-                  className={`absolute top-0 left-0 h-3 rounded-full transition-all ${getScoreColor(category.final_score, category.weight)}`}
-                  style={{ width: `${percentage}%` }}
-                />
+
+              <div className="relative h-2 rounded-full overflow-hidden" style={{ background: "rgba(24,24,24,0.08)" }}>
+                <div className="absolute top-0 left-0 h-full transition-all" style={{ width: `${percentage}%`, background: ACCENT }} />
               </div>
 
               {category.examples_found && category.examples_found.length > 0 && (
-                <div className="mt-2 p-3 bg-muted/30 rounded border border-border/50">
-                  <p className="text-xs font-semibold text-muted-foreground mb-1">
-                    Evidence Found:
-                  </p>
-                  <ul className="text-xs space-y-1">
+                <div className="mt-2 p-3 rounded-[12px]" style={{ border: `1px solid ${BORDER}` }}>
+                  <p style={{ ...labelStyle(), marginBottom: 6 }}>Evidence Found</p>
+                  <ul className="space-y-1">
                     {category.examples_found.slice(0, 2).map((example, i) => (
-                      <li key={i} className="text-muted-foreground">• {example}</li>
+                      <li key={i} style={{ fontFamily: MONO, fontSize: 11, color: MUTED }}>• {example}</li>
                     ))}
                   </ul>
                 </div>
@@ -78,6 +59,6 @@ export const ScoreBreakdown = ({ categories }: ScoreBreakdownProps) => {
           );
         })}
       </div>
-    </Card>
+    </div>
   );
 };

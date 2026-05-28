@@ -28,36 +28,31 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
   ];
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
-      <div style={cardStyle()} className="p-8 text-center">
-        <div className="flex items-center justify-between mb-6">
-          <span style={labelStyle()}>{"01 / Wallet"}</span>
-          <span style={labelStyle()}>{"Scan & Verify"}</span>
-        </div>
-        <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: INK }}>
-          <Search className="h-8 w-8" style={{ color: CREAM }} />
-        </div>
-        <h2 style={{ fontFamily: DISPLAY, fontSize: 28, color: INK }}>Select Wallet to Scan</h2>
-        <p className="max-w-lg mx-auto mt-2" style={{ fontFamily: MONO, fontSize: 13, color: MUTED, lineHeight: 1.6 }}>
-          Optionally connect your Solana or EVM wallet. Your on-chain history will be scanned and combined with your CV.
+    <div className="space-y-6">
+      <div>
+        <h3 style={{ fontFamily: DISPLAY, fontSize: 20, color: INK }}>Select Wallets to Scan</h3>
+        <p className="mt-1" style={{ fontFamily: MONO, fontSize: 12, color: MUTED, lineHeight: 1.6 }}>
+          Optionally connect your Solana or EVM wallet.<br />Your on-chain history will be scanned and combined with your CV.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Benefit pills */}
+      <div className="flex flex-wrap gap-2">
         {benefits.map((benefit, index) => (
-          <div key={index} style={cardStyle()} className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-full" style={{ border: `1.5px solid ${BORDER}` }}>
-                <benefit.icon className="h-4 w-4" style={{ color: INK }} />
-              </div>
-              <div>
-                <h3 style={{ fontFamily: DISPLAY, fontSize: 14, color: INK }}>{benefit.title}</h3>
-                <p style={{ fontFamily: MONO, fontSize: 11, color: MUTED, marginTop: 4 }}>{benefit.description}</p>
-              </div>
-            </div>
+          <div
+            key={index}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
+            style={{ border: `1.5px solid ${BORDER}`, background: "transparent" }}
+            title={benefit.description}
+          >
+            <benefit.icon className="h-3.5 w-3.5" style={{ color: INK }} />
+            <span style={{ fontFamily: MONO, fontSize: 11, color: INK, letterSpacing: "0.04em" }}>
+              {benefit.title}
+            </span>
           </div>
         ))}
       </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Solana */}

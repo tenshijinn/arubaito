@@ -129,27 +129,28 @@ export const WalletConnectStep = ({ onContinue, onSkip }: WalletConnectStepProps
         </div>
       </div>
 
-      {hasAnyWallet && (
-        <div style={cardStyle()} className="p-6 text-center">
-          <p style={{ fontFamily: MONO, fontSize: 12, color: MUTED, marginBottom: 16, lineHeight: 1.6 }}>
-            Your wallet activity will be scanned and combined with your CV data to produce your final CV Score.
-          </p>
+      <div className="flex items-center justify-end gap-3 pt-2">
+        {hasAnyWallet && (
           <button
             onClick={() => onContinue({ solana: solanaAddress, evm: evmAddress || null })}
-            className="w-full px-6 py-3 rounded-full text-sm transition-opacity hover:opacity-80 inline-flex items-center justify-center gap-2"
+            className="px-6 py-3 rounded-full text-sm transition-opacity hover:opacity-80 inline-flex items-center justify-center gap-2"
             style={{ background: ACCENT, color: CREAM, fontFamily: SANS }}
           >
-            Continue with Wallet <ArrowRight className="h-4 w-4" />
+            Continue With Wallet <ArrowRight className="h-4 w-4" />
           </button>
-        </div>
-      )}
-
-      <div className="text-center">
-        <button onClick={onSkip} className="px-4 py-2 rounded-full text-xs uppercase tracking-wider"
-          style={{ background: "transparent", color: MUTED, border: `1.5px solid ${BORDER}`, fontFamily: MONO, letterSpacing: "0.12em" }}>
-          Skip — continue without wallet scan
+        )}
+        <button
+          onClick={onSkip}
+          className="px-6 py-3 rounded-full text-sm transition-colors"
+          style={{ background: "transparent", color: INK, border: `1.5px solid ${BORDER}`, fontFamily: SANS }}
+        >
+          Skip
         </button>
       </div>
+    </div>
+  );
+};
+
     </div>
   );
 };

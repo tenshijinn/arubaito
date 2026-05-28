@@ -1,208 +1,237 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Rocket, DollarSign, Clock, Target } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { Rocket, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface JobPitchProps {
   memberData: any;
 }
 
-const RATE_TYPES = ['HOURLY', 'PROJECT', 'FULL-TIME', 'PART-TIME'] as const;
-const AVAILABILITY = ['IMMEDIATE', '2 WEEKS', '1 MONTH', 'FLEXIBLE'] as const;
+const RATE_TYPES = ["Hourly", "Project", "Full-time", "Part-time"] as const;
+const AVAILABILITY = ["Immediate", "2 weeks", "1 month", "Flexible"] as const;
+
+const MONO = "'Consolas', 'IBM Plex Mono', monospace";
+const DISPLAY = "'Styrene A Trial', 'Consolas', monospace";
+const INK = "#181818";
+const CREAM = "#faf1e1";
+const MUTED = "rgba(24,24,24,0.55)";
+const BORDER = "rgba(24,24,24,0.18)";
+
+const inputStyle: React.CSSProperties = {
+  background: "transparent",
+  border: `1.5px solid ${BORDER}`,
+  color: INK,
+  fontFamily: MONO,
+  fontSize: 13,
+  padding: "10px 14px",
+  borderRadius: 999,
+  outline: "none",
+  width: "100%",
+};
+
+const textareaStyle: React.CSSProperties = {
+  background: "transparent",
+  border: `1.5px solid ${BORDER}`,
+  color: INK,
+  fontFamily: MONO,
+  fontSize: 13,
+  padding: "12px 16px",
+  borderRadius: 16,
+  outline: "none",
+  width: "100%",
+  resize: "none",
+};
+
+const labelStyle: React.CSSProperties = {
+  fontFamily: MONO,
+  fontSize: 10,
+  letterSpacing: "0.18em",
+  color: MUTED,
+  textTransform: "uppercase",
+  display: "block",
+  marginBottom: 8,
+};
 
 export function JobPitch({ memberData }: JobPitchProps) {
   const { toast } = useToast();
-  const [title, setTitle] = useState('');
-  const [pitch, setPitch] = useState('');
-  const [rateType, setRateType] = useState<typeof RATE_TYPES[number]>('PROJECT');
-  const [rate, setRate] = useState('');
-  const [availability, setAvailability] = useState<typeof AVAILABILITY[number]>('IMMEDIATE');
-  const [specialization, setSpecialization] = useState('');
+  const [title, setTitle] = useState("");
+  const [pitch, setPitch] = useState("");
+  const [rateType, setRateType] = useState<(typeof RATE_TYPES)[number]>("Project");
+  const [rate, setRate] = useState("");
+  const [availability, setAvailability] = useState<(typeof AVAILABILITY)[number]>("Immediate");
+  const [specialization, setSpecialization] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
     if (!title || !pitch) {
       toast({
-        title: 'Missing Information',
-        description: 'Please fill in all required fields',
-        variant: 'destructive',
+        title: "Missing information",
+        description: "Please fill in all required fields",
+        variant: "destructive",
       });
       return;
     }
-
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsSubmitting(false);
-    
-    toast({
-      title: 'Pitch Submitted!',
-      description: 'Your job pitch is now visible to verified companies',
-    });
-
-    // Reset form
-    setTitle('');
-    setPitch('');
-    setRate('');
-    setSpecialization('');
+    toast({ title: "Pitch submitted", description: "Your job pitch is now visible to verified companies" });
+    setTitle("");
+    setPitch("");
+    setRate("");
+    setSpecialization("");
   };
 
+  const pillBtn = (active: boolean): React.CSSProperties => ({
+    background: active ? INK : "transparent",
+    color: active ? CREAM : INK,
+    border: `1.5px solid ${active ? INK : BORDER}`,
+    fontFamily: MONO,
+    fontSize: 11,
+    padding: "8px 14px",
+    borderRadius: 999,
+    cursor: "pointer",
+  });
+
   return (
-    <div className="space-y-6">
-      <Card className="bg-transparent border border-border">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-sm">
-              <Rocket className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="text-xl font-mono text-foreground">JOB PITCH</CardTitle>
-              <p className="text-sm text-muted-foreground font-mono">
-                SHOWCASE WHAT YOU'RE LOOKING FOR
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Member Badge */}
-          <div className="p-4 bg-background border border-border flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground font-mono mb-1">PITCHING AS</p>
-              <p className="text-sm font-mono text-foreground font-bold">
-                {memberData?.display_name || memberData?.handle}
-              </p>
-            </div>
-            <Badge variant="secondary" className="bg-primary/10 border-primary/20 text-primary font-mono">
-              VERIFIED MEMBER
-            </Badge>
-          </div>
+    <div className="rounded-[20px] p-8" style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}>
+      <div className="flex items-center justify-between mb-6">
+        <span className="uppercase" style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}>
+          {"02 / Pitch"}
+        </span>
+        <span className="uppercase" style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}>
+          {"Job board"}
+        </span>
+      </div>
 
-          {/* Pitch Title */}
-          <div className="space-y-2">
-            <Label htmlFor="title" className="font-mono text-sm flex items-center gap-2">
-              <Target className="h-4 w-4 text-primary" />
-              PITCH HEADLINE *
-            </Label>
-            <Input
-              id="title"
-              placeholder="E.G. EXPERIENCED SOLIDITY DEV SEEKING DEFI PROJECT"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="font-mono text-sm"
-            />
-          </div>
+      <div className="flex items-center gap-3 mb-6">
+        <div
+          className="h-10 w-10 rounded-full flex items-center justify-center"
+          style={{ border: `1.5px solid ${BORDER}` }}
+        >
+          <Rocket className="h-4 w-4" style={{ color: INK }} strokeWidth={1.5} />
+        </div>
+        <div>
+          <h2 style={{ fontFamily: DISPLAY, fontSize: 24, letterSpacing: "-0.03em", color: INK, fontWeight: 500 }}>
+            {"Job pitch"}
+          </h2>
+          <p style={{ fontFamily: MONO, fontSize: 12, color: MUTED }}>{"Showcase what you're looking for"}</p>
+        </div>
+      </div>
 
-          {/* Main Pitch */}
-          <div className="space-y-2">
-            <Label htmlFor="pitch" className="font-mono text-sm">YOUR PITCH *</Label>
-            <Textarea
-              id="pitch"
-              placeholder="TELL COMPANIES WHAT YOU'RE LOOKING FOR, YOUR UNIQUE VALUE, AND WHY THEY SHOULD HIRE YOU..."
-              value={pitch}
-              onChange={(e) => setPitch(e.target.value)}
-              rows={8}
-              className="font-mono text-sm resize-none"
-            />
-            <p className="text-xs text-muted-foreground font-mono">
-              {pitch.length} / 1000 CHARACTERS
+      <div className="space-y-6">
+        <div
+          className="rounded-[16px] p-4 flex items-center justify-between"
+          style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
+        >
+          <div>
+            <p style={{ ...labelStyle, marginBottom: 4 }}>{"Pitching as"}</p>
+            <p style={{ fontFamily: MONO, fontSize: 13, color: INK }}>
+              {memberData?.display_name || memberData?.handle}
             </p>
           </div>
+          <span
+            className="uppercase px-3 py-1 rounded-full"
+            style={{
+              fontFamily: MONO,
+              fontSize: 9,
+              letterSpacing: "0.18em",
+              color: INK,
+              border: `1.5px solid ${BORDER}`,
+            }}
+          >
+            {"Verified"}
+          </span>
+        </div>
 
-          {/* Rate & Compensation */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="font-mono text-sm flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-primary" />
-                RATE TYPE
-              </Label>
-              <div className="grid grid-cols-2 gap-2">
-                {RATE_TYPES.map((type) => (
-                  <Button
-                    key={type}
-                    onClick={() => setRateType(type)}
-                    variant={rateType === type ? 'default' : 'outline'}
-                    size="sm"
-                    className="font-mono text-xs"
-                  >
-                    {type}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="rate" className="font-mono text-sm">EXPECTED RATE (USD)</Label>
-              <Input
-                id="rate"
-                placeholder="E.G. 150 / HR OR 10000 / PROJECT"
-                value={rate}
-                onChange={(e) => setRate(e.target.value)}
-                className="font-mono text-sm"
-              />
-            </div>
-          </div>
+        <div>
+          <label style={labelStyle}>{"Pitch headline *"}</label>
+          <input
+            placeholder="e.g. Experienced Solidity dev seeking DeFi project"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            style={inputStyle}
+          />
+        </div>
 
-          {/* Availability */}
-          <div className="space-y-2">
-            <Label className="font-mono text-sm flex items-center gap-2">
-              <Clock className="h-4 w-4 text-primary" />
-              AVAILABILITY
-            </Label>
-            <div className="grid grid-cols-4 gap-2">
-              {AVAILABILITY.map((avail) => (
-                <Button
-                  key={avail}
-                  onClick={() => setAvailability(avail)}
-                  variant={availability === avail ? 'default' : 'outline'}
-                  size="sm"
-                  className="font-mono text-xs"
-                >
-                  {avail}
-                </Button>
+        <div>
+          <label style={labelStyle}>{"Your pitch *"}</label>
+          <textarea
+            placeholder="Tell companies what you're looking for, your unique value, and why they should hire you..."
+            value={pitch}
+            onChange={(e) => setPitch(e.target.value)}
+            rows={7}
+            style={textareaStyle}
+          />
+          <p
+            className="mt-2"
+            style={{ fontFamily: MONO, fontSize: 11, color: MUTED }}
+          >
+            {pitch.length} / 1000 characters
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-5">
+          <div>
+            <label style={labelStyle}>{"Rate type"}</label>
+            <div className="flex flex-wrap gap-2">
+              {RATE_TYPES.map((type) => (
+                <button key={type} onClick={() => setRateType(type)} style={pillBtn(rateType === type)}>
+                  {type}
+                </button>
               ))}
             </div>
           </div>
-
-          {/* Specialization */}
-          <div className="space-y-2">
-            <Label htmlFor="specialization" className="font-mono text-sm">
-              KEY SPECIALIZATION
-            </Label>
-            <Input
-              id="specialization"
-              placeholder="E.G. SMART CONTRACT AUDITING, DEFI PROTOCOLS, NFT MARKETPLACES"
-              value={specialization}
-              onChange={(e) => setSpecialization(e.target.value)}
-              className="font-mono text-sm"
+          <div>
+            <label style={labelStyle}>{"Expected rate (USD)"}</label>
+            <input
+              placeholder="e.g. 150/hr or 10000/project"
+              value={rate}
+              onChange={(e) => setRate(e.target.value)}
+              style={inputStyle}
             />
           </div>
+        </div>
 
-          {/* Submit */}
-          <div className="pt-4">
-            <Button
-              onClick={handleSubmit}
-              disabled={isSubmitting || !title || !pitch}
-              className="w-full font-mono"
-              size="lg"
-            >
-              {isSubmitting ? (
-                <>SUBMITTING...</>
-              ) : (
-                <>
-                  <Rocket className="h-4 w-4 mr-2" />
-                  SUBMIT PITCH
-                </>
-              )}
-            </Button>
-            <p className="text-xs text-muted-foreground font-mono mt-3 text-center">
-              YOUR PITCH WILL BE VISIBLE TO VERIFIED WEB3 COMPANIES
-            </p>
+        <div>
+          <label style={labelStyle}>{"Availability"}</label>
+          <div className="flex flex-wrap gap-2">
+            {AVAILABILITY.map((avail) => (
+              <button key={avail} onClick={() => setAvailability(avail)} style={pillBtn(availability === avail)}>
+                {avail}
+              </button>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <div>
+          <label style={labelStyle}>{"Key specialization"}</label>
+          <input
+            placeholder="e.g. Smart contract auditing, DeFi protocols, NFT marketplaces"
+            value={specialization}
+            onChange={(e) => setSpecialization(e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+
+        <div className="pt-2">
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting || !title || !pitch}
+            className="w-full px-5 py-3 rounded-full transition-opacity hover:opacity-80 disabled:opacity-60"
+            style={{ background: INK, color: CREAM, fontFamily: MONO, fontSize: 13, border: "none" }}
+          >
+            <span className="inline-flex items-center justify-center gap-2">
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Rocket className="h-4 w-4" />}
+              {isSubmitting ? "Submitting..." : "Submit pitch"}
+            </span>
+          </button>
+          <p
+            className="mt-3 text-center uppercase"
+            style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+          >
+            {"Visible to verified Web3 companies"}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

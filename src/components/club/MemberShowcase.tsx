@@ -1,55 +1,83 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles, Lock } from 'lucide-react';
+import { Sparkles, Lock } from "lucide-react";
+
+const MONO = "'Consolas', 'IBM Plex Mono', monospace";
+const DISPLAY = "'Styrene A Trial', 'Consolas', monospace";
+const INK = "#181818";
+const MUTED = "rgba(24,24,24,0.55)";
+const BORDER = "rgba(24,24,24,0.18)";
 
 export function MemberShowcase() {
   return (
-    <div className="space-y-6">
-      <Card className="bg-transparent border border-border">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-sm">
-              <Sparkles className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="text-xl font-mono text-foreground">MEMBER SPOTLIGHT</CardTitle>
-              <p className="text-sm text-muted-foreground font-mono">
-                SHOWCASE YOUR WORK AND ACHIEVEMENTS
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Coming Soon */}
-          <div className="py-16 text-center space-y-6">
-            <div className="mx-auto h-20 w-20 rounded-sm bg-muted flex items-center justify-center">
-              <Lock className="h-10 w-10 text-muted-foreground" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-xl font-bold font-mono text-foreground">COMING SOON</h3>
-              <p className="text-sm text-muted-foreground font-mono max-w-md mx-auto leading-relaxed">
-                THIS EXCLUSIVE SECTION WILL ALLOW MEMBERS TO SHOWCASE THEIR PROJECTS, ACHIEVEMENTS, AND CONTRIBUTIONS TO THE WEB3 ECOSYSTEM
-              </p>
-            </div>
-            <div className="pt-4 space-y-3">
-              <div className="p-4 bg-background border border-border max-w-md mx-auto">
-                <p className="text-xs font-mono text-muted-foreground leading-relaxed">
-                  PLANNED FEATURES:
-                </p>
-                <ul className="text-xs font-mono text-foreground mt-2 space-y-1 text-left">
-                  <li>• PROJECT PORTFOLIO GALLERIES</li>
-                  <li>• ACHIEVEMENT BADGES & MILESTONES</li>
-                  <li>• PEER ENDORSEMENTS & REVIEWS</li>
-                  <li>• CASE STUDIES & SUCCESS STORIES</li>
-                  <li>• MEMBER-GENERATED CONTENT</li>
-                </ul>
-              </div>
-              <p className="text-xs text-muted-foreground font-mono">
-                EXPECTED LAUNCH: Q3 2025
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div
+      className="rounded-[20px] p-8"
+      style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
+    >
+      <div className="flex items-center justify-between mb-6">
+        <span className="uppercase" style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}>
+          {"04 / Spotlight"}
+        </span>
+        <span className="uppercase" style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}>
+          {"Coming soon"}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-3 mb-6">
+        <div
+          className="h-10 w-10 rounded-full flex items-center justify-center"
+          style={{ border: `1.5px solid ${BORDER}` }}
+        >
+          <Sparkles className="h-4 w-4" style={{ color: INK }} strokeWidth={1.5} />
+        </div>
+        <div>
+          <h2 style={{ fontFamily: DISPLAY, fontSize: 22, letterSpacing: "-0.02em", color: INK, fontWeight: 500 }}>
+            {"Member spotlight"}
+          </h2>
+          <p style={{ fontFamily: MONO, fontSize: 12, color: MUTED }}>
+            {"Showcase your work and achievements"}
+          </p>
+        </div>
+      </div>
+
+      <div className="py-12 text-center space-y-6">
+        <div
+          className="mx-auto h-16 w-16 rounded-full flex items-center justify-center"
+          style={{ border: `1.5px solid ${BORDER}` }}
+        >
+          <Lock className="h-6 w-6" style={{ color: INK }} strokeWidth={1.5} />
+        </div>
+        <div className="space-y-2">
+          <h3 style={{ fontFamily: DISPLAY, fontSize: 20, letterSpacing: "-0.02em", color: INK, fontWeight: 500 }}>
+            {"Coming soon"}
+          </h3>
+          <p style={{ fontFamily: MONO, fontSize: 12, color: MUTED, maxWidth: 380, margin: "0 auto", lineHeight: 1.7 }}>
+            {"This exclusive section will allow members to showcase their projects, achievements, and contributions to the Web3 ecosystem."}
+          </p>
+        </div>
+        <div
+          className="rounded-[16px] p-5 max-w-md mx-auto text-left"
+          style={{ background: "transparent", border: `1.5px solid ${BORDER}` }}
+        >
+          <p
+            className="uppercase mb-3"
+            style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+          >
+            {"Planned features"}
+          </p>
+          <ul style={{ fontFamily: MONO, fontSize: 12, color: INK, lineHeight: 1.9 }}>
+            <li>{"— Project portfolio galleries"}</li>
+            <li>{"— Achievement badges & milestones"}</li>
+            <li>{"— Peer endorsements & reviews"}</li>
+            <li>{"— Case studies & success stories"}</li>
+            <li>{"— Member-generated content"}</li>
+          </ul>
+        </div>
+        <p
+          className="uppercase"
+          style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.18em", color: MUTED }}
+        >
+          {"Expected launch / Q3 2025"}
+        </p>
+      </div>
     </div>
   );
 }

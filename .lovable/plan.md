@@ -1,17 +1,22 @@
-## Add Twitter Handles to Guest List
+## Problem
 
-Insert the 21 provided Twitter handles into the `twitter_whitelist` table so they can authenticate via the Twitter Guest List flow on `/arubaito` and `/guestlist`.
+When opening any CV profile from the list, `CVProfileDisplay` auto-redirects to `/club`. The effect at `src/components/cv-profile/CVProfileDisplay.tsx:116-166` runs every time the component mounts: if the profile qualifies (score ≥ 80 or bluechip) and a `club_verifications` row already exists as verified, it shows a "Welcome back" toast and navigates to `/club` after 2s. If not yet verified, it upserts a verification row and redirects after 3s.
 
-### Handles to add
-`lochie_sol`, `jussy_world`, `FabianoSolana`, `8bitpenis`, `SolanaSensei`, `inno_ox`, `zuler`, `mango_`, `digiii`, `mangusxbt`, `sol_nxxn`, `defidarling`, `derparsel`, `MrTimister`, `0xapacx`, `ashen_one`, `degentalks`, `soy_muse`, `molusol`, `lostsol`, `marinoonchain`
+This made sense as a one-time post-analysis verification step, but it now fires on every revisit — so viewing a profile = bounce to /club.
 
-### Approach
+## Fix
 
-1. Query existing `twitter_whitelist` rows to skip any handles that already exist (avoid unique constraint issues).
-2. Insert remaining handles via the insert tool with:
-   - `verification_type = 'admin_approved'`
-   - `notes = 'Bulk added via admin request'`
-   - `twitter_user_id` left null (will be populated lazily on first follow check)
-3. Confirm count of inserted rows.
+Decouple the club-verification side effect from the profile view:
 
-No schema changes, no edge function changes, no frontend changes required.
+1. **Remove the auto-redirect** from `CVProfileDisplay`. Viewing a profile should just render the profile.
+2. **Preserve the verification upsert** (so qualifying users still get recorded in `club_verifications`) but:
+   - Run it silently (no toast, no `navigate('/club')`).
+   - Only run when the current viewer is the owner (`isOwner`) — verification is about the logged-in member, not about anyone viewing someone else's CV.
+   - Skip if a verified row already exists (no-op).
+3. Keep the explicit "Enter Club" / navigation paths that already exist elsewhere (nav menu, completion flow) as the way users reach `/club`.
+
+## Files
+
+- `src/components/cv-profile/CVProfileDisplay.tsx` — rewrite the `checkAndVerify` effect: drop both `setTimeout(... navigate('/club') ...)` calls and both toasts; keep only the idempotent `club_verifications` upsert gated on `isOwner`.
+
+No other components, routes, or backend changes needed.

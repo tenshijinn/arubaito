@@ -112,58 +112,50 @@ export const CVProfileDisplay = ({ analysisId }: CVProfileDisplayProps) => {
     fetchData();
   }, [analysisId]);
 
-  // Handle club verification redirect
+  // Silently record club verification for the owner if they qualify.
+  // Does NOT redirect — viewing a profile should just render the profile.
   useEffect(() => {
-    const checkAndVerify = async () => {
-      if (!analysis) return;
+    const recordVerification = async () => {
+      if (!analysis || !isOwner) return;
 
-      const qualifiesForClub = 
-        analysis.overall_score >= 80 || 
-        analysis.bluechip_verified;
+      const qualifiesForClub =
+        analysis.overall_score >= 80 || analysis.bluechip_verified;
 
-      if (qualifiesForClub && analysis.wallet_address) {
-        try {
-          const { data: existing } = await supabase
-            .from('club_verifications')
-            .select('verified')
-            .eq('wallet_address', analysis.wallet_address)
-            .maybeSingle();
+      if (!qualifiesForClub || !analysis.wallet_address) return;
 
-          if (existing?.verified) {
-            toast.success("Welcome back! Redirecting to Club...");
-            setTimeout(() => navigate('/club'), 2000);
-            return;
-          }
+      try {
+        const { data: existing } = await supabase
+          .from('club_verifications')
+          .select('verified')
+          .eq('wallet_address', analysis.wallet_address)
+          .maybeSingle();
 
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user) return;
-          const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Member';
+        if (existing?.verified) return;
 
-          const { error } = await supabase
-            .from('club_verifications')
-            .upsert({
-              wallet_address: analysis.wallet_address,
-              user_id: user.id,
-              display_name: displayName,
-              verified: true,
-              cv_score: analysis.overall_score,
-              bluechip_verified: analysis.bluechip_verified,
-            }, {
-              onConflict: 'wallet_address'
-            });
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Member';
 
-          if (!error) {
-            toast.success("🎉 Congratulations! You've been verified. Redirecting to Club...");
-            setTimeout(() => navigate('/club'), 3000);
-          }
-        } catch (error) {
-          console.error('Error verifying user:', error);
-        }
+        await supabase
+          .from('club_verifications')
+          .upsert({
+            wallet_address: analysis.wallet_address,
+            user_id: user.id,
+            display_name: displayName,
+            verified: true,
+            cv_score: analysis.overall_score,
+            bluechip_verified: analysis.bluechip_verified,
+          }, {
+            onConflict: 'wallet_address'
+          });
+      } catch (error) {
+        console.error('Error recording club verification:', error);
       }
     };
 
-    checkAndVerify();
-  }, [analysis, navigate]);
+    recordVerification();
+  }, [analysis, isOwner]);
+
 
   if (loading) {
     return (

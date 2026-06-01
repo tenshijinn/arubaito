@@ -23,6 +23,7 @@ const ITEMS: { name: string; color: string }[] = [
   { name: "$RAY", color: "#8C6EEF" },
   { name: "$ASTR", color: "#4F46E5" },
   { name: "$PERC", color: "#F97316" },
+  { name: "$L1X", color: "#FF6B00" },
 ];
 
 export const HopeRotator = ({ intervalMs = 700 }: { intervalMs?: number }) => {

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Twitter, Image as ImageIcon, FileText } from "lucide-react";
 import { useState } from "react";
 import { TextRotator } from "@/components/TextRotator";
+import { HopeRotator } from "@/components/HopeRotator";
 import { WaitlistCountdownAesthetic as WaitlistCountdown } from "@/components/home/WaitlistCountdownAesthetic";
 import { TreasuryDisplayAesthetic as TreasuryDisplay } from "@/components/home/TreasuryDisplayAesthetic";
 import { VideoHeroAesthetic as VideoHeroSection } from "@/components/home/VideoHeroAesthetic";

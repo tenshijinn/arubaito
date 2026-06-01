@@ -26,7 +26,7 @@ const ITEMS: { name: string; color: string }[] = [
   { name: "$L1X", color: "#FF6B00" },
 ];
 
-export const HopeRotator = ({ intervalMs = 700 }: { intervalMs?: number }) => {
+export const HopeRotator = ({ intervalMs = 350 }: { intervalMs?: number }) => {
   const [i, setI] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setI((p) => (p + 1) % ITEMS.length), intervalMs);

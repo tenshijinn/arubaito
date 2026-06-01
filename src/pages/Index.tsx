@@ -215,10 +215,21 @@ const Index = () => {
         {/* Section 0.25 - Manifesto */}
         <div
           id="manifesto-section"
-          className="h-screen flex-shrink-0 flex items-center justify-center px-8 md:px-16 lg:px-20 snap-start"
+          className="h-screen flex-shrink-0 flex flex-col items-center justify-center gap-4 px-8 md:px-16 lg:px-20 snap-start"
           style={{ backgroundColor: CONCRETE }}
         >
-          <Card className="max-w-lg">
+          <Card className="max-w-lg w-full">
+            <Label>Hope</Label>
+            <div
+              className="mt-4"
+              style={{ fontFamily: DISPLAY, color: INK, fontSize: 28, lineHeight: 1.2, letterSpacing: "-0.02em", fontWeight: 500 }}
+            >
+              <span>{"because "}</span>
+              <HopeRotator />
+              <span>{" is hope"}</span>
+            </div>
+          </Card>
+          <Card className="max-w-lg w-full">
             <Label>Manifesto</Label>
             <div
               className="mt-4 text-justify"

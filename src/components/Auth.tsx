@@ -337,7 +337,7 @@ export const Auth = () => {
                 ) : (
                   <>
                     <h2 className="text-2xl font-bold text-center mb-2 font-display tracking-tight" style={{ color: "#faf1e1" }}>
-                      Apply for Membership
+                      Non-Members Club Waitlist
                     </h2>
                     <p className="text-xs uppercase tracking-[0.18em] text-center mb-6" style={{ color: "rgba(239,226,201,0.55)" }}>
                       Choose how you'd like to apply

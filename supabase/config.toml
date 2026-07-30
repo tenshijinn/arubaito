@@ -5,6 +5,10 @@ project_id = "hmdxufttehhpyyqoaosz"
   site_url = "https://arubaito.app"
 
 [functions]
+  [functions.block-clock-status]
+    verify_jwt = false
+  [functions.refresh-block-clock-status]
+    verify_jwt = false
   [functions.analyze-cv]
     verify_jwt = true
   [functions.analyze-rei-profile]

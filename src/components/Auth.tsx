@@ -24,7 +24,7 @@ if (typeof window !== "undefined") {
 
 export const Auth = () => {
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"main" | "apply" | "signin" | "register">("main");
+  const [mode, setMode] = useState<"main" | "apply" | "signin" | "register">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [returningUserLoading, setReturningUserLoading] = useState(false);
@@ -255,7 +255,7 @@ export const Auth = () => {
       <div className="w-full lg:w-1/2 flex items-center justify-center px-6 md:px-16 py-12 lg:py-0">
         <div className="w-full max-w-md">
           {/* Logo + tagline above card */}
-          {(mode === "main" || mode === "apply") && (
+          {(mode === "main" || mode === "apply" || mode === "signin") && (
             <div className="flex flex-col items-center mb-8">
               <img src={logoNoWordmark} alt="Arubaito" className="h-16 w-auto mb-3" />
               <p className="text-sm text-muted-foreground tracking-widest uppercase">Private Members Network Club</p>
@@ -295,7 +295,7 @@ export const Auth = () => {
                 </div>
 
                 <p className="text-sm text-center mt-6" style={{ color: "rgba(239,226,201,0.55)" }}>
-                  Not a member yet?{" "}
+                  Not a member?{" "}
                   <button
                     onClick={() => setMode("apply")}
                     className="font-bold hover:underline"
@@ -372,7 +372,7 @@ export const Auth = () => {
                 <p className="text-sm text-center mt-6" style={{ color: "rgba(239,226,201,0.55)" }}>
                   Already a member?{" "}
                   <button
-                    onClick={() => setMode("main")}
+                    onClick={() => setMode("signin")}
                     className="font-bold hover:underline"
                     style={{ color: "#ed565a" }}
                   >
@@ -453,6 +453,18 @@ export const Auth = () => {
                       {loading ? "Loading..." : "Sign in"}
                     </Button>
                   </div>
+
+                  <p className="text-sm text-center mt-6" style={{ color: "rgba(239,226,201,0.55)" }}>
+                    Not a member?{" "}
+                    <button
+                      type="button"
+                      onClick={() => { setMode("apply"); setEmail(""); setPassword(""); }}
+                      className="font-bold hover:underline"
+                      style={{ color: "#ed565a" }}
+                    >
+                      Apply to join
+                    </button>
+                  </p>
                 </form>
               </Card>
             </div>

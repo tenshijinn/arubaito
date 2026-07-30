@@ -107,6 +107,57 @@ export type Database = {
         }
         Relationships: []
       }
+      block_clock_status: {
+        Row: {
+          blocks_remaining: number
+          created_at: string
+          current_block: number
+          id: number
+          progress_percent: number
+          seconds_remaining: number
+          signup_minutes_remaining: number
+          signup_open: boolean
+          signup_window_minutes: number
+          state: string
+          target_block: number
+          time_remaining_human: string
+          unlocked_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          blocks_remaining?: number
+          created_at?: string
+          current_block?: number
+          id?: number
+          progress_percent?: number
+          seconds_remaining?: number
+          signup_minutes_remaining?: number
+          signup_open?: boolean
+          signup_window_minutes?: number
+          state?: string
+          target_block?: number
+          time_remaining_human?: string
+          unlocked_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          blocks_remaining?: number
+          created_at?: string
+          current_block?: number
+          id?: number
+          progress_percent?: number
+          seconds_remaining?: number
+          signup_minutes_remaining?: number
+          signup_open?: boolean
+          signup_window_minutes?: number
+          state?: string
+          target_block?: number
+          time_remaining_human?: string
+          unlocked_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       careers_applications: {
         Row: {
           created_at: string

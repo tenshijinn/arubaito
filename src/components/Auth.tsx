@@ -24,7 +24,7 @@ if (typeof window !== "undefined") {
 
 export const Auth = () => {
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"main" | "apply" | "signin" | "register">("main");
+  const [mode, setMode] = useState<"main" | "apply" | "signin" | "register">("apply");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [returningUserLoading, setReturningUserLoading] = useState(false);

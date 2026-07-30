@@ -453,6 +453,18 @@ export const Auth = () => {
                       {loading ? "Loading..." : "Sign in"}
                     </Button>
                   </div>
+
+                  <p className="text-sm text-center mt-6" style={{ color: "rgba(239,226,201,0.55)" }}>
+                    Not a member?{" "}
+                    <button
+                      type="button"
+                      onClick={() => { setMode("apply"); setEmail(""); setPassword(""); }}
+                      className="font-bold hover:underline"
+                      style={{ color: "#ed565a" }}
+                    >
+                      Apply to join
+                    </button>
+                  </p>
                 </form>
               </Card>
             </div>

@@ -295,7 +295,7 @@ export const Auth = () => {
                 </div>
 
                 <p className="text-sm text-center mt-6" style={{ color: "rgba(239,226,201,0.55)" }}>
-                  Not a member yet?{" "}
+                  Not a member?{" "}
                   <button
                     onClick={() => setMode("apply")}
                     className="font-bold hover:underline"

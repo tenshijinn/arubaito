@@ -372,7 +372,7 @@ export const Auth = () => {
                 <p className="text-sm text-center mt-6" style={{ color: "rgba(239,226,201,0.55)" }}>
                   Already a member?{" "}
                   <button
-                    onClick={() => setMode("main")}
+                    onClick={() => setMode("signin")}
                     className="font-bold hover:underline"
                     style={{ color: "#ed565a" }}
                   >

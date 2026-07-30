@@ -1,22 +1,46 @@
-## Problem
+# Public Waitlist Status API for Hermes
 
-When opening any CV profile from the list, `CVProfileDisplay` auto-redirects to `/club`. The effect at `src/components/cv-profile/CVProfileDisplay.tsx:116-166` runs every time the component mounts: if the profile qualifies (score ≥ 80 or bluechip) and a `club_verifications` row already exists as verified, it shows a "Welcome back" toast and navigates to `/club` after 2s. If not yet verified, it upserts a verification row and redirects after 3s.
+Yes — this is straightforward. The waitlist card's data (blocks remaining, time remaining, progress, and open-window minutes left) already exists inside the `check-block-clock` function; we expose it as a cached, public, read-only endpoint plus a periodic refresh job.
 
-This made sense as a one-time post-analysis verification step, but it now fires on every revisit — so viewing a profile = bounce to /club.
+## What gets built
 
-## Fix
+**1. Snapshot table `block_clock_status`** (single row, id = 1)
+Stores the last computed status: current block, target block, blocks remaining, estimated seconds/human-readable time remaining, progress %, state (`countdown` | `open` | `closed`), unlocked_at, signup window minutes, minutes remaining in the open window, and `updated_at`.
+Access rules: anyone (including signed-out visitors and external agents) can read it; only backend jobs can write it.
 
-Decouple the club-verification side effect from the profile view:
+**2. Refresh function `refresh-block-clock-status`** (no auth required, called by cron)
+Reuses the same Solana slot + config logic as the existing waitlist card, computes the fields above, and upserts the snapshot row.
 
-1. **Remove the auto-redirect** from `CVProfileDisplay`. Viewing a profile should just render the profile.
-2. **Preserve the verification upsert** (so qualifying users still get recorded in `club_verifications`) but:
-   - Run it silently (no toast, no `navigate('/club')`).
-   - Only run when the current viewer is the owner (`isOwner`) — verification is about the logged-in member, not about anyone viewing someone else's CV.
-   - Skip if a verified row already exists (no-op).
-3. Keep the explicit "Enter Club" / navigation paths that already exist elsewhere (nav menu, completion flow) as the way users reach `/club`.
+**3. Public endpoint `block-clock-status`** (no auth required, GET)
+Returns the snapshot as JSON with CORS open and a `stale: true` flag if the snapshot is older than expected. Hermes just does a `GET` — no keys needed.
 
-## Files
+Example response:
+```text
+{
+  "state": "countdown",
+  "current_block": 351240112,
+  "target_block": 352240112,
+  "blocks_remaining": 999888,
+  "seconds_remaining": 399955,
+  "time_remaining_human": "4d 15h 5m",
+  "progress_percent": 0.01,
+  "signup_open": false,
+  "signup_window_minutes": 60,
+  "signup_minutes_remaining": 0,
+  "unlocked_at": null,
+  "updated_at": "2026-07-30T17:00:00Z",
+  "stale": false
+}
+```
 
-- `src/components/cv-profile/CVProfileDisplay.tsx` — rewrite the `checkAndVerify` effect: drop both `setTimeout(... navigate('/club') ...)` calls and both toasts; keep only the idempotent `club_verifications` upsert gated on `isOwner`.
+**4. Cron schedule** (pg_cron + pg_net)
+- Hourly: refresh always.
+- Every 5 minutes: refresh only when the state is `open` (the job checks the snapshot state first and exits early otherwise, so it stays cheap).
 
-No other components, routes, or backend changes needed.
+## Technical notes
+
+- Both functions registered with `verify_jwt = false` in `supabase/config.toml`, matching existing public functions.
+- Table gets explicit grants: read for `anon` + `authenticated`, full access for `service_role`.
+- The refresh function does not mutate `block_clock_config` (no unlock/reset side effects) — it only reads and snapshots, so it can't interfere with the live waitlist gate.
+- Timing math mirrors `useBlockClock` (400ms/block) so the API and the on-site card never disagree.
+- Endpoint URL will be `https://<backend>/functions/v1/block-clock-status`; I'll give you the exact URL after deploy.

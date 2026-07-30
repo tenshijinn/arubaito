@@ -255,7 +255,7 @@ export const Auth = () => {
       <div className="w-full lg:w-1/2 flex items-center justify-center px-6 md:px-16 py-12 lg:py-0">
         <div className="w-full max-w-md">
           {/* Logo + tagline above card */}
-          {(mode === "main" || mode === "apply") && (
+          {(mode === "main" || mode === "apply" || mode === "signin") && (
             <div className="flex flex-col items-center mb-8">
               <img src={logoNoWordmark} alt="Arubaito" className="h-16 w-auto mb-3" />
               <p className="text-sm text-muted-foreground tracking-widest uppercase">Private Members Network Club</p>
